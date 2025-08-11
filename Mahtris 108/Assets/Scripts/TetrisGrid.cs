@@ -321,7 +321,7 @@ public class TetrisGrid : MonoBehaviour
                     // 先加分（即时）
                     if (ScoreManager.Instance != null)
                     {
-                        ScoreManager.Instance.AddScore(10000);
+                        ScoreManager.Instance.AddScore(100);
                         Debug.Log("[TetrisGrid] 已加 10000 分（即时反馈）");
                     }
 
