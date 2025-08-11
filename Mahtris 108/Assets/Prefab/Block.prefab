@@ -244,6 +244,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blockId: 0
   spriteHolder: {fileID: 1930192624604659893}
+  spriteRenderer: {fileID: 5392439720581372342}
 --- !u!1 &8833975457027139203
 GameObject:
   m_ObjectHideFlags: 0
