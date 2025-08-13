@@ -1,30 +1,64 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Spawner : MonoBehaviour
 {
-    public GameObject[] tetrominoPrefabs;
-    public Vector3 spawnPosition = Vector3.zero;
+    [Header("预制件")]
+    [SerializeField] private GameObject[] tetrominoPrefabs;
 
-    void Start()
+    [Header("模块引用")]
+    [SerializeField] private BlockPool blockPool;
+    [SerializeField] private TetrisGrid tetrisGrid; // 新增对Grid的引用
+
+    private GameSettings settings;
+    private GameObject nextTetrominoPrefab;
+    private List<int> nextTileIds;
+
+    // ---【修正点】---
+    // StartSpawning 不再需要参数，它会使用自己持有的settings引用
+    public void StartSpawning(GameSettings gameSettings)
     {
+        this.settings = gameSettings;
+        PrepareNextTetromino();
         SpawnBlock();
+    }
+
+    private void PrepareNextTetromino()
+    {
+        nextTetrominoPrefab = tetrominoPrefabs[Random.Range(0, tetrominoPrefabs.Length)];
+
+        int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>().Length;
+        nextTileIds = blockPool.GetBlockIds(tilesNeeded);
+
+        if (nextTileIds == null)
+        {
+            GameEvents.TriggerGameOver();
+            return;
+        }
+        GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, nextTileIds);
     }
 
     public void SpawnBlock()
     {
-        if (tetrominoPrefabs == null || tetrominoPrefabs.Length == 0) { Debug.LogError("Spawner: 没有tetrominoPrefabs"); return; }
-        if (BlockPool.Instance == null) { Debug.LogWarning("Spawner: BlockPool.Instance null"); return; }
+        if (nextTetrominoPrefab == null)
+        {
+            GameEvents.TriggerGameOver();
+            return;
+        }
 
-        List<int> ids = BlockPool.Instance.GetBlockIds(4);
-        if (ids == null || ids.Count < 4) { Debug.LogWarning("Spawner: 牌池不足，无法生成方块"); return; }
+        GameObject blockGO = Instantiate(nextTetrominoPrefab, transform.position, Quaternion.identity);
+        var tetromino = blockGO.GetComponent<Tetromino>();
 
-        int idx = Random.Range(0, tetrominoPrefabs.Length);
-        GameObject go = Instantiate(tetrominoPrefabs[idx], spawnPosition == Vector3.zero ? transform.position : spawnPosition, Quaternion.identity);
-        var units = go.GetComponentsInChildren<BlockUnit>();
-        for (int i = 0; i < units.Length && i < ids.Count; i++)
-            units[i].Init(ids[i]);
+        // ---【修正点】---
+        // 调用Initialize时，传入settings和tetrisGrid两个参数
+        tetromino.Initialize(settings, tetrisGrid);
 
-        Debug.Log($"[Spawner] Spawned tetromino idx={idx} with ids {string.Join(",", ids)}");
+        var blockUnits = blockGO.GetComponentsInChildren<BlockUnit>();
+        for (int i = 0; i < blockUnits.Length && i < nextTileIds.Count; i++)
+        {
+            blockUnits[i].Initialize(nextTileIds[i], blockPool);
+        }
+
+        PrepareNextTetromino();
     }
 }

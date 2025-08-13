@@ -3,111 +3,88 @@ using UnityEngine;
 
 public class HuPaiArea : MonoBehaviour
 {
-    public static HuPaiArea Instance { get; private set; }
+    [Header("核心引用")]
+    [SerializeField] private Transform displayParent; // 用于容纳所有牌面物体的容器
+    [SerializeField] private GameObject blockPrefab;   // 用于显示单个牌面的预制件
+    [SerializeField] private BlockPool blockPool;     // 用于获取牌面贴图
 
-    [Header("显示相关（在 Inspector 赋值）")]
-    [SerializeField] private Transform displayParent;   // 胡牌区容器（空物体）
-    [SerializeField] private GameObject blockPrefab;    // 可选：若你希望复制显示而不是移动，可用此 prefab
+    [Header("布局设置")]
+    [Tooltip("每一组牌（行）之间的垂直间距")]
+    [SerializeField] private float rowSpacing = 1.2f;
+    [Tooltip("一组牌内部，每张牌之间的水平间距")]
+    [SerializeField] private float tileSpacing = 1.1f;
 
-    // 每一组是 List<int> 三个 blockId（刻子或顺子）
     private List<List<int>> huPaiSets = new List<List<int>>();
 
-    private void Awake()
+    public void AddSets(List<List<int>> sets)
     {
-        if (Instance == null) Instance = this; else Destroy(gameObject);
-    }
-
-    // 添加一组 ID（当我们直接移动棋盘上的 Transform 到 displayParent 时也应调用此方法记录ID）
-    public void AddHuPaiSetFromIds(List<int> setIds)
-    {
-        if (setIds == null || setIds.Count != 3) return;
-        huPaiSets.Add(new List<int>(setIds));
-        Debug.Log($"[HuPaiArea] AddHuPaiSetFromIds total={huPaiSets.Count}");
-        // 如果你需要可视化副本而不是移动原物体，可在这里 Instantiate blockPrefab
+        huPaiSets.AddRange(sets);
         RefreshDisplay();
     }
 
-    // 从已有棋盘 Transform 移入（优先使用）。transforms.Count ==3
-    // 会把这些 transforms reparent 到 displayParent，并标记为 display-only
-    // 如果找不到 displayParent，则会 fallback 到 AddHuPaiSetFromIds + 不移动
-    public void AddHuPaiSetFromBoardTransforms(List<Transform> transforms)
-    {
-        if (transforms == null || transforms.Count != 3) return;
-        List<int> ids = new List<int>();
-        foreach (var t in transforms)
-        {
-            var bu = t.GetComponent<BlockUnit>();
-            if (bu != null) ids.Add(bu.blockId);
-            else ids.Add(-1);
-        }
-
-        huPaiSets.Add(new List<int>(ids));
-        Debug.Log($"[HuPaiArea] AddHuPaiSetFromBoardTransforms total={huPaiSets.Count}");
-
-        // 如果 displayParent 有设置，则把 transforms 移入父对象并标记为展示
-        if (displayParent != null)
-        {
-            // 简单排列：三张竖排
-            float tileSpacing = 1.1f;
-            int colIndex = huPaiSets.Count - 1;
-            for (int i = 0; i < transforms.Count; i++)
-            {
-                var t = transforms[i];
-                if (t == null) continue;
-                var bu = t.GetComponent<BlockUnit>();
-                if (bu != null)
-                {
-                    Vector3 localPos = new Vector3(colIndex * tileSpacing, -i * tileSpacing, 0f);
-                    bu.MakeDisplayAndReparent(displayParent, localPos);
-                }
-                else
-                {
-                    // 如果没有 BlockUnit，则简单 reparent
-                    t.SetParent(displayParent, false);
-                }
-            }
-        }
-        else
-        {
-            // fallback: 直接刷新显示（如果 blockPrefab 可用，会用复制显示）
-            RefreshDisplay();
-        }
-    }
-
-    public int GetHuPaiSetCount() => huPaiSets.Count;
-    public List<List<int>> GetAllSets() => huPaiSets;
+    public int GetSetCount() => huPaiSets.Count;
+    public List<List<int>> GetAllSets() => new List<List<int>>(huPaiSets);
 
     public void ClearAll()
     {
-        // 清空显示 parent 下的子物体（胡牌区的展示物）
+        huPaiSets.Clear();
         if (displayParent != null)
         {
-            foreach (Transform c in displayParent)
-                Destroy(c.gameObject);
+            foreach (Transform child in displayParent)
+            {
+                Destroy(child.gameObject);
+            }
         }
-        huPaiSets.Clear();
-        Debug.Log("[HuPaiArea] ClearAll");
     }
 
-    // 若你想用 prefab 显示（而不是移动棋盘上的原件），RefreshDisplay 会把 huPaiSets 显示出来（会删除 displayParent 下所有子物体）
-    public void RefreshDisplay()
+    private void RefreshDisplay()
     {
-        if (displayParent == null || blockPrefab == null) return;
-
-        foreach (Transform c in displayParent) Destroy(c.gameObject);
-
-        int col = 0;
-        float tileSpacing = 1.1f;
-        foreach (var set in huPaiSets)
+        // 1. 先清空旧的显示
+        if (displayParent != null)
         {
-            for (int i = 0; i < set.Count; i++)
+            foreach (Transform child in displayParent) Destroy(child.gameObject);
+        }
+        else
+        {
+            Debug.LogError("HuPaiArea 的 displayParent 引用未设置!");
+            return;
+        }
+
+        if (blockPrefab == null || blockPool == null)
+        {
+            Debug.LogError("HuPaiArea 的 blockPrefab 或 blockPool 引用未设置!");
+            return;
+        }
+
+        // 2. 循环遍历每一组“面子”，将其作为单独一行来处理
+        for (int rowIndex = 0; rowIndex < huPaiSets.Count; rowIndex++)
+        {
+            var set = huPaiSets[rowIndex];
+
+            // 3. 计算当前行（组）的垂直位置 (Y坐标)
+            // 使用负号让新的一行显示在上一行的下方
+            float yPos = -rowIndex * rowSpacing;
+
+            // 4. 循环遍历当前这组牌里的每一张牌
+            for (int tileIndex = 0; tileIndex < set.Count; tileIndex++)
             {
+                int blockId = set[tileIndex];
+
+                // 5. 计算当前牌的水平位置 (X坐标)
+                float xPos = tileIndex * tileSpacing;
+
+                // 6. 实例化牌的显示物体，并设置其在容器内的局部位置
                 GameObject go = Instantiate(blockPrefab, displayParent);
-                go.transform.localPosition = new Vector3(col * tileSpacing, -i * tileSpacing, 0f);
+                go.transform.localPosition = new Vector3(xPos, yPos, 0);
+
+                // 7. 初始化牌面的显示
                 var bu = go.GetComponent<BlockUnit>();
-                if (bu != null) bu.SetAsDisplay(set[i]);
+                if (bu != null)
+                {
+                    // 注意：这里的Initialize方法是BlockUnit上的，用于设置牌面
+                    bu.Initialize(blockId, blockPool);
+                }
             }
-            col++;
         }
     }
 }

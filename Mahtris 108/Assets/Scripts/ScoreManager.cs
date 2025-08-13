@@ -1,22 +1,18 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ScoreManager : MonoBehaviour
 {
-    public static ScoreManager Instance { get; private set; }
+    private int score;
 
-    public int score = 0;
-    public Text scoreText; // inspector °ó¶¨¿ÉÑ¡
-
-    private void Awake()
+    public void AddScore(int amount)
     {
-        if (Instance == null) Instance = this; else Destroy(gameObject);
+        score += amount;
+        GameEvents.TriggerScoreChanged(score);
     }
 
-    public void AddScore(int delta)
+    public void ResetScore()
     {
-        score += delta;
-        Debug.Log($"[ScoreManager] +{delta}, total={score}");
-        if (scoreText != null) scoreText.text = "Score: " + score;
+        score = 0;
+        GameEvents.TriggerScoreChanged(score);
     }
 }

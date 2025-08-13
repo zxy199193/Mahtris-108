@@ -205,7 +205,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 752610090839386196}
-  - component: {fileID: 8904529736860773884}
+  - component: {fileID: 6502099873384742901}
   m_Layer: 0
   m_Name: Block
   m_TagString: Untagged
@@ -230,7 +230,7 @@ Transform:
   - {fileID: 3440826926588295703}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8904529736860773884
+--- !u!114 &6502099873384742901
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -242,7 +242,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0b053843f7e964a89616c67c98b587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blockId: 0
   spriteHolder: {fileID: 1930192624604659893}
   spriteRenderer: {fileID: 5392439720581372342}
 --- !u!1 &8833975457027139203
