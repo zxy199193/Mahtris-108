@@ -40,7 +40,7 @@ public class GameUIController : MonoBehaviour
 
     private void UpdateScoreText(int newScore)
     {
-        if (scoreText) scoreText.text = $"ตรทึ: {newScore}";
+        if (scoreText) scoreText.text = $"{newScore}";
     }
 
     private void UpdatePoolCountText(int count)

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34f88dd859e3f9844bf9b482276e7c35, type: 3}
   m_Name: DefaultGameSettings
   m_EditorClassIdentifier: 
-  gridWidth: 10
-  gridHeight: 20
+  gridWidth: 7
+  gridHeight: 15
   tileRanks: 9
   tilesPerRank: 4
   setsForHu: 4
@@ -22,4 +22,4 @@ MonoBehaviour:
   fastFallMultiplier: 20
   baseHuScore: 100
   scoreBonusPerKong: 100
-  scorePerRow: 10
+  scorePerRow: 2

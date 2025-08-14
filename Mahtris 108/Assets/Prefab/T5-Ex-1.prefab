@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6397951426550284323}
   - component: {fileID: 6630394668471189789}
   m_Layer: 0
-  m_Name: T5-Weird-2
+  m_Name: T5-Ex-1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -199,7 +199,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 752610090839386196, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 752610090839386196, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_LocalPosition.y
@@ -339,7 +339,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 752610090839386196, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 752610090839386196, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_LocalPosition.y
