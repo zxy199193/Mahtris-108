@@ -1,24 +1,29 @@
+// FileName: Spawner.cs
 using UnityEngine;
 using System.Collections.Generic;
 
 public class Spawner : MonoBehaviour
 {
-    [Header("预制件")]
     [SerializeField] private GameObject[] tetrominoPrefabs;
-
-    [Header("模块引用")]
     [SerializeField] private BlockPool blockPool;
-    [SerializeField] private TetrisGrid tetrisGrid; // 新增对Grid的引用
+    [SerializeField] private TetrisGrid tetrisGrid;
+
+    // ---【新增属性】---
+    // 允许外部访问预制件列表
+    public GameObject[] TetrominoPrefabs => tetrominoPrefabs;
 
     private GameSettings settings;
     private GameObject nextTetrominoPrefab;
     private List<int> nextTileIds;
 
-    // ---【修正点】---
-    // StartSpawning 不再需要参数，它会使用自己持有的settings引用
     public void StartSpawning(GameSettings gameSettings)
     {
         this.settings = gameSettings;
+        if (tetrominoPrefabs == null || tetrominoPrefabs.Length == 0)
+        {
+            Debug.LogError("Spawner中没有配置任何Tetromino预制件！");
+            return;
+        }
         PrepareNextTetromino();
         SpawnBlock();
     }
@@ -49,8 +54,6 @@ public class Spawner : MonoBehaviour
         GameObject blockGO = Instantiate(nextTetrominoPrefab, transform.position, Quaternion.identity);
         var tetromino = blockGO.GetComponent<Tetromino>();
 
-        // ---【修正点】---
-        // 调用Initialize时，传入settings和tetrisGrid两个参数
         tetromino.Initialize(settings, tetrisGrid);
 
         var blockUnits = blockGO.GetComponentsInChildren<BlockUnit>();

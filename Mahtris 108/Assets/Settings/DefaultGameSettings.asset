@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 7
   gridHeight: 15
+  deadlineHeight: 15
   tileRanks: 9
   tilesPerRank: 4
   setsForHu: 4
   speedIncreasePerHu: 0.05
   initialFallSpeed: 1
   fastFallMultiplier: 20
-  baseHuScore: 100
-  scoreBonusPerKong: 100
+  baseFanScore: 50
+  fanBonusPerKong: 1
   scorePerRow: 2

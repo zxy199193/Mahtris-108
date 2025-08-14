@@ -1,3 +1,4 @@
+// FileName: GameManager.cs
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,7 @@ public class GameManager : MonoBehaviour
     private MahjongCore mahjongCore;
     [HideInInspector] public float currentFallSpeed;
     private bool isProcessingRows = false;
+    private float totalExtraMultiplier;
 
     void Awake()
     {
@@ -28,6 +30,12 @@ public class GameManager : MonoBehaviour
         mahjongCore = new MahjongCore();
         tetrisGrid.Initialize(settings);
         blockPool.Initialize(settings);
+    }
+
+    void Start()
+    {
+        CalculateTotalExtraMultiplier();
+        StartNewGame();
     }
 
     void OnEnable()
@@ -44,9 +52,23 @@ public class GameManager : MonoBehaviour
         GameEvents.OnGameOver -= HandleGameOver;
     }
 
-    void Start()
+    private void CalculateTotalExtraMultiplier()
     {
-        StartNewGame();
+        totalExtraMultiplier = 0;
+        if (spawner.TetrominoPrefabs == null || spawner.TetrominoPrefabs.Length == 0)
+        {
+            Debug.LogWarning("Spawner上没有配置任何Tetromino Prefabs，额外倍率将为0。");
+            return;
+        }
+
+        foreach (var prefab in spawner.TetrominoPrefabs)
+        {
+            var tetromino = prefab.GetComponent<Tetromino>();
+            if (tetromino != null)
+            {
+                totalExtraMultiplier += tetromino.extraMultiplier;
+            }
+        }
     }
 
     public void StartNewGame()
@@ -58,15 +80,9 @@ public class GameManager : MonoBehaviour
         tetrisGrid.ClearAllBlocks();
         huPaiArea.ClearAll();
         scoreManager.ResetScore();
-
-        // ---【修正点】---
-        // 正确调用了 Spawner.StartSpawning
         spawner.StartSpawning(settings);
 
         isProcessingRows = false;
-
-        // ---【修正点】---
-        // 正确调用了 GameUIController 的方法
         gameUI.HideGameOverPanel();
         gameUI.HideHuPopup();
     }
@@ -134,7 +150,9 @@ public class GameManager : MonoBehaviour
         blockPool.ReturnBlockIds(allRemainingIds);
         tetrisGrid.DestroyTransforms(allClearedTransforms);
 
-        tetrisGrid.CompactAllColumns();
+        // BUG修复：消行后不掉落，所以不调用CompactAllColumns
+
+        // 消行处理完毕（且未胡牌），生成下一个方块
         spawner.SpawnBlock();
         isProcessingRows = false;
     }
@@ -144,9 +162,12 @@ public class GameManager : MonoBehaviour
         isProcessingRows = true;
         Time.timeScale = 0f;
 
-        int kongsCount = huHand.Count(set => set.Count == 4);
-        int totalScore = settings.baseHuScore + (kongsCount * settings.scoreBonusPerKong);
-        scoreManager.AddScore(totalScore);
+        // 新的计分逻辑
+        int totalFan = mahjongCore.CalculateHandFan(huHand, settings);
+        double scorePart = settings.baseFanScore * Mathf.Pow(2, totalFan);
+        long finalScore = (long)(scorePart * totalExtraMultiplier);
+
+        scoreManager.AddScore((int)Mathf.Min(finalScore, int.MaxValue));
 
         gameUI.ShowHuPopup(huHand);
     }
@@ -163,8 +184,6 @@ public class GameManager : MonoBehaviour
         tetrisGrid.ClearAllBlocks();
         huPaiArea.ClearAll();
 
-        // ---【修正点】---
-        // 正确调用了 Spawner.StartSpawning
         spawner.StartSpawning(settings);
 
         isProcessingRows = false;

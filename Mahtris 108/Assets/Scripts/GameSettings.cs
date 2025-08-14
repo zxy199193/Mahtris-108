@@ -9,6 +9,9 @@ public class GameSettings : ScriptableObject
     public int gridWidth = 10;
     [Tooltip("游戏区域的高度（格子数）")]
     public int gridHeight = 20;
+    [Tooltip("游戏失败的死亡线高度，方块接触或越过此高度则游戏结束")]
+    [Range(15, 20)]
+    public int deadlineHeight = 18;
 
     [Header("麻将牌库设置")]
     [Tooltip("筒、万、条每种牌的数量（1-9）")]
@@ -16,7 +19,6 @@ public class GameSettings : ScriptableObject
     [Tooltip("每种牌的重复数量")]
     public int tilesPerRank = 4;
 
-    // 计算属性，确保它存在
     public int UniqueTileCount => tileRanks * 3;
     public int TotalTileCount => UniqueTileCount * tilesPerRank;
 
@@ -32,10 +34,10 @@ public class GameSettings : ScriptableObject
     public float fastFallMultiplier = 20f;
 
     [Header("得分设置")]
-    [Tooltip("胡牌时的基础得分")]
-    public int baseHuScore = 100;
-    [Tooltip("每有一组杠牌时，胡牌的额外加分")]
-    public int scoreBonusPerKong = 100;
+    [Tooltip("四川麻将计番算法的【基本分】")]
+    public int baseFanScore = 50;
+    [Tooltip("每有一组杠牌时，额外增加的【番数】")]
+    public int fanBonusPerKong = 1; // 按规则，杠牌增加的是番数
     [Tooltip("每消除一行获得的基础分")]
     public int scorePerRow = 10;
 }
