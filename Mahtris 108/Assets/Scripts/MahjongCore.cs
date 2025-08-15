@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
-// DetectionResult 类保持不变
+// (DetectionResult, HandAnalysisResult 类以及 FindKongs/Pungs/Chows/DetectSets/FindPair 方法保持不变)
+#region Unchanged Code
 public class DetectionResult
 {
     public List<List<int>> Kongs { get; set; } = new List<List<int>>();
@@ -11,10 +12,14 @@ public class DetectionResult
     public List<int> RemainingIds { get; set; } = new List<int>();
 }
 
+public class HandAnalysisResult
+{
+    public string PatternName { get; set; } = "未知牌型";
+    public int TotalFan { get; set; } = 0;
+}
+
 public class MahjongCore
 {
-    // FindKongs, FindPungs, FindChows, DetectSets, FindPair 等方法保持不变...
-    #region Unchanged Set Detection Methods
     private void FindKongs(List<int> ids, DetectionResult result)
     {
         var counts = ids.GroupBy(id => id % 27).ToDictionary(g => g.Key, g => g.ToList());
@@ -84,62 +89,66 @@ public class MahjongCore
     {
         var result = new DetectionResult();
         var mutableIds = new List<int>(rowIds);
-
         FindKongs(mutableIds, result);
         FindPungs(mutableIds, result);
         FindChows(mutableIds, result);
-
         result.RemainingIds = mutableIds;
         return result;
     }
 
     public List<int> FindPair(List<int> ids)
     {
-        return ids.GroupBy(id => id % 27)
-                  .FirstOrDefault(g => g.Count() >= 2)?
-                  .Take(2).ToList();
+        return ids.GroupBy(id => id % 27).FirstOrDefault(g => g.Count() >= 2)?.Take(2).ToList();
     }
     #endregion
 
-    // --- 【新增方法】 ---
-    // 计算胡牌牌型的总番数
-    public int CalculateHandFan(List<List<int>> huHand, GameSettings settings)
+    private bool IsPungOrKong(List<int> set)
     {
-        if (huHand == null || huHand.Count == 0) return 0;
+        if (set.Count < 3) return false;
+        return set.Select(id => id % 27).Distinct().Count() == 1;
+    }
 
-        var sets = huHand.Where(s => s.Count > 2).ToList(); // 4组面子
-        var pair = huHand.FirstOrDefault(s => s.Count == 2); // 1组将牌
-        if (sets.Count < settings.setsForHu || pair == null) return 0; // 不满足胡牌基本条件
+    public HandAnalysisResult CalculateHandFan(List<List<int>> huHand, GameSettings settings)
+    {
+        var result = new HandAnalysisResult();
+        if (huHand == null || huHand.Count == 0) return result;
+
+        var sets = huHand.Where(s => s.Count > 2).ToList();
+        var pair = huHand.FirstOrDefault(s => s.Count == 2);
+        if (sets.Count < settings.setsForHu || pair == null) return result;
 
         int patternFan = 0;
 
-        // 1. 判断牌型番数
-        bool isDuiDuiHu = sets.All(s => s.Count == 3 || s.Count == 4); // 全是刻子/杠子
+        bool isDuiDuiHu = sets.All(s => IsPungOrKong(s));
 
         var allTileIds = huHand.SelectMany(s => s).ToList();
         int firstSuit = (allTileIds[0] % 27) / 9;
-        bool isQingYiSe = allTileIds.All(id => ((id % 27) / 9) == firstSuit); // 全是一种花色
+        bool isQingYiSe = allTileIds.All(id => ((id % 27) / 9) == firstSuit);
 
         if (isQingYiSe && isDuiDuiHu)
         {
-            patternFan = 8; // 清大对
+            patternFan = 8;
+            result.PatternName = "清大对";
         }
         else if (isQingYiSe)
         {
-            patternFan = 4; // 清一色
+            patternFan = 4;
+            result.PatternName = "清一色";
         }
         else if (isDuiDuiHu)
         {
-            patternFan = 2; // 对对胡
+            patternFan = 2;
+            result.PatternName = "对对胡";
         }
         else
         {
-            patternFan = 1; // 平胡
+            patternFan = 1;
+            result.PatternName = "平胡";
         }
 
-        // 2. 计算杠牌番数
         int kongFan = sets.Count(s => s.Count == 4) * settings.fanBonusPerKong;
+        result.TotalFan = patternFan + kongFan;
 
-        return patternFan + kongFan;
+        return result;
     }
 }

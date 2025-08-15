@@ -5,6 +5,8 @@ using System.Linq;
 
 public class GameManager : MonoBehaviour
 {
+    // (字段声明和Awake/Start/OnEnable/OnDisable/RecalculateTotalMultiplier等方法与上一版相同)
+    #region Unchanged Code
     public static GameManager Instance { get; private set; }
 
     [Header("核心配置")]
@@ -34,7 +36,6 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        CalculateTotalExtraMultiplier();
         StartNewGame();
     }
 
@@ -52,24 +53,18 @@ public class GameManager : MonoBehaviour
         GameEvents.OnGameOver -= HandleGameOver;
     }
 
-    private void CalculateTotalExtraMultiplier()
+    public void RecalculateTotalMultiplier()
     {
         totalExtraMultiplier = 0;
-        if (spawner.TetrominoPrefabs == null || spawner.TetrominoPrefabs.Length == 0)
-        {
-            Debug.LogWarning("Spawner上没有配置任何Tetromino Prefabs，额外倍率将为0。");
-            return;
-        }
+        if (spawner.GetActivePrefabs() == null) return;
 
-        foreach (var prefab in spawner.TetrominoPrefabs)
+        foreach (var prefab in spawner.GetActivePrefabs())
         {
-            var tetromino = prefab.GetComponent<Tetromino>();
-            if (tetromino != null)
-            {
-                totalExtraMultiplier += tetromino.extraMultiplier;
-            }
+            totalExtraMultiplier += prefab.GetComponent<Tetromino>().extraMultiplier;
         }
+        gameUI.UpdateTetrominoList(spawner.GetActivePrefabs(), totalExtraMultiplier);
     }
+    #endregion
 
     public void StartNewGame()
     {
@@ -81,8 +76,11 @@ public class GameManager : MonoBehaviour
         huPaiArea.ClearAll();
         scoreManager.ResetScore();
         spawner.StartSpawning(settings);
+        RecalculateTotalMultiplier();
 
         isProcessingRows = false;
+
+        // --- 【BUG修复】---
         gameUI.HideGameOverPanel();
         gameUI.HideHuPopup();
     }
@@ -121,10 +119,7 @@ public class GameManager : MonoBehaviour
                 setsToAdd = chosenSets;
             }
 
-            if (setsToAdd.Count > 0)
-            {
-                huPaiArea.AddSets(setsToAdd);
-            }
+            if (setsToAdd.Count > 0) huPaiArea.AddSets(setsToAdd);
 
             if (huPaiArea.GetSetCount() >= settings.setsForHu)
             {
@@ -150,26 +145,36 @@ public class GameManager : MonoBehaviour
         blockPool.ReturnBlockIds(allRemainingIds);
         tetrisGrid.DestroyTransforms(allClearedTransforms);
 
-        // BUG修复：消行后不掉落，所以不调用CompactAllColumns
+        // --- 【BUG修复】---
+        tetrisGrid.CompactAllColumns(rowIndices);
 
-        // 消行处理完毕（且未胡牌），生成下一个方块
         spawner.SpawnBlock();
         isProcessingRows = false;
     }
 
+    // (HandleHuDeclared, OnLevelButtonClicked, ContinueAfterHu, HandleGameOver 等方法与上一版相同)
+    #region Unchanged Code
     private void HandleHuDeclared(List<List<int>> huHand)
     {
         isProcessingRows = true;
         Time.timeScale = 0f;
 
-        // 新的计分逻辑
-        int totalFan = mahjongCore.CalculateHandFan(huHand, settings);
-        double scorePart = settings.baseFanScore * Mathf.Pow(2, totalFan);
+        var analysisResult = mahjongCore.CalculateHandFan(huHand, settings);
+        double scorePart = settings.baseFanScore * Mathf.Pow(2, analysisResult.TotalFan);
         long finalScore = (long)(scorePart * totalExtraMultiplier);
 
         scoreManager.AddScore((int)Mathf.Min(finalScore, int.MaxValue));
 
-        gameUI.ShowHuPopup(huHand);
+        gameUI.ShowHuPopup(huHand, analysisResult, settings.baseFanScore, totalExtraMultiplier, finalScore);
+    }
+
+    public void OnLevelButtonClicked(int levelIndex)
+    {
+        var chosenPrefab = spawner.AddRandomTetrominoOfLevel(levelIndex);
+        if (chosenPrefab != null)
+        {
+            gameUI.DisplayChosenTetrominoAndLockButtons(chosenPrefab);
+        }
     }
 
     public void ContinueAfterHu()
@@ -183,7 +188,6 @@ public class GameManager : MonoBehaviour
         blockPool.ResetFullDeck();
         tetrisGrid.ClearAllBlocks();
         huPaiArea.ClearAll();
-
         spawner.StartSpawning(settings);
 
         isProcessingRows = false;
@@ -194,4 +198,6 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
         gameUI.ShowGameOverPanel();
     }
+    #endregion
 }
+

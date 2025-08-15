@@ -14,13 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 7
   gridHeight: 15
-  deadlineHeight: 15
+  deadlineHeight: 14
   tileRanks: 9
   tilesPerRank: 4
   setsForHu: 4
   speedIncreasePerHu: 0.05
   initialFallSpeed: 1
   fastFallMultiplier: 20
-  baseFanScore: 50
+  baseFanScore: 10
   fanBonusPerKong: 1
   scorePerRow: 2
+  tetrominoLevels:
+  - levelName: Tetromino Lv.1
+    minBlocks: 1
+    maxBlocks: 3
+  - levelName: Tetromino Lv.2
+    minBlocks: 4
+    maxBlocks: 4
+  - levelName: Tetromino Lv.3
+    minBlocks: 5
+    maxBlocks: 5

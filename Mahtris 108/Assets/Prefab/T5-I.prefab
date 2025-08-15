@@ -49,6 +49,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55cb93c9bbb9002468959347df4d13d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  extraMultiplier: 3
+  uiPrefab: {fileID: 3580106032658444086, guid: e0b288c4d3a892b4083587bb11769a4a, type: 3}
 --- !u!1001 &1130286541773277047
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -133,7 +135,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 752610090839386196, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 752610090839386196, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_LocalPosition.z
@@ -203,7 +205,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 752610090839386196, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 752610090839386196, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_LocalPosition.z

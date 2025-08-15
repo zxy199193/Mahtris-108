@@ -7,7 +7,13 @@ public class Tetromino : MonoBehaviour
     [Tooltip("该方块类型对应的【额外倍率】值")]
     public float extraMultiplier = 1f;
 
+    [Header("UI显示")]
+    [Tooltip("用于在Tetromino列表中显示的【UI版预制件】")]
+    public GameObject uiPrefab;
+
     private float lastFallTime;
+    // (其余代码与上一版完全相同)
+    #region Unchanged Code
     private float fallSpeed;
     private float fastFallMultiplier;
     private TetrisGrid tetrisGrid;
@@ -25,7 +31,6 @@ public class Tetromino : MonoBehaviour
     {
         if (!tetrisGrid.IsValidGridPos(transform))
         {
-            // 出生点被占，直接游戏结束
             GameEvents.TriggerGameOver();
             Destroy(gameObject);
         }
@@ -48,22 +53,18 @@ public class Tetromino : MonoBehaviour
         enabled = false;
         tetrisGrid.UpdateGrid(transform);
 
-        // ---【新增逻辑】---
-        // 检查是否触碰到死亡线
         foreach (Transform child in transform)
         {
             if (Mathf.RoundToInt(child.position.y) >= settings.deadlineHeight)
             {
                 GameEvents.TriggerGameOver();
-                return; // 游戏已结束，不再进行消行判断
+                return;
             }
         }
 
         tetrisGrid.CheckForFullRows();
     }
 
-    // Movement Methods (HandleMovementInput, Move, Rotate) 保持不变...
-    #region Unchanged Movement Methods
     void HandleMovementInput()
     {
         if (Input.GetKeyDown(KeyCode.LeftArrow)) Move(Vector3.left);

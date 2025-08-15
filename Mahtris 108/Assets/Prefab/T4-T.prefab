@@ -48,6 +48,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55cb93c9bbb9002468959347df4d13d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  extraMultiplier: 3
+  uiPrefab: {fileID: 3580106032658444086, guid: a74cd4ac278d15c4ebbb27553646719d, type: 3}
 --- !u!1001 &2227877172031248561
 PrefabInstance:
   m_ObjectHideFlags: 0
