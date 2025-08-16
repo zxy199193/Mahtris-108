@@ -6,15 +6,13 @@ using System.Linq;
 
 public class GameUIController : MonoBehaviour
 {
-    // --- 所有字段声明保持不变 ---
-    #region Fields
+    // (大部分代码与上一版相同)
+    #region Unchanged Code
     [Header("通用UI元素")]
     [SerializeField] private Text scoreText;
     [SerializeField] private Text poolCountText;
-
     [Header("下一个方块预览")]
     [SerializeField] private Transform nextBlockPreviewArea;
-
     [Header("胡牌弹窗")]
     [SerializeField] private GameObject huPopupPanel;
     [SerializeField] private Transform huHandDisplayArea;
@@ -23,32 +21,25 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Button continueButton;
     [SerializeField] private List<Button> levelButtons;
     [SerializeField] private Transform chosenTetrominoArea;
-
     [Header("Tetromino列表")]
     [SerializeField] private Transform tetrominoListContent;
     [SerializeField] private Text totalMultiplierText;
-
     [Header("游戏结束")]
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private Button restartButton;
-
     [Header("UI预制件")]
     [Tooltip("用于动态拼接胡牌牌型的【单个UI麻将牌】预制件")]
     [SerializeField] private GameObject uiBlockPrefab;
     [Tooltip("用于在列表中显示【单个Tetromino】的UI项预制件 (应挂载TetrominoListItemUI脚本)")]
     [SerializeField] private GameObject tetrominoListItemPrefab;
-
     [Header("模块引用")]
     [SerializeField] private BlockPool blockPool;
-
     private GameObject currentPreviewObject;
-    #endregion
 
     void Awake()
     {
         if (continueButton) continueButton.onClick.AddListener(() => GameManager.Instance.ContinueAfterHu());
         if (restartButton) restartButton.onClick.AddListener(() => GameManager.Instance.StartNewGame());
-
         for (int i = 0; i < levelButtons.Count; i++)
         {
             int levelIndex = i;
@@ -56,44 +47,6 @@ public class GameUIController : MonoBehaviour
         }
     }
 
-    // ---【重大修正】---
-    // UpdateTetrominoList 是唯一需要修改的方法
-    public void UpdateTetrominoList(IEnumerable<GameObject> prefabs, float totalMultiplier)
-    {
-        foreach (Transform child in tetrominoListContent) Destroy(child.gameObject);
-
-        if (tetrominoListItemPrefab == null)
-        {
-            Debug.LogError("错误：GameUIController的TetrominoListItemPrefab字段未在Inspector中赋值！");
-            return;
-        }
-
-        foreach (var prefab in prefabs)
-        {
-            // 1. 实例化列表项的UI预制件
-            var itemGO = Instantiate(tetrominoListItemPrefab, tetrominoListContent);
-
-            // 2. 获取新增的辅助脚本组件
-            var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
-            if (listItemUI == null)
-            {
-                Debug.LogError("错误：分配的TetrominoListItemPrefab上缺少TetrominoListItemUI脚本！");
-                continue;
-            }
-
-            var tetromino = prefab.GetComponent<Tetromino>();
-            if (tetromino != null && tetromino.uiPrefab != null)
-            {
-                // 3. 通过辅助脚本的直接引用来安全地访问子组件，不再使用transform.Find()！
-                listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
-                Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
-            }
-        }
-        totalMultiplierText.text = $"总倍率: x{totalMultiplier:F1}";
-    }
-
-    // --- 其余所有方法都与 version 2.6 保持一致 ---
-    #region Unchanged Methods
     void OnEnable()
     {
         GameEvents.OnNextBlockReady += UpdateNextBlockPreview;
@@ -111,6 +64,56 @@ public class GameUIController : MonoBehaviour
     private void UpdateScoreText(int newScore) => scoreText.text = $"得分: {newScore}";
     private void UpdatePoolCountText(int count) => poolCountText.text = $"牌库剩余: {count}";
 
+    public void UpdateTetrominoList(IEnumerable<GameObject> prefabs, float totalMultiplier)
+    {
+        foreach (Transform child in tetrominoListContent) Destroy(child.gameObject);
+        if (tetrominoListItemPrefab == null)
+        {
+            Debug.LogError("错误：TetrominoListItemPrefab 未在 GameUIController 中赋值！");
+            return;
+        }
+        foreach (var prefab in prefabs)
+        {
+            var itemGO = Instantiate(tetrominoListItemPrefab, tetrominoListContent);
+            var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
+            if (listItemUI == null) continue;
+
+            var tetromino = prefab.GetComponent<Tetromino>();
+            if (tetromino != null && tetromino.uiPrefab != null)
+            {
+                listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
+                Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
+            }
+        }
+        totalMultiplierText.text = $"总倍率: x{totalMultiplier:F1}";
+    }
+    #endregion
+
+    public void DisplayChosenTetrominoAndLockButtons(GameObject chosenPrefab)
+    {
+        foreach (var btn in levelButtons) btn.interactable = false;
+        foreach (Transform child in chosenTetrominoArea) Destroy(child.gameObject);
+
+        var tetromino = chosenPrefab.GetComponent<Tetromino>();
+        if (tetromino != null && tetromino.uiPrefab != null)
+        {
+            // --- 【BUG修复】---
+            // 实例化我们为列表制作的 ListItem，因为它同时包含了形状和倍率文本
+            var itemGO = Instantiate(tetrominoListItemPrefab, chosenTetrominoArea);
+            var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
+
+            if (listItemUI != null)
+            {
+                // 设置倍率文本
+                listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
+                // 实例化形状UI并放入容器
+                Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
+            }
+        }
+    }
+
+    // (ShowHuPopup, BuildUIHand 和其他Panel Visibility方法与上一版相同)
+    #region Unchanged Code
     public void ShowHuPopup(List<List<int>> huHand, HandAnalysisResult analysis, int baseScore, float multiplier, long finalScore)
     {
         huPopupPanel.SetActive(true);
@@ -121,18 +124,6 @@ public class GameUIController : MonoBehaviour
         formulaText.text = $"{baseScore} × (2^{analysis.TotalFan}) × {multiplier:F1} = {finalScore}";
 
         BuildUIHand(huHandDisplayArea, huHand);
-    }
-
-    public void DisplayChosenTetrominoAndLockButtons(GameObject chosenPrefab)
-    {
-        foreach (var btn in levelButtons) btn.interactable = false;
-        foreach (Transform child in chosenTetrominoArea) Destroy(child.gameObject);
-
-        var tetromino = chosenPrefab.GetComponent<Tetromino>();
-        if (tetromino != null && tetromino.uiPrefab != null)
-        {
-            Instantiate(tetromino.uiPrefab, chosenTetrominoArea);
-        }
     }
 
     private void BuildUIHand(Transform container, List<List<int>> hand)
@@ -182,10 +173,3 @@ public class GameUIController : MonoBehaviour
     }
     #endregion
 }
-
-
-
-
-
-
-

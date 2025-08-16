@@ -6,9 +6,7 @@ using System.Linq;
 public class Spawner : MonoBehaviour
 {
     [Header("Tetromino 预制件列表")]
-    [Tooltip("游戏开始时使用的Tetromino")]
     [SerializeField] private GameObject[] initialTetrominoPrefabs;
-    [Tooltip("所有可能出现的Tetromino（用于胡牌后随机抽取）")]
     [SerializeField] private GameObject[] masterTetrominoPrefabs;
 
     [Header("模块引用")]
@@ -22,7 +20,9 @@ public class Spawner : MonoBehaviour
     private GameObject nextTetrominoPrefab;
     private List<int> nextTileIds;
 
-    public void StartSpawning(GameSettings gameSettings)
+    // --- 【重大修正】---
+    // 方法1：用于游戏完全重新开始，会重置方块池
+    public void InitializeForNewGame(GameSettings gameSettings)
     {
         this.settings = gameSettings;
         activeTetrominoPool = new List<GameObject>(initialTetrominoPrefabs);
@@ -32,6 +32,13 @@ public class Spawner : MonoBehaviour
             Debug.LogError("Spawner中没有配置任何初始Tetromino！");
             return;
         }
+        StartNextRound();
+    }
+
+    // --- 【新增方法】---
+    // 方法2：用于胡牌后开始下一轮，不会重置方块池
+    public void StartNextRound()
+    {
         PrepareNextTetromino();
         SpawnBlock();
     }
@@ -58,6 +65,8 @@ public class Spawner : MonoBehaviour
 
     private void PrepareNextTetromino()
     {
+        if (activeTetrominoPool.Count == 0) { GameEvents.TriggerGameOver(); return; }
+
         nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)];
         int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>().Length;
         nextTileIds = blockPool.GetBlockIds(tilesNeeded);

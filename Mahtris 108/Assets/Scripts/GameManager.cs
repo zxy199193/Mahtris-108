@@ -8,10 +8,8 @@ public class GameManager : MonoBehaviour
     // (字段声明和Awake/Start/OnEnable/OnDisable/RecalculateTotalMultiplier等方法与上一版相同)
     #region Unchanged Code
     public static GameManager Instance { get; private set; }
-
     [Header("核心配置")]
     [SerializeField] private GameSettings settings;
-
     [Header("模块引用")]
     [SerializeField] private Spawner spawner;
     [SerializeField] private TetrisGrid tetrisGrid;
@@ -19,7 +17,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameUIController gameUI;
     [SerializeField] private BlockPool blockPool;
     [SerializeField] private ScoreManager scoreManager;
-
     private MahjongCore mahjongCore;
     [HideInInspector] public float currentFallSpeed;
     private bool isProcessingRows = false;
@@ -28,7 +25,6 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
-
         mahjongCore = new MahjongCore();
         tetrisGrid.Initialize(settings);
         blockPool.Initialize(settings);
@@ -57,7 +53,6 @@ public class GameManager : MonoBehaviour
     {
         totalExtraMultiplier = 0;
         if (spawner.GetActivePrefabs() == null) return;
-
         foreach (var prefab in spawner.GetActivePrefabs())
         {
             totalExtraMultiplier += prefab.GetComponent<Tetromino>().extraMultiplier;
@@ -75,16 +70,38 @@ public class GameManager : MonoBehaviour
         tetrisGrid.ClearAllBlocks();
         huPaiArea.ClearAll();
         scoreManager.ResetScore();
-        spawner.StartSpawning(settings);
+
+        // --- 【重大修正】---
+        // 调用完全重置方法
+        spawner.InitializeForNewGame(settings);
+
         RecalculateTotalMultiplier();
-
         isProcessingRows = false;
-
-        // --- 【BUG修复】---
         gameUI.HideGameOverPanel();
         gameUI.HideHuPopup();
     }
 
+    public void ContinueAfterHu()
+    {
+        gameUI.HideHuPopup();
+        Time.timeScale = 1f;
+
+        currentFallSpeed *= (1f - settings.speedIncreasePerHu);
+        currentFallSpeed = Mathf.Max(0.05f, currentFallSpeed);
+
+        blockPool.ResetFullDeck();
+        tetrisGrid.ClearAllBlocks();
+        huPaiArea.ClearAll();
+
+        // --- 【重大修正】---
+        // 调用开始下一轮的方法，这不会重置方块池
+        spawner.StartNextRound();
+
+        isProcessingRows = false;
+    }
+
+    // (HandleRowsCleared, HandleHuDeclared, OnLevelButtonClicked, HandleGameOver 等方法与上一版相同)
+    #region Unchanged Code
     private void HandleRowsCleared(List<int> rowIndices)
     {
         if (isProcessingRows) return;
@@ -145,15 +162,12 @@ public class GameManager : MonoBehaviour
         blockPool.ReturnBlockIds(allRemainingIds);
         tetrisGrid.DestroyTransforms(allClearedTransforms);
 
-        // --- 【BUG修复】---
         tetrisGrid.CompactAllColumns(rowIndices);
 
         spawner.SpawnBlock();
         isProcessingRows = false;
     }
 
-    // (HandleHuDeclared, OnLevelButtonClicked, ContinueAfterHu, HandleGameOver 等方法与上一版相同)
-    #region Unchanged Code
     private void HandleHuDeclared(List<List<int>> huHand)
     {
         isProcessingRows = true;
@@ -175,22 +189,6 @@ public class GameManager : MonoBehaviour
         {
             gameUI.DisplayChosenTetrominoAndLockButtons(chosenPrefab);
         }
-    }
-
-    public void ContinueAfterHu()
-    {
-        gameUI.HideHuPopup();
-        Time.timeScale = 1f;
-
-        currentFallSpeed *= (1f - settings.speedIncreasePerHu);
-        currentFallSpeed = Mathf.Max(0.05f, currentFallSpeed);
-
-        blockPool.ResetFullDeck();
-        tetrisGrid.ClearAllBlocks();
-        huPaiArea.ClearAll();
-        spawner.StartSpawning(settings);
-
-        isProcessingRows = false;
     }
 
     private void HandleGameOver()
