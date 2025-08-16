@@ -10,4 +10,8 @@ public class TetrominoListItemUI : MonoBehaviour
 
     [Tooltip("用于显示倍率的Text组件")]
     public Text multiplierText;
+
+    [Header("堆叠显示 (可选)")]
+    [Tooltip("用于显示堆叠数量的Text组件 (例如 'x2')")]
+    public Text countText;
 }

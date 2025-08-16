@@ -6,13 +6,15 @@ using System.Linq;
 
 public class GameUIController : MonoBehaviour
 {
-    // (大部分代码与上一版相同)
+    // (字段声明和Awake/Event Subscription/Text Updates等方法与上一版相同)
     #region Unchanged Code
     [Header("通用UI元素")]
     [SerializeField] private Text scoreText;
     [SerializeField] private Text poolCountText;
+
     [Header("下一个方块预览")]
     [SerializeField] private Transform nextBlockPreviewArea;
+
     [Header("胡牌弹窗")]
     [SerializeField] private GameObject huPopupPanel;
     [SerializeField] private Transform huHandDisplayArea;
@@ -21,25 +23,31 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Button continueButton;
     [SerializeField] private List<Button> levelButtons;
     [SerializeField] private Transform chosenTetrominoArea;
+
     [Header("Tetromino列表")]
     [SerializeField] private Transform tetrominoListContent;
     [SerializeField] private Text totalMultiplierText;
+
     [Header("游戏结束")]
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private Button restartButton;
+
     [Header("UI预制件")]
     [Tooltip("用于动态拼接胡牌牌型的【单个UI麻将牌】预制件")]
     [SerializeField] private GameObject uiBlockPrefab;
     [Tooltip("用于在列表中显示【单个Tetromino】的UI项预制件 (应挂载TetrominoListItemUI脚本)")]
     [SerializeField] private GameObject tetrominoListItemPrefab;
+
     [Header("模块引用")]
     [SerializeField] private BlockPool blockPool;
+
     private GameObject currentPreviewObject;
 
     void Awake()
     {
         if (continueButton) continueButton.onClick.AddListener(() => GameManager.Instance.ContinueAfterHu());
         if (restartButton) restartButton.onClick.AddListener(() => GameManager.Instance.StartNewGame());
+
         for (int i = 0; i < levelButtons.Count; i++)
         {
             int levelIndex = i;
@@ -63,32 +71,78 @@ public class GameUIController : MonoBehaviour
 
     private void UpdateScoreText(int newScore) => scoreText.text = $"得分: {newScore}";
     private void UpdatePoolCountText(int count) => poolCountText.text = $"牌库剩余: {count}";
+    #endregion
 
+    // --- 【重大修正】---
+    // 更新列表的逻辑被完全重写，采用更稳定可靠的字典统计法
     public void UpdateTetrominoList(IEnumerable<GameObject> prefabs, float totalMultiplier)
     {
         foreach (Transform child in tetrominoListContent) Destroy(child.gameObject);
+
         if (tetrominoListItemPrefab == null)
         {
             Debug.LogError("错误：TetrominoListItemPrefab 未在 GameUIController 中赋值！");
             return;
         }
+
+        // 1. 创建一个字典来统计每种 Prefab 的数量
+        var prefabCounts = new Dictionary<GameObject, int>();
         foreach (var prefab in prefabs)
         {
+            if (!prefabCounts.ContainsKey(prefab))
+            {
+                prefabCounts[prefab] = 0;
+            }
+            prefabCounts[prefab]++;
+        }
+
+        // 2. 遍历统计完成的字典，为每种【不同】的 Tetromino 创建一个列表项
+        foreach (var entry in prefabCounts)
+        {
+            var representativePrefab = entry.Key;
+            int count = entry.Value;
+
+            var tetromino = representativePrefab.GetComponent < Tetromino > ();
+            if (tetromino == null || tetromino.uiPrefab == null) continue;
+
+            // 3. 实例化列表项UI
             var itemGO = Instantiate(tetrominoListItemPrefab, tetrominoListContent);
             var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
-            if (listItemUI == null) continue;
-
-            var tetromino = prefab.GetComponent<Tetromino>();
-            if (tetromino != null && tetromino.uiPrefab != null)
+            if (listItemUI == null)
             {
-                listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
-                Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
+                Debug.LogError("列表项预制件上缺少 TetrominoListItemUI 脚本！", itemGO);
+                continue;
+            }
+            if (listItemUI.multiplierText == null || listItemUI.shapeContainer == null)
+            {
+                Debug.LogError("列表项预制件的 TetrominoListItemUI 脚本中，有字段未赋值！", itemGO);
+                continue;
+            }
+
+            // 4. 设置倍率和形状
+            listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
+            Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
+
+            // 5. 处理堆叠数量显示
+            if (listItemUI.countText != null)
+            {
+                if (count > 1)
+                {
+                    listItemUI.countText.gameObject.SetActive(true);
+                    listItemUI.countText.text = $"x{count}";
+                }
+                else
+                {
+                    listItemUI.countText.gameObject.SetActive(false);
+                }
             }
         }
+
         totalMultiplierText.text = $"总倍率: x{totalMultiplier:F1}";
     }
-    #endregion
 
+    // (其余方法与上一版完全相同)
+    #region Unchanged Code
     public void DisplayChosenTetrominoAndLockButtons(GameObject chosenPrefab)
     {
         foreach (var btn in levelButtons) btn.interactable = false;
@@ -97,23 +151,23 @@ public class GameUIController : MonoBehaviour
         var tetromino = chosenPrefab.GetComponent<Tetromino>();
         if (tetromino != null && tetromino.uiPrefab != null)
         {
-            // --- 【BUG修复】---
-            // 实例化我们为列表制作的 ListItem，因为它同时包含了形状和倍率文本
             var itemGO = Instantiate(tetrominoListItemPrefab, chosenTetrominoArea);
             var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
 
             if (listItemUI != null)
             {
-                // 设置倍率文本
-                listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
-                // 实例化形状UI并放入容器
-                Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
+                if (listItemUI.multiplierText)
+                    listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
+
+                if (listItemUI.shapeContainer)
+                    Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
+
+                if (listItemUI.countText != null)
+                    listItemUI.countText.gameObject.SetActive(false);
             }
         }
     }
 
-    // (ShowHuPopup, BuildUIHand 和其他Panel Visibility方法与上一版相同)
-    #region Unchanged Code
     public void ShowHuPopup(List<List<int>> huHand, HandAnalysisResult analysis, int baseScore, float multiplier, long finalScore)
     {
         huPopupPanel.SetActive(true);
