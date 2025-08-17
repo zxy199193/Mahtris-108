@@ -69,7 +69,7 @@ public class GameUIController : MonoBehaviour
         GameEvents.OnPoolCountChanged -= UpdatePoolCountText;
     }
 
-    private void UpdateScoreText(int newScore) => scoreText.text = $"得分: {newScore}";
+    private void UpdateScoreText(int newScore) => scoreText.text = $"{newScore}";
     private void UpdatePoolCountText(int count) => poolCountText.text = $"牌库剩余: {count}";
     #endregion
 
@@ -138,7 +138,7 @@ public class GameUIController : MonoBehaviour
             }
         }
 
-        totalMultiplierText.text = $"总倍率: x{totalMultiplier:F1}";
+        totalMultiplierText.text = $"x{totalMultiplier:F1}";
     }
 
     // (其余方法与上一版完全相同)
