@@ -14,16 +14,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridWidth: 7
   gridHeight: 15
-  deadlineHeight: 14
-  tileRanks: 9
-  tilesPerRank: 4
+  deadlineHeight: 13
   setsForHu: 4
   speedIncreasePerHu: 0.05
   initialFallSpeed: 1
   fastFallMultiplier: 20
+  tileRanks: 9
+  tilesPerRank: 4
   baseFanScore: 10
   fanBonusPerKong: 1
   scorePerRow: 2
+  initialTimeLimit: 300
+  huTimeBonus: 60
+  scoreLevels:
+  - targetScore: 50
+    goldReward: 10
+  - targetScore: 150
+    goldReward: 30
+  - targetScore: 500
+    goldReward: 100
+  - targetScore: 900
+    goldReward: 300
+  - targetScore: 1500
+    goldReward: 500
+  - targetScore: 3000
+    goldReward: 1000
+  - targetScore: 5000
+    goldReward: 1600
+  - targetScore: 8000
+    goldReward: 3000
   tetrominoLevels:
   - levelName: Tetromino Lv.1
     minBlocks: 1
@@ -34,3 +53,10 @@ MonoBehaviour:
   - levelName: Tetromino Lv.3
     minBlocks: 5
     maxBlocks: 5
+  itemSlotCount: 3
+  masterItemList:
+  - {fileID: 11400000, guid: 1f38674101fcf564d8cba2a8bc184e24, type: 2}
+  - {fileID: 11400000, guid: 92b90391a006cac489e8f1728cce7ff0, type: 2}
+  - {fileID: 11400000, guid: 9a7e2b2bb73de494288909c06af11c3f, type: 2}
+  - {fileID: 11400000, guid: 2be156880e12a124fafe8abea3a85568, type: 2}
+  - {fileID: 11400000, guid: 03028a293d35d044badd2dd39864e90b, type: 2}
