@@ -19,13 +19,22 @@ public class AudioManager : MonoBehaviour
     [Header("音源")]
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
+
+    [Header("音量控制")]
+    [Range(0f, 1f)]
+    public float bgmVolume = 0.5f;
+    [Range(0f, 1f)]
+    public float sfxVolume = 1.0f;
+
     [Header("背景音乐")]
     [SerializeField] private AudioClip backgroundMusic;
+
     [Header("音效库")]
     [SerializeField] private SoundLibrary soundLibrary;
 
-    // --- 【重要】公开属性，确保外部可以安全访问 ---
-    public SoundLibrary SoundLib => soundLibrary;
+    // --- 【重大修正】---
+    // 统一并修正了公开访问音效库的属性名
+    public SoundLibrary SoundLibraryProperty => soundLibrary;
 
     void Awake()
     {
@@ -35,9 +44,22 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
+        ApplyVolume();
         PlayBGM();
         GameEvents.OnRowsCleared += (rows) => PlaySFX(soundLibrary.clearRow);
         GameEvents.OnHuDeclared += (hand) => PlaySFX(soundLibrary.huSuccess);
+    }
+
+    void Update()
+    {
+        if (bgmSource != null && bgmSource.volume != bgmVolume) bgmSource.volume = bgmVolume;
+        if (sfxSource != null && sfxSource.volume != sfxVolume) sfxSource.volume = sfxVolume;
+    }
+
+    public void ApplyVolume()
+    {
+        if (bgmSource) bgmSource.volume = bgmVolume;
+        if (sfxSource) sfxSource.volume = sfxVolume;
     }
 
     public void PlayBGM()

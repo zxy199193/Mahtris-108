@@ -347,6 +347,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgmSource: {fileID: 51749392}
   sfxSource: {fileID: 51749392}
+  bgmVolume: 0.5
+  sfxVolume: 1
   backgroundMusic: {fileID: 8300000, guid: 45a370321965b884bb8727f27ed29f0c, type: 3}
   soundLibrary:
     buttonClick: {fileID: 8300000, guid: 8e96702acb242fb4ca103f93b6132044, type: 3}
@@ -1060,11 +1062,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialTetrominoPrefabs:
-  - {fileID: 6458403687790341162, guid: e01a19483b3632a4194557fb4cf2043c, type: 3}
-  - {fileID: 6458403687790341162, guid: d1d66bba774a1c644ad1e70105b2f231, type: 3}
-  - {fileID: 6458403687790341162, guid: 290e4721fce705b46bb46cb275c5954a, type: 3}
-  - {fileID: 6458403687790341162, guid: 0926552571cb87a42b3b88aec4545ba1, type: 3}
-  - {fileID: 6458403687790341162, guid: 4f3ba6b1763fd67409f443dbbd41e808, type: 3}
+  - {fileID: 6458403687790341162, guid: c2f2000eb0488e1448bcae45984b9222, type: 3}
+  - {fileID: 8937201418964567026, guid: 6ac02388b1a7b6348b19cdd7ab5bf3a8, type: 3}
+  - {fileID: 8906175293848071367, guid: c5c6f7b051055684cba2def0e58b54a4, type: 3}
+  - {fileID: 8316817865214081552, guid: c70dad8b6f0d4dc4b8ad6bdfdc2041c0, type: 3}
+  - {fileID: 1721155633412462053, guid: 45cb780b1cba8204b92c62bd0a6dd120, type: 3}
+  - {fileID: 9014202699494933886, guid: adf7a21c474880144962d48777dfc653, type: 3}
+  - {fileID: 621094592900249781, guid: b61ae580372b8654cafdcfebff26d369, type: 3}
   masterTetrominoPrefabs:
   - {fileID: 6458403687790341162, guid: e01a19483b3632a4194557fb4cf2043c, type: 3}
   - {fileID: 6458403687790341162, guid: d1d66bba774a1c644ad1e70105b2f231, type: 3}

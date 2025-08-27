@@ -12,8 +12,6 @@ public class Tetromino : MonoBehaviour
     public GameObject uiPrefab;
 
     private float lastFallTime;
-    // (其余代码与上一版完全相同)
-    #region Unchanged Code
     private float fallSpeed;
     private float fastFallMultiplier;
     private TetrisGrid tetrisGrid;
@@ -91,6 +89,11 @@ public class Tetromino : MonoBehaviour
 
     void Rotate()
     {
+        // ---【修正点】---
+        // 将音效播放移到最前面，确保无论旋转是否成功都有音效反馈
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayRotateSound();
+
         transform.Rotate(0, 0, -90);
         if (!tetrisGrid.IsValidGridPos(transform))
         {
@@ -101,5 +104,5 @@ public class Tetromino : MonoBehaviour
             tetrisGrid.UpdateGrid(transform);
         }
     }
-    #endregion
 }
+

@@ -1,3 +1,4 @@
+// FileName: AmplifierItem.cs
 using UnityEngine;
 [CreateAssetMenu(fileName = "Amplifier", menuName = "Items/Amplifier")]
 public class AmplifierItem : ItemData

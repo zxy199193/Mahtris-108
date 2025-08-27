@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class GameUIController : MonoBehaviour
 {
+    // (所有字段声明与上一版相同)
+    #region Fields
     [Header("文本显示")]
     [SerializeField] private Text scoreText;
     [SerializeField] private Text poolCountText;
@@ -47,31 +49,55 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private BlockPool blockPool;
 
     private GameObject currentPreviewObject;
+    #endregion
+
+    private InventoryManager inventoryManager;
 
     void Awake()
     {
-        if (continueButton) continueButton.onClick.AddListener(() => GameManager.Instance.ContinueAfterHu());
-        if (restartButton) restartButton.onClick.AddListener(ReturnToMainMenu);
-        if (grantItemButton) grantItemButton.onClick.AddListener(() => GameManager.Instance.GrantRandomItem());
+        inventoryManager = FindObjectOfType<InventoryManager>();
+        SetupButtonListeners();
+    }
+
+    private void SetupButtonListeners()
+    {
+        if (continueButton) continueButton.onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); GameManager.Instance.ContinueAfterHu(); });
+        if (restartButton) restartButton.onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); ReturnToMainMenu(); });
+        if (grantItemButton) grantItemButton.onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); GameManager.Instance.GrantRandomItem(); });
 
         for (int i = 0; i < itemSlotButtons.Count; i++)
         {
             int slotIndex = i;
-            itemSlotButtons[i].onClick.AddListener(() => FindObjectOfType<InventoryManager>().UseItem(slotIndex));
+            itemSlotButtons[i].onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); if (inventoryManager) inventoryManager.UseItem(slotIndex); });
+        }
+
+        // --- 【新增】---
+        // 增加对 Level Buttons 列表的配置检查
+        if (levelButtons == null || levelButtons.Count == 0)
+        {
+            Debug.LogWarning("GameUIController: 'Level Buttons' 列表为空，胡牌奖励功能将无法使用。请在Inspector中为该列表赋值。");
+        }
+        else
+        {
+            for (int i = 0; i < levelButtons.Count; i++)
+            {
+                int levelIndex = i;
+                levelButtons[i].onClick.AddListener(() => {
+                    if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
+                    GameManager.Instance.OnLevelButtonClicked(levelIndex);
+                });
+            }
         }
     }
 
+    // (其余所有方法与上一版完全相同)
+    #region Unchanged Code
     void OnEnable()
     {
         GameEvents.OnNextBlockReady += UpdateNextBlockPreview;
         GameEvents.OnScoreChanged += UpdateScoreText;
         GameEvents.OnPoolCountChanged += UpdatePoolCountText;
-
-        var inventory = FindObjectOfType<InventoryManager>();
-        if (inventory != null)
-        {
-            inventory.OnInventoryChanged += UpdateInventoryUI;
-        }
+        if (inventoryManager != null) inventoryManager.OnInventoryChanged += UpdateInventoryUI;
     }
 
     void OnDisable()
@@ -79,29 +105,25 @@ public class GameUIController : MonoBehaviour
         GameEvents.OnNextBlockReady -= UpdateNextBlockPreview;
         GameEvents.OnScoreChanged -= UpdateScoreText;
         GameEvents.OnPoolCountChanged -= UpdatePoolCountText;
-
-        var inventory = FindObjectOfType<InventoryManager>();
-        if (inventory != null)
-        {
-            inventory.OnInventoryChanged -= UpdateInventoryUI;
-        }
+        if (inventoryManager != null) inventoryManager.OnInventoryChanged -= UpdateInventoryUI;
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1)) FindObjectOfType<InventoryManager>().UseItem(0);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) FindObjectOfType<InventoryManager>().UseItem(1);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) FindObjectOfType<InventoryManager>().UseItem(2);
-        if (Input.GetKeyDown(KeyCode.Alpha4)) FindObjectOfType<InventoryManager>().UseItem(3);
-        if (Input.GetKeyDown(KeyCode.Alpha5)) FindObjectOfType<InventoryManager>().UseItem(4);
+        if (inventoryManager == null) return;
+        if (Input.GetKeyDown(KeyCode.Alpha1)) inventoryManager.UseItem(0);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) inventoryManager.UseItem(1);
+        if (Input.GetKeyDown(KeyCode.Alpha3)) inventoryManager.UseItem(2);
+        if (Input.GetKeyDown(KeyCode.Alpha4)) inventoryManager.UseItem(3);
+        if (Input.GetKeyDown(KeyCode.Alpha5)) inventoryManager.UseItem(4);
     }
 
-    public void UpdateTimerText(float time) => timerText.text = $"时间: {Mathf.Max(0, time):F0}";
-    public void UpdateTargetScoreText(string text) => targetScoreText.text = $"目标: {text}";
-    public void UpdateSpeedText(float percent) => speedText.text = $"速度: {percent:F0}%";
+    public void UpdateTimerText(float time) { if (timerText) timerText.text = $"时间: {Mathf.Max(0, time):F0}"; }
+    public void UpdateTargetScoreText(string text) { if (targetScoreText) targetScoreText.text = $"目标: {text}"; }
+    public void UpdateSpeedText(float percent) { if (speedText) speedText.text = $"速度: {percent:F0}%"; }
 
-    private void UpdateScoreText(int newScore) => scoreText.text = $"得分: {newScore}";
-    private void UpdatePoolCountText(int count) => poolCountText.text = $"牌库剩余: {count}";
+    private void UpdateScoreText(int newScore) { if (scoreText) scoreText.text = $"得分: {newScore}"; }
+    private void UpdatePoolCountText(int count) { if (poolCountText) poolCountText.text = $"牌库剩余: {count}"; }
 
     private void UpdateInventoryUI(List<ItemData> items)
     {
@@ -124,9 +146,9 @@ public class GameUIController : MonoBehaviour
 
     public void UpdateTetrominoList(IEnumerable<GameObject> prefabs, float totalMultiplier)
     {
+        if (tetrominoListContent == null) return;
         foreach (Transform child in tetrominoListContent) Destroy(child.gameObject);
         if (tetrominoListItemPrefab == null) return;
-
         var prefabCounts = prefabs.GroupBy(p => p.GetInstanceID()).ToDictionary(g => g.Key, g => g.ToList());
         foreach (var group in prefabCounts.Values)
         {
@@ -134,52 +156,47 @@ public class GameUIController : MonoBehaviour
             int count = group.Count;
             var tetromino = representativePrefab.GetComponent<Tetromino>();
             if (tetromino == null || tetromino.uiPrefab == null) continue;
-
             var itemGO = Instantiate(tetrominoListItemPrefab, tetrominoListContent);
             var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
             if (listItemUI == null) continue;
-
-            listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
-            Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
-
+            if (listItemUI.multiplierText) listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
+            if (listItemUI.shapeContainer) Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
             if (listItemUI.countText != null)
             {
                 listItemUI.countText.gameObject.SetActive(count > 1);
                 listItemUI.countText.text = $"x{count}";
             }
         }
-        totalMultiplierText.text = $"总倍率: x{totalMultiplier:F1}";
+        if (totalMultiplierText) totalMultiplierText.text = $"总倍率: x{totalMultiplier:F1}";
     }
 
     public void ShowHuPopup(List<List<int>> huHand, HandAnalysisResult analysis, int baseScore, float multiplier, long finalScore)
     {
-        huPopupPanel.SetActive(true);
+        if (huPopupPanel) huPopupPanel.SetActive(true);
         foreach (var btn in levelButtons) btn.interactable = true;
-        foreach (Transform child in chosenTetrominoArea) Destroy(child.gameObject);
-
+        if (chosenTetrominoArea) foreach (Transform child in chosenTetrominoArea) Destroy(child.gameObject);
         SetGrantItemButtonInteractable(true);
-
-        patternNameText.text = $"{analysis.PatternName} ({analysis.TotalFan}番)";
-        formulaText.text = $"{baseScore} × (2^{analysis.TotalFan}) × {multiplier:F1} = {finalScore}";
-
+        if (patternNameText) patternNameText.text = $"{analysis.PatternName} ({analysis.TotalFan}番)";
+        if (formulaText) formulaText.text = $"{baseScore} × (2^{analysis.TotalFan}) × {multiplier:F1} = {finalScore}";
         BuildUIHand(huHandDisplayArea, huHand);
     }
 
     public void DisplayChosenTetrominoAndLockButtons(GameObject chosenPrefab)
     {
         foreach (var btn in levelButtons) btn.interactable = false;
+        if (chosenTetrominoArea == null) return;
         foreach (Transform child in chosenTetrominoArea) Destroy(child.gameObject);
+        if (chosenPrefab == null) return;
 
         var tetromino = chosenPrefab.GetComponent<Tetromino>();
         if (tetromino != null && tetromino.uiPrefab != null)
         {
             var itemGO = Instantiate(tetrominoListItemPrefab, chosenTetrominoArea);
             var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
-
             if (listItemUI != null)
             {
-                listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
-                Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
+                if (listItemUI.multiplierText) listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
+                if (listItemUI.shapeContainer) Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
                 if (listItemUI.countText != null) listItemUI.countText.gameObject.SetActive(false);
             }
         }
@@ -195,47 +212,40 @@ public class GameUIController : MonoBehaviour
         if (huPopupPanel) huPopupPanel.SetActive(false);
         if (gameOverPanel) gameOverPanel.SetActive(false);
     }
-
-    public void HideHuPopup() => huPopupPanel.SetActive(false);
-    public void ShowGameOverPanel() => gameOverPanel.SetActive(true);
-    public void HideGameOverPanel() => gameOverPanel.SetActive(false);
-
+    public void HideHuPopup() { if (huPopupPanel) huPopupPanel.SetActive(false); }
+    public void ShowGameOverPanel() { if (gameOverPanel) gameOverPanel.SetActive(true); }
+    public void HideGameOverPanel() { if (gameOverPanel) gameOverPanel.SetActive(false); }
     private void BuildUIHand(Transform container, List<List<int>> hand)
     {
+        if (container == null) return;
         foreach (Transform child in container) Destroy(child.gameObject);
-
         foreach (var set in hand)
         {
             foreach (var blockId in set)
             {
                 var uiBlock = Instantiate(uiBlockPrefab, container);
-                uiBlock.GetComponent<Image>().sprite = blockPool.GetSpriteForBlock(blockId);
+                if (uiBlock) uiBlock.GetComponent<Image>().sprite = blockPool.GetSpriteForBlock(blockId);
             }
         }
     }
-
     private void UpdateNextBlockPreview(GameObject prefab, List<int> ids)
     {
         if (nextBlockPreviewArea == null) return;
         if (currentPreviewObject != null) Destroy(currentPreviewObject);
-
         currentPreviewObject = Instantiate(prefab, nextBlockPreviewArea);
         currentPreviewObject.transform.localPosition = Vector3.zero;
-
         if (currentPreviewObject.GetComponent<Tetromino>())
             currentPreviewObject.GetComponent<Tetromino>().enabled = false;
-
         var blockUnits = currentPreviewObject.GetComponentsInChildren<BlockUnit>();
         for (int i = 0; i < blockUnits.Length && i < ids.Count; i++)
         {
             blockUnits[i].Initialize(ids[i], blockPool);
         }
     }
-
     private void ReturnToMainMenu()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenuScene");
     }
+    #endregion
 }
-
