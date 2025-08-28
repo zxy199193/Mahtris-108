@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55cb93c9bbb9002468959347df4d13d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  extraMultiplier: 9
+  extraMultiplier: 22
   uiPrefab: {fileID: 3580106032658444086, guid: 297f1a32a9102734c8a548fe29dfe566, type: 3}
 --- !u!1001 &1130286541773277047
 PrefabInstance:
