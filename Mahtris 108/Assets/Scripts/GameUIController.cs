@@ -5,16 +5,22 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.SceneManagement;
 
+public class HuRewardPackage
+{
+    public List<GameObject> BlockChoices = new List<GameObject>();
+    public List<ItemData> ItemChoices = new List<ItemData>();
+    public List<ProtocolData> ProtocolChoices = new List<ProtocolData>();
+}
+
 public class GameUIController : MonoBehaviour
 {
-    // (所有字段声明与上一版相同)
-    #region Fields
     [Header("文本显示")]
     [SerializeField] private Text scoreText;
     [SerializeField] private Text poolCountText;
     [SerializeField] private Text timerText;
     [SerializeField] private Text targetScoreText;
     [SerializeField] private Text speedText;
+    [SerializeField] private Text blockMultiplierText;
 
     [Header("下一个方块预览")]
     [SerializeField] private Transform nextBlockPreviewArea;
@@ -29,9 +35,16 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Text patternNameText;
     [SerializeField] private Text formulaText;
     [SerializeField] private Button continueButton;
-    [SerializeField] private List<Button> levelButtons;
-    [SerializeField] private Transform chosenTetrominoArea;
-    [SerializeField] private Button grantItemButton;
+    [SerializeField] private Text huCycleText;
+
+    [Header("胡牌奖励区域")]
+    [SerializeField] private GameObject commonRewardPanel;
+    [SerializeField] private Transform commonRewardBlockArea;
+    [SerializeField] private Transform commonRewardItemArea;
+    [SerializeField] private GameObject advancedRewardPanel;
+    [SerializeField] private Transform advancedRewardBlockArea;
+    [SerializeField] private Transform advancedRewardItemArea;
+    [SerializeField] private Transform advancedRewardProtocolArea;
 
     [Header("游戏结束")]
     [SerializeField] private GameObject gameOverPanel;
@@ -42,6 +55,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Text totalMultiplierText;
 
     [Header("UI预制件")]
+    [SerializeField] private GameObject rewardOptionPrefab;
     [SerializeField] private GameObject uiBlockPrefab;
     [SerializeField] private GameObject tetrominoListItemPrefab;
 
@@ -49,8 +63,6 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private BlockPool blockPool;
 
     private GameObject currentPreviewObject;
-    #endregion
-
     private InventoryManager inventoryManager;
 
     void Awake()
@@ -59,39 +71,6 @@ public class GameUIController : MonoBehaviour
         SetupButtonListeners();
     }
 
-    private void SetupButtonListeners()
-    {
-        if (continueButton) continueButton.onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); GameManager.Instance.ContinueAfterHu(); });
-        if (restartButton) restartButton.onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); ReturnToMainMenu(); });
-        if (grantItemButton) grantItemButton.onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); GameManager.Instance.GrantRandomItem(); });
-
-        for (int i = 0; i < itemSlotButtons.Count; i++)
-        {
-            int slotIndex = i;
-            itemSlotButtons[i].onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); if (inventoryManager) inventoryManager.UseItem(slotIndex); });
-        }
-
-        // --- 【新增】---
-        // 增加对 Level Buttons 列表的配置检查
-        if (levelButtons == null || levelButtons.Count == 0)
-        {
-            Debug.LogWarning("GameUIController: 'Level Buttons' 列表为空，胡牌奖励功能将无法使用。请在Inspector中为该列表赋值。");
-        }
-        else
-        {
-            for (int i = 0; i < levelButtons.Count; i++)
-            {
-                int levelIndex = i;
-                levelButtons[i].onClick.AddListener(() => {
-                    if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
-                    GameManager.Instance.OnLevelButtonClicked(levelIndex);
-                });
-            }
-        }
-    }
-
-    // (其余所有方法与上一版完全相同)
-    #region Unchanged Code
     void OnEnable()
     {
         GameEvents.OnNextBlockReady += UpdateNextBlockPreview;
@@ -118,10 +97,22 @@ public class GameUIController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha5)) inventoryManager.UseItem(4);
     }
 
+    private void SetupButtonListeners()
+    {
+        if (continueButton) continueButton.onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); GameManager.Instance.ContinueAfterHu(); });
+        if (restartButton) restartButton.onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); ReturnToMainMenu(); });
+
+        for (int i = 0; i < itemSlotButtons.Count; i++)
+        {
+            int slotIndex = i;
+            itemSlotButtons[i].onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); if (inventoryManager) inventoryManager.UseItem(slotIndex); });
+        }
+    }
+
     public void UpdateTimerText(float time) { if (timerText) timerText.text = $"时间: {Mathf.Max(0, time):F0}"; }
     public void UpdateTargetScoreText(string text) { if (targetScoreText) targetScoreText.text = $"目标: {text}"; }
     public void UpdateSpeedText(float percent) { if (speedText) speedText.text = $"速度: {percent:F0}%"; }
-
+    public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"方块倍率: x{multiplier:F1}"; }
     private void UpdateScoreText(int newScore) { if (scoreText) scoreText.text = $"得分: {newScore}"; }
     private void UpdatePoolCountText(int count) { if (poolCountText) poolCountText.text = $"牌库剩余: {count}"; }
 
@@ -149,6 +140,7 @@ public class GameUIController : MonoBehaviour
         if (tetrominoListContent == null) return;
         foreach (Transform child in tetrominoListContent) Destroy(child.gameObject);
         if (tetrominoListItemPrefab == null) return;
+
         var prefabCounts = prefabs.GroupBy(p => p.GetInstanceID()).ToDictionary(g => g.Key, g => g.ToList());
         foreach (var group in prefabCounts.Values)
         {
@@ -156,11 +148,14 @@ public class GameUIController : MonoBehaviour
             int count = group.Count;
             var tetromino = representativePrefab.GetComponent<Tetromino>();
             if (tetromino == null || tetromino.uiPrefab == null) continue;
+
             var itemGO = Instantiate(tetrominoListItemPrefab, tetrominoListContent);
             var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
             if (listItemUI == null) continue;
+
             if (listItemUI.multiplierText) listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
             if (listItemUI.shapeContainer) Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
+
             if (listItemUI.countText != null)
             {
                 listItemUI.countText.gameObject.SetActive(count > 1);
@@ -170,55 +165,103 @@ public class GameUIController : MonoBehaviour
         if (totalMultiplierText) totalMultiplierText.text = $"总倍率: x{totalMultiplier:F1}";
     }
 
-    public void ShowHuPopup(List<List<int>> huHand, HandAnalysisResult analysis, int baseScore, float multiplier, long finalScore)
+    public void ShowHuPopup(List<List<int>> huHand, HandAnalysisResult analysis,
+                            int baseScore, float blockMultiplier, float extraMultiplier, long finalScore,
+                            HuRewardPackage rewards, bool isAdvanced)
     {
         if (huPopupPanel) huPopupPanel.SetActive(true);
-        foreach (var btn in levelButtons) btn.interactable = true;
-        if (chosenTetrominoArea) foreach (Transform child in chosenTetrominoArea) Destroy(child.gameObject);
-        SetGrantItemButtonInteractable(true);
+
         if (patternNameText) patternNameText.text = $"{analysis.PatternName} ({analysis.TotalFan}番)";
-        if (formulaText) formulaText.text = $"{baseScore} × (2^{analysis.TotalFan}) × {multiplier:F1} = {finalScore}";
+        if (formulaText) formulaText.text = $"{baseScore} × 2^{analysis.TotalFan} × {blockMultiplier:F1} × {extraMultiplier:F1} = {finalScore}";
+        if (huCycleText) huCycleText.text = isAdvanced ? "4/4" : $"{FindObjectOfType<ScoreManager>().GetHuCountInCycle()}/4";
+
         BuildUIHand(huHandDisplayArea, huHand);
+
+        if (commonRewardPanel) commonRewardPanel.SetActive(!isAdvanced);
+        if (advancedRewardPanel) advancedRewardPanel.SetActive(isAdvanced);
+
+        if (isAdvanced)
+        {
+            PopulateRewardOptions(advancedRewardBlockArea, rewards.BlockChoices);
+            PopulateRewardOptions(advancedRewardItemArea, rewards.ItemChoices);
+            PopulateRewardOptions(advancedRewardProtocolArea, rewards.ProtocolChoices);
+        }
+        else
+        {
+            PopulateRewardOptions(commonRewardBlockArea, rewards.BlockChoices);
+            PopulateRewardOptions(commonRewardItemArea, rewards.ItemChoices);
+        }
     }
 
-    public void DisplayChosenTetrominoAndLockButtons(GameObject chosenPrefab)
+    private void PopulateRewardOptions<T>(Transform container, List<T> choices) where T : class
     {
-        foreach (var btn in levelButtons) btn.interactable = false;
-        if (chosenTetrominoArea == null) return;
-        foreach (Transform child in chosenTetrominoArea) Destroy(child.gameObject);
-        if (chosenPrefab == null) return;
+        if (container == null) return;
+        foreach (Transform child in container) Destroy(child.gameObject);
+        if (choices == null) return;
 
-        var tetromino = chosenPrefab.GetComponent<Tetromino>();
-        if (tetromino != null && tetromino.uiPrefab != null)
+        foreach (var choice in choices)
         {
-            var itemGO = Instantiate(tetrominoListItemPrefab, chosenTetrominoArea);
-            var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
-            if (listItemUI != null)
+            var optionGO = Instantiate(rewardOptionPrefab, container);
+            var rewardUI = optionGO.GetComponent<RewardOptionUI>();
+            if (rewardUI == null) continue;
+
+            if (choice is GameObject blockPrefab)
             {
-                if (listItemUI.multiplierText) listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
-                if (listItemUI.shapeContainer) Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
-                if (listItemUI.countText != null) listItemUI.countText.gameObject.SetActive(false);
+                var tetromino = blockPrefab.GetComponent<Tetromino>();
+                rewardUI.Initialize(tetromino.shapeUISprite, $"方块: {blockPrefab.name}", $"倍率: x{tetromino.extraMultiplier}",
+                (clickedUI) => {
+                    FindObjectOfType<Spawner>().AddTetrominoToPool(blockPrefab);
+                    DisableOtherOptions(container, clickedUI);
+                }, ShowTooltip, HideTooltip);
+            }
+            else if (choice is ItemData itemData)
+            {
+                rewardUI.Initialize(itemData.itemIcon, $"道具: {itemData.itemName}", itemData.itemDescription,
+                (clickedUI) => {
+                    FindObjectOfType<InventoryManager>().AddItem(itemData);
+                    DisableOtherOptions(container, clickedUI);
+                }, ShowTooltip, HideTooltip);
+            }
+            else if (choice is ProtocolData protocolData)
+            {
+                rewardUI.Initialize(protocolData.protocolIcon, $"条约: {protocolData.protocolName}", protocolData.protocolDescription,
+                (clickedUI) => {
+                    GameManager.Instance.AddProtocol(protocolData);
+                    DisableOtherOptions(container, clickedUI);
+                }, ShowTooltip, HideTooltip);
             }
         }
     }
 
-    public void SetGrantItemButtonInteractable(bool interactable)
+    private void DisableOtherOptions(Transform container, RewardOptionUI selected)
     {
-        if (grantItemButton) grantItemButton.interactable = interactable;
+        foreach (Transform child in container)
+        {
+            var rewardOption = child.GetComponent<RewardOptionUI>();
+            if (rewardOption != null)
+            {
+                rewardOption.SetInteractable(child.gameObject == selected.gameObject);
+            }
+        }
     }
+
+    private void ShowTooltip(string title, string desc) { if (TooltipSystem.Instance) TooltipSystem.Instance.Show(title, desc); }
+    private void HideTooltip() { if (TooltipSystem.Instance) TooltipSystem.Instance.Hide(); }
 
     public void HideAllPanels()
     {
         if (huPopupPanel) huPopupPanel.SetActive(false);
         if (gameOverPanel) gameOverPanel.SetActive(false);
     }
+
     public void HideHuPopup() { if (huPopupPanel) huPopupPanel.SetActive(false); }
     public void ShowGameOverPanel() { if (gameOverPanel) gameOverPanel.SetActive(true); }
-    public void HideGameOverPanel() { if (gameOverPanel) gameOverPanel.SetActive(false); }
+
     private void BuildUIHand(Transform container, List<List<int>> hand)
     {
         if (container == null) return;
         foreach (Transform child in container) Destroy(child.gameObject);
+
         foreach (var set in hand)
         {
             foreach (var blockId in set)
@@ -228,24 +271,28 @@ public class GameUIController : MonoBehaviour
             }
         }
     }
+
     private void UpdateNextBlockPreview(GameObject prefab, List<int> ids)
     {
         if (nextBlockPreviewArea == null) return;
         if (currentPreviewObject != null) Destroy(currentPreviewObject);
+
         currentPreviewObject = Instantiate(prefab, nextBlockPreviewArea);
         currentPreviewObject.transform.localPosition = Vector3.zero;
+
         if (currentPreviewObject.GetComponent<Tetromino>())
             currentPreviewObject.GetComponent<Tetromino>().enabled = false;
+
         var blockUnits = currentPreviewObject.GetComponentsInChildren<BlockUnit>();
         for (int i = 0; i < blockUnits.Length && i < ids.Count; i++)
         {
             blockUnits[i].Initialize(ids[i], blockPool);
         }
     }
+
     private void ReturnToMainMenu()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenuScene");
     }
-    #endregion
 }

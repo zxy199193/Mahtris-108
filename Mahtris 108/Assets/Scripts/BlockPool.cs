@@ -1,3 +1,4 @@
+// FileName: BlockPool.cs
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -29,7 +30,11 @@ public class BlockPool : MonoBehaviour
 
     public List<int> GetBlockIds(int count)
     {
-        if (count > availableBlocks.Count) return null;
+        if (count > availableBlocks.Count)
+        {
+            GameEvents.TriggerGameOver(); // 牌库抽干，游戏结束
+            return null;
+        }
 
         List<int> ids = availableBlocks.Take(count).ToList();
         availableBlocks.RemoveRange(0, count);
@@ -40,13 +45,17 @@ public class BlockPool : MonoBehaviour
 
     public void ReturnBlockIds(List<int> ids)
     {
-        availableBlocks.AddRange(ids);
-        GameEvents.TriggerPoolCountChanged(availableBlocks.Count);
+        if (ids != null)
+        {
+            availableBlocks.AddRange(ids);
+            GameEvents.TriggerPoolCountChanged(availableBlocks.Count);
+        }
     }
 
     public Sprite GetSpriteForBlock(int blockId)
     {
         if (mahjongSprites == null || mahjongSprites.Length == 0) return null;
-        return mahjongSprites[blockId % mahjongSprites.Length];
+        // 使用 blockId % 27 来对应 27 种不同的牌面
+        return mahjongSprites[blockId % 27];
     }
 }

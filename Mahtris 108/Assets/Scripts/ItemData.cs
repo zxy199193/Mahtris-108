@@ -8,5 +8,6 @@ public abstract class ItemData : ScriptableObject
     [TextArea(3, 5)]
     public string itemDescription;
 
-    public abstract bool Use(GameManager gameManager); // 改为接收GameManager引用
+    // 返回bool值表示道具是否使用成功
+    public abstract bool Use(GameManager gameManager);
 }

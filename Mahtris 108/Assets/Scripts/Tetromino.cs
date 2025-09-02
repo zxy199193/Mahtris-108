@@ -8,7 +8,9 @@ public class Tetromino : MonoBehaviour
     public float extraMultiplier = 1f;
 
     [Header("UI显示")]
-    [Tooltip("用于在Tetromino列表中显示的【UI版预制件】")]
+    [Tooltip("用于在UI中显示的【单张形状图片】")]
+    public Sprite shapeUISprite;
+    [Tooltip("用于在UI中显示的【UI版预制件】")]
     public GameObject uiPrefab;
 
     private float lastFallTime;
@@ -89,8 +91,6 @@ public class Tetromino : MonoBehaviour
 
     void Rotate()
     {
-        // ---【修正点】---
-        // 将音效播放移到最前面，确保无论旋转是否成功都有音效反馈
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayRotateSound();
 
@@ -105,4 +105,3 @@ public class Tetromino : MonoBehaviour
         }
     }
 }
-

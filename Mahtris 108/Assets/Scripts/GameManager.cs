@@ -2,14 +2,15 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    // ... (所有字段和大部分方法与上一版相同)
-    #region Unchanged Code
     public static GameManager Instance { get; private set; }
+
     [Header("核心配置")]
     [SerializeField] private GameSettings settings;
+
     [Header("模块引用")]
     [SerializeField] private Spawner spawner;
     [SerializeField] private TetrisGrid tetrisGrid;
@@ -18,41 +19,39 @@ public class GameManager : MonoBehaviour
     [SerializeField] private BlockPool blockPool;
     [SerializeField] private ScoreManager scoreManager;
     [SerializeField] private InventoryManager inventoryManager;
+
     private MahjongCore mahjongCore;
     [HideInInspector] public float currentFallSpeed;
     private bool isProcessingRows = false;
-    private float totalExtraMultiplier;
+
+    // 游戏状态变量
     private float remainingTime;
     private int currentScoreLevelIndex;
     private bool isEndlessMode = false;
-    private int baseFanScoreBonus = 0;
-    private int huCount = 0;
+    private List<ProtocolData> activeProtocols = new List<ProtocolData>();
+
+    // 会被条约和道具影响的动态变量
+    private float blockMultiplier;
+    private float extraMultiplier;
+    private int baseFanScore;
     private float speedPercentageModifier = 0f;
+    private int baseFanScoreBonus = 0;
+
     public Spawner Spawner => spawner;
     public HuPaiArea HuPaiArea => huPaiArea;
+
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
+
         mahjongCore = new MahjongCore();
         tetrisGrid.Initialize(settings);
         blockPool.Initialize(settings);
         inventoryManager.Initialize(settings, this);
     }
+
     void Start() { StartNewGame(); }
-    void OnEnable()
-    {
-        GameEvents.OnRowsCleared += HandleRowsCleared;
-        GameEvents.OnHuDeclared += HandleHuDeclared;
-        GameEvents.OnGameOver += HandleGameOver;
-        ScoreManager.OnScoreChanged += OnScoreUpdated;
-    }
-    void OnDisable()
-    {
-        GameEvents.OnRowsCleared -= HandleRowsCleared;
-        GameEvents.OnHuDeclared -= HandleHuDeclared;
-        GameEvents.OnGameOver -= HandleGameOver;
-        ScoreManager.OnScoreChanged -= OnScoreUpdated;
-    }
+
     void Update()
     {
         if (isProcessingRows || Time.timeScale == 0f) return;
@@ -60,35 +59,211 @@ public class GameManager : MonoBehaviour
         gameUI.UpdateTimerText(remainingTime);
         if (remainingTime <= 0) GameEvents.TriggerGameOver();
     }
-    public void RecalculateTotalMultiplier()
+
+    void OnEnable()
     {
-        totalExtraMultiplier = 0;
-        if (spawner.GetActivePrefabs() == null) return;
-        foreach (var prefab in spawner.GetActivePrefabs())
-            totalExtraMultiplier += prefab.GetComponent<Tetromino>().extraMultiplier;
-        gameUI.UpdateTetrominoList(spawner.GetActivePrefabs(), totalExtraMultiplier);
+        GameEvents.OnRowsCleared += HandleRowsCleared;
+        GameEvents.OnHuDeclared += HandleHuDeclared;
+        GameEvents.OnGameOver += HandleGameOver;
+        ScoreManager.OnScoreChanged += OnScoreUpdated;
     }
+
+    void OnDisable()
+    {
+        GameEvents.OnRowsCleared -= HandleRowsCleared;
+        GameEvents.OnHuDeclared -= HandleHuDeclared;
+        GameEvents.OnGameOver -= HandleGameOver;
+        ScoreManager.OnScoreChanged -= OnScoreUpdated;
+    }
+
     public void StartNewGame()
     {
         Time.timeScale = 1f;
-        huCount = 0;
-        baseFanScoreBonus = 0;
+
+        foreach (var protocol in activeProtocols)
+        {
+            if (protocol != null) protocol.RemoveEffect(this);
+        }
+        activeProtocols.Clear();
+
+        baseFanScore = settings.baseFanScore;
+        extraMultiplier = 1f;
         speedPercentageModifier = 0f;
+        baseFanScoreBonus = 0;
+
         UpdateFallSpeed();
         remainingTime = settings.initialTimeLimit;
         currentScoreLevelIndex = 0;
         isEndlessMode = false;
+
         blockPool.ResetFullDeck();
         tetrisGrid.ClearAllBlocks();
         huPaiArea.ClearAll();
         scoreManager.ResetScore();
         inventoryManager.ClearInventory();
         spawner.InitializeForNewGame(settings);
-        RecalculateTotalMultiplier();
+        RecalculateBlockMultiplier();
+
         isProcessingRows = false;
         gameUI.HideAllPanels();
         UpdateTargetScoreUI();
     }
+
+    private void HandleHuDeclared(List<List<int>> huHand)
+    {
+        isProcessingRows = true;
+        Time.timeScale = 0f;
+
+        bool isAdvancedReward = scoreManager.IncrementHuCountAndCheckCycle();
+
+        var analysisResult = mahjongCore.CalculateHandFan(huHand, settings);
+        int currentBaseScore = baseFanScore + baseFanScoreBonus;
+        double scorePart = currentBaseScore * analysisResult.FanMultiplier;
+        long finalScore = (long)(scorePart * blockMultiplier * extraMultiplier);
+        scoreManager.AddScore((int)Mathf.Min(finalScore, int.MaxValue));
+        remainingTime += settings.huTimeBonus;
+
+        var rewards = GenerateHuRewards(isAdvancedReward);
+        gameUI.ShowHuPopup(huHand, analysisResult, currentBaseScore, blockMultiplier, extraMultiplier, finalScore, rewards, isAdvancedReward);
+    }
+
+    public void ContinueAfterHu()
+    {
+        gameUI.HideHuPopup();
+        Time.timeScale = 1f;
+        UpdateFallSpeed();
+        baseFanScoreBonus = 0;
+        blockPool.ResetFullDeck();
+        tetrisGrid.ClearAllBlocks();
+        huPaiArea.ClearAll();
+        spawner.StartNextRound();
+        isProcessingRows = false;
+    }
+
+    public void AddProtocol(ProtocolData protocol)
+    {
+        if (activeProtocols.Count < settings.maxProtocolCount && !activeProtocols.Contains(protocol))
+        {
+            activeProtocols.Add(protocol);
+            protocol.ApplyEffect(this);
+        }
+    }
+
+    public void RecalculateBlockMultiplier()
+    {
+        blockMultiplier = 0;
+        if (spawner.GetActivePrefabs() == null) return;
+        foreach (var prefab in spawner.GetActivePrefabs())
+            blockMultiplier += prefab.GetComponent<Tetromino>().extraMultiplier;
+
+        if (blockMultiplier < 1f) blockMultiplier = 1f;
+
+        gameUI.UpdateBlockMultiplierText(blockMultiplier);
+    }
+
+    public void ApplyBlockMultiplierModifier(float amount)
+    {
+        blockMultiplier += amount;
+        if (blockMultiplier < 1f) blockMultiplier = 1f;
+        gameUI.UpdateBlockMultiplierText(blockMultiplier);
+    }
+
+    public void ApplyExtraMultiplier(float factor)
+    {
+        extraMultiplier *= factor;
+    }
+
+    private HuRewardPackage GenerateHuRewards(bool isAdvanced)
+    {
+        var package = new HuRewardPackage();
+        if (isAdvanced)
+        {
+            package.BlockChoices = GetWeightedRandomBlocks(5, settings.advancedBlockRewardWeights).ToList();
+            package.ItemChoices = settings.advancedItemPool.OrderBy(x => Random.value).Take(2).ToList();
+            package.ProtocolChoices = settings.protocolPool.Except(activeProtocols).OrderBy(x => Random.value).Take(2).ToList();
+        }
+        else
+        {
+            package.BlockChoices = GetWeightedRandomBlocks(3, settings.commonBlockRewardWeights).ToList();
+            package.ItemChoices = settings.commonItemPool.OrderBy(x => Random.value).Take(3).ToList();
+        }
+        return package;
+    }
+
+    private IEnumerable<GameObject> GetWeightedRandomBlocks(int count, BlockRewardWeights weights)
+    {
+        var source = spawner.GetMasterList();
+        var level1 = source.Where(p => IsInLevel(p, 0)).ToList();
+        var level2 = source.Where(p => IsInLevel(p, 1)).ToList();
+        var level3 = source.Where(p => IsInLevel(p, 2)).ToList();
+        var result = new List<GameObject>();
+        for (int i = 0; i < count; i++)
+        {
+            GameObject chosenBlock = null;
+            float roll = Random.value;
+            if (roll < weights.level1Weight && level1.Count > 0)
+                chosenBlock = level1[Random.Range(0, level1.Count)];
+            else if (roll < weights.level1Weight + weights.level2Weight && level2.Count > 0)
+                chosenBlock = level2[Random.Range(0, level2.Count)];
+            else if (level3.Count > 0)
+                chosenBlock = level3[Random.Range(0, level3.Count)];
+            else if (level2.Count > 0)
+                chosenBlock = level2[Random.Range(0, level2.Count)];
+            else if (level1.Count > 0)
+                chosenBlock = level1[Random.Range(0, level1.Count)];
+            if (chosenBlock != null && !result.Contains(chosenBlock))
+                result.Add(chosenBlock);
+        }
+        return result;
+    }
+
+    private bool IsInLevel(GameObject prefab, int levelIndex)
+    {
+        if (levelIndex < 0 || levelIndex >= settings.tetrominoLevels.Count) return false;
+        var levelDef = settings.tetrominoLevels[levelIndex];
+        int count = prefab.GetComponentsInChildren<BlockUnit>().Length;
+        return count >= levelDef.minBlocks && count <= levelDef.maxBlocks;
+    }
+
+    private void UpdateFallSpeed()
+    {
+        float speedPercent = 100f + (scoreManager.GetHuCount() * (settings.speedIncreasePerHu * 100f)) + speedPercentageModifier;
+        currentFallSpeed = settings.initialFallSpeed / (Mathf.Max(1f, speedPercent) / 100f);
+        gameUI.UpdateSpeedText(speedPercent);
+    }
+
+    private void OnScoreUpdated(int newScore)
+    {
+        if (isEndlessMode || settings.scoreLevels.Count == 0) return;
+        if (currentScoreLevelIndex < settings.scoreLevels.Count && newScore >= settings.scoreLevels[currentScoreLevelIndex].targetScore)
+        {
+            if (GameSession.Instance != null)
+                GameSession.Instance.AddGold(settings.scoreLevels[currentScoreLevelIndex].goldReward);
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibrary.targetReached);
+            currentScoreLevelIndex++;
+            if (currentScoreLevelIndex >= settings.scoreLevels.Count) isEndlessMode = true;
+            UpdateTargetScoreUI();
+        }
+    }
+
+    private void UpdateTargetScoreUI()
+    {
+        if (isEndlessMode) gameUI.UpdateTargetScoreText("无尽模式");
+        else if (currentScoreLevelIndex < settings.scoreLevels.Count)
+        {
+            var level = settings.scoreLevels[currentScoreLevelIndex];
+            gameUI.UpdateTargetScoreText($"{level.targetScore} (奖励: {level.goldReward}金)");
+        }
+    }
+
+    private void HandleGameOver() { Time.timeScale = 0f; gameUI.ShowGameOverPanel(); }
+
+    public void ForceClearRowsFromBottom(int count)
+    {
+        tetrisGrid.ForceClearBottomRows(count);
+    }
+
     private void HandleRowsCleared(List<int> rowIndices)
     {
         if (isProcessingRows) return;
@@ -135,105 +310,25 @@ public class GameManager : MonoBehaviour
         spawner.SpawnBlock();
         isProcessingRows = false;
     }
-    private void HandleHuDeclared(List<List<int>> huHand)
-    {
-        isProcessingRows = true;
-        Time.timeScale = 0f;
-        scoreManager.IncrementHuCount();
-        var analysisResult = mahjongCore.CalculateHandFan(huHand, settings);
-        int currentBaseScore = settings.baseFanScore + baseFanScoreBonus;
-        double scorePart = currentBaseScore * Mathf.Pow(2, analysisResult.TotalFan);
-        long finalScore = (long)(scorePart * totalExtraMultiplier);
-        scoreManager.AddScore((int)Mathf.Min(finalScore, int.MaxValue));
-        remainingTime += settings.huTimeBonus;
-        gameUI.ShowHuPopup(huHand, analysisResult, currentBaseScore, totalExtraMultiplier, finalScore);
-    }
-    private void OnScoreUpdated(int newScore)
-    {
-        if (isEndlessMode || settings.scoreLevels == null || settings.scoreLevels.Count == 0) return;
-        if (currentScoreLevelIndex < settings.scoreLevels.Count && newScore >= settings.scoreLevels[currentScoreLevelIndex].targetScore)
-        {
-            if (GameSession.Instance != null)
-                GameSession.Instance.AddGold(settings.scoreLevels[currentScoreLevelIndex].goldReward);
-            if (AudioManager.Instance != null && AudioManager.Instance.SoundLibraryProperty != null)
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibraryProperty.targetReached);
-            currentScoreLevelIndex++;
-            if (currentScoreLevelIndex >= settings.scoreLevels.Count) isEndlessMode = true;
-            UpdateTargetScoreUI();
-        }
-    }
-    public void ContinueAfterHu()
-    {
-        gameUI.HideHuPopup();
-        Time.timeScale = 1f;
-        huCount = scoreManager.GetHuCount();
-        UpdateFallSpeed();
-        baseFanScoreBonus = 0;
-        blockPool.ResetFullDeck();
-        tetrisGrid.ClearAllBlocks();
-        huPaiArea.ClearAll();
-        spawner.StartNextRound();
-        RecalculateTotalMultiplier();
-        isProcessingRows = false;
-    }
-    #endregion
 
-    // --- 【重大修正】---
-    // 无论是否找到新方块，都调用UI方法来锁定按钮
-    public void OnLevelButtonClicked(int levelIndex)
-    {
-        var chosenPrefab = spawner.AddRandomTetrominoOfLevel(levelIndex);
-
-        if (chosenPrefab != null)
-        {
-            // 成功添加了新方块，现在立即重新计算总倍率并刷新UI列表
-            RecalculateTotalMultiplier();
-        }
-        else
-        {
-            // 即使没找到新方块，也要明确告知玩家
-            Debug.LogWarning("添加新 Tetromino 失败，但仍将锁定奖励按钮。");
-        }
-
-        // 无论成功与否，都调用此方法来显示结果（null或prefab）并锁定按钮
-        gameUI.DisplayChosenTetrominoAndLockButtons(chosenPrefab);
-    }
-
-    // (其余方法与上一版完全相同)
-    #region Unchanged Code
-    private void UpdateFallSpeed()
-    {
-        float currentSpeedPercent = 100f + (huCount * (settings.speedIncreasePerHu * 100f)) + speedPercentageModifier;
-        currentSpeedPercent = Mathf.Max(1f, currentSpeedPercent);
-        currentFallSpeed = settings.initialFallSpeed / (currentSpeedPercent / 100f);
-        gameUI.UpdateSpeedText(currentSpeedPercent);
-    }
-    public void GrantRandomItem()
-    {
-        if (settings.masterItemList != null && settings.masterItemList.Count > 0)
-        {
-            var item = settings.masterItemList[Random.Range(0, settings.masterItemList.Count)];
-            bool added = inventoryManager.AddItem(item);
-            gameUI.SetGrantItemButtonInteractable(false);
-        }
-    }
-    private void UpdateTargetScoreUI()
-    {
-        if (isEndlessMode) gameUI.UpdateTargetScoreText("无尽模式");
-        else if (settings.scoreLevels != null && currentScoreLevelIndex < settings.scoreLevels.Count)
-        {
-            var level = settings.scoreLevels[currentScoreLevelIndex];
-            gameUI.UpdateTargetScoreText($"{level.targetScore} (奖励: {level.goldReward}金)");
-        }
-    }
-    private void HandleGameOver() { Time.timeScale = 0f; gameUI.ShowGameOverPanel(); }
+    // --- 【新增方法】 补全道具系统所需的公共接口 ---
     public void AddTime(float time) => remainingTime += time;
+    public void AddBaseScoreBonus(int bonus) => baseFanScoreBonus += bonus;
     public void ModifySpeedByPercentage(float percentageChange)
     {
         speedPercentageModifier += percentageChange;
         UpdateFallSpeed();
     }
-    public void AddBaseScoreBonus(int bonus) => baseFanScoreBonus += bonus;
-    #endregion
+    public void ModifyBaseFanScore(int amount, bool isMultiplier)
+    {
+        if (isMultiplier) baseFanScore *= amount;
+        else baseFanScore += amount;
+    }
+    public void ModifyTargetScore(float multiplier)
+    {
+        if (isEndlessMode) return;
+        var level = settings.scoreLevels[currentScoreLevelIndex];
+        level.targetScore = (int)(level.targetScore * multiplier);
+        UpdateTargetScoreUI();
+    }
 }
-

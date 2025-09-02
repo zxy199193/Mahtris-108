@@ -1,9 +1,8 @@
 // FileName: MahjongCore.cs
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine; // 【修正点】增加了对Unity引擎核心库的引用
 
-// (DetectionResult, HandAnalysisResult 类以及 FindKongs/Pungs/Chows/DetectSets/FindPair 方法保持不变)
-#region Unchanged Code
 public class DetectionResult
 {
     public List<List<int>> Kongs { get; set; } = new List<List<int>>();
@@ -16,6 +15,8 @@ public class HandAnalysisResult
 {
     public string PatternName { get; set; } = "未知牌型";
     public int TotalFan { get; set; } = 0;
+    // 使用 Mathf.Pow 需要 using UnityEngine;
+    public float FanMultiplier => Mathf.Pow(2, TotalFan);
 }
 
 public class MahjongCore
@@ -100,7 +101,6 @@ public class MahjongCore
     {
         return ids.GroupBy(id => id % 27).FirstOrDefault(g => g.Count() >= 2)?.Take(2).ToList();
     }
-    #endregion
 
     private bool IsPungOrKong(List<int> set)
     {

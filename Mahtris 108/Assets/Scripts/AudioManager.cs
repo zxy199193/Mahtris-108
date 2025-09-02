@@ -34,7 +34,7 @@ public class AudioManager : MonoBehaviour
 
     // --- 【重大修正】---
     // 统一并修正了公开访问音效库的属性名
-    public SoundLibrary SoundLibraryProperty => soundLibrary;
+    public SoundLibrary SoundLibrary => soundLibrary;
 
     void Awake()
     {

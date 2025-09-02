@@ -16,7 +16,37 @@ public class TetrisGrid : MonoBehaviour
         grid = new Transform[width, height];
     }
 
+    // 【新增方法】供炸弹道具调用
+    public void ForceClearBottomRows(int count)
+    {
+        List<int> rowsToClear = new List<int>();
+        for (int i = 0; i < count && i < height; i++)
+        {
+            // 检查这一行是否真的有方块，空的行不算
+            bool hasBlocks = false;
+            for (int x = 0; x < width; x++)
+            {
+                if (grid[x, i] != null)
+                {
+                    hasBlocks = true;
+                    break;
+                }
+            }
+            if (hasBlocks)
+            {
+                rowsToClear.Add(i);
+            }
+        }
+
+        if (rowsToClear.Count > 0)
+        {
+            // 触发和普通消行完全一样的事件，让GameManager处理后续的计分和胡牌判定
+            GameEvents.TriggerRowsCleared(rowsToClear);
+        }
+    }
+
     public Vector2 RoundVector2(Vector2 v) => new Vector2(Mathf.Round(v.x), Mathf.Round(v.y));
+
     public bool IsInsideBorder(Vector2 pos) => (int)pos.x >= 0 && (int)pos.x < width && (int)pos.y >= 0;
 
     public bool IsValidGridPos(Transform parent)
@@ -25,7 +55,8 @@ public class TetrisGrid : MonoBehaviour
         {
             Vector2 v = RoundVector2(child.position);
             if (!IsInsideBorder(v)) return false;
-            if ((int)v.y >= height) continue;
+            if ((int)v.y >= height) continue; // 允许方块在游戏区域上方生成
+
             if (grid[(int)v.x, (int)v.y] != null && grid[(int)v.x, (int)v.y].parent != parent)
                 return false;
         }
@@ -43,7 +74,9 @@ public class TetrisGrid : MonoBehaviour
         {
             Vector2 v = RoundVector2(child.position);
             if (IsInsideBorder(v) && (int)v.y < height)
+            {
                 grid[(int)v.x, (int)v.y] = child;
+            }
         }
     }
 
@@ -61,6 +94,7 @@ public class TetrisGrid : MonoBehaviour
         }
         else
         {
+            // 如果没有消行，则直接生成下一个方块
             FindObjectOfType<Spawner>().SpawnBlock();
         }
     }

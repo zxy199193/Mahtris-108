@@ -22,48 +22,29 @@ public class HuPaiArea : MonoBehaviour
         RefreshDisplay();
     }
 
-    // “橡皮”道具所需的新增方法
     public bool RemoveLastSet()
     {
         if (huPaiSets.Count > 0)
         {
-            // 获取最后一组牌
             var lastSet = huPaiSets.Last();
-            // 将牌的ID返回到牌库
             blockPool.ReturnBlockIds(lastSet);
-            // 从和牌区列表中移除
             huPaiSets.RemoveAt(huPaiSets.Count - 1);
-            // 刷新UI显示
             RefreshDisplay();
-            Debug.Log("已使用橡皮，移除了最近的一组牌。");
-            return true; // 表示成功移除
+            return true;
         }
-        Debug.Log("和牌区为空，橡皮使用失败。");
-        return false; // 表示没有牌可以移除
+        return false;
     }
 
-    public int GetSetCount()
-    {
-        return huPaiSets.Count;
-    }
+    public int GetSetCount() => huPaiSets.Count;
 
-    public List<List<int>> GetAllSets()
-    {
-        // 返回一个副本，防止外部修改
-        return new List<List<int>>(huPaiSets);
-    }
-
-
+    public List<List<int>> GetAllSets() => new List<List<int>>(huPaiSets);
 
     public void ClearAll()
     {
         huPaiSets.Clear();
         if (displayParent != null)
         {
-            foreach (Transform child in displayParent)
-            {
-                Destroy(child.gameObject);
-            }
+            foreach (Transform child in displayParent) Destroy(child.gameObject);
         }
     }
 
@@ -73,19 +54,8 @@ public class HuPaiArea : MonoBehaviour
         {
             foreach (Transform child in displayParent) Destroy(child.gameObject);
         }
-        else
-        {
-            Debug.LogError("HuPaiArea 的 displayParent 引用未设置!");
-            return;
-        }
+        else { return; }
 
-        if (blockPrefab == null || blockPool == null)
-        {
-            Debug.LogError("HuPaiArea 的 blockPrefab 或 blockPool 引用未设置!");
-            return;
-        }
-
-        // 纵向排列的布局逻辑
         for (int rowIndex = 0; rowIndex < huPaiSets.Count; rowIndex++)
         {
             var set = huPaiSets[rowIndex];
@@ -100,11 +70,9 @@ public class HuPaiArea : MonoBehaviour
                 go.transform.localPosition = new Vector3(xPos, yPos, 0);
 
                 var bu = go.GetComponent<BlockUnit>();
-                if (bu != null)
-                {
-                    bu.Initialize(blockId, blockPool);
-                }
+                if (bu != null) bu.Initialize(blockId, blockPool);
             }
         }
     }
 }
+

@@ -12,7 +12,25 @@ public class MainMenuController : MonoBehaviour
 
     void Start()
     {
-        // 游戏开始时，尝试找到GameSession并更新金币显示
+        UpdateGoldText();
+        GameSession.OnGoldChanged += UpdateGoldText;
+    }
+
+    void OnDestroy()
+    {
+        GameSession.OnGoldChanged -= UpdateGoldText;
+    }
+
+    private void UpdateGoldText(int newGoldAmount)
+    {
+        if (goldText != null)
+        {
+            goldText.text = $"金币: {newGoldAmount}";
+        }
+    }
+
+    private void UpdateGoldText()
+    {
         if (GameSession.Instance != null && goldText != null)
         {
             goldText.text = $"金币: {GameSession.Instance.CurrentGold}";
@@ -25,22 +43,15 @@ public class MainMenuController : MonoBehaviour
 
     public void StartGame()
     {
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlayButtonClickSound();
-        }
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayButtonClickSound();
         SceneManager.LoadScene(gameSceneName);
     }
 
     public void QuitGame()
     {
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlayButtonClickSound();
-        }
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayButtonClickSound();
 
         Application.Quit();
-
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
