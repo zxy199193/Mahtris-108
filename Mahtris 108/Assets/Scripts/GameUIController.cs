@@ -109,12 +109,12 @@ public class GameUIController : MonoBehaviour
         }
     }
 
-    public void UpdateTimerText(float time) { if (timerText) timerText.text = $"时间: {Mathf.Max(0, time):F0}"; }
-    public void UpdateTargetScoreText(string text) { if (targetScoreText) targetScoreText.text = $"目标: {text}"; }
-    public void UpdateSpeedText(float percent) { if (speedText) speedText.text = $"速度: {percent:F0}%"; }
-    public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"方块倍率: x{multiplier:F1}"; }
-    private void UpdateScoreText(int newScore) { if (scoreText) scoreText.text = $"得分: {newScore}"; }
-    private void UpdatePoolCountText(int count) { if (poolCountText) poolCountText.text = $"牌库剩余: {count}"; }
+    public void UpdateTimerText(float time) { if (timerText) timerText.text = $"{Mathf.Max(0, time):F0}"; }
+    public void UpdateTargetScoreText(string text) { if (targetScoreText) targetScoreText.text = $"{text}"; }
+    public void UpdateSpeedText(float percent) { if (speedText) speedText.text = $"{percent:F0}%"; }
+    public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"{multiplier:F1}"; }
+    private void UpdateScoreText(int newScore) { if (scoreText) scoreText.text = $"{newScore}"; }
+    private void UpdatePoolCountText(int count) { if (poolCountText) poolCountText.text = $"{count}"; }
 
     private void UpdateInventoryUI(List<ItemData> items)
     {
@@ -162,7 +162,7 @@ public class GameUIController : MonoBehaviour
                 listItemUI.countText.text = $"x{count}";
             }
         }
-        if (totalMultiplierText) totalMultiplierText.text = $"总倍率: x{totalMultiplier:F1}";
+        if (totalMultiplierText) totalMultiplierText.text = $"{totalMultiplier:F1}";
     }
 
     public void ShowHuPopup(List<List<int>> huHand, HandAnalysisResult analysis,

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb83c2dd7da6d9f47b8828ddeee00799, type: 3}
+  m_Name: SparePocketProtocol
+  m_EditorClassIdentifier: 
+  protocolName: "\u5907\u7528\u53E3\u888B"
+  protocolIcon: {fileID: 21300000, guid: 20df0509f9407b4439327c27155e565f, type: 3}
+  protocolDescription: "\u589E\u52A02\u4E2A\u9053\u5177\u69FD\u4F4D\uFF0C\u5F53\u524D\u500D\u7387-12"
+  extraSlots: 2
+  blockMultiplierPenalty: -12

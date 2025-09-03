@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c682a7d1a6cde624ba83c06368adef9e, type: 3}
+  m_Name: Voucher
+  m_EditorClassIdentifier: 
+  itemName: "\u96F6\u94B1\u5305"
+  itemIcon: {fileID: 21300000, guid: 4c12e42089a14a1458ae0f7d1b810077, type: 3}
+  itemDescription: "\u83B7\u5F9750\u91D1\u5E01"
+  goldAmount: 50
