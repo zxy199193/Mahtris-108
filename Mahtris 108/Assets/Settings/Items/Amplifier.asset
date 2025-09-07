@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: "\u589E\u5E45\u5668"
   itemIcon: {fileID: 21300000, guid: 570e2ecdd1985c94db6950a3292521e9, type: 3}
-  itemDescription: "\u80E1\u724C\u57FA\u672C\u5206\u52A05\u3002"
-  scoreBonus: 5
+  itemDescription: "\u672C\u8F6E\u6E38\u620F\u57FA\u672C\u5206+6\u3002"
+  scoreBonus: 6

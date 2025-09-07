@@ -16,9 +16,9 @@ MonoBehaviour:
   gridHeight: 15
   deadlineHeight: 13
   setsForHu: 4
-  speedIncreasePerHu: 0.05
+  speedIncreasePerHu: 0.2
   initialFallSpeed: 1
-  fastFallMultiplier: 20
+  fastFallMultiplier: 30
   tileRanks: 9
   tilesPerRank: 4
   baseFanScore: 10
@@ -58,18 +58,12 @@ MonoBehaviour:
     level2Weight: 0.5
     level3Weight: 0.15
   advancedBlockRewardWeights:
-    level1Weight: 0.35
+    level1Weight: 0.15
     level2Weight: 0.5
-    level3Weight: 0.15
+    level3Weight: 0.35
   itemSlotCount: 3
   commonItemPool:
   - {fileID: 11400000, guid: 1f38674101fcf564d8cba2a8bc184e24, type: 2}
-  - {fileID: 11400000, guid: ffc57473305f5944491607a4d2593e62, type: 2}
-  - {fileID: 11400000, guid: 92b90391a006cac489e8f1728cce7ff0, type: 2}
-  - {fileID: 11400000, guid: 9a7e2b2bb73de494288909c06af11c3f, type: 2}
-  - {fileID: 11400000, guid: 2be156880e12a124fafe8abea3a85568, type: 2}
-  - {fileID: 11400000, guid: 03028a293d35d044badd2dd39864e90b, type: 2}
-  - {fileID: 11400000, guid: b0b84eeb2b1316b4ca686819f027a1ca, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: a9eedc22c7d08ae4a87baf221acc6b5c, type: 2}
   - {fileID: 11400000, guid: 640357944c5db1c46be5ce054a1ff85f, type: 2}

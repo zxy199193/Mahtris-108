@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Bomb
   m_EditorClassIdentifier: 
   itemName: "\u70B8\u5F39"
-  itemIcon: {fileID: 21300000, guid: 4c12e42089a14a1458ae0f7d1b810077, type: 3}
+  itemIcon: {fileID: 21300000, guid: f151c7d7910ef3e468847270a294a339, type: 3}
   itemDescription: "\u5F3A\u884C\u6D88\u9664\u6700\u5E95\u4E0B1\u884C"
   rowsToClear: 1

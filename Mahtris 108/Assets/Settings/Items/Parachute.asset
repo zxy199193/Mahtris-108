@@ -15,4 +15,4 @@ MonoBehaviour:
   itemName: "\u964D\u843D\u4F1E"
   itemIcon: {fileID: 21300000, guid: 3653e0be2d3844442bad7eefcb276491, type: 3}
   itemDescription: "\u65B9\u5757\u4E0B\u843D\u7684\u901F\u5EA6\u51CF30%\u3002"
-  speedReductionPercent: 0.3
+  speedReductionPercent: 90
