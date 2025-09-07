@@ -112,7 +112,7 @@ public class GameUIController : MonoBehaviour
     public void UpdateTimerText(float time) { if (timerText) timerText.text = $"{Mathf.Max(0, time):F0}"; }
     public void UpdateTargetScoreText(string text) { if (targetScoreText) targetScoreText.text = $"{text}"; }
     public void UpdateSpeedText(float percent) { if (speedText) speedText.text = $"{percent:F0}%"; }
-    public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"{multiplier:F1}"; }
+    public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"{multiplier:F0}"; }
     private void UpdateScoreText(int newScore) { if (scoreText) scoreText.text = $"{newScore}"; }
     private void UpdatePoolCountText(int count) { if (poolCountText) poolCountText.text = $"{count}"; }
 
@@ -153,7 +153,7 @@ public class GameUIController : MonoBehaviour
             var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
             if (listItemUI == null) continue;
 
-            if (listItemUI.multiplierText) listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F1}";
+            if (listItemUI.multiplierText) listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F0}";
             if (listItemUI.shapeContainer) Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
 
             if (listItemUI.countText != null)
@@ -162,7 +162,7 @@ public class GameUIController : MonoBehaviour
                 listItemUI.countText.text = $"x{count}";
             }
         }
-        if (totalMultiplierText) totalMultiplierText.text = $"{totalMultiplier:F1}";
+        if (totalMultiplierText) totalMultiplierText.text = $"{totalMultiplier:F0}";
     }
 
     public void ShowHuPopup(List<List<int>> huHand, HandAnalysisResult analysis,
@@ -172,7 +172,7 @@ public class GameUIController : MonoBehaviour
         if (huPopupPanel) huPopupPanel.SetActive(true);
 
         if (patternNameText) patternNameText.text = $"{analysis.PatternName} ({analysis.TotalFan}·¬)";
-        if (formulaText) formulaText.text = $"{baseScore} ¡Á 2^{analysis.TotalFan} ¡Á {blockMultiplier:F1} ¡Á {extraMultiplier:F1} = {finalScore}";
+        if (formulaText) formulaText.text = $"{baseScore} ¡Á 2^{analysis.TotalFan} ¡Á {blockMultiplier:F0} ¡Á {extraMultiplier:F0} = {finalScore}";
         if (huCycleText) huCycleText.text = isAdvanced ? "4/4" : $"{FindObjectOfType<ScoreManager>().GetHuCountInCycle()}/4";
 
         BuildUIHand(huHandDisplayArea, huHand);
