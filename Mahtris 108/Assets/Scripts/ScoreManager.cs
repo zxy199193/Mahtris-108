@@ -4,12 +4,18 @@ using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
-    // 这个脚本内部的事件不再需要，我们统一使用全局事件
-    // public static event Action<int> OnScoreChanged;
-    public static event System.Action<int> OnScoreChanged;
+    public static event Action<int> OnScoreChanged;
+
     private int score;
     private int huCount;
     private int huCountInCycle;
+    private int _highScore; // 新增：用于缓存最高分
+
+    void Start()
+    {
+        // 游戏开始时加载一次最高分
+        _highScore = SaveManager.LoadHighScore();
+    }
 
     public int GetHuCount()
     {
@@ -36,10 +42,15 @@ public class ScoreManager : MonoBehaviour
     public void AddScore(int amount)
     {
         score += amount;
-        OnScoreChanged?.Invoke(score); // 触发事件，通知GameManager
-        // ---【重大修正点】---
-        // 调用全局的 GameEvents 来触发分数变化事件
-        GameEvents.TriggerScoreChanged(score);
+
+        // 【新增】检查并保存最高分
+        if (score > _highScore)
+        {
+            _highScore = score;
+            SaveManager.SaveHighScore(_highScore);
+        }
+
+        OnScoreChanged?.Invoke(score);
     }
 
     public void ResetScore()
@@ -47,9 +58,10 @@ public class ScoreManager : MonoBehaviour
         score = 0;
         huCount = 0;
         huCountInCycle = 0;
+
+        // 重新加载最高分，以备在同一会话中开始新游戏
+        _highScore = SaveManager.LoadHighScore();
+
         OnScoreChanged?.Invoke(score);
-        // ---【重大修正点】---
-        // 调用全局的 GameEvents 来触发分数变化事件
-        GameEvents.TriggerScoreChanged(score);
     }
 }

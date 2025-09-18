@@ -12,6 +12,7 @@ public class HuPaiArea : MonoBehaviour
 
     [Header("布局设置")]
     [SerializeField] private float rowSpacing = 1.2f;
+    [SerializeField] private float columnSpacing = 4.0f; // 新增：用于控制两列之间的间距
     [SerializeField] private float tileSpacing = 1.1f;
 
     private List<List<int>> huPaiSets = new List<List<int>>();
@@ -54,25 +55,46 @@ public class HuPaiArea : MonoBehaviour
         {
             foreach (Transform child in displayParent) Destroy(child.gameObject);
         }
-        else { return; }
-
-        for (int rowIndex = 0; rowIndex < huPaiSets.Count; rowIndex++)
+        else
         {
-            var set = huPaiSets[rowIndex];
+            Debug.LogError("HuPaiArea 的 displayParent 引用未设置!");
+            return;
+        }
+
+        if (blockPrefab == null || blockPool == null)
+        {
+            Debug.LogError("HuPaiArea 的 blockPrefab 或 blockPool 引用未设置!");
+            return;
+        }
+
+        // 【修正点】重写了布局逻辑以实现双列网格排列
+        for (int i = 0; i < huPaiSets.Count; i++)
+        {
+            var set = huPaiSets[i];
+
+            // 计算当前面子在哪一列 (0 or 1) 和哪一行 (0, 1, 2...)
+            int columnIndex = i % 2;
+            int rowIndex = i / 2;
+
+            // 根据行列计算出这一组牌的起始位置
+            float startX = columnIndex * columnSpacing;
             float yPos = -rowIndex * rowSpacing;
 
+            // 在起始位置的基础上，排列组内的每一张牌
             for (int tileIndex = 0; tileIndex < set.Count; tileIndex++)
             {
                 int blockId = set[tileIndex];
-                float xPos = tileIndex * tileSpacing;
+                float xPos = startX + (tileIndex * tileSpacing);
 
                 GameObject go = Instantiate(blockPrefab, displayParent);
                 go.transform.localPosition = new Vector3(xPos, yPos, 0);
 
                 var bu = go.GetComponent<BlockUnit>();
-                if (bu != null) bu.Initialize(blockId, blockPool);
+                if (bu != null)
+                {
+                    bu.Initialize(blockId, blockPool);
+                }
             }
         }
     }
 }
-

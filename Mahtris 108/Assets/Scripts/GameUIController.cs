@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.SceneManagement;
 
+// 新增：用于在UI和逻辑间传递奖励数据的结构体
 public class HuRewardPackage
 {
     public List<GameObject> BlockChoices = new List<GameObject>();
@@ -21,6 +22,8 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Text targetScoreText;
     [SerializeField] private Text speedText;
     [SerializeField] private Text blockMultiplierText;
+    [SerializeField] private Text baseScoreText; // 新增
+    [SerializeField] private Text extraMultiplierText; // 新增
 
     [Header("下一个方块预览")]
     [SerializeField] private Transform nextBlockPreviewArea;
@@ -28,6 +31,9 @@ public class GameUIController : MonoBehaviour
     [Header("道具栏")]
     [SerializeField] private List<Button> itemSlotButtons;
     [SerializeField] private List<Image> itemSlotIcons;
+
+    [Header("条约栏")]
+    [SerializeField] private List<Image> protocolIconSlots; // 新增
 
     [Header("胡牌弹窗")]
     [SerializeField] private GameObject huPopupPanel;
@@ -64,17 +70,26 @@ public class GameUIController : MonoBehaviour
 
     private GameObject currentPreviewObject;
     private InventoryManager inventoryManager;
+    private List<ItemData> currentItems;
+    private List<ProtocolData> currentProtocols;
+    private ScoreManager scoreManager;
+
+    private List<TooltipTriggerUI> itemTooltipTriggers = new List<TooltipTriggerUI>();
+    private List<TooltipTriggerUI> protocolTooltipTriggers = new List<TooltipTriggerUI>();
+
 
     void Awake()
     {
         inventoryManager = FindObjectOfType<InventoryManager>();
+        scoreManager = FindObjectOfType<ScoreManager>();
         SetupButtonListeners();
+        InitializeTooltipTriggers();
     }
 
     void OnEnable()
     {
         GameEvents.OnNextBlockReady += UpdateNextBlockPreview;
-        GameEvents.OnScoreChanged += UpdateScoreText;
+        ScoreManager.OnScoreChanged += UpdateScoreText;
         GameEvents.OnPoolCountChanged += UpdatePoolCountText;
         if (inventoryManager != null) inventoryManager.OnInventoryChanged += UpdateInventoryUI;
     }
@@ -82,7 +97,7 @@ public class GameUIController : MonoBehaviour
     void OnDisable()
     {
         GameEvents.OnNextBlockReady -= UpdateNextBlockPreview;
-        GameEvents.OnScoreChanged -= UpdateScoreText;
+        ScoreManager.OnScoreChanged -= UpdateScoreText;
         GameEvents.OnPoolCountChanged -= UpdatePoolCountText;
         if (inventoryManager != null) inventoryManager.OnInventoryChanged -= UpdateInventoryUI;
     }
@@ -113,11 +128,14 @@ public class GameUIController : MonoBehaviour
     public void UpdateTargetScoreText(string text) { if (targetScoreText) targetScoreText.text = $"{text}"; }
     public void UpdateSpeedText(float percent) { if (speedText) speedText.text = $"{percent:F0}%"; }
     public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"{multiplier:F0}"; }
+    public void UpdateBaseScoreText(int score) { if (baseScoreText) baseScoreText.text = $"{score}"; }
+    public void UpdateExtraMultiplierText(float multiplier) { if (extraMultiplierText) extraMultiplierText.text = $"{multiplier:F0}"; }
     private void UpdateScoreText(int newScore) { if (scoreText) scoreText.text = $"{newScore}"; }
     private void UpdatePoolCountText(int count) { if (poolCountText) poolCountText.text = $"{count}"; }
 
     private void UpdateInventoryUI(List<ItemData> items)
     {
+        currentItems = items;
         for (int i = 0; i < itemSlotIcons.Count; i++)
         {
             if (i < items.Count && items[i] != null)
@@ -125,12 +143,46 @@ public class GameUIController : MonoBehaviour
                 itemSlotIcons[i].sprite = items[i].itemIcon;
                 itemSlotIcons[i].enabled = true;
                 itemSlotButtons[i].interactable = true;
+                if (itemTooltipTriggers.Count > i && itemTooltipTriggers[i] != null)
+                {
+                    itemTooltipTriggers[i].SetData(items[i].itemName, items[i].itemDescription);
+                }
             }
             else
             {
                 itemSlotIcons[i].sprite = null;
                 itemSlotIcons[i].enabled = false;
                 itemSlotButtons[i].interactable = false;
+                if (itemTooltipTriggers.Count > i && itemTooltipTriggers[i] != null)
+                {
+                    itemTooltipTriggers[i].SetData(null, null); // 清除数据
+                }
+            }
+        }
+    }
+
+    public void UpdateProtocolUI(List<ProtocolData> protocols)
+    {
+        currentProtocols = protocols;
+        for (int i = 0; i < protocolIconSlots.Count; i++)
+        {
+            if (i < protocols.Count && protocols[i] != null)
+            {
+                protocolIconSlots[i].sprite = protocols[i].protocolIcon;
+                protocolIconSlots[i].enabled = true;
+                if (protocolTooltipTriggers.Count > i && protocolTooltipTriggers[i] != null)
+                {
+                    protocolTooltipTriggers[i].SetData(protocols[i].protocolName, protocols[i].protocolDescription);
+                }
+            }
+            else
+            {
+                protocolIconSlots[i].sprite = null;
+                protocolIconSlots[i].enabled = false;
+                if (protocolTooltipTriggers.Count > i && protocolTooltipTriggers[i] != null)
+                {
+                    protocolTooltipTriggers[i].SetData(null, null); // 清除数据
+                }
             }
         }
     }
@@ -147,14 +199,13 @@ public class GameUIController : MonoBehaviour
             var representativePrefab = group.First();
             int count = group.Count;
             var tetromino = representativePrefab.GetComponent<Tetromino>();
-            if (tetromino == null || tetromino.uiPrefab == null) continue;
+            if (tetromino == null) continue;
 
             var itemGO = Instantiate(tetrominoListItemPrefab, tetrominoListContent);
             var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
             if (listItemUI == null) continue;
 
-            if (listItemUI.multiplierText) listItemUI.multiplierText.text = $"x{tetromino.extraMultiplier:F0}";
-            if (listItemUI.shapeContainer) Instantiate(tetromino.uiPrefab, listItemUI.shapeContainer);
+            listItemUI.InitializeForPrefab(tetromino.uiPrefab, $"x{tetromino.extraMultiplier:F0}");
 
             if (listItemUI.countText != null)
             {
@@ -173,7 +224,7 @@ public class GameUIController : MonoBehaviour
 
         if (patternNameText) patternNameText.text = $"{analysis.PatternName} ({analysis.TotalFan}番)";
         if (formulaText) formulaText.text = $"{baseScore} × 2^{analysis.TotalFan} × {blockMultiplier:F0} × {extraMultiplier:F0} = {finalScore}";
-        if (huCycleText) huCycleText.text = isAdvanced ? "4/4" : $"{FindObjectOfType<ScoreManager>().GetHuCountInCycle()}/4";
+        if (huCycleText) huCycleText.text = isAdvanced ? "4/4" : $"{scoreManager.GetHuCountInCycle()}/4";
 
         BuildUIHand(huHandDisplayArea, huHand);
 
@@ -208,15 +259,16 @@ public class GameUIController : MonoBehaviour
             if (choice is GameObject blockPrefab)
             {
                 var tetromino = blockPrefab.GetComponent<Tetromino>();
-                rewardUI.Initialize(tetromino.shapeUISprite, $"方块: {blockPrefab.name}", $"倍率: x{tetromino.extraMultiplier}",
-                (clickedUI) => {
-                    FindObjectOfType<Spawner>().AddTetrominoToPool(blockPrefab);
-                    DisableOtherOptions(container, clickedUI);
-                }, ShowTooltip, HideTooltip);
+                rewardUI.InitializeForPrefab(
+                 tetromino.uiPrefab,$"x{tetromino.extraMultiplier:F0}", $"方块: {blockPrefab.name}",$"将 {blockPrefab.name} (倍率 x{tetromino.extraMultiplier:F0}) 加入你的方块池。", (clickedUI) =>
+                 { 
+                 FindObjectOfType<Spawner>().AddTetrominoToPool(blockPrefab);
+                 DisableOtherOptions(container, clickedUI);
+                 },ShowTooltip,HideTooltip); 
             }
             else if (choice is ItemData itemData)
             {
-                rewardUI.Initialize(itemData.itemIcon, $"道具: {itemData.itemName}", itemData.itemDescription,
+                rewardUI.InitializeForSprite(itemData.itemIcon, $"道具: {itemData.itemName}", itemData.itemDescription,
                 (clickedUI) => {
                     FindObjectOfType<InventoryManager>().AddItem(itemData);
                     DisableOtherOptions(container, clickedUI);
@@ -224,7 +276,7 @@ public class GameUIController : MonoBehaviour
             }
             else if (choice is ProtocolData protocolData)
             {
-                rewardUI.Initialize(protocolData.protocolIcon, $"条约: {protocolData.protocolName}", protocolData.protocolDescription,
+                rewardUI.InitializeForSprite(protocolData.protocolIcon, $"条约: {protocolData.protocolName}", protocolData.protocolDescription,
                 (clickedUI) => {
                     GameManager.Instance.AddProtocol(protocolData);
                     DisableOtherOptions(container, clickedUI);
@@ -240,7 +292,7 @@ public class GameUIController : MonoBehaviour
             var rewardOption = child.GetComponent<RewardOptionUI>();
             if (rewardOption != null)
             {
-                rewardOption.SetInteractable(child.gameObject == selected.gameObject);
+                rewardOption.SetInteractable(false);
             }
         }
     }
@@ -294,5 +346,32 @@ public class GameUIController : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenuScene");
+    }
+
+    private void InitializeTooltipTriggers()
+    {
+        itemTooltipTriggers.Clear();
+        foreach (var button in itemSlotButtons)
+        {
+            // 我们将触发器添加到按钮的GameObject上
+            TooltipTriggerUI trigger = button.gameObject.GetComponent<TooltipTriggerUI>();
+            if (trigger == null)
+            {
+                trigger = button.gameObject.AddComponent<TooltipTriggerUI>();
+            }
+            itemTooltipTriggers.Add(trigger);
+        }
+
+        protocolTooltipTriggers.Clear();
+        foreach (var image in protocolIconSlots)
+        {
+            // 我们将触发器添加到图标的GameObject上
+            TooltipTriggerUI trigger = image.gameObject.GetComponent<TooltipTriggerUI>();
+            if (trigger == null)
+            {
+                trigger = image.gameObject.AddComponent<TooltipTriggerUI>();
+            }
+            protocolTooltipTriggers.Add(trigger);
+        }
     }
 }

@@ -41,7 +41,7 @@ public class GameSettings : ScriptableObject
     [Range(0f, 1f)]
     public float speedIncreasePerHu = 0.2f;
     public float initialFallSpeed = 1.0f;
-    public float fastFallMultiplier = 20f;
+    public float fastFallSpeed = 3f;
 
     [Header("Âé½«ÅÆ¿â")]
     public int tileRanks = 9;

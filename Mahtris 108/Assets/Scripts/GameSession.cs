@@ -17,6 +17,9 @@ public class GameSession : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // 【新增】游戏启动时，从存档加载金币
+            CurrentGold = SaveManager.LoadGold();
         }
         else
         {
@@ -27,6 +30,10 @@ public class GameSession : MonoBehaviour
     public void AddGold(int amount)
     {
         CurrentGold += amount;
+
+        // 【新增】金币变化时，保存到存档
+        SaveManager.SaveGold(CurrentGold);
+
         OnGoldChanged?.Invoke(CurrentGold);
         Debug.Log($"获得了 {amount} 金币, 当前总金币: {CurrentGold}");
     }

@@ -18,7 +18,7 @@ MonoBehaviour:
   setsForHu: 4
   speedIncreasePerHu: 0.2
   initialFallSpeed: 1
-  fastFallMultiplier: 30
+  fastFallSpeed: 0.05
   tileRanks: 9
   tilesPerRank: 4
   baseFanScore: 10
@@ -63,7 +63,9 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 3
   commonItemPool:
+  - {fileID: 11400000, guid: ffc57473305f5944491607a4d2593e62, type: 2}
   - {fileID: 11400000, guid: 1f38674101fcf564d8cba2a8bc184e24, type: 2}
+  - {fileID: 11400000, guid: 640357944c5db1c46be5ce054a1ff85f, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: a9eedc22c7d08ae4a87baf221acc6b5c, type: 2}
   - {fileID: 11400000, guid: 640357944c5db1c46be5ce054a1ff85f, type: 2}

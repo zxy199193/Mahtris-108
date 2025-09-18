@@ -14,8 +14,8 @@ public class Tetromino : MonoBehaviour
     public GameObject uiPrefab;
 
     private float lastFallTime;
-    private float fallSpeed;
-    private float fastFallMultiplier;
+    private float fallSpeed; // 当前的基础下落速度
+    private float fastFallSpeedValue; // 快速下落的固定速度值
     private TetrisGrid tetrisGrid;
     private GameSettings settings;
 
@@ -23,8 +23,14 @@ public class Tetromino : MonoBehaviour
     {
         this.settings = gameSettings;
         this.fallSpeed = GameManager.Instance.currentFallSpeed;
-        this.fastFallMultiplier = settings.fastFallMultiplier;
+        this.fastFallSpeedValue = settings.fastFallSpeed; // 从GameSettings读取
         this.tetrisGrid = grid;
+    }
+
+    // 【新增方法】允许GameManager在外部即时更新速度
+    public void UpdateFallSpeedNow(float newSpeed)
+    {
+        this.fallSpeed = newSpeed;
     }
 
     void Start()
@@ -40,7 +46,8 @@ public class Tetromino : MonoBehaviour
     {
         HandleMovementInput();
 
-        float currentSpeed = Input.GetKey(KeyCode.DownArrow) ? fallSpeed / fastFallMultiplier : fallSpeed;
+        // 【修正点】快速下落使用独立的恒定速度
+        float currentSpeed = Input.GetKey(KeyCode.DownArrow) ? fastFallSpeedValue : fallSpeed;
         if (Time.time - lastFallTime >= currentSpeed)
         {
             Move(Vector3.down);

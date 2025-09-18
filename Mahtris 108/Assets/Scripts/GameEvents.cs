@@ -19,7 +19,4 @@ public static class GameEvents
 
     public static event Action<int> OnPoolCountChanged;
     public static void TriggerPoolCountChanged(int count) => OnPoolCountChanged?.Invoke(count);
-
-    public static event Action<int> OnScoreChanged;
-    public static void TriggerScoreChanged(int newScore) => OnScoreChanged?.Invoke(newScore);
 }

@@ -8,7 +8,7 @@ public class AmplifierItem : ItemData
 
     public override bool Use(GameManager gameManager)
     {
-        gameManager.AddBaseScoreBonus(scoreBonus);
+        gameManager.ModifyBaseFanScore(scoreBonus,false);
         return true;
     }
 }

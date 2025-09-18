@@ -9,7 +9,7 @@ public class ParachuteItem : ItemData
 
     public override bool Use(GameManager gameManager)
     {
-        gameManager.ModifySpeedByPercentage(-speedReductionPercent);
+        gameManager.ApplySpeedToCurrentTetromino(-speedReductionPercent);
         return true;
     }
 }

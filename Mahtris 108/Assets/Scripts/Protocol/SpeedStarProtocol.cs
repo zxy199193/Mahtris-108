@@ -9,14 +9,13 @@ public class SpeedStarProtocol : ProtocolData
 
     public override void ApplyEffect(GameManager gameManager)
     {
-        gameManager.ModifySpeedByPercentage(speedIncrease * 100f);
+        gameManager.ApplySpeedToCurrentTetromino(speedIncrease * 100f);
         gameManager.ApplyExtraMultiplier(extraMultiplier);
     }
 
     public override void RemoveEffect(GameManager gameManager)
     {
-        // 游戏结束后，GameManager的状态会自动重置，但为了逻辑严谨可以实现移除效果
-        gameManager.ModifySpeedByPercentage(-speedIncrease * 100f);
+        gameManager.ApplySpeedToCurrentTetromino(-speedIncrease * 100f);
         gameManager.ApplyExtraMultiplier(1f / extraMultiplier);
     }
 }

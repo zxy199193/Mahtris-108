@@ -61,7 +61,7 @@ public class Spawner : MonoBehaviour
         if (prefab != null)
         {
             activeTetrominoPool.Add(prefab);
-            GameManager.Instance.RecalculateBlockMultiplier();
+            GameManager.Instance.UpdateActiveBlockListUI();
             Debug.Log($"新方块 [{prefab.name}] 已添加到活跃池。当前池中有 {activeTetrominoPool.Count} 个方块。");
         }
     }

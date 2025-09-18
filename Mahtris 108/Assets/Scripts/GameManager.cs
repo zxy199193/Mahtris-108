@@ -34,8 +34,9 @@ public class GameManager : MonoBehaviour
     private float blockMultiplier;
     private float extraMultiplier;
     private int baseFanScore;
-    private float speedPercentageModifier = 0f;
-    private int baseFanScoreBonus = 0;
+
+    // 用于特殊流程控制的内部变量
+    private bool _isBombOrSpecialClear = false;
 
     public Spawner Spawner => spawner;
     public HuPaiArea HuPaiArea => huPaiArea;
@@ -88,8 +89,6 @@ public class GameManager : MonoBehaviour
 
         baseFanScore = settings.baseFanScore;
         extraMultiplier = 1f;
-        speedPercentageModifier = 0f;
-        baseFanScoreBonus = 0;
 
         UpdateFallSpeed();
         remainingTime = settings.initialTimeLimit;
@@ -102,11 +101,13 @@ public class GameManager : MonoBehaviour
         scoreManager.ResetScore();
         inventoryManager.ClearInventory();
         spawner.InitializeForNewGame(settings);
-        RecalculateBlockMultiplier();
+        UpdateActiveBlockListUI();
 
         isProcessingRows = false;
         gameUI.HideAllPanels();
         UpdateTargetScoreUI();
+        gameUI.UpdateBaseScoreText(baseFanScore);
+        gameUI.UpdateExtraMultiplierText(extraMultiplier);
     }
 
     private void HandleHuDeclared(List<List<int>> huHand)
@@ -117,14 +118,13 @@ public class GameManager : MonoBehaviour
         bool isAdvancedReward = scoreManager.IncrementHuCountAndCheckCycle();
 
         var analysisResult = mahjongCore.CalculateHandFan(huHand, settings);
-        int currentBaseScore = baseFanScore + baseFanScoreBonus;
-        double scorePart = currentBaseScore * analysisResult.FanMultiplier;
+        double scorePart = baseFanScore * analysisResult.FanMultiplier;
         long finalScore = (long)(scorePart * blockMultiplier * extraMultiplier);
         scoreManager.AddScore((int)Mathf.Min(finalScore, int.MaxValue));
         remainingTime += settings.huTimeBonus;
 
         var rewards = GenerateHuRewards(isAdvancedReward);
-        gameUI.ShowHuPopup(huHand, analysisResult, currentBaseScore, blockMultiplier, extraMultiplier, finalScore, rewards, isAdvancedReward);
+        gameUI.ShowHuPopup(huHand, analysisResult, baseFanScore, blockMultiplier, extraMultiplier, finalScore, rewards, isAdvancedReward);
     }
 
     public void ContinueAfterHu()
@@ -132,12 +132,83 @@ public class GameManager : MonoBehaviour
         gameUI.HideHuPopup();
         Time.timeScale = 1f;
         UpdateFallSpeed();
-        baseFanScoreBonus = 0;
         blockPool.ResetFullDeck();
         tetrisGrid.ClearAllBlocks();
         huPaiArea.ClearAll();
         spawner.StartNextRound();
         isProcessingRows = false;
+    }
+
+    private void HandleRowsCleared(List<int> rowIndices)
+    {
+        if (isProcessingRows) return;
+        isProcessingRows = true;
+        rowIndices.Sort();
+        List<Transform> allClearedTransforms = new List<Transform>();
+        List<int> allRemainingIds = new List<int>();
+        foreach (var y in rowIndices)
+        {
+            var rowData = tetrisGrid.GetRowDataAndClear(y);
+            allClearedTransforms.AddRange(rowData.transforms);
+            scoreManager.AddScore(settings.scorePerRow);
+            var result = mahjongCore.DetectSets(rowData.blockIds);
+            var setsToAdd = new List<List<int>>();
+            setsToAdd.AddRange(result.Kongs); setsToAdd.AddRange(result.Pungs); setsToAdd.AddRange(result.Chows);
+            int needed = settings.setsForHu - huPaiArea.GetSetCount();
+            if (setsToAdd.Count > needed)
+            {
+                var shuffledSets = setsToAdd.OrderBy(a => Random.value).ToList();
+                var chosenSets = shuffledSets.Take(needed).ToList();
+                result.RemainingIds.AddRange(shuffledSets.Skip(needed).SelectMany(set => set));
+                setsToAdd = chosenSets;
+            }
+            if (setsToAdd.Count > 0) huPaiArea.AddSets(setsToAdd);
+            if (huPaiArea.GetSetCount() >= settings.setsForHu)
+            {
+                var pair = mahjongCore.FindPair(result.RemainingIds);
+                if (pair != null)
+                {
+                    result.RemainingIds.Remove(pair[0]); result.RemainingIds.Remove(pair[1]);
+                    var finalHand = huPaiArea.GetAllSets(); finalHand.Add(pair);
+                    GameEvents.TriggerHuDeclared(finalHand);
+                    allRemainingIds.AddRange(result.RemainingIds);
+                    blockPool.ReturnBlockIds(allRemainingIds);
+                    tetrisGrid.DestroyTransforms(allClearedTransforms);
+                    return;
+                }
+            }
+            allRemainingIds.AddRange(result.RemainingIds);
+        }
+        blockPool.ReturnBlockIds(allRemainingIds);
+        tetrisGrid.DestroyTransforms(allClearedTransforms);
+
+        tetrisGrid.CompactAllColumns(rowIndices);
+
+        if (!_isBombOrSpecialClear)
+        {
+            spawner.SpawnBlock();
+        }
+
+        _isBombOrSpecialClear = false;
+        isProcessingRows = false;
+    }
+
+    // --- 公开给道具和条约调用的接口 ---
+    public void AddTime(float time) => remainingTime += time;
+
+    public void ModifyBaseFanScore(int amount, bool isMultiplier)
+    {
+        if (isMultiplier) baseFanScore *= amount;
+        else baseFanScore += amount;
+        gameUI.UpdateBaseScoreText(baseFanScore);
+    }
+
+    public void ModifyTargetScore(float multiplier)
+    {
+        if (isEndlessMode) return;
+        var level = settings.scoreLevels[currentScoreLevelIndex];
+        level.targetScore = (int)(level.targetScore * multiplier);
+        UpdateTargetScoreUI();
     }
 
     public void AddProtocol(ProtocolData protocol)
@@ -146,6 +217,8 @@ public class GameManager : MonoBehaviour
         {
             activeProtocols.Add(protocol);
             protocol.ApplyEffect(this);
+            // 可以在这里触发一个 OnProtocolsChanged 事件，让UI更新
+            gameUI.UpdateProtocolUI(activeProtocols);
         }
     }
 
@@ -160,7 +233,24 @@ public class GameManager : MonoBehaviour
 
         gameUI.UpdateBlockMultiplierText(blockMultiplier);
     }
+    public void UpdateActiveBlockListUI()
+    {
+        // 1. 调用现有的方法来计算总倍率并更新倍率文本
+        // RecalculateBlockMultiplier() 会计算并更新 this.blockMultiplier 字段
+        RecalculateBlockMultiplier();
 
+        // 2. 从 Spawner 获取当前的方块池
+        var prefabs = spawner.GetActivePrefabs();
+
+        // 3. 获取刚计算出的总倍率
+        float totalMultiplier = this.blockMultiplier;
+
+        // 4. 调用 GameUIController 来更新方块列表的UI显示
+        if (gameUI != null)
+        {
+            gameUI.UpdateTetrominoList(prefabs, totalMultiplier);
+        }
+    }
     public void ApplyBlockMultiplierModifier(float amount)
     {
         blockMultiplier += amount;
@@ -171,8 +261,25 @@ public class GameManager : MonoBehaviour
     public void ApplyExtraMultiplier(float factor)
     {
         extraMultiplier *= factor;
+        gameUI.UpdateExtraMultiplierText(extraMultiplier);
     }
 
+    public void ForceClearRowsFromBottom(int count)
+    {
+        _isBombOrSpecialClear = true;
+        tetrisGrid.ForceClearBottomRows(count);
+    }
+
+    public void ApplySpeedToCurrentTetromino(float newSpeed)
+    {
+        var currentTetromino = FindObjectOfType<Tetromino>();
+        if (currentTetromino != null)
+        {
+            currentTetromino.UpdateFallSpeedNow(newSpeed);
+        }
+    }
+
+    // --- 私有辅助方法 ---
     private HuRewardPackage GenerateHuRewards(bool isAdvanced)
     {
         var package = new HuRewardPackage();
@@ -227,8 +334,8 @@ public class GameManager : MonoBehaviour
 
     private void UpdateFallSpeed()
     {
-        float speedPercent = 100f + (scoreManager.GetHuCount() * (settings.speedIncreasePerHu * 100f)) + speedPercentageModifier;
-        currentFallSpeed = settings.initialFallSpeed / (Mathf.Max(1f, speedPercent) / 100f);
+        float speedPercent = 100f + (scoreManager.GetHuCount() * (settings.speedIncreasePerHu * 100f));
+        currentFallSpeed = settings.initialFallSpeed / (speedPercent / 100f);
         gameUI.UpdateSpeedText(speedPercent);
     }
 
@@ -258,77 +365,4 @@ public class GameManager : MonoBehaviour
     }
 
     private void HandleGameOver() { Time.timeScale = 0f; gameUI.ShowGameOverPanel(); }
-
-    public void ForceClearRowsFromBottom(int count)
-    {
-        tetrisGrid.ForceClearBottomRows(count);
-    }
-
-    private void HandleRowsCleared(List<int> rowIndices)
-    {
-        if (isProcessingRows) return;
-        isProcessingRows = true;
-        rowIndices.Sort();
-        List<Transform> allClearedTransforms = new List<Transform>();
-        List<int> allRemainingIds = new List<int>();
-        foreach (var y in rowIndices)
-        {
-            var rowData = tetrisGrid.GetRowDataAndClear(y);
-            allClearedTransforms.AddRange(rowData.transforms);
-            scoreManager.AddScore(settings.scorePerRow);
-            var result = mahjongCore.DetectSets(rowData.blockIds);
-            var setsToAdd = new List<List<int>>();
-            setsToAdd.AddRange(result.Kongs); setsToAdd.AddRange(result.Pungs); setsToAdd.AddRange(result.Chows);
-            int needed = settings.setsForHu - huPaiArea.GetSetCount();
-            if (setsToAdd.Count > needed)
-            {
-                var shuffledSets = setsToAdd.OrderBy(a => Random.value).ToList();
-                var chosenSets = shuffledSets.Take(needed).ToList();
-                result.RemainingIds.AddRange(shuffledSets.Skip(needed).SelectMany(set => set));
-                setsToAdd = chosenSets;
-            }
-            if (setsToAdd.Count > 0) huPaiArea.AddSets(setsToAdd);
-            if (huPaiArea.GetSetCount() >= settings.setsForHu)
-            {
-                var pair = mahjongCore.FindPair(result.RemainingIds);
-                if (pair != null)
-                {
-                    result.RemainingIds.Remove(pair[0]); result.RemainingIds.Remove(pair[1]);
-                    var finalHand = huPaiArea.GetAllSets(); finalHand.Add(pair);
-                    GameEvents.TriggerHuDeclared(finalHand);
-                    allRemainingIds.AddRange(result.RemainingIds);
-                    blockPool.ReturnBlockIds(allRemainingIds);
-                    tetrisGrid.DestroyTransforms(allClearedTransforms);
-                    return;
-                }
-            }
-            allRemainingIds.AddRange(result.RemainingIds);
-        }
-        blockPool.ReturnBlockIds(allRemainingIds);
-        tetrisGrid.DestroyTransforms(allClearedTransforms);
-        tetrisGrid.CompactAllColumns(rowIndices);
-        spawner.SpawnBlock();
-        isProcessingRows = false;
-    }
-
-    // --- 【新增方法】 补全道具系统所需的公共接口 ---
-    public void AddTime(float time) => remainingTime += time;
-    public void AddBaseScoreBonus(int bonus) => baseFanScoreBonus += bonus;
-    public void ModifySpeedByPercentage(float percentageChange)
-    {
-        speedPercentageModifier += percentageChange;
-        UpdateFallSpeed();
-    }
-    public void ModifyBaseFanScore(int amount, bool isMultiplier)
-    {
-        if (isMultiplier) baseFanScore *= amount;
-        else baseFanScore += amount;
-    }
-    public void ModifyTargetScore(float multiplier)
-    {
-        if (isEndlessMode) return;
-        var level = settings.scoreLevels[currentScoreLevelIndex];
-        level.targetScore = (int)(level.targetScore * multiplier);
-        UpdateTargetScoreUI();
-    }
 }
