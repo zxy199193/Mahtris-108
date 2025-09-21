@@ -18,7 +18,7 @@ MonoBehaviour:
   setsForHu: 4
   speedIncreasePerHu: 0.2
   initialFallSpeed: 1
-  fastFallSpeed: 0.05
+  fastFallSpeed: 0.03
   tileRanks: 9
   tilesPerRank: 4
   baseFanScore: 10

@@ -260,7 +260,7 @@ public class GameUIController : MonoBehaviour
             {
                 var tetromino = blockPrefab.GetComponent<Tetromino>();
                 rewardUI.InitializeForPrefab(
-                 tetromino.uiPrefab,$"x{tetromino.extraMultiplier:F0}", $"{blockPrefab.name}",$"将 {blockPrefab.name} (倍率 x{tetromino.extraMultiplier:F0}) 加入你的方块池。", (clickedUI) =>
+                 tetromino.uiPrefab,$"x{tetromino.extraMultiplier:F0}", $"{blockPrefab.name}",$"将该方块加入方块列表，方块倍率 +{tetromino.extraMultiplier:F0}。", (clickedUI) =>
                  { 
                  FindObjectOfType<Spawner>().AddTetrominoToPool(blockPrefab);
                  DisableOtherOptions(container, clickedUI);

@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: "\u590D\u5236\u5668"
   itemIcon: {fileID: 21300000, guid: 11ad01211595c004eb5d8aca07246e04, type: 3}
-  itemDescription: "\u4E0B\u4E00\u4E2A\u51FA\u73B0\u7684Tetromino\u5F62\u72B6\u4F1A\u8FDE\u7EED\u51FA\u73B03\u6B21\u3002"
+  itemDescription: "\u4E0B\u4E00\u4E2A\u51FA\u73B0\u7684\u65B9\u5757\u5F62\u72B6\u4F1A\u8FDE\u7EED\u51FA\u73B03\u6B21\u3002"
   repeatCount: 3
