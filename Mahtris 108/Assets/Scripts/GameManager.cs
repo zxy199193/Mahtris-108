@@ -360,7 +360,7 @@ public class GameManager : MonoBehaviour
         else if (currentScoreLevelIndex < settings.scoreLevels.Count)
         {
             var level = settings.scoreLevels[currentScoreLevelIndex];
-            gameUI.UpdateTargetScoreText($"{level.targetScore} (½±Àø: {level.goldReward}½ð)");
+            gameUI.UpdateTargetScoreText($"{level.targetScore}/{level.goldReward}");
         }
     }
 
