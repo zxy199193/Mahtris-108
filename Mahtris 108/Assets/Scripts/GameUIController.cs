@@ -1,9 +1,10 @@
 // FileName: GameUIController.cs
-using UnityEngine;
-using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 // 新增：用于在UI和逻辑间传递奖励数据的结构体
 public class HuRewardPackage
@@ -19,11 +20,15 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Text scoreText;
     [SerializeField] private Text poolCountText;
     [SerializeField] private Text timerText;
-    [SerializeField] private Text targetScoreText;
     [SerializeField] private Text speedText;
     [SerializeField] private Text blockMultiplierText;
     [SerializeField] private Text baseScoreText; // 新增
     [SerializeField] private Text extraMultiplierText; // 新增
+
+    [Header("目标进度条")]
+    [SerializeField] private Slider targetProgressBar;
+    [SerializeField] private Text currentScoreForBarText; // (可选)显示 "1200 / 5000"
+    [SerializeField] private Text goldRewardText;
 
     [Header("下一个方块预览")]
     [SerializeField] private Transform nextBlockPreviewArea;
@@ -39,7 +44,13 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private GameObject huPopupPanel;
     [SerializeField] private Transform huHandDisplayArea;
     [SerializeField] private Text patternNameText;
-    [SerializeField] private Text formulaText;
+    [Header("胡牌得分公式 (拆分)")]
+    [SerializeField] private Text formulaBaseScoreText;
+    [SerializeField] private Text formulaFanBaseText;
+    [SerializeField] private Text formulaFanExpText;
+    [SerializeField] private Text formulaBlockMultText;
+    [SerializeField] private Text formulaExtraMultText;
+    [SerializeField] private Text formulaFinalScoreText;
     [SerializeField] private Button continueButton;
     [SerializeField] private Text huCycleText;
 
@@ -77,6 +88,13 @@ public class GameUIController : MonoBehaviour
     private List<TooltipTriggerUI> itemTooltipTriggers = new List<TooltipTriggerUI>();
     private List<TooltipTriggerUI> protocolTooltipTriggers = new List<TooltipTriggerUI>();
 
+    [Header("暂停功能")]
+    [SerializeField] private Button pauseButton;
+    [SerializeField] private Image pauseButtonIcon;
+    [SerializeField] private Text pauseCountText;
+    [SerializeField] private GameObject pausePanel;
+    [SerializeField] private Sprite playIcon; // 在Inspector中拖入“播放”图标
+    [SerializeField] private Sprite pauseIcon; // 在Inspector中拖入“暂停”图标
 
     void Awake()
     {
@@ -122,10 +140,10 @@ public class GameUIController : MonoBehaviour
             int slotIndex = i;
             itemSlotButtons[i].onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); if (inventoryManager) inventoryManager.UseItem(slotIndex); });
         }
+        if (pauseButton) pauseButton.onClick.AddListener(() => GameManager.Instance.TogglePause());
     }
 
     public void UpdateTimerText(float time) { if (timerText) timerText.text = $"{Mathf.Max(0, time):F0}"; }
-    public void UpdateTargetScoreText(string text) { if (targetScoreText) targetScoreText.text = $"{text}"; }
     public void UpdateSpeedText(float percent) { if (speedText) speedText.text = $"{percent:F0}%"; }
     public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"{multiplier:F0}"; }
     public void UpdateBaseScoreText(int score) { if (baseScoreText) baseScoreText.text = $"{score}"; }
@@ -223,7 +241,12 @@ public class GameUIController : MonoBehaviour
         if (huPopupPanel) huPopupPanel.SetActive(true);
 
         if (patternNameText) patternNameText.text = $"{analysis.PatternName} ({analysis.TotalFan}番)";
-        if (formulaText) formulaText.text = $"{baseScore} × 2^{analysis.TotalFan} × {blockMultiplier:F0} × {extraMultiplier:F0} = {finalScore}";
+        if (formulaBaseScoreText) formulaBaseScoreText.text = $"{baseScore}";
+        if (formulaFanBaseText) formulaFanBaseText.text = "2"; // (注：如果"高端局"条约实装，这里需要改成动态的)
+        if (formulaFanExpText) formulaFanExpText.text = $"{analysis.TotalFan}";
+        if (formulaBlockMultText) formulaBlockMultText.text = $"{blockMultiplier:F0}";
+        if (formulaExtraMultText) formulaExtraMultText.text = $"{extraMultiplier:F0}";
+        if (formulaFinalScoreText) formulaFinalScoreText.text = $"{finalScore}";
         if (huCycleText) huCycleText.text = isAdvanced ? "4/4" : $"{scoreManager.GetHuCountInCycle()}/4";
 
         BuildUIHand(huHandDisplayArea, huHand);
@@ -329,16 +352,19 @@ public class GameUIController : MonoBehaviour
         if (nextBlockPreviewArea == null) return;
         if (currentPreviewObject != null) Destroy(currentPreviewObject);
 
-        currentPreviewObject = Instantiate(prefab, nextBlockPreviewArea);
+        Tetromino tetrominoInfo = prefab.GetComponent<Tetromino>();
+        GameObject prefabToSpawn = (tetrominoInfo != null && tetrominoInfo.uiPrefab != null) ? tetrominoInfo.uiPrefab : prefab;
+        currentPreviewObject = Instantiate(prefabToSpawn, nextBlockPreviewArea);
         currentPreviewObject.transform.localPosition = Vector3.zero;
 
         if (currentPreviewObject.GetComponent<Tetromino>())
             currentPreviewObject.GetComponent<Tetromino>().enabled = false;
 
         var blockUnits = currentPreviewObject.GetComponentsInChildren<BlockUnit>();
-        for (int i = 0; i < blockUnits.Length && i < ids.Count; i++)
+        var sortedBlockUnits = blockUnits.OrderBy(bu => bu.gameObject.name).ToArray();
+        for (int i = 0; i < sortedBlockUnits.Length && i < ids.Count; i++)
         {
-            blockUnits[i].Initialize(ids[i], blockPool);
+            sortedBlockUnits[i].Initialize(ids[i], blockPool); // 【修改】使用排序后的数组
         }
     }
 
@@ -372,6 +398,48 @@ public class GameUIController : MonoBehaviour
                 trigger = image.gameObject.AddComponent<TooltipTriggerUI>();
             }
             protocolTooltipTriggers.Add(trigger);
+        }
+    }
+    public void UpdatePauseUI(bool isCurrentlyPaused, int count)
+    {
+        if (pauseButtonIcon) pauseButtonIcon.sprite = isCurrentlyPaused ? playIcon : pauseIcon;
+        if (pauseCountText) pauseCountText.text = count.ToString();
+        // 只有在次数 > 0 或 已经暂停时，按钮才可交互
+        if (pauseButton) pauseButton.interactable = (count > 0 || isCurrentlyPaused);
+    }
+
+    public void ShowPausePanel(bool show)
+    {
+        if (pausePanel) pausePanel.SetActive(show);
+    }
+    // 【新增】这个方法用于显示目标和进度条
+    public void UpdateTargetScoreDisplay(int target, int reward)
+    {
+        if (targetProgressBar)
+        {
+            targetProgressBar.gameObject.SetActive(true);
+            targetProgressBar.maxValue = target;
+        }
+        if (currentScoreForBarText) currentScoreForBarText.gameObject.SetActive(true);
+        if (goldRewardText) goldRewardText.text = $"奖励: {reward}金";
+    }
+
+    // 【新增】这个方法用于显示“无尽模式”
+    public void UpdateTargetScoreDisplay(string endlessText)
+    {
+        if (targetProgressBar) targetProgressBar.gameObject.SetActive(false);
+        if (currentScoreForBarText) currentScoreForBarText.gameObject.SetActive(false);
+        if (goldRewardText) goldRewardText.text = endlessText;
+    }
+    public void UpdateScoreProgress(int currentScore)
+    {
+        if (targetProgressBar && targetProgressBar.gameObject.activeSelf)
+        {
+            targetProgressBar.value = currentScore;
+            if (currentScoreForBarText)
+            {
+                currentScoreForBarText.text = $"{currentScore} / {targetProgressBar.maxValue}";
+            }
         }
     }
 }

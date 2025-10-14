@@ -31,8 +31,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4743028730907182362}
-  - {fileID: 3116525336146902014}
   - {fileID: 2140111587059993164}
+  - {fileID: 3116525336146902014}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8953026707592121317
@@ -48,6 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   extraMultiplier: 2
+  shapeUISprite: {fileID: 0}
   uiPrefab: {fileID: 3580106032658444086, guid: 0b98a6df1ffe63544af16418466cd620, type: 3}
 --- !u!1001 &1712206534797402648
 PrefabInstance:
@@ -107,7 +108,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8191885770426747679, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_Name
-      value: Block (2)
+      value: Block_1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -177,7 +178,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8191885770426747679, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_Name
-      value: Block (1)
+      value: Block_2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -247,7 +248,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8191885770426747679, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_Name
-      value: Block
+      value: Block_0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

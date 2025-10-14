@@ -84,7 +84,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 69764224260902887, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Name
-      value: UI Block (1)
+      value: Block_1
       objectReference: {fileID: 0}
     - target: {fileID: 477121697774397389, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Pivot.x
@@ -186,7 +186,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 69764224260902887, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Name
-      value: UI Block (2)
+      value: Block_2
       objectReference: {fileID: 0}
     - target: {fileID: 477121697774397389, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Pivot.x
@@ -288,7 +288,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 69764224260902887, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Name
-      value: UI Block
+      value: Block_0
       objectReference: {fileID: 0}
     - target: {fileID: 477121697774397389, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Pivot.x

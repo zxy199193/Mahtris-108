@@ -64,4 +64,8 @@ public class ScoreManager : MonoBehaviour
 
         OnScoreChanged?.Invoke(score);
     }
+    public int GetCurrentScore()
+    {
+        return score;
+    }
 }

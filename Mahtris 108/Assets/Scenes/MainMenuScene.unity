@@ -5980,10 +5980,10 @@ MonoBehaviour:
   soundLibrary:
     buttonClick: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
     tetrominoRotate: {fileID: 8300000, guid: 3c8365741b85d4240814673ecb93d452, type: 3}
-    clearRow: {fileID: 8300000, guid: 92bc065fc55af1d418e893896e2c5936, type: 3}
+    clearRow: {fileID: 8300000, guid: fb5a50a369446e941b8c2c519563df0a, type: 3}
     addSetToHuArea: {fileID: 8300000, guid: 978af390c05311942b0d76f476900878, type: 3}
     huSuccess: {fileID: 8300000, guid: 2ea3246d9e4fc494db2b2784ed5c1a45, type: 3}
-    targetReached: {fileID: 8300000, guid: 4ade31243ddd35047ac49f39864c1fa4, type: 3}
+    targetReached: {fileID: 8300000, guid: 0616fa99755b5d749a3c02933e55f9d5, type: 3}
 --- !u!4 &980194825
 Transform:
   m_ObjectHideFlags: 0

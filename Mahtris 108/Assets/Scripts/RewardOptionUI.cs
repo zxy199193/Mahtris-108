@@ -10,7 +10,10 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public Button optionButton;
     public Image optionIcon; // 用于显示道具/条约的图标
     public Transform shapeContainer; // 新增：用于容纳方块形状UI预制件的容器
-    public Text optionText; // 用于显示方块倍率等
+    
+    [Header("文本显示")]
+    public GameObject textContainer; // 【修改】引用包含文本和背板的父节点
+    public Text optionText; // 【修改】引用 textContainer 下的文本
 
     private Action<RewardOptionUI> onClickCallback;
     private Action<string, string> onHoverEnterCallback;
@@ -28,7 +31,7 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             optionIcon.gameObject.SetActive(true);
             optionIcon.sprite = icon;
         }
-        if (optionText) optionText.text = ""; // 道具和条约不显示额外文本
+        if (textContainer) textContainer.SetActive(false); // 道具和条约不显示额外文本
 
         SetupCallbacks(title, desc, onClick, onHoverEnter, onHoverExit);
     }
@@ -45,6 +48,7 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             // 实例化新的形状
             if (uiPrefab) Instantiate(uiPrefab, shapeContainer);
         }
+        if(textContainer) textContainer.SetActive(true);
         if (optionText) optionText.text = text; // 显示方块倍率
 
         SetupCallbacks(title, desc, onClick, onHoverEnter, onHoverExit);

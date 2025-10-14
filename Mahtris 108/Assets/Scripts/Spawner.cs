@@ -110,9 +110,10 @@ public class Spawner : MonoBehaviour
         tetromino.Initialize(settings, tetrisGrid);
 
         var blockUnits = blockGO.GetComponentsInChildren<BlockUnit>();
-        for (int i = 0; i < blockUnits.Length && i < nextTileIds.Count; i++)
+        var sortedBlockUnits = blockUnits.OrderBy(bu => bu.gameObject.name).ToArray();
+        for (int i = 0; i < sortedBlockUnits.Length && i < nextTileIds.Count; i++)
         {
-            blockUnits[i].Initialize(nextTileIds[i], blockPool);
+            sortedBlockUnits[i].Initialize(nextTileIds[i], blockPool); // 【修改】使用排序后的数组
         }
         PrepareNextTetromino();
     }

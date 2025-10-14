@@ -37,9 +37,14 @@ public class GameManager : MonoBehaviour
 
     // 用于特殊流程控制的内部变量
     private bool _isBombOrSpecialClear = false;
-
+    private float protocolSpeedModifier = 1.0f; // 【新增】条约带来的永久速度倍率
     public Spawner Spawner => spawner;
     public HuPaiArea HuPaiArea => huPaiArea;
+
+    [Header("暂停功能")]
+    private bool isPaused = false;
+    private int remainingPauses;
+    [SerializeField] private int maxPauses = 2;
 
     void Awake()
     {
@@ -55,6 +60,12 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            TogglePause();
+        }
+        // 原有的暂停判断逻辑
+        if (isPaused || isProcessingRows || Time.timeScale == 0f) return;
         if (isProcessingRows || Time.timeScale == 0f) return;
         remainingTime -= Time.deltaTime;
         gameUI.UpdateTimerText(remainingTime);
@@ -79,6 +90,10 @@ public class GameManager : MonoBehaviour
 
     public void StartNewGame()
     {
+        isPaused = false;
+        remainingPauses = maxPauses;
+        // 确保UI在游戏开始时更新
+        if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
         Time.timeScale = 1f;
 
         foreach (var protocol in activeProtocols)
@@ -86,6 +101,12 @@ public class GameManager : MonoBehaviour
             if (protocol != null) protocol.RemoveEffect(this);
         }
         activeProtocols.Clear();
+        foreach (var protocol in activeProtocols)
+        {
+            if (protocol != null) protocol.RemoveEffect(this);
+        }
+        activeProtocols.Clear();
+        protocolSpeedModifier = 1.0f; // 【新增】重置速度倍率
 
         baseFanScore = settings.baseFanScore;
         extraMultiplier = 1f;
@@ -129,6 +150,8 @@ public class GameManager : MonoBehaviour
 
     public void ContinueAfterHu()
     {
+        remainingPauses = maxPauses;
+        if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
         gameUI.HideHuPopup();
         Time.timeScale = 1f;
         UpdateFallSpeed();
@@ -269,13 +292,35 @@ public class GameManager : MonoBehaviour
         _isBombOrSpecialClear = true;
         tetrisGrid.ForceClearBottomRows(count);
     }
+    public void ApplyPermanentSpeedModifier(float multiplier)
+    {
+        protocolSpeedModifier *= multiplier;
 
-    public void ApplySpeedToCurrentTetromino(float newSpeed)
+        // 立即重新计算全局速度
+        UpdateFallSpeed();
+
+        // 立即将新速度应用到当前方块，实现即时效果
+        var currentTetromino = FindObjectOfType<Tetromino>();
+        if (currentTetromino != null)
+        {
+            currentTetromino.UpdateFallSpeedNow(this.currentFallSpeed);
+        }
+    }
+
+    public void ModifySpeedOfCurrentTetrominoByPercent(float percentage)
     {
         var currentTetromino = FindObjectOfType<Tetromino>();
         if (currentTetromino != null)
         {
-            currentTetromino.UpdateFallSpeedNow(newSpeed);
+            // 1. 获取当前的速度（实际是延迟时间）
+            float currentDelay = currentTetromino.GetCurrentFallSpeed();
+
+            // 2. 根据百分比计算新的延迟时间
+            // 公式: NewDelay = CurrentDelay / (1 + PercentageChange / 100)
+            float newDelay = currentDelay / (1f + percentage / 100f);
+
+            // 3. 将计算出的新速度应用到方块上
+            currentTetromino.UpdateFallSpeedNow(newDelay);
         }
     }
 
@@ -335,14 +380,19 @@ public class GameManager : MonoBehaviour
     private void UpdateFallSpeed()
     {
         float speedPercent = 100f + (scoreManager.GetHuCount() * (settings.speedIncreasePerHu * 100f));
-        currentFallSpeed = settings.initialFallSpeed / (speedPercent / 100f);
+        // 首先计算基础速度，应用永久倍率
+        float baseFallSpeed = settings.initialFallSpeed / protocolSpeedModifier;
+        // 然后再应用因胡牌次数增加的速度
+        currentFallSpeed = baseFallSpeed / (speedPercent / 100f);
+        // 【可选优化】让UI显示总的加速百分比
+        gameUI.UpdateSpeedText(speedPercent * protocolSpeedModifier);
         gameUI.UpdateSpeedText(speedPercent);
     }
 
     private void OnScoreUpdated(int newScore)
     {
         if (isEndlessMode || settings.scoreLevels.Count == 0) return;
-        if (currentScoreLevelIndex < settings.scoreLevels.Count && newScore >= settings.scoreLevels[currentScoreLevelIndex].targetScore)
+        while (currentScoreLevelIndex < settings.scoreLevels.Count && newScore >= settings.scoreLevels[currentScoreLevelIndex].targetScore)
         {
             if (GameSession.Instance != null)
                 GameSession.Instance.AddGold(settings.scoreLevels[currentScoreLevelIndex].goldReward);
@@ -352,17 +402,62 @@ public class GameManager : MonoBehaviour
             if (currentScoreLevelIndex >= settings.scoreLevels.Count) isEndlessMode = true;
             UpdateTargetScoreUI();
         }
+        // 【新增】在分数变化后，调用新的进度更新方法
+        gameUI.UpdateScoreProgress(newScore);
     }
 
     private void UpdateTargetScoreUI()
     {
-        if (isEndlessMode) gameUI.UpdateTargetScoreText("无尽模式");
+        if (isEndlessMode)
+        {
+            gameUI.UpdateTargetScoreDisplay("无尽模式");
+        }
         else if (currentScoreLevelIndex < settings.scoreLevels.Count)
         {
             var level = settings.scoreLevels[currentScoreLevelIndex];
-            gameUI.UpdateTargetScoreText($"{level.targetScore}/{level.goldReward}");
+            gameUI.UpdateTargetScoreDisplay(level.targetScore, level.goldReward);
+            // 立即更新一次进度条的初始状态
+            gameUI.UpdateScoreProgress(scoreManager.GetCurrentScore());
         }
     }
 
     private void HandleGameOver() { Time.timeScale = 0f; gameUI.ShowGameOverPanel(); }
+
+    public void TogglePause()
+    {
+        // 如果游戏已结束，不允许暂停
+        if (Time.timeScale == 0f && !isPaused) return;
+
+        if (isPaused)
+        {
+            // --- 取消暂停 ---
+            isPaused = false;
+            Time.timeScale = 1f;
+            gameUI.ShowPausePanel(false);
+        }
+        else
+        {
+            // --- 尝试暂停 ---
+            if (remainingPauses > 0)
+            {
+                isPaused = true;
+                remainingPauses--;
+                Time.timeScale = 0f;
+                gameUI.ShowPausePanel(true);
+            }
+            else
+            {
+                Debug.Log("暂停次数已用完!");
+                // (可选) 可以在此触发一个UI提示
+            }
+        }
+        gameUI.UpdatePauseUI(isPaused, remainingPauses);
+
+    }
+    public void AddPauseCount(int amount)
+    {
+        remainingPauses += amount;
+        gameUI.UpdatePauseUI(isPaused, remainingPauses);
+    }
+
 }

@@ -32,7 +32,10 @@ public class Tetromino : MonoBehaviour
     {
         this.fallSpeed = newSpeed;
     }
-
+    public float GetCurrentFallSpeed()
+    {
+        return this.fallSpeed;
+    }
     void Start()
     {
         if (!tetrisGrid.IsValidGridPos(transform))

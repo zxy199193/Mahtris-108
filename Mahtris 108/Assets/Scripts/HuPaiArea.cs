@@ -87,7 +87,11 @@ public class HuPaiArea : MonoBehaviour
                 float xPos = startX + (tileIndex * tileSpacing);
 
                 GameObject go = Instantiate(blockPrefab, displayParent);
-                go.transform.localPosition = new Vector3(xPos, yPos, 0);
+                RectTransform rectTransform = go.GetComponent<RectTransform>();
+                if (rectTransform != null)
+                {
+                    rectTransform.anchoredPosition = new Vector2(xPos, yPos);
+                }
 
                 var bu = go.GetComponent<BlockUnit>();
                 if (bu != null)

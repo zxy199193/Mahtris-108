@@ -30,10 +30,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 7187379882104789252}
+  - {fileID: 991012383409976081}
   - {fileID: 4743028730907182362}
   - {fileID: 1267605212526495175}
-  - {fileID: 991012383409976081}
-  - {fileID: 7187379882104789252}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8953026707592121317
@@ -49,6 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   extraMultiplier: 2
+  shapeUISprite: {fileID: 0}
   uiPrefab: {fileID: 3580106032658444086, guid: f81e58741807154409a8bd5cba443fe1, type: 3}
 --- !u!1001 &554231241884375877
 PrefabInstance:
@@ -108,7 +109,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8191885770426747679, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_Name
-      value: Block (2)
+      value: Block_1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -178,7 +179,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8191885770426747679, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_Name
-      value: Block (1)
+      value: Block_3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -248,7 +249,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8191885770426747679, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_Name
-      value: Block
+      value: Block_2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -318,7 +319,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8191885770426747679, guid: 1c416d33f7df00448b0b9bd5c457cb69, type: 3}
       propertyPath: m_Name
-      value: Block (3)
+      value: Block_0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
