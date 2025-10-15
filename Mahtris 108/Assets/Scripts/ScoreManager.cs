@@ -39,18 +39,26 @@ public class ScoreManager : MonoBehaviour
         return false;
     }
 
+    // 旧的 AddScore 方法：
+    // public void AddScore(int amount) { ... if (score > _highScore) ... }
+
+    // 新的 AddScore 方法：
     public void AddScore(int amount)
     {
         score += amount;
+        ScoreManager.OnScoreChanged?.Invoke(score);
+    }
 
-        // 【新增】检查并保存最高分
-        if (score > _highScore)
+    // 新增方法
+    public bool CheckForNewHighScore(int finalScore)
+    {
+        if (finalScore > _highScore)
         {
-            _highScore = score;
+            _highScore = finalScore;
             SaveManager.SaveHighScore(_highScore);
+            return true;
         }
-
-        OnScoreChanged?.Invoke(score);
+        return false;
     }
 
     public void ResetScore()

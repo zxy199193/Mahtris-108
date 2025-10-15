@@ -399,7 +399,7 @@ public class GameManager : MonoBehaviour
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibrary.targetReached);
             currentScoreLevelIndex++;
-            if (currentScoreLevelIndex >= settings.scoreLevels.Count) isEndlessMode = true;
+            if (currentScoreLevelIndex >= settings.scoreLevels.Count) HandleGameWon();
             UpdateTargetScoreUI();
         }
         // 【新增】在分数变化后，调用新的进度更新方法
@@ -421,7 +421,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void HandleGameOver() { Time.timeScale = 0f; gameUI.ShowGameOverPanel(); }
+    private void HandleGameOver()
+    {
+        Time.timeScale = 0f;
+        int finalScore = scoreManager.GetCurrentScore();
+        bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore); // 需要在ScoreManager中实现此方法
+        gameUI.ShowGameEndPanel(false, finalScore, isNewHighScore);
+    }
 
     public void TogglePause()
     {
@@ -458,6 +464,21 @@ public class GameManager : MonoBehaviour
     {
         remainingPauses += amount;
         gameUI.UpdatePauseUI(isPaused, remainingPauses);
+    }
+    private void HandleGameWon()
+    {
+        Time.timeScale = 0f;
+        int finalScore = scoreManager.GetCurrentScore();
+        bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore);
+        gameUI.ShowGameEndPanel(true, finalScore, isNewHighScore);
+    }
+
+    public void StartEndlessMode()
+    {
+        isEndlessMode = true;
+        Time.timeScale = 1f;
+        gameUI.HideAllPanels(); // 确保结束面板被隐藏
+        UpdateTargetScoreUI();
     }
 
 }

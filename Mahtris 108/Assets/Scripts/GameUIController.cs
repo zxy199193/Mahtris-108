@@ -79,6 +79,12 @@ public class GameUIController : MonoBehaviour
     [Header("模块引用")]
     [SerializeField] private BlockPool blockPool;
 
+    [Header("游戏结束面板")]
+    [SerializeField] private Text gameOverTitleText;
+    [SerializeField] private Text finalScoreText;
+    [SerializeField] private GameObject newHighScoreIndicator;
+    [SerializeField] private Button endlessModeButton;
+
     private GameObject currentPreviewObject;
     private InventoryManager inventoryManager;
     private List<ItemData> currentItems;
@@ -141,6 +147,7 @@ public class GameUIController : MonoBehaviour
             itemSlotButtons[i].onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); if (inventoryManager) inventoryManager.UseItem(slotIndex); });
         }
         if (pauseButton) pauseButton.onClick.AddListener(() => GameManager.Instance.TogglePause());
+        if (endlessModeButton) endlessModeButton.onClick.AddListener(() => GameManager.Instance.StartEndlessMode());
     }
 
     public void UpdateTimerText(float time) { if (timerText) timerText.text = $"{Mathf.Max(0, time):F0}"; }
@@ -330,7 +337,14 @@ public class GameUIController : MonoBehaviour
     }
 
     public void HideHuPopup() { if (huPopupPanel) huPopupPanel.SetActive(false); }
-    public void ShowGameOverPanel() { if (gameOverPanel) gameOverPanel.SetActive(true); }
+    public void ShowGameEndPanel(bool isWin, int finalScore, bool isNewHighScore)
+    {
+        if (gameOverPanel) gameOverPanel.SetActive(true);
+        if (gameOverTitleText) gameOverTitleText.text = isWin ? "恭喜过关！" : "游戏结束";
+        if (finalScoreText) finalScoreText.text = $"最终得分: {finalScore}";
+        if (newHighScoreIndicator) newHighScoreIndicator.SetActive(isNewHighScore);
+        if (endlessModeButton) endlessModeButton.gameObject.SetActive(isWin);
+    }
 
     private void BuildUIHand(Transform container, List<List<int>> hand)
     {

@@ -76,4 +76,7 @@ public class MainMenuController : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
+    public void SelectEasy() { DifficultyManager.Instance.SetDifficulty(Difficulty.Easy); }
+    public void SelectNormal() { DifficultyManager.Instance.SetDifficulty(Difficulty.Normal); }
+    public void SelectHard() { DifficultyManager.Instance.SetDifficulty(Difficulty.Hard); }
 }
