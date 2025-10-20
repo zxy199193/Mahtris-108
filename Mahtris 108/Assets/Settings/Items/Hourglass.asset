@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Hourglass
   m_EditorClassIdentifier: 
   itemName: "\u6C99\u6F0F"
-  itemIcon: {fileID: 21300000, guid: 9d0216e03959b5846bde799743bd0e32, type: 3}
-  itemDescription: "\u589E\u52A040\u79D2\u6E38\u620F\u5012\u8BA1\u65F6\u65F6\u95F4\u3002"
+  itemIcon: {fileID: 21300000, guid: e7edf38b834fc214da3ba93f3fd73b85, type: 3}
+  itemDescription: "\u589E\u52A040\u79D2\u6E38\u620F\u5012\u8BA1\u65F6\u65F6\u95F4"
   timeToAdd: 40

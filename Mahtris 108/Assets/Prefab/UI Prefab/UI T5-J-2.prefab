@@ -28,8 +28,8 @@ RectTransform:
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 8026381225005339176}
   - {fileID: 2707148295300026793}
+  - {fileID: 8026381225005339176}
   - {fileID: 9033437693449886162}
   - {fileID: 4350381980662919132}
   - {fileID: 1896756550580949098}
@@ -86,7 +86,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 69764224260902887, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Name
-      value: UI Block (4)
+      value: Block_4
       objectReference: {fileID: 0}
     - target: {fileID: 477121697774397389, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Pivot.x
@@ -188,7 +188,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 69764224260902887, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Name
-      value: UI Block (1)
+      value: Block_0
       objectReference: {fileID: 0}
     - target: {fileID: 477121697774397389, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Pivot.x
@@ -290,7 +290,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 69764224260902887, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Name
-      value: UI Block (3)
+      value: Block_3
       objectReference: {fileID: 0}
     - target: {fileID: 477121697774397389, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Pivot.x
@@ -392,7 +392,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 69764224260902887, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Name
-      value: UI Block
+      value: Block_1
       objectReference: {fileID: 0}
     - target: {fileID: 477121697774397389, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Pivot.x
@@ -494,7 +494,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 69764224260902887, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Name
-      value: UI Block (2)
+      value: Block_2
       objectReference: {fileID: 0}
     - target: {fileID: 477121697774397389, guid: d3eada76d55be7444bdd2eb22d0d798c, type: 3}
       propertyPath: m_Pivot.x

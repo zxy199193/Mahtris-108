@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 934ede4fd91d6424cb41ebf35c1b0780, type: 3}
   m_Name: AmplifierPro
   m_EditorClassIdentifier: 
-  itemName: "\u589E\u5E45\u5668Pro"
-  itemIcon: {fileID: 21300000, guid: 0b915d524178e6342b0d7b8de085e064, type: 3}
-  itemDescription: "\u672C\u8F6E\u6E38\u620F\u57FA\u672C\u5206x3\u3002"
+  itemName: "\u589E\u5E45\u5668 Pro"
+  itemIcon: {fileID: 21300000, guid: 1a2dd8ae0a5e1fb4591ae99e4b379d43, type: 3}
+  itemDescription: "\u672C\u5C40\u6E38\u620F\u57FA\u7840\u5206x2"
   multiplier: 2

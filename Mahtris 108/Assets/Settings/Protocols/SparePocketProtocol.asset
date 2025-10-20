@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SparePocketProtocol
   m_EditorClassIdentifier: 
   protocolName: "\u5907\u7528\u53E3\u888B"
-  protocolIcon: {fileID: 21300000, guid: 154c9d825666eea409abb461d9f8367b, type: 3}
-  protocolDescription: "\u589E\u52A02\u4E2A\u9053\u5177\u69FD\u4F4D\uFF0C\u5F53\u524D\u500D\u7387-12"
+  protocolIcon: {fileID: 21300000, guid: 84f72ec85a183614fbebe9922fd52c20, type: 3}
+  protocolDescription: "\u589E\u52A02\u4E2A\u9053\u5177\u69FD\u4F4D\uFF0C\u65B9\u5757\u500D\u7387-12\r"
   extraSlots: 2
   blockMultiplierPenalty: -12

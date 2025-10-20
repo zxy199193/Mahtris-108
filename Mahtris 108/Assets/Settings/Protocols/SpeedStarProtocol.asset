@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SpeedStarProtocol
   m_EditorClassIdentifier: 
   protocolName: "\u901F\u5EA6\u4E4B\u661F"
-  protocolIcon: {fileID: 21300000, guid: 68dad76f2bc0dc94e9e8d4159a09d12c, type: 3}
+  protocolIcon: {fileID: 21300000, guid: 39b0a76c0d6f498499b857e605f481bd, type: 3}
   protocolDescription: "\u65B9\u5757\u4E0B\u964D\u901F\u5EA6\u589E\u52A0100%\uFF0C\u5F53\u524D\u500D\u7387x2"
   speedIncrease: 1
   extraMultiplier: 2

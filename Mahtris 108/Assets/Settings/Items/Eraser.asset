@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ec6104c6886a5a4b8023600564ad825, type: 3}
   m_Name: Eraser
   m_EditorClassIdentifier: 
-  itemName: "\u6A61\u76AE"
-  itemIcon: {fileID: 21300000, guid: d86041b44837aa3459e7c544fc90642e, type: 3}
-  itemDescription: "\u6D88\u9664\u6700\u8FD1\u52A0\u5165\u80E1\u724C\u533A\u7684\u4E00\u7EC4\u724C\uFF0C\u88AB\u6D88\u9664\u7684\u724C\u4F1A\u8FD4\u56DE\u5230\u724C\u5E93\u4E2D"
+  itemName: "\u6A61\u76AE\u64E6"
+  itemIcon: {fileID: 21300000, guid: 7e5d624c17ca6fe4b96bfa9b94593ef7, type: 3}
+  itemDescription: "\u5C06\u4E0A\u4E00\u7EC4\u52A0\u5165\u80E1\u724C\u533A\u7684\u724C\u653E\u56DE\u724C\u5E93"
