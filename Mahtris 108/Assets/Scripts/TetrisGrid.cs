@@ -8,12 +8,18 @@ public class TetrisGrid : MonoBehaviour
     private Transform[,] grid;
     private int width;
     private int height;
+    private Spawner spawner;
 
     public void Initialize(GameSettings settings)
     {
         this.width = settings.gridWidth;
         this.height = settings.gridHeight;
         grid = new Transform[width, height];
+    }
+
+    public void RegisterSpawner(Spawner sp)
+    {
+        this.spawner = sp;
     }
 
     // 【新增方法】供炸弹道具调用
@@ -95,7 +101,7 @@ public class TetrisGrid : MonoBehaviour
         else
         {
             // 如果没有消行，则直接生成下一个方块
-            FindObjectOfType<Spawner>().SpawnBlock();
+            if (spawner != null) spawner.SpawnBlock();
         }
     }
 
@@ -150,13 +156,30 @@ public class TetrisGrid : MonoBehaviour
 
     public void ClearAllBlocks()
     {
+        // 【新增】在清除数组前，主动查找并销毁所有带Tag的方块
+        // 这可以清除上一局残留的，或者编辑器内误操作的方块
+        GameObject[] blocks = GameObject.FindGameObjectsWithTag("PlayerBlock");
+        foreach (GameObject block in blocks)
+        {
+            Destroy(block);
+        }
+
+        // 【保留】清除网格数组的逻辑
         if (grid == null) return;
         for (int y = 0; y < height; y++)
+        {
             for (int x = 0; x < width; x++)
+            {
                 if (grid[x, y] != null)
                 {
-                    Destroy(grid[x, y].gameObject);
+                    // 检查是否已被上一步销毁，避免二次销毁报错
+                    if (grid[x, y].gameObject != null)
+                    {
+                        Destroy(grid[x, y].gameObject);
+                    }
                     grid[x, y] = null;
                 }
+            }
+        }
     }
 }

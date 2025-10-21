@@ -24,6 +24,10 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public float currentFallSpeed;
     private bool isProcessingRows = false;
 
+    [Header("Test Mode")]
+    [Tooltip("开启后, 将忽略难度选择, 并使用Spawner中的'Initial Tetromino Prefabs'列表开始游戏。")]
+    [SerializeField] private bool isTestMode = false;
+
     // 游戏状态变量
     private float remainingTime;
     private int currentScoreLevelIndex;
@@ -46,6 +50,10 @@ public class GameManager : MonoBehaviour
     private int remainingPauses;
     [SerializeField] private int maxPauses = 2;
 
+    private bool isStopwatchActive = false; // 【新增】
+    private bool isBountyActive = false;
+
+    private GameSessionConfig currentSessionConfig; // 【新增】持有当前游戏会话的配置
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -54,6 +62,10 @@ public class GameManager : MonoBehaviour
         tetrisGrid.Initialize(settings);
         blockPool.Initialize(settings);
         inventoryManager.Initialize(settings, this);
+        if(tetrisGrid != null && spawner != null)
+        {
+            tetrisGrid.RegisterSpawner(spawner);
+        }
     }
 
     void Start() { StartNewGame(); }
@@ -90,28 +102,77 @@ public class GameManager : MonoBehaviour
 
     public void StartNewGame()
     {
-        isPaused = false;
-        remainingPauses = maxPauses;
-        // 确保UI在游戏开始时更新
-        if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
+        // === 第1部分: 创建并填充当前游戏会话的配置 ===
+        currentSessionConfig = new GameSessionConfig();
+        Difficulty difficulty = DifficultyManager.Instance.CurrentDifficulty;
+
+        // 定义难度乘数
+        float scoreMultiplier = 1f;
+        float speedMultiplier = 1f;
+
+        // 【新增：测试模式检查】
+        if (isTestMode)
+        {
+            Debug.LogWarning("--- 测试模式已开启 ---");
+            // 1. 使用Spawner的默认列表
+            currentSessionConfig.InitialTetrominoes = new List<GameObject>(spawner.GetInitialTetrominoPrefabs());
+
+            // 2. 使用“普通”难度的乘数
+            scoreMultiplier = 2f;
+            speedMultiplier = 1.5f;
+        }
+        else // 【常规难度逻辑】
+        {
+            // 1. 根据难度决定初始方块
+            switch (difficulty)
+            {
+                case Difficulty.Easy:
+                    currentSessionConfig.InitialTetrominoes = spawner.GetMasterList().Where(p => IsInLevel(p, 0)).ToList();
+                    scoreMultiplier = 1f;
+                    speedMultiplier = 1f;
+                    break;
+                case Difficulty.Hard:
+                    var hardInitial = spawner.GetMasterList().Where(p => IsInLevel(p, 1)).ToList();
+                    var level3Blocks = spawner.GetMasterList().Where(p => IsInLevel(p, 2)).OrderBy(x => Random.value).Take(2).ToList();
+                    hardInitial.AddRange(level3Blocks);
+                    currentSessionConfig.InitialTetrominoes = hardInitial;
+                    scoreMultiplier = 4f;
+                    speedMultiplier = 2f;
+                    break;
+                case Difficulty.Normal:
+                default:
+                    currentSessionConfig.InitialTetrominoes = spawner.GetMasterList().Where(p => IsInLevel(p, 1)).ToList();
+                    scoreMultiplier = 2f;
+                    speedMultiplier = 1.5f;
+                    break;
+            }
+        }
+
+        // 2. 应用速度配置 (此部分不变)
+        currentSessionConfig.InitialFallSpeed = settings.initialFallSpeed / speedMultiplier;
+
+        // 3. 创建目标分数的临时副本 (此部分不变)
+        foreach (var levelTemplate in settings.scoreLevels)
+        {
+            currentSessionConfig.DifficultyScoreLevels.Add(new ScoreLevel
+            {
+                targetScore = (int)(levelTemplate.targetScore * scoreMultiplier),
+                goldReward = (int)(levelTemplate.goldReward * scoreMultiplier)
+            });
+        }
+
+        // === 第2部分: 使用新配置重置游戏状态 ===
         Time.timeScale = 1f;
-
-        foreach (var protocol in activeProtocols)
-        {
-            if (protocol != null) protocol.RemoveEffect(this);
-        }
+        isPaused = false;
+        // ... (省略所有其他状态的重置代码, 它们保持不变)
+        foreach (var protocol in activeProtocols) { if (protocol != null) protocol.RemoveEffect(this); }
         activeProtocols.Clear();
-        foreach (var protocol in activeProtocols)
-        {
-            if (protocol != null) protocol.RemoveEffect(this);
-        }
-        activeProtocols.Clear();
-        protocolSpeedModifier = 1.0f; // 【新增】重置速度倍率
-
+        protocolSpeedModifier = 1.0f;
         baseFanScore = settings.baseFanScore;
         extraMultiplier = 1f;
+        remainingPauses = maxPauses;
+        if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
 
-        UpdateFallSpeed();
         remainingTime = settings.initialTimeLimit;
         currentScoreLevelIndex = 0;
         isEndlessMode = false;
@@ -121,9 +182,11 @@ public class GameManager : MonoBehaviour
         huPaiArea.ClearAll();
         scoreManager.ResetScore();
         inventoryManager.ClearInventory();
-        spawner.InitializeForNewGame(settings);
-        UpdateActiveBlockListUI();
+        UpdateFallSpeed(); // UpdateFallSpeed现在会使用currentSessionConfig.InitialFallSpeed
+        // 使用会话配置中的数据来初始化
+        spawner.InitializeForNewGame(settings, currentSessionConfig.InitialTetrominoes);
 
+        UpdateActiveBlockListUI();
         isProcessingRows = false;
         gameUI.HideAllPanels();
         UpdateTargetScoreUI();
@@ -150,6 +213,18 @@ public class GameManager : MonoBehaviour
 
     public void ContinueAfterHu()
     {
+        // 【新增】如果停表效果激活，则重置暂停次数
+        if (isStopwatchActive)
+        {
+            remainingPauses = maxPauses;
+            isStopwatchActive = false;
+        }
+        else // 如果停表没激活，才正常重置
+        {
+            remainingPauses = maxPauses;
+        }
+
+        if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
         remainingPauses = maxPauses;
         if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
         gameUI.HideHuPopup();
@@ -318,7 +393,13 @@ public class GameManager : MonoBehaviour
             // 2. 根据百分比计算新的延迟时间
             // 公式: NewDelay = CurrentDelay / (1 + PercentageChange / 100)
             float newDelay = currentDelay / (1f + percentage / 100f);
+            if (settings != null)
+            {
+                float newSpeedPercent = (settings.initialFallSpeed / newDelay) * 100f;
 
+                // 2. 更新UI文本
+                gameUI.UpdateSpeedText(newSpeedPercent);
+            }
             // 3. 将计算出的新速度应用到方块上
             currentTetromino.UpdateFallSpeedNow(newDelay);
         }
@@ -380,29 +461,45 @@ public class GameManager : MonoBehaviour
     private void UpdateFallSpeed()
     {
         float speedPercent = 100f + (scoreManager.GetHuCount() * (settings.speedIncreasePerHu * 100f));
-        // 首先计算基础速度，应用永久倍率
-        float baseFallSpeed = settings.initialFallSpeed / protocolSpeedModifier;
-        // 然后再应用因胡牌次数增加的速度
+
+        // 【修改】使用 currentSessionConfig 中的初始速度
+        float baseFallSpeed = currentSessionConfig.InitialFallSpeed / protocolSpeedModifier;
+
         currentFallSpeed = baseFallSpeed / (speedPercent / 100f);
-        // 【可选优化】让UI显示总的加速百分比
         gameUI.UpdateSpeedText(speedPercent * protocolSpeedModifier);
-        gameUI.UpdateSpeedText(speedPercent);
     }
 
     private void OnScoreUpdated(int newScore)
     {
-        if (isEndlessMode || settings.scoreLevels.Count == 0) return;
-        while (currentScoreLevelIndex < settings.scoreLevels.Count && newScore >= settings.scoreLevels[currentScoreLevelIndex].targetScore)
+        // 【修改】使用 currentSessionConfig，并检查其是否为null
+        if (isEndlessMode || currentSessionConfig == null || currentSessionConfig.DifficultyScoreLevels.Count == 0) return;
+
+        // 【修改】使用 currentSessionConfig
+        while (currentScoreLevelIndex < currentSessionConfig.DifficultyScoreLevels.Count && newScore >= currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex].targetScore)
         {
             if (GameSession.Instance != null)
-                GameSession.Instance.AddGold(settings.scoreLevels[currentScoreLevelIndex].goldReward);
+            {
+                // 【修改】使用 currentSessionConfig
+                GameSession.Instance.AddGold(currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex].goldReward);
+            }
+
             if (AudioManager.Instance != null)
+            {
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibrary.targetReached);
+            }
+
             currentScoreLevelIndex++;
-            if (currentScoreLevelIndex >= settings.scoreLevels.Count) HandleGameWon();
+
+            // 【修改】使用 currentSessionConfig
+            if (currentScoreLevelIndex >= currentSessionConfig.DifficultyScoreLevels.Count)
+            {
+                HandleGameWon();
+            }
+
             UpdateTargetScoreUI();
         }
-        // 【新增】在分数变化后，调用新的进度更新方法
+
+        // (此行来自“进度条”功能，保持不变)
         gameUI.UpdateScoreProgress(newScore);
     }
 
@@ -412,11 +509,14 @@ public class GameManager : MonoBehaviour
         {
             gameUI.UpdateTargetScoreDisplay("无尽模式");
         }
-        else if (currentScoreLevelIndex < settings.scoreLevels.Count)
+        // 【修改】使用 currentSessionConfig
+        else if (currentScoreLevelIndex < currentSessionConfig.DifficultyScoreLevels.Count)
         {
-            var level = settings.scoreLevels[currentScoreLevelIndex];
+            // 【修改】使用 currentSessionConfig
+            var level = currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex];
             gameUI.UpdateTargetScoreDisplay(level.targetScore, level.goldReward);
-            // 立即更新一次进度条的初始状态
+
+            // (此行来自“进度条”功能，保持不变)
             gameUI.UpdateScoreProgress(scoreManager.GetCurrentScore());
         }
     }
@@ -480,5 +580,36 @@ public class GameManager : MonoBehaviour
         gameUI.HideAllPanels(); // 确保结束面板被隐藏
         UpdateTargetScoreUI();
     }
+    public void SetStopwatchActive(bool isActive)
+    {
+        isStopwatchActive = isActive;
+    }
+    // 添加新变量
+    private ItemData lastUsedItem = null;
 
+    // 添加新的公共属性，以便道具脚本可以访问 InventoryManager
+    public InventoryManager Inventory => inventoryManager;
+
+    // 添加新方法
+    public void SetLastUsedItem(ItemData item)
+    {
+        // 不记录复制器本身
+        if (!(item is ReplicatorMk2Item))
+        {
+            lastUsedItem = item;
+        }
+    }
+    public ItemData GetLastUsedItem()
+    {
+        return lastUsedItem;
+    }
+    public void ActivateBounty()
+    {
+        if (!isBountyActive)
+        {
+            isBountyActive = true;
+            // 立即更新UI，让玩家看到奖励翻倍了
+            UpdateTargetScoreUI();
+        }
+    }
 }

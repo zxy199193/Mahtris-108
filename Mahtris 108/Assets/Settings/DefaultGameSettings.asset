@@ -64,12 +64,19 @@ MonoBehaviour:
   itemSlotCount: 3
   commonItemPool:
   - {fileID: 11400000, guid: 1f38674101fcf564d8cba2a8bc184e24, type: 2}
+  - {fileID: 11400000, guid: ffc57473305f5944491607a4d2593e62, type: 2}
+  - {fileID: 11400000, guid: 5f24d3ea78bdfea40a255df77ca6636d, type: 2}
+  - {fileID: 11400000, guid: 92b90391a006cac489e8f1728cce7ff0, type: 2}
+  - {fileID: 11400000, guid: 9a7e2b2bb73de494288909c06af11c3f, type: 2}
   - {fileID: 11400000, guid: 2be156880e12a124fafe8abea3a85568, type: 2}
-  - {fileID: 11400000, guid: 5f24d3ea78bdfea40a255df77ca6636d, type: 2}
+  - {fileID: 11400000, guid: 03028a293d35d044badd2dd39864e90b, type: 2}
+  - {fileID: 11400000, guid: e0419e9cdff76534ab5437c4d5677c74, type: 2}
+  - {fileID: 11400000, guid: f8d2b9c0194cf2b4da26e19bd1b338a9, type: 2}
+  - {fileID: 11400000, guid: b0b84eeb2b1316b4ca686819f027a1ca, type: 2}
   advancedItemPool:
-  - {fileID: 11400000, guid: 5f24d3ea78bdfea40a255df77ca6636d, type: 2}
-  - {fileID: 11400000, guid: 5f24d3ea78bdfea40a255df77ca6636d, type: 2}
-  - {fileID: 11400000, guid: 5f24d3ea78bdfea40a255df77ca6636d, type: 2}
+  - {fileID: 11400000, guid: 640357944c5db1c46be5ce054a1ff85f, type: 2}
+  - {fileID: 11400000, guid: a9eedc22c7d08ae4a87baf221acc6b5c, type: 2}
+  - {fileID: 11400000, guid: 79a2bab4e6f48a4458e95f15ea2fd940, type: 2}
   maxProtocolCount: 5
   protocolPool:
   - {fileID: 11400000, guid: 9dce2b27843fce544ad847d929f0ad96, type: 2}

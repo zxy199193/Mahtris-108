@@ -341,7 +341,7 @@ public class GameUIController : MonoBehaviour
     {
         if (gameOverPanel) gameOverPanel.SetActive(true);
         if (gameOverTitleText) gameOverTitleText.text = isWin ? "恭喜过关！" : "游戏结束";
-        if (finalScoreText) finalScoreText.text = $"最终得分: {finalScore}";
+        if (finalScoreText) finalScoreText.text = $"{finalScore}";
         if (newHighScoreIndicator) newHighScoreIndicator.SetActive(isNewHighScore);
         if (endlessModeButton) endlessModeButton.gameObject.SetActive(isWin);
     }
@@ -435,7 +435,7 @@ public class GameUIController : MonoBehaviour
             targetProgressBar.maxValue = target;
         }
         if (currentScoreForBarText) currentScoreForBarText.gameObject.SetActive(true);
-        if (goldRewardText) goldRewardText.text = $"奖励: {reward}金";
+        if (goldRewardText) goldRewardText.text = $"{reward}";
     }
 
     // 【新增】这个方法用于显示“无尽模式”
@@ -452,7 +452,7 @@ public class GameUIController : MonoBehaviour
             targetProgressBar.value = currentScore;
             if (currentScoreForBarText)
             {
-                currentScoreForBarText.text = $"{currentScore} / {targetProgressBar.maxValue}";
+                currentScoreForBarText.text = $"{targetProgressBar.maxValue}";
             }
         }
     }

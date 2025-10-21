@@ -8,6 +8,8 @@ public class MainMenuController : MonoBehaviour
     [Header("UI引用")]
     [SerializeField] private Text goldText;
     [SerializeField] private Text highScoreText; // 新增
+    [SerializeField] private GameObject difficultyPopupPanel; // 【新增】拖入你的难度选择弹窗面板
+    [SerializeField] private Text currentDifficultyText;
 
     private string gameSceneName = "GameScene";
 
@@ -20,6 +22,7 @@ public class MainMenuController : MonoBehaviour
 
         // 订阅金币变化事件，以便实时更新（例如从商店返回时）
         GameSession.OnGoldChanged += UpdateGoldText;
+        UpdateDifficultyText(DifficultyManager.Instance.CurrentDifficulty);
     }
 
     void OnDestroy()
@@ -76,7 +79,55 @@ public class MainMenuController : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
-    public void SelectEasy() { DifficultyManager.Instance.SetDifficulty(Difficulty.Easy); }
-    public void SelectNormal() { DifficultyManager.Instance.SetDifficulty(Difficulty.Normal); }
-    public void SelectHard() { DifficultyManager.Instance.SetDifficulty(Difficulty.Hard); }
+    public void SelectEasy()
+    {
+        DifficultyManager.Instance.SetDifficulty(Difficulty.Easy);
+        UpdateDifficultyText(Difficulty.Easy); // 【新增】
+    }
+    public void SelectNormal()
+    {
+        DifficultyManager.Instance.SetDifficulty(Difficulty.Normal);
+        UpdateDifficultyText(Difficulty.Normal); // 【新增】
+    }
+    public void SelectHard()
+    {
+        DifficultyManager.Instance.SetDifficulty(Difficulty.Hard);
+        UpdateDifficultyText(Difficulty.Hard); // 【新增】
+    }
+    // 【新增】用于打开弹窗
+    public void OpenDifficultyPopup()
+    {
+        if (difficultyPopupPanel != null)
+        {
+            difficultyPopupPanel.SetActive(true);
+        }
+    }
+
+    // 【新增】用于关闭弹窗
+    public void CloseDifficultyPopup()
+    {
+        if (difficultyPopupPanel != null)
+        {
+            difficultyPopupPanel.SetActive(false);
+        }
+    }
+    private void UpdateDifficultyText(Difficulty difficulty)
+    {
+        if (currentDifficultyText != null)
+        {
+            switch (difficulty)
+            {
+                case Difficulty.Easy:
+                    currentDifficultyText.text = "简单";
+                    break;
+                case Difficulty.Hard:
+                    currentDifficultyText.text = "困难";
+                    break;
+                case Difficulty.Normal:
+                default:
+                    currentDifficultyText.text = "普通";
+                    break;
+            }
+        }
+    }
 }

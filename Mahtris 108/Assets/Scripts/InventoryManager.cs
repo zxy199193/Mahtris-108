@@ -63,6 +63,7 @@ public class InventoryManager : MonoBehaviour
 
         if (slotIndex < 0 || slotIndex >= maxSlots || itemSlots[slotIndex] == null) return;
 
+        gameManager.SetLastUsedItem(itemSlots[slotIndex]);
         // 使用道具并检查是否成功
         bool success = itemSlots[slotIndex].Use(gameManager);
 
