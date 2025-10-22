@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce17847a63aa17a49b11137123d77e83, type: 3}
-  m_Name: Amplifier
+  m_Script: {fileID: 11500000, guid: 17105b631b1503f4295e48ff634efc2f, type: 3}
+  m_Name: Juice
   m_EditorClassIdentifier: 
-  itemName: "\u589E\u5E45\u5668-A\u578B"
+  itemName: "\u679C\u6C41"
   itemIcon: {fileID: 21300000, guid: 8240bf10bb725704c8bd0369f8de95e6, type: 3}
   itemDescription: "\u672C\u5C40\u6E38\u620F\u57FA\u7840\u5206+3"
   scoreBonus: 3

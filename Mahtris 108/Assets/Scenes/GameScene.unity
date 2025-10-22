@@ -5535,7 +5535,7 @@ MonoBehaviour:
   scoreManager: {fileID: 558386357}
   inventoryManager: {fileID: 558386362}
   currentFallSpeed: 0
-  isTestMode: 0
+  isTestMode: 1
   maxPauses: 2
 --- !u!114 &558386362
 MonoBehaviour:

@@ -39,9 +39,20 @@ public class GameManager : MonoBehaviour
     private float extraMultiplier;
     private int baseFanScore;
 
+    // 【新增】基础分 V4.1 系统
+    private int permanentBaseScoreBonus = 0; // "果汁" (+3)
+    private int roundBaseScoreBonus = 0; // "功能饮料" (+8) 和 "类固醇" (+16 / -16)
+    private float permanentBaseScoreMultiplier = 1f; // 【新增】"仙酒" (x2)
+    private bool isSteroidActive = false; // 跟踪 "类固醇" (+16) 效果是否激活
+    private bool isSteroidReversalActive = false; // 跟踪 "类固醇" (-16) 效果是否激活
+
     // 用于特殊流程控制的内部变量
     private bool _isBombOrSpecialClear = false;
-    private float protocolSpeedModifier = 1.0f; // 【新增】条约带来的永久速度倍率
+
+    private int permanentSpeedBonus = 0; // 永久加成 (气球, 神之救济, 条约)
+    private int roundSpeedBonus = 0; // 本轮加成 (降落伞)
+    private int countedSpeedBonus = 0; // 计数加成 (喷气背包)
+    private int countedBonusBlocksRemaining = 0; // 喷气背包剩余方块数
     public Spawner Spawner => spawner;
     public HuPaiArea HuPaiArea => huPaiArea;
 
@@ -54,6 +65,7 @@ public class GameManager : MonoBehaviour
     private bool isBountyActive = false;
 
     private GameSessionConfig currentSessionConfig; // 【新增】持有当前游戏会话的配置
+    private float difficultySpeedMultiplier = 1.0f; // 【新】难度带来的速度乘数
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -113,7 +125,6 @@ public class GameManager : MonoBehaviour
         // 【新增：测试模式检查】
         if (isTestMode)
         {
-            Debug.LogWarning("--- 测试模式已开启 ---");
             // 1. 使用Spawner的默认列表
             currentSessionConfig.InitialTetrominoes = new List<GameObject>(spawner.GetInitialTetrominoPrefabs());
 
@@ -123,35 +134,48 @@ public class GameManager : MonoBehaviour
         }
         else // 【常规难度逻辑】
         {
+            // 【修复】使用手动的 foreach 循环替换 LINQ .Where()
+            var masterList = spawner.GetMasterList();
+            var L1_Blocks = new List<GameObject>();
+            var L2_Blocks = new List<GameObject>();
+            var L3_Blocks = new List<GameObject>();
+
+            foreach (var prefab in masterList)
+            {
+                if (IsInLevel(prefab, 0)) L1_Blocks.Add(prefab);
+                if (IsInLevel(prefab, 1)) L2_Blocks.Add(prefab);
+                if (IsInLevel(prefab, 2)) L3_Blocks.Add(prefab);
+            }
+
             // 1. 根据难度决定初始方块
             switch (difficulty)
             {
                 case Difficulty.Easy:
-                    currentSessionConfig.InitialTetrominoes = spawner.GetMasterList().Where(p => IsInLevel(p, 0)).ToList();
+                    currentSessionConfig.InitialTetrominoes = L1_Blocks; // 使用筛选好的列表
                     scoreMultiplier = 1f;
-                    speedMultiplier = 1f;
+                    speedMultiplier = 1.0f;
                     break;
                 case Difficulty.Hard:
-                    var hardInitial = spawner.GetMasterList().Where(p => IsInLevel(p, 1)).ToList();
-                    var level3Blocks = spawner.GetMasterList().Where(p => IsInLevel(p, 2)).OrderBy(x => Random.value).Take(2).ToList();
-                    hardInitial.AddRange(level3Blocks);
+                    var hardInitial = new List<GameObject>(L2_Blocks); // 使用筛选好的列表
+                    var level3Random = L3_Blocks.OrderBy(x => Random.value).Take(2).ToList();
+                    hardInitial.AddRange(level3Random);
                     currentSessionConfig.InitialTetrominoes = hardInitial;
                     scoreMultiplier = 4f;
-                    speedMultiplier = 2f;
+                    speedMultiplier = 2.0f;
                     break;
                 case Difficulty.Normal:
                 default:
-                    currentSessionConfig.InitialTetrominoes = spawner.GetMasterList().Where(p => IsInLevel(p, 1)).ToList();
+                    currentSessionConfig.InitialTetrominoes = L2_Blocks; // 使用筛选好的列表
                     scoreMultiplier = 2f;
                     speedMultiplier = 1.5f;
                     break;
             }
         }
 
-        // 2. 应用速度配置 (此部分不变)
-        currentSessionConfig.InitialFallSpeed = settings.initialFallSpeed / speedMultiplier;
+        // 2. 应用速度配置
+        this.difficultySpeedMultiplier = speedMultiplier;
 
-        // 3. 创建目标分数的临时副本 (此部分不变)
+        // 3. 创建目标分数的临时副本
         foreach (var levelTemplate in settings.scoreLevels)
         {
             currentSessionConfig.DifficultyScoreLevels.Add(new ScoreLevel
@@ -164,12 +188,25 @@ public class GameManager : MonoBehaviour
         // === 第2部分: 使用新配置重置游戏状态 ===
         Time.timeScale = 1f;
         isPaused = false;
-        // ... (省略所有其他状态的重置代码, 它们保持不变)
+
         foreach (var protocol in activeProtocols) { if (protocol != null) protocol.RemoveEffect(this); }
         activeProtocols.Clear();
-        protocolSpeedModifier = 1.0f;
+
+        permanentSpeedBonus = 0;
+        roundSpeedBonus = 0;
+        countedSpeedBonus = 0;
+        countedBonusBlocksRemaining = 0;
+
         baseFanScore = settings.baseFanScore;
         extraMultiplier = 1f;
+
+        // 【新增】重置所有基础分加成
+        permanentBaseScoreBonus = 0;
+        roundBaseScoreBonus = 0;
+        permanentBaseScoreMultiplier = 1f; // 【新增】重置乘数
+        isSteroidActive = false;
+        isSteroidReversalActive = false;
+
         remainingPauses = maxPauses;
         if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
 
@@ -182,7 +219,10 @@ public class GameManager : MonoBehaviour
         huPaiArea.ClearAll();
         scoreManager.ResetScore();
         inventoryManager.ClearInventory();
-        UpdateFallSpeed(); // UpdateFallSpeed现在会使用currentSessionConfig.InitialFallSpeed
+
+        // 【修复】必须先计算速度，再生成方块
+        UpdateFallSpeed();
+
         // 使用会话配置中的数据来初始化
         spawner.InitializeForNewGame(settings, currentSessionConfig.InitialTetrominoes);
 
@@ -213,6 +253,34 @@ public class GameManager : MonoBehaviour
 
     public void ContinueAfterHu()
     {
+        // 【新增】胡牌时，清零“本轮”和“计数”加成，但保留“永久”加成
+        roundSpeedBonus = 0;
+        countedSpeedBonus = 0;
+        countedBonusBlocksRemaining = 0;
+
+        // --- 【新增】基础分重置逻辑 ---
+        if (isSteroidReversalActive)
+        {
+            // “类固醇”的 (-16) 效果在本轮结束，移除
+            roundBaseScoreBonus = 0;
+            isSteroidReversalActive = false;
+        }
+        else if (isSteroidActive)
+        {
+            // “类固醇”的 (+16) 效果在本轮结束，施加 (-16) 的反转效果
+            roundBaseScoreBonus = -16;
+            isSteroidActive = false;
+            isSteroidReversalActive = true;
+        }
+        else
+        {
+            // “功能饮料”的 (+8) 效果在本轮结束，移除
+            roundBaseScoreBonus = 0;
+        }
+        // 在重置后，立即更新一次基础分和UI
+        UpdateCurrentBaseScore();
+        // --- 基础分逻辑结束 ---
+
         // 【新增】如果停表效果激活，则重置暂停次数
         if (isStopwatchActive)
         {
@@ -294,11 +362,30 @@ public class GameManager : MonoBehaviour
     // --- 公开给道具和条约调用的接口 ---
     public void AddTime(float time) => remainingTime += time;
 
-    public void ModifyBaseFanScore(int amount, bool isMultiplier)
+    // 【新增】1. 供“果汁”调用 (永久加成)
+    public void ApplyPermanentBaseScoreBonus(int amount)
     {
-        if (isMultiplier) baseFanScore *= amount;
-        else baseFanScore += amount;
-        gameUI.UpdateBaseScoreText(baseFanScore);
+        permanentBaseScoreBonus += amount;
+        UpdateCurrentBaseScore();
+    }
+    // 【新增】2. 供“功能饮料”调用 (本轮加成)
+    public void ApplyRoundBaseScoreBonus(int amount)
+    {
+        roundBaseScoreBonus += amount;
+        UpdateCurrentBaseScore();
+    }
+    // 【新增】3. 供“类固醇”调用 (特殊本轮加成)
+    public void ApplySteroidBaseScoreBonus(int amount)
+    {
+        roundBaseScoreBonus += amount;
+        isSteroidActive = true; // 标记此加成来自“类固醇”
+        UpdateCurrentBaseScore();
+    }
+    // 【新增】4. 供“仙酒”调用 (永久乘法)
+    public void ApplyPermanentBaseScoreMultiplier(float multiplier)
+    {
+        permanentBaseScoreMultiplier *= multiplier;
+        UpdateCurrentBaseScore();
     }
 
     public void ModifyTargetScore(float multiplier)
@@ -367,44 +454,50 @@ public class GameManager : MonoBehaviour
         _isBombOrSpecialClear = true;
         tetrisGrid.ForceClearBottomRows(count);
     }
-    public void ApplyPermanentSpeedModifier(float multiplier)
+    // 【新增】1. 供“气球”和“神之救济”调用
+    public void ApplyPermanentSpeedBonus(int amount)
     {
-        protocolSpeedModifier *= multiplier;
-
-        // 立即重新计算全局速度
-        UpdateFallSpeed();
-
-        // 立即将新速度应用到当前方块，实现即时效果
+        permanentSpeedBonus += amount;
+        UpdateFallSpeedAndApplyToCurrentBlock();
+    }
+    // 【新增】2. 供“降落伞”调用
+    public void ApplyRoundSpeedBonus(int amount)
+    {
+        roundSpeedBonus += amount;
+        UpdateFallSpeedAndApplyToCurrentBlock();
+    }
+    // 【新增】3. 供“喷气背包”调用
+    public void ApplyCountedSpeedBonus(int amount, int blockCount)
+    {
+        countedSpeedBonus = amount; // 效果可叠加或覆盖，暂定为覆盖
+        countedBonusBlocksRemaining = blockCount;
+        UpdateFallSpeedAndApplyToCurrentBlock();
+    }
+    // 【新增】4. 辅助方法，用于立即刷新速度
+    private void UpdateFallSpeedAndApplyToCurrentBlock()
+    {
+        UpdateFallSpeed(); // 重新计算速度
         var currentTetromino = FindObjectOfType<Tetromino>();
         if (currentTetromino != null)
         {
+            // 立即将新速度应用到当前下落的方块
             currentTetromino.UpdateFallSpeedNow(this.currentFallSpeed);
         }
     }
-
-    public void ModifySpeedOfCurrentTetrominoByPercent(float percentage)
+    // 【新增】供 Spawner 调用，用于“喷气背包”计数
+    public void NotifyBlockSpawned()
     {
-        var currentTetromino = FindObjectOfType<Tetromino>();
-        if (currentTetromino != null)
+        if (countedBonusBlocksRemaining > 0)
         {
-            // 1. 获取当前的速度（实际是延迟时间）
-            float currentDelay = currentTetromino.GetCurrentFallSpeed();
-
-            // 2. 根据百分比计算新的延迟时间
-            // 公式: NewDelay = CurrentDelay / (1 + PercentageChange / 100)
-            float newDelay = currentDelay / (1f + percentage / 100f);
-            if (settings != null)
+            countedBonusBlocksRemaining--;
+            // 如果是最后一个方块，则在它生成后重置加成并更新速度
+            if (countedBonusBlocksRemaining == 0)
             {
-                float newSpeedPercent = (settings.initialFallSpeed / newDelay) * 100f;
-
-                // 2. 更新UI文本
-                gameUI.UpdateSpeedText(newSpeedPercent);
+                countedSpeedBonus = 0; // 效果结束
+                UpdateFallSpeed(); // 更新全局速度，下一个方块将恢复正常
             }
-            // 3. 将计算出的新速度应用到方块上
-            currentTetromino.UpdateFallSpeedNow(newDelay);
         }
     }
-
     // --- 私有辅助方法 ---
     private HuRewardPackage GenerateHuRewards(bool isAdvanced)
     {
@@ -452,21 +545,67 @@ public class GameManager : MonoBehaviour
 
     private bool IsInLevel(GameObject prefab, int levelIndex)
     {
-        if (levelIndex < 0 || levelIndex >= settings.tetrominoLevels.Count) return false;
-        var levelDef = settings.tetrominoLevels[levelIndex];
-        int count = prefab.GetComponentsInChildren<BlockUnit>().Length;
-        return count >= levelDef.minBlocks && count <= levelDef.maxBlocks;
+        if (prefab == null)
+        {
+            Debug.LogError("[IsInLevel] 错误: 传入的 prefab 为 null!");
+            return false;
+        }
+        string prefabName = prefab.name;
+        bool result = false;
+
+        switch (levelIndex)
+        {
+            case 0: // Lv.1
+                result = prefabName.StartsWith("T1-") || prefabName.StartsWith("T2-") || prefabName.StartsWith("T3-");
+                break;
+            case 1: // Lv.2
+                result = prefabName.StartsWith("T4-");
+                break;
+            case 2: // Lv.3
+                result = prefabName.StartsWith("T5-");
+                break;
+        }
+
+        // 【诊断日志】
+        // 我们只打印失败的检查，以减少日志 spam
+        if (!result && (levelIndex == 1 || levelIndex == 2))
+        {
+            Debug.Log($"[IsInLevel] 检查失败: 预制件 '{prefabName}' (来自 MasterList) 与 Level {levelIndex} (T{levelIndex + 3}-) 的命名规则不匹配。");
+        }
+        else if (result)
+        {
+            Debug.Log($"<color=green>[IsInLevel] 匹配成功: '{prefabName}' 属于 Level {levelIndex}</color>");
+        }
+
+        return result;
     }
 
     private void UpdateFallSpeed()
     {
-        float speedPercent = 100f + (scoreManager.GetHuCount() * (settings.speedIncreasePerHu * 100f));
+        // 1. 获取基础速度 (例如 10)
+        int baseSpeed = settings.baseDisplayedSpeed;
 
-        // 【修改】使用 currentSessionConfig 中的初始速度
-        float baseFallSpeed = currentSessionConfig.InitialFallSpeed / protocolSpeedModifier;
+        // 2. 【修复】只对基础速度应用难度乘数
+        int baseSpeedWithDifficulty = (int)(baseSpeed * this.difficultySpeedMultiplier);
 
-        currentFallSpeed = baseFallSpeed / (speedPercent / 100f);
-        gameUI.UpdateSpeedText(speedPercent * protocolSpeedModifier);
+        // 3. 【修复】单独获取“胡牌加成” (不受难度影响)
+        int huBonus = scoreManager.GetHuCount() * settings.speedIncreasePerHu_Int;
+
+        // 4. 【修复】单独获取“道具/条约加成” (不受难度影响)
+        int currentCountedBonus = (countedBonusBlocksRemaining > 0) ? countedSpeedBonus : 0;
+        int totalBonus = permanentSpeedBonus + roundSpeedBonus + currentCountedBonus;
+
+        // 5. 【修复】将三部分相加：(基础*难度) + (胡牌) + (道具)
+        int totalDisplayedSpeed = baseSpeedWithDifficulty + huBonus + totalBonus;
+
+        // 6. 【保留】根据“喷气背包”需求，速度最低为 1
+        if (totalDisplayedSpeed < 1) totalDisplayedSpeed = 1;
+
+        // 7. 应用新公式：下落时间 = 20 / 显示速度
+        currentFallSpeed = 20.0f / totalDisplayedSpeed;
+
+        // 8. 更新UI
+        gameUI.UpdateSpeedText(totalDisplayedSpeed);
     }
 
     private void OnScoreUpdated(int newScore)
@@ -612,4 +751,28 @@ public class GameManager : MonoBehaviour
             UpdateTargetScoreUI();
         }
     }
-}
+    // 【新增】用于计算和更新所有基础分加成
+    private void UpdateCurrentBaseScore()
+    {
+        // 1. 从设置中获取默认基础分
+        int defaultScore = settings.baseFanScore;
+
+        // 2. 累加所有加法加成
+        int addedScore = defaultScore + permanentBaseScoreBonus + roundBaseScoreBonus;
+
+        // 3. 【修改】应用乘法加成
+        int calculatedScore = (int)(addedScore * permanentBaseScoreMultiplier);
+
+        // 4. 应用“类固醇”的特殊规则（最低为1）
+        if (isSteroidReversalActive && calculatedScore < 1)
+        {
+            calculatedScore = 1;
+        }
+
+        // 5. 设置最终的基础分
+        baseFanScore = calculatedScore;
+
+        // 6. 更新UI
+        gameUI.UpdateBaseScoreText(baseFanScore);
+    }
+    }

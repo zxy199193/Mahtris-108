@@ -151,7 +151,10 @@ public class GameUIController : MonoBehaviour
     }
 
     public void UpdateTimerText(float time) { if (timerText) timerText.text = $"{Mathf.Max(0, time):F0}"; }
-    public void UpdateSpeedText(float percent) { if (speedText) speedText.text = $"{percent:F0}%"; }
+    public void UpdateSpeedText(int speedValue)
+    {
+        if (speedText) speedText.text = $"ËÙ¶È: {speedValue}";
+    }
     public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"{multiplier:F0}"; }
     public void UpdateBaseScoreText(int score) { if (baseScoreText) baseScoreText.text = $"{score}"; }
     public void UpdateExtraMultiplierText(float multiplier) { if (extraMultiplierText) extraMultiplierText.text = $"{multiplier:F0}"; }

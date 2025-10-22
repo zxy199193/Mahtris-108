@@ -40,8 +40,14 @@ public class GameSettings : ScriptableObject
     [Tooltip("每次胡牌后速度增加初始速度的百分比")]
     [Range(0f, 1f)]
     public float speedIncreasePerHu = 0.2f;
-    public float initialFallSpeed = 1.0f;
-    public float fastFallSpeed = 3f;
+    public float initialFallSpeed = 1.0f; // (此字段将被新逻辑忽略)
+    public float fastFallSpeed = 0.05f; // (此字段保持不变, 用于快速下落)
+
+    [Header("新速度系统 (V4.1)")]
+    [Tooltip("简单难度下的基础速度等级 (例如: 10)")]
+    public int baseDisplayedSpeed = 10;
+    [Tooltip("每次胡牌后, 速度等级增加的整数值 (例如: 2)")]
+    public int speedIncreasePerHu_Int = 2;
 
     [Header("麻将牌库")]
     public int tileRanks = 9;

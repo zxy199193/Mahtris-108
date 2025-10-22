@@ -108,6 +108,8 @@ public class Spawner : MonoBehaviour
 
     public void SpawnBlock()
     {
+        // 【新增】通知GameManager一个方块已被生成，用于喷气背包计数
+        GameManager.Instance.NotifyBlockSpawned();
         if (nextTetrominoPrefab == null) { GameEvents.TriggerGameOver(); return; }
 
         Vector3 spawnPosition = new Vector3(settings.gridWidth / 2, settings.gridHeight - 2, 0);
