@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Steroids
   m_EditorClassIdentifier: 
   itemName: "\u7C7B\u56FA\u9187"
-  itemIcon: {fileID: 21300000, guid: 66f944da3727a3d4ca04924611a1ffa3, type: 3}
+  itemIcon: {fileID: 21300000, guid: 885345866bd2666448d62cca6aaffc4f, type: 3}
   itemDescription: "\u672C\u8F6E\u6E38\u620F\u57FA\u7840\u5206\u52A016\uFF0C\u80E1\u724C\u540E\u57FA\u7840\u5206\u51CF32\uFF0C\u518D\u6B21\u80E1\u724C\u79FB\u9664\u6548\u679C"
   scoreBonus: 16

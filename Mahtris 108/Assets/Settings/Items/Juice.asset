@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Juice
   m_EditorClassIdentifier: 
   itemName: "\u679C\u6C41"
-  itemIcon: {fileID: 21300000, guid: 8240bf10bb725704c8bd0369f8de95e6, type: 3}
+  itemIcon: {fileID: 21300000, guid: 82f5b5bf6df499648a839737acd846aa, type: 3}
   itemDescription: "\u672C\u5C40\u6E38\u620F\u57FA\u7840\u5206+3"
   scoreBonus: 3

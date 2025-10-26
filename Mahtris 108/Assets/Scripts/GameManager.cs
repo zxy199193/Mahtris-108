@@ -161,13 +161,13 @@ public class GameManager : MonoBehaviour
                     hardInitial.AddRange(level3Random);
                     currentSessionConfig.InitialTetrominoes = hardInitial;
                     scoreMultiplier = 4f;
-                    speedMultiplier = 2.0f;
+                    speedMultiplier = 1.5f;
                     break;
                 case Difficulty.Normal:
                 default:
                     currentSessionConfig.InitialTetrominoes = L2_Blocks; // 使用筛选好的列表
                     scoreMultiplier = 2f;
-                    speedMultiplier = 1.5f;
+                    speedMultiplier = 1.2f;
                     break;
             }
         }
