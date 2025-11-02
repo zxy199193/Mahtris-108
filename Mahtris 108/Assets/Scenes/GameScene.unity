@@ -2437,6 +2437,7 @@ MonoBehaviour:
   - {fileID: 621094592900249781, guid: d59a1de0948ada8449fb1274af4f1878, type: 3}
   - {fileID: 621094592900249781, guid: ec961b96e24c28943b656c9766025a18, type: 3}
   - {fileID: 621094592900249781, guid: 1d939d29def765544a4d66f841dc9c68, type: 3}
+  - {fileID: 621094592900249781, guid: 45156edacb5c9ef4da336989e786f3ad, type: 3}
   blockPool: {fileID: 558386358}
   tetrisGrid: {fileID: 558386360}
 --- !u!1 &276790791
@@ -5536,6 +5537,16 @@ MonoBehaviour:
   inventoryManager: {fileID: 558386362}
   currentFallSpeed: 0
   isTestMode: 1
+  useDuanYaoJiuFilter: 0
+  useQueYiMenFilter: 0
+  queYiMenSuitToRemove: -1
+  isHunYaoShiTingActive: 0
+  isChaoSuanLiActive: 0
+  isDarkFantasyActive: 0
+  isTyphoonActive: 0
+  isMeteorShowerActive: 0
+  isTrickRoomActive: 0
+  isNoGravityActive: 0
   maxPauses: 2
 --- !u!114 &558386362
 MonoBehaviour:
