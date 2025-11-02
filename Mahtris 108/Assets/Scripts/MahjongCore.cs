@@ -120,10 +120,21 @@ public class MahjongCore
         int patternFan = 0;
 
         bool isDuiDuiHu = sets.All(s => IsPungOrKong(s));
-
         var allTileIds = huHand.SelectMany(s => s).ToList();
-        int firstSuit = (allTileIds[0] % 27) / 9;
-        bool isQingYiSe = allTileIds.All(id => ((id % 27) / 9) == firstSuit);
+
+        // 【修改】“混淆视听”逻辑
+        bool isQingYiSe = false;
+        int suitCount = allTileIds.Select(id => ((id % 27) / 9)).Distinct().Count();
+
+        if (suitCount == 1)
+        {
+            isQingYiSe = true; // 原始清一色
+        }
+        else if (GameManager.Instance != null && GameManager.Instance.isHunYaoShiTingActive && suitCount == 2)
+        {
+            isQingYiSe = true; // 混淆视听（2色视为清一色）
+        }
+        // --- 修改结束 ---
 
         if (isQingYiSe && isDuiDuiHu)
         {

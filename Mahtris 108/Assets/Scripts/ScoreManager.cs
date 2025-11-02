@@ -26,6 +26,11 @@ public class ScoreManager : MonoBehaviour
     {
         return huCountInCycle;
     }
+    // 【新增】供“快进按钮”道具调用
+    public void AddHuCount(int amount)
+    {
+        huCount += amount;
+    }
 
     public bool IncrementHuCountAndCheckCycle()
     {

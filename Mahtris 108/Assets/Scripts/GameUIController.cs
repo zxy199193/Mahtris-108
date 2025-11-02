@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using DG.Tweening;
 
 // 新增：用于在UI和逻辑间传递奖励数据的结构体
 public class HuRewardPackage
@@ -248,7 +249,19 @@ public class GameUIController : MonoBehaviour
                             int baseScore, float blockMultiplier, float extraMultiplier, long finalScore,
                             HuRewardPackage rewards, bool isAdvanced)
     {
-        if (huPopupPanel) huPopupPanel.SetActive(true);
+        if (huPopupPanel)
+        {
+            // 1. 立即激活面板
+            huPopupPanel.SetActive(true);
+
+            // 2. 将初始缩放设置为0
+            huPopupPanel.transform.localScale = Vector3.zero;
+
+            // 3. 执行DoTween的Scale（缩放）动画
+            huPopupPanel.transform.DOScale(Vector3.one, 0.3f)
+                .SetEase(Ease.OutBack) // （可选）设置一个回弹动画效果
+                .SetUpdate(true); // 【关键修复】忽略 Time.timeScale = 0 的影响
+        }
 
         if (patternNameText) patternNameText.text = $"{analysis.PatternName} ({analysis.TotalFan}番)";
         if (formulaBaseScoreText) formulaBaseScoreText.text = $"{baseScore}";
@@ -342,7 +355,19 @@ public class GameUIController : MonoBehaviour
     public void HideHuPopup() { if (huPopupPanel) huPopupPanel.SetActive(false); }
     public void ShowGameEndPanel(bool isWin, int finalScore, bool isNewHighScore)
     {
-        if (gameOverPanel) gameOverPanel.SetActive(true);
+        if (gameOverPanel)
+        {
+            // 1. 立即激活面板
+            gameOverPanel.SetActive(true);
+
+            // 2. 将初始缩放设置为0
+            gameOverPanel.transform.localScale = Vector3.zero;
+
+            // 3. 执行DoTween的Scale（缩放）动画
+            gameOverPanel.transform.DOScale(Vector3.one, 0.3f)
+                .SetEase(Ease.OutBack) // （可选）设置一个回弹动画效果
+                .SetUpdate(true); // 【关键修复】忽略 Time.timeScale = 0 的影响
+        }
         if (gameOverTitleText) gameOverTitleText.text = isWin ? "恭喜过关！" : "游戏结束";
         if (finalScoreText) finalScoreText.text = $"{finalScore}";
         if (newHighScoreIndicator) newHighScoreIndicator.SetActive(isNewHighScore);

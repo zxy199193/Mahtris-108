@@ -25,6 +25,7 @@ public class Spawner : MonoBehaviour
 
     private int replicationCount = 0;
     private GameObject replicationPrefab = null;
+    private GameObject forcedNextBlock = null;
     public GameObject[] GetInitialTetrominoPrefabs()
     {
         return initialTetrominoPrefabs;
@@ -73,7 +74,14 @@ public class Spawner : MonoBehaviour
 
     private void PrepareNextTetromino()
     {
-        if (replicationCount > 0 && replicationPrefab != null)
+        if (forcedNextBlock != null)
+        {
+            nextTetrominoPrefab = forcedNextBlock;
+            forcedNextBlock = null; // 立即消耗
+            replicationCount = 0; // 强制覆盖“复制器”的效果
+            replicationPrefab = null;
+        }
+        else if (replicationCount > 0 && replicationPrefab != null)
         {
             nextTetrominoPrefab = replicationPrefab;
             replicationCount--;
@@ -154,5 +162,24 @@ public class Spawner : MonoBehaviour
 
         Debug.Log("变形失败，没有找到相同块数的其他形状。");
         return false; // 使用失败，道具不消耗
+    }
+    public bool ForceNextBlock(string prefabName)
+    {
+        // 1. 从 MasterList 查找预制件
+        var prefab = masterTetrominoPrefabs.FirstOrDefault(p => p.name == prefabName);
+
+        if (prefab == null)
+        {
+            Debug.LogError($"[Spawner] 无法找到名为 '{prefabName}' 的预制件！");
+            return false; // 道具使用失败
+        }
+
+        // 2. 设置强制标记
+        forcedNextBlock = prefab;
+
+        // 3. 立即重新准备下一个方块，以便UI可以更新
+        PrepareNextTetromino();
+
+        return true; // 道具使用成功
     }
 }

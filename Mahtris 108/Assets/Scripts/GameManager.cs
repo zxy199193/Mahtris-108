@@ -45,6 +45,17 @@ public class GameManager : MonoBehaviour
     private float permanentBaseScoreMultiplier = 1f; // 【新增】"仙酒" (x2)
     private bool isSteroidActive = false; // 跟踪 "类固醇" (+16) 效果是否激活
     private bool isSteroidReversalActive = false; // 跟踪 "类固醇" (-16) 效果是否激活
+                                                  // 【新增】条约 V4.1 状态
+    public bool useDuanYaoJiuFilter = false;
+    public bool useQueYiMenFilter = false;
+    public int queYiMenSuitToRemove = -1;
+    public bool isHunYaoShiTingActive = false;
+    public bool isChaoSuanLiActive = false;
+    public bool isDarkFantasyActive = false;
+    public bool isTyphoonActive = false;
+    public bool isMeteorShowerActive = false;
+    public bool isTrickRoomActive = false;
+    public bool isNoGravityActive = false;
 
     // 用于特殊流程控制的内部变量
     private bool _isBombOrSpecialClear = false;
@@ -63,6 +74,15 @@ public class GameManager : MonoBehaviour
 
     private bool isStopwatchActive = false; // 【新增】
     private bool isBountyActive = false;
+    private int ignoreMahjongCheckCount = 0; // 【新增】"垃圾筒"
+    private int bonusBlocksOnHuCount = 0;    // 【新增】"试用小样"
+    private string bonusBlockPrefabName = "";  // 【新增】"试用小样"
+    // 【新增】“点金手”
+    private float midasTimer = 0f;
+    private int midasGoldValue = 0;
+    // 【新增】“计分板”
+    private float scoreboardTimer = 0f;
+
 
     private GameSessionConfig currentSessionConfig; // 【新增】持有当前游戏会话的配置
     private float difficultySpeedMultiplier = 1.0f; // 【新】难度带来的速度乘数
@@ -93,6 +113,25 @@ public class GameManager : MonoBehaviour
         if (isProcessingRows || Time.timeScale == 0f) return;
         remainingTime -= Time.deltaTime;
         gameUI.UpdateTimerText(remainingTime);
+        // 【新增】处理“点金手”计时器
+        if (midasTimer > 0)
+        {
+            midasTimer -= Time.deltaTime;
+            if (midasTimer <= 0)
+            {
+                midasTimer = 0;
+                midasGoldValue = 0;
+            }
+        }
+        // 【新增】处理“计分板”计时器
+        if (scoreboardTimer > 0)
+        {
+            scoreboardTimer -= Time.deltaTime;
+            if (scoreboardTimer <= 0)
+            {
+                scoreboardTimer = 0;
+            }
+        }
         if (remainingTime <= 0) GameEvents.TriggerGameOver();
     }
 
@@ -206,6 +245,17 @@ public class GameManager : MonoBehaviour
         permanentBaseScoreMultiplier = 1f; // 【新增】重置乘数
         isSteroidActive = false;
         isSteroidReversalActive = false;
+        ignoreMahjongCheckCount = 0; // 【新增】
+        bonusBlocksOnHuCount = 0;    // 【新增】
+        useDuanYaoJiuFilter = false;
+        useQueYiMenFilter = false;
+        queYiMenSuitToRemove = -1;
+        isHunYaoShiTingActive = false;
+        isChaoSuanLiActive = false;
+        isDarkFantasyActive = false;
+        isTyphoonActive = false;
+        isMeteorShowerActive = false;
+        isTrickRoomActive = false;
 
         remainingPauses = maxPauses;
         if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
@@ -253,6 +303,11 @@ public class GameManager : MonoBehaviour
 
     public void ContinueAfterHu()
     {
+        // 【新增】胡牌时重置“点金手”和“计分板”
+        midasTimer = 0f;
+        midasGoldValue = 0;
+        scoreboardTimer = 0f;
+        ignoreMahjongCheckCount = 0; // 【新增】胡牌后重置垃圾筒
         // 【新增】胡牌时，清零“本轮”和“计数”加成，但保留“永久”加成
         roundSpeedBonus = 0;
         countedSpeedBonus = 0;
@@ -298,10 +353,25 @@ public class GameManager : MonoBehaviour
         gameUI.HideHuPopup();
         Time.timeScale = 1f;
         UpdateFallSpeed();
+        blockPool.ResetFullDeck(); // 【关键】这一行会自动重新应用过滤器
         blockPool.ResetFullDeck();
         tetrisGrid.ClearAllBlocks();
         huPaiArea.ClearAll();
         spawner.StartNextRound();
+        // 【新增】“试用小样”奖励逻辑
+        if (bonusBlocksOnHuCount > 0 && !string.IsNullOrEmpty(bonusBlockPrefabName))
+        {
+            var prefab = spawner.GetMasterList().FirstOrDefault(p => p.name == bonusBlockPrefabName);
+            if (prefab != null)
+            {
+                for (int i = 0; i < bonusBlocksOnHuCount; i++)
+                {
+                    spawner.AddTetrominoToPool(prefab);
+                }
+            }
+            bonusBlocksOnHuCount = 0;
+            bonusBlockPrefabName = "";
+        }
         isProcessingRows = false;
     }
 
@@ -310,41 +380,79 @@ public class GameManager : MonoBehaviour
         if (isProcessingRows) return;
         isProcessingRows = true;
         rowIndices.Sort();
+
+        // 【修复】将 allClearedTransforms 和 allRemainingIds 提到顶部声明一次
         List<Transform> allClearedTransforms = new List<Transform>();
         List<int> allRemainingIds = new List<int>();
-        foreach (var y in rowIndices)
+
+        // 【新增】“垃圾筒”逻辑
+        if (ignoreMahjongCheckCount > 0)
         {
-            var rowData = tetrisGrid.GetRowDataAndClear(y);
-            allClearedTransforms.AddRange(rowData.transforms);
-            scoreManager.AddScore(settings.scorePerRow);
-            var result = mahjongCore.DetectSets(rowData.blockIds);
-            var setsToAdd = new List<List<int>>();
-            setsToAdd.AddRange(result.Kongs); setsToAdd.AddRange(result.Pungs); setsToAdd.AddRange(result.Chows);
-            int needed = settings.setsForHu - huPaiArea.GetSetCount();
-            if (setsToAdd.Count > needed)
+            ignoreMahjongCheckCount--;
+
+            // --- 跳过麻将判定的快速清理流程 ---
+            foreach (var y in rowIndices)
             {
-                var shuffledSets = setsToAdd.OrderBy(a => Random.value).ToList();
-                var chosenSets = shuffledSets.Take(needed).ToList();
-                result.RemainingIds.AddRange(shuffledSets.Skip(needed).SelectMany(set => set));
-                setsToAdd = chosenSets;
+                var rowData = tetrisGrid.GetRowDataAndClear(y);
+                allClearedTransforms.AddRange(rowData.transforms);
+                allRemainingIds.AddRange(rowData.blockIds); // 【修复】垃圾筒也应归还牌，而不是销毁
             }
-            if (setsToAdd.Count > 0) huPaiArea.AddSets(setsToAdd);
-            if (huPaiArea.GetSetCount() >= settings.setsForHu)
-            {
-                var pair = mahjongCore.FindPair(result.RemainingIds);
-                if (pair != null)
-                {
-                    result.RemainingIds.Remove(pair[0]); result.RemainingIds.Remove(pair[1]);
-                    var finalHand = huPaiArea.GetAllSets(); finalHand.Add(pair);
-                    GameEvents.TriggerHuDeclared(finalHand);
-                    allRemainingIds.AddRange(result.RemainingIds);
-                    blockPool.ReturnBlockIds(allRemainingIds);
-                    tetrisGrid.DestroyTransforms(allClearedTransforms);
-                    return;
-                }
-            }
-            allRemainingIds.AddRange(result.RemainingIds);
+            // --- 流程结束 ---
         }
+        // 【新增】“点金手”和“计分板”逻辑
+        else if (midasTimer > 0) // 【修复】将此逻辑改为 else if，防止垃圾筒也触发
+        {
+            GameSession.Instance.AddGold(midasGoldValue);
+            midasGoldValue *= 2;
+        }
+
+        if (scoreboardTimer > 0) // (计分板可以和垃圾桶并存)
+        {
+            int currentScore = scoreManager.GetCurrentScore();
+            int bonusScore = Mathf.RoundToInt(currentScore * 0.05f);
+            scoreManager.AddScore(bonusScore);
+        }
+
+        // --- 正常的麻将判定逻辑 ---
+        if (ignoreMahjongCheckCount <= 0) // 【修改】仅在垃圾筒未激活时执行
+        {
+            foreach (var y in rowIndices)
+            {
+                var rowData = tetrisGrid.GetRowDataAndClear(y);
+                allClearedTransforms.AddRange(rowData.transforms);
+                scoreManager.AddScore(settings.scorePerRow);
+                var result = mahjongCore.DetectSets(rowData.blockIds);
+                var setsToAdd = new List<List<int>>();
+                setsToAdd.AddRange(result.Kongs); setsToAdd.AddRange(result.Pungs); setsToAdd.AddRange(result.Chows);
+                int needed = settings.setsForHu - huPaiArea.GetSetCount();
+                if (setsToAdd.Count > needed)
+                {
+                    var shuffledSets = setsToAdd.OrderBy(a => Random.value).ToList();
+                    var chosenSets = shuffledSets.Take(needed).ToList();
+                    result.RemainingIds.AddRange(shuffledSets.Skip(needed).SelectMany(set => set));
+                    setsToAdd = chosenSets;
+                }
+                if (setsToAdd.Count > 0) huPaiArea.AddSets(setsToAdd);
+                if (huPaiArea.GetSetCount() >= settings.setsForHu)
+                {
+                    var pair = mahjongCore.FindPair(result.RemainingIds);
+                    if (pair != null)
+                    {
+                        result.RemainingIds.Remove(pair[0]); result.RemainingIds.Remove(pair[1]);
+                        var finalHand = huPaiArea.GetAllSets(); finalHand.Add(pair);
+                        GameEvents.TriggerHuDeclared(finalHand);
+                        allRemainingIds.AddRange(result.RemainingIds);
+                        blockPool.ReturnBlockIds(allRemainingIds);
+                        tetrisGrid.DestroyTransforms(allClearedTransforms);
+                        return;
+                    }
+                }
+                allRemainingIds.AddRange(result.RemainingIds);
+            }
+        }
+        // --- 麻将判定结束 ---
+
+        // 统一在末尾执行清理
         blockPool.ReturnBlockIds(allRemainingIds);
         tetrisGrid.DestroyTransforms(allClearedTransforms);
 
@@ -518,6 +626,30 @@ public class GameManager : MonoBehaviour
 
     private IEnumerable<GameObject> GetWeightedRandomBlocks(int count, BlockRewardWeights weights)
     {
+        // 【新增】“超算力”逻辑
+        BlockRewardWeights adjustedWeights = new BlockRewardWeights
+        {
+            level1Weight = weights.level1Weight,
+            level2Weight = weights.level2Weight,
+            level3Weight = weights.level3Weight
+        };
+
+        if (isChaoSuanLiActive)
+        {
+            // 检查玩家是否已有 L3 方块
+            bool hasLevel3 = spawner.GetActivePrefabs().Any(p => IsInLevel(p, 2));
+            if (hasLevel3)
+            {
+                // 权重提高200%（即变为原来的3倍）
+                adjustedWeights.level3Weight *= 3f;
+                // （可选：重新归一化权重，使总和为1）
+                float total = adjustedWeights.level1Weight + adjustedWeights.level2Weight + adjustedWeights.level3Weight;
+                adjustedWeights.level1Weight /= total;
+                adjustedWeights.level2Weight /= total;
+                adjustedWeights.level3Weight /= total;
+            }
+        }
+        // --- 超算力逻辑结束 ---
         var source = spawner.GetMasterList();
         var level1 = source.Where(p => IsInLevel(p, 0)).ToList();
         var level2 = source.Where(p => IsInLevel(p, 1)).ToList();
@@ -527,6 +659,11 @@ public class GameManager : MonoBehaviour
         {
             GameObject chosenBlock = null;
             float roll = Random.value;
+            if (roll < adjustedWeights.level1Weight && level1.Count > 0)
+                chosenBlock = level1[Random.Range(0, level1.Count)];
+            else if (roll < adjustedWeights.level1Weight + adjustedWeights.level2Weight && level2.Count > 0)
+                chosenBlock = level2[Random.Range(0, level2.Count)];
+
             if (roll < weights.level1Weight && level1.Count > 0)
                 chosenBlock = level1[Random.Range(0, level1.Count)];
             else if (roll < weights.level1Weight + weights.level2Weight && level2.Count > 0)
@@ -775,4 +912,104 @@ public class GameManager : MonoBehaviour
         // 6. 更新UI
         gameUI.UpdateBaseScoreText(baseFanScore);
     }
+    // 【新增】供“快进按钮”调用
+    public void AddHuCount(int amount)
+    {
+        if (scoreManager != null)
+        {
+            scoreManager.AddHuCount(amount);
+        }
     }
+
+    // 【新增】供“垃圾筒”调用
+    public void SetIgnoreMahjongCheck(int count)
+    {
+        ignoreMahjongCheckCount = count;
+    }
+
+    // 【新增】供“试用小样”调用
+    public void ActivateBonusBlocksOnHu(string prefabName, int count)
+    {
+        bonusBlockPrefabName = prefabName;
+        bonusBlocksOnHuCount = count;
+    }
+    public bool TryFindAndAddRandomSetFromPool()
+    {
+        // 1. 检查胡牌区是否已满
+        if (huPaiArea.GetSetCount() >= settings.setsForHu)
+        {
+            return false; // 胡牌区已满，无法使用
+        }
+        // 2. 获取当前牌库
+        List<int> availableIds = blockPool.GetAvailableBlockIDs();
+        if (availableIds.Count < 3)
+        {
+            return false; // 牌库不足
+        }
+
+        List<List<int>> potentialSets = new List<List<int>>();
+
+        // 3. 查找所有可能的“刻子”
+        var pungGroups = availableIds.GroupBy(id => id % 27) // 按牌值分组
+                                     .Where(g => g.Count() >= 3);
+        foreach (var group in pungGroups)
+        {
+            potentialSets.Add(group.Take(3).ToList());
+        }
+
+        // 4. 查找所有可能的“顺子”
+        var tilesBySuit = availableIds.GroupBy(id => (id % 27) / 9); // 按花色分组
+        foreach (var suitGroup in tilesBySuit)
+        {
+            var uniqueTilesInSuit = suitGroup.Select(id => id % 27).Distinct().OrderBy(val => val).ToList();
+            for (int i = 0; i < uniqueTilesInSuit.Count - 2; i++)
+            {
+                int v1_val = uniqueTilesInSuit[i];
+                int v2_val = uniqueTilesInSuit[i + 1];
+                int v3_val = uniqueTilesInSuit[i + 2];
+
+                // 检查是否连续
+                if ((v1_val % 9 <= 6) && (v2_val == v1_val + 1) && (v3_val == v1_val + 2))
+                {
+                    // 找到顺子，从牌库中获取对应的3张牌ID
+                    int id1 = suitGroup.First(id => (id % 27) == v1_val);
+                    int id2 = suitGroup.First(id => (id % 27) == v2_val);
+                    int id3 = suitGroup.First(id => (id % 27) == v3_val);
+                    potentialSets.Add(new List<int> { id1, id2, id3 });
+                }
+            }
+        }
+
+        // 5. 如果没有找到任何可组成的牌
+        if (potentialSets.Count == 0)
+        {
+            return false; // 牌库中没有可用的组合
+        }
+
+        // 6. 随机选择一个并添加到胡牌区
+        List<int> chosenSet = potentialSets[Random.Range(0, potentialSets.Count)];
+        if (blockPool.RemoveSpecificBlockIds(chosenSet))
+        {
+            huPaiArea.AddSets(new List<List<int>> { chosenSet });
+            return true; // 道具使用成功
+        }
+
+        return false; // 移除牌时出错（理论上不应发生）
+    }
+    // 【新增】供“点金手”调用
+    public void ActivateMidas(float duration)
+    {
+        midasTimer = duration;
+        midasGoldValue = 1; // 激活时，将初始金币设为1
+    }
+    // 【新增】供“计分板”调用
+    public void ActivateScoreboard(float duration)
+    {
+        scoreboardTimer = duration;
+    }
+    // 【新增】供“流星雨”条约在方块生成时临时更新UI
+    public void UpdateSpeedUITemp(int speedValue)
+    {
+        gameUI.UpdateSpeedText(speedValue);
+    }
+}
