@@ -254,13 +254,19 @@ public class GameUIController : MonoBehaviour
             // 1. 立即激活面板
             huPopupPanel.SetActive(true);
 
-            // 2. 将初始缩放设置为0
-            huPopupPanel.transform.localScale = Vector3.zero;
+            // 确保 RectTransform 锚点居中（Inspector 设置）
+            RectTransform rectTransform = huPopupPanel.GetComponent<RectTransform>();
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f); // 屏幕中心
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            rectTransform.pivot = new Vector2(0.5f, 0.5f); // 轴心居中
 
-            // 3. 执行DoTween的Scale（缩放）动画
-            huPopupPanel.transform.DOScale(Vector3.one, 0.3f)
-                .SetEase(Ease.OutBack) // （可选）设置一个回弹动画效果
-                .SetUpdate(true); // 【关键修复】忽略 Time.timeScale = 0 的影响
+            // 设置初始位置（本地坐标）
+            rectTransform.anchoredPosition = new Vector2(0, 1200); // 使用 anchoredPosition 而非 position
+
+            // 执行本地移动动画
+            rectTransform.DOLocalMove(new Vector2(0, 0), 0.8f)
+                .SetEase(Ease.OutBounce)
+                .SetUpdate(true);
         }
 
         if (patternNameText) patternNameText.text = $"{analysis.PatternName} ({analysis.TotalFan}番)";
@@ -270,7 +276,7 @@ public class GameUIController : MonoBehaviour
         if (formulaBlockMultText) formulaBlockMultText.text = $"{blockMultiplier:F0}";
         if (formulaExtraMultText) formulaExtraMultText.text = $"{extraMultiplier:F0}";
         if (formulaFinalScoreText) formulaFinalScoreText.text = $"{finalScore}";
-        if (huCycleText) huCycleText.text = isAdvanced ? "4/4" : $"{scoreManager.GetHuCountInCycle()}/4";
+        if (huCycleText) huCycleText.text = isAdvanced ? "4/4" : $"第X圈 第{scoreManager.GetHuCountInCycle()}轮";
 
         BuildUIHand(huHandDisplayArea, huHand);
 
@@ -360,13 +366,19 @@ public class GameUIController : MonoBehaviour
             // 1. 立即激活面板
             gameOverPanel.SetActive(true);
 
-            // 2. 将初始缩放设置为0
-            gameOverPanel.transform.localScale = Vector3.zero;
+            // 确保 RectTransform 锚点居中（Inspector 设置）
+            RectTransform rectTransform = gameOverPanel.GetComponent<RectTransform>();
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f); // 屏幕中心
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            rectTransform.pivot = new Vector2(0.5f, 0.5f); // 轴心居中
 
-            // 3. 执行DoTween的Scale（缩放）动画
-            gameOverPanel.transform.DOScale(Vector3.one, 0.3f)
-                .SetEase(Ease.OutBack) // （可选）设置一个回弹动画效果
-                .SetUpdate(true); // 【关键修复】忽略 Time.timeScale = 0 的影响
+            // 设置初始位置（本地坐标）
+            rectTransform.anchoredPosition = new Vector2(0, 1200); // 使用 anchoredPosition 而非 position
+
+            // 执行本地移动动画
+            rectTransform.DOLocalMove(new Vector2(0, 0), 0.8f)
+                .SetEase(Ease.OutBounce)
+                .SetUpdate(true);
         }
         if (gameOverTitleText) gameOverTitleText.text = isWin ? "恭喜过关！" : "游戏结束";
         if (finalScoreText) finalScoreText.text = $"{finalScore}";
