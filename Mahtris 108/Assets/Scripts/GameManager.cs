@@ -82,7 +82,7 @@ public class GameManager : MonoBehaviour
     private int midasGoldValue = 0;
     // 【新增】“计分板”
     private float scoreboardTimer = 0f;
-
+    private float permanentBlockMultiplierModifier = 0f; // 【新增】存储条约的永久方块倍率修正
 
     private GameSessionConfig currentSessionConfig; // 【新增】持有当前游戏会话的配置
     private float difficultySpeedMultiplier = 1.0f; // 【新】难度带来的速度乘数
@@ -235,6 +235,7 @@ public class GameManager : MonoBehaviour
         roundSpeedBonus = 0;
         countedSpeedBonus = 0;
         countedBonusBlocksRemaining = 0;
+        permanentBlockMultiplierModifier = 0f;
 
         baseFanScore = settings.baseFanScore;
         extraMultiplier = 1f;
@@ -381,49 +382,40 @@ public class GameManager : MonoBehaviour
         isProcessingRows = true;
         rowIndices.Sort();
 
-        // 【修复】将 allClearedTransforms 和 allRemainingIds 提到顶部声明一次
         List<Transform> allClearedTransforms = new List<Transform>();
         List<int> allRemainingIds = new List<int>();
 
-        // 【新增】“垃圾筒”逻辑
-        if (ignoreMahjongCheckCount > 0)
+        // 【核心修改】统一遍历每一行，根据剩余的垃圾桶次数决定如何处理
+        foreach (var y in rowIndices)
         {
-            ignoreMahjongCheckCount--;
+            // 1. 获取行数据并收集销毁对象
+            var rowData = tetrisGrid.GetRowDataAndClear(y);
+            allClearedTransforms.AddRange(rowData.transforms);
 
-            // --- 跳过麻将判定的快速清理流程 ---
-            foreach (var y in rowIndices)
+            // 2. 触发“点金手”和“计分板”奖励 (针对每一行都触发)
+            ApplyRowClearRewards();
+
+            // 3. 分支判断：是“垃圾桶移除”还是“正常判定”？
+            if (ignoreMahjongCheckCount > 0)
             {
-                var rowData = tetrisGrid.GetRowDataAndClear(y);
-                allClearedTransforms.AddRange(rowData.transforms);
-                allRemainingIds.AddRange(rowData.blockIds); // 【修复】垃圾筒也应归还牌，而不是销毁
+                // --- 垃圾桶模式 ---
+                ignoreMahjongCheckCount--; // 消耗一次计数
+
+                // 【关键】直接丢弃 rowData.blockIds
+                // 不加入 allRemainingIds，也不归还给 BlockPool
+                // 从而实现“本轮移除”的效果
+
+                // (垃圾桶模式下通常不加 scorePerRow 基础分，仅移除)
             }
-            // --- 流程结束 ---
-        }
-        // 【新增】“点金手”和“计分板”逻辑
-        else if (midasTimer > 0) // 【修复】将此逻辑改为 else if，防止垃圾筒也触发
-        {
-            GameSession.Instance.AddGold(midasGoldValue);
-            midasGoldValue *= 2;
-        }
-
-        if (scoreboardTimer > 0) // (计分板可以和垃圾桶并存)
-        {
-            int currentScore = scoreManager.GetCurrentScore();
-            int bonusScore = Mathf.RoundToInt(currentScore * 0.05f);
-            scoreManager.AddScore(bonusScore);
-        }
-
-        // --- 正常的麻将判定逻辑 ---
-        if (ignoreMahjongCheckCount <= 0) // 【修改】仅在垃圾筒未激活时执行
-        {
-            foreach (var y in rowIndices)
+            else
             {
-                var rowData = tetrisGrid.GetRowDataAndClear(y);
-                allClearedTransforms.AddRange(rowData.transforms);
+                // --- 正常模式 ---
                 scoreManager.AddScore(settings.scorePerRow);
+
                 var result = mahjongCore.DetectSets(rowData.blockIds);
                 var setsToAdd = new List<List<int>>();
                 setsToAdd.AddRange(result.Kongs); setsToAdd.AddRange(result.Pungs); setsToAdd.AddRange(result.Chows);
+
                 int needed = settings.setsForHu - huPaiArea.GetSetCount();
                 if (setsToAdd.Count > needed)
                 {
@@ -432,7 +424,10 @@ public class GameManager : MonoBehaviour
                     result.RemainingIds.AddRange(shuffledSets.Skip(needed).SelectMany(set => set));
                     setsToAdd = chosenSets;
                 }
+
                 if (setsToAdd.Count > 0) huPaiArea.AddSets(setsToAdd);
+
+                // 检查胡牌
                 if (huPaiArea.GetSetCount() >= settings.setsForHu)
                 {
                     var pair = mahjongCore.FindPair(result.RemainingIds);
@@ -440,22 +435,25 @@ public class GameManager : MonoBehaviour
                     {
                         result.RemainingIds.Remove(pair[0]); result.RemainingIds.Remove(pair[1]);
                         var finalHand = huPaiArea.GetAllSets(); finalHand.Add(pair);
+
+                        // 触发胡牌前，先处理完手头的清理工作
                         GameEvents.TriggerHuDeclared(finalHand);
+
                         allRemainingIds.AddRange(result.RemainingIds);
-                        blockPool.ReturnBlockIds(allRemainingIds);
-                        tetrisGrid.DestroyTransforms(allClearedTransforms);
-                        return;
+                        blockPool.ReturnBlockIds(allRemainingIds); // 归还所有暂存的牌
+                        tetrisGrid.DestroyTransforms(allClearedTransforms); // 销毁所有收集到的方块
+                        return; // 结束流程
                     }
                 }
+
+                // 如果没胡，将剩余牌加入待归还列表
                 allRemainingIds.AddRange(result.RemainingIds);
             }
         }
-        // --- 麻将判定结束 ---
 
-        // 统一在末尾执行清理
+        // 循环结束后的清理工作
         blockPool.ReturnBlockIds(allRemainingIds);
         tetrisGrid.DestroyTransforms(allClearedTransforms);
-
         tetrisGrid.CompactAllColumns(rowIndices);
 
         if (!_isBombOrSpecialClear)
@@ -467,7 +465,21 @@ public class GameManager : MonoBehaviour
         isProcessingRows = false;
     }
 
-    // --- 公开给道具和条约调用的接口 ---
+    // 【辅助方法】避免代码重复
+    private void ApplyRowClearRewards()
+    {
+        if (midasTimer > 0)
+        {
+            GameSession.Instance.AddGold(midasGoldValue);
+            midasGoldValue *= 2;
+        }
+        if (scoreboardTimer > 0)
+        {
+            int currentScore = scoreManager.GetCurrentScore();
+            int bonusScore = Mathf.RoundToInt(currentScore * 0.05f);
+            scoreManager.AddScore(bonusScore);
+        }
+    }
     public void AddTime(float time) => remainingTime += time;
 
     // 【新增】1. 供“果汁”调用 (永久加成)
@@ -514,13 +526,16 @@ public class GameManager : MonoBehaviour
             gameUI.UpdateProtocolUI(activeProtocols);
         }
     }
-
     public void RecalculateBlockMultiplier()
     {
-        blockMultiplier = 0;
-        if (spawner.GetActivePrefabs() == null) return;
-        foreach (var prefab in spawner.GetActivePrefabs())
-            blockMultiplier += prefab.GetComponent<Tetromino>().extraMultiplier;
+        // 【修复】从永久修正值开始计算，而不是从 0 开始
+        blockMultiplier = permanentBlockMultiplierModifier;
+
+        if (spawner.GetActivePrefabs() != null)
+        {
+            foreach (var prefab in spawner.GetActivePrefabs())
+                blockMultiplier += prefab.GetComponent<Tetromino>().extraMultiplier;
+        }
 
         if (blockMultiplier < 1f) blockMultiplier = 1f;
 
@@ -546,9 +561,9 @@ public class GameManager : MonoBehaviour
     }
     public void ApplyBlockMultiplierModifier(float amount)
     {
-        blockMultiplier += amount;
-        if (blockMultiplier < 1f) blockMultiplier = 1f;
-        gameUI.UpdateBlockMultiplierText(blockMultiplier);
+        // 【修复】不再直接修改 blockMultiplier，而是修改永久修正值
+        permanentBlockMultiplierModifier += amount;
+        RecalculateBlockMultiplier(); // 立即重新计算
     }
 
     public void ApplyExtraMultiplier(float factor)

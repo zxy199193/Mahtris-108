@@ -25,19 +25,21 @@ public class Tetromino : MonoBehaviour
         this.settings = gameSettings;
         this.tetrisGrid = grid;
         this.fastFallSpeedValue = settings.fastFallSpeed;
-        this.typhoonTimer = 2f; // 【新增】初始化台风计时器
+        this.typhoonTimer = 2f;
 
-        // 【新增】“流星雨”逻辑
+        // 【流星雨逻辑】
+        // 每次生成新方块时，有 10% 的概率触发
         if (GameManager.Instance.isMeteorShowerActive && Random.value < 0.1f)
         {
-            // 速度25 (时间 = 20 / 25)
+            // 速度25 (时间 = 20 / 25 = 0.8秒)
             this.fallSpeed = 20f / 25f;
-            // 临时更新UI
-            GameManager.Instance.UpdateSpeedUITemp(25);
+
+            // 【修改】移除 UI 更新，保持显示全局速度
+            // GameManager.Instance.UpdateSpeedUITemp(25); 
         }
         else
         {
-            // 获取常规速度
+            // 否则使用全局正常速度
             this.fallSpeed = GameManager.Instance.currentFallSpeed;
         }
     }

@@ -67,7 +67,7 @@ MonoBehaviour:
   commonItemPool:
   - {fileID: 11400000, guid: 176ea642ebae7c24eba9c060508b4bb5, type: 2}
   - {fileID: 11400000, guid: 8fac18ac5ccff8b479496f3c47bf64d2, type: 2}
-  - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
+  - {fileID: 11400000, guid: 09a40bce8a17bfa4689ace9c1173fa3e, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}
@@ -76,4 +76,4 @@ MonoBehaviour:
   maxProtocolCount: 5
   protocolPool:
   - {fileID: 11400000, guid: c7e790c46601bdb438475c53926486c9, type: 2}
-  - {fileID: 11400000, guid: e0040851bcbe89f41b84b2f3cb3098d8, type: 2}
+  - {fileID: 11400000, guid: 43c194dd08a5cc542ad2582461a1c7a7, type: 2}

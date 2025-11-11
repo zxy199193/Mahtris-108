@@ -27,9 +27,12 @@ public class ScoreManager : MonoBehaviour
         return huCountInCycle;
     }
     // 【新增】供“快进按钮”道具调用
+    // 【修复2】快进按钮：同时推进循环进度
     public void AddHuCount(int amount)
     {
         huCount += amount;
+        // 推进循环进度，保持在 0-3 之间 (4次一循环)
+        huCountInCycle = (huCountInCycle + amount) % 4;
     }
 
     public bool IncrementHuCountAndCheckCycle()
