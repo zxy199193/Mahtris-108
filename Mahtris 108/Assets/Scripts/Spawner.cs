@@ -26,6 +26,7 @@ public class Spawner : MonoBehaviour
     private int replicationCount = 0;
     private GameObject replicationPrefab = null;
     private GameObject forcedNextBlock = null;
+    private bool isFirstBlockOfRound = true;
     public GameObject[] GetInitialTetrominoPrefabs()
     {
         return initialTetrominoPrefabs;
@@ -58,6 +59,7 @@ public class Spawner : MonoBehaviour
 
     public void StartNextRound()
     {
+        isFirstBlockOfRound = true; // 【新增】重置标记
         PrepareNextTetromino();
         SpawnBlock();
     }
@@ -74,36 +76,74 @@ public class Spawner : MonoBehaviour
 
     private void PrepareNextTetromino()
     {
-        if (forcedNextBlock != null)
+        bool blockSelected = false; // 用于标记是否已经选定了方块
+
+        // 1. 【攻击的巨人】逻辑 (优先级最高)
+        if (isFirstBlockOfRound && GameManager.Instance.isAttackOnGiantActive)
+        {
+            var giant = masterTetrominoPrefabs.FirstOrDefault(p => p.name == "T5-Giant");
+            if (giant != null)
+            {
+                nextTetrominoPrefab = giant;
+                blockSelected = true; // 标记已选中
+            }
+        }
+
+        // 2. 【方尖塔】逻辑 (如果巨人没触发，检查强制方块)
+        if (!blockSelected && forcedNextBlock != null)
         {
             nextTetrominoPrefab = forcedNextBlock;
             forcedNextBlock = null; // 立即消耗
-            replicationCount = 0; // 强制覆盖“复制器”的效果
+            replicationCount = 0;
             replicationPrefab = null;
+            blockSelected = true;
         }
-        else if (replicationCount > 0 && replicationPrefab != null)
+
+        // 3. 【复制器】逻辑 (如果上面都没触发)
+        else if (!blockSelected && replicationCount > 0 && replicationPrefab != null)
         {
             nextTetrominoPrefab = replicationPrefab;
             replicationCount--;
             if (replicationCount == 0) replicationPrefab = null;
+            blockSelected = true;
         }
-        else
+
+        // 4. 【常规/儿童餐】逻辑 (如果上面都没触发，进行随机)
+        if (!blockSelected)
         {
             if (activeTetrominoPool.Count > 0)
             {
-                nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)];
+                // 【儿童餐】逻辑
+                if (GameManager.Instance.IsKidsMealActive())
+                {
+                    // 尝试找 Lv1
+                    var lv1Options = activeTetrominoPool.Where(p => p.GetComponentsInChildren<BlockUnit>(true).Length <= 3).ToList();
+                    if (lv1Options.Count > 0)
+                        nextTetrominoPrefab = lv1Options[Random.Range(0, lv1Options.Count)];
+                    else
+                        // 保底：从 MasterList 找 Lv1
+                        nextTetrominoPrefab = masterTetrominoPrefabs.Where(p => p.name.StartsWith("T1-") || p.name.StartsWith("T2-") || p.name.StartsWith("T3-")).OrderBy(x => Random.value).FirstOrDefault();
+                }
+                else
+                {
+                    // 正常随机
+                    nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)];
+                }
             }
             else
             {
-                // 如果活跃池为空（不太可能发生，但作为保险）
                 GameEvents.TriggerGameOver();
                 return;
             }
         }
 
+        // --- 公共收尾逻辑 (无论怎么选的方块，都要执行) ---
+
+        isFirstBlockOfRound = false; // 标记每轮首个方块已处理
+
         if (nextTetrominoPrefab == null) { GameEvents.TriggerGameOver(); return; }
 
-        int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>().Length;
+        int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length; // 记得加 true
         nextTileIds = blockPool.GetBlockIds(tilesNeeded);
 
         if (nextTileIds == null)
@@ -181,5 +221,19 @@ public class Spawner : MonoBehaviour
         PrepareNextTetromino();
 
         return true; // 道具使用成功
+    }
+    public void ForceRerollToLevel(int levelIndex)
+    {
+        // 立即重新运行 PrepareNextTetromino，它会检测 KidsMeal 状态
+        PrepareNextTetromino();
+        // 如果当前方块的麻将牌数量变了，需要重新生成ID
+        // PrepareNextTetromino 内部已经处理了 ID 生成，所以这里只需要通知UI
+        // 但要注意：PrepareNextTetromino 会触发 TriggerNextBlockReady 事件
+    }
+
+    public void AddRandomLevel3Block()
+    {
+        var lv3 = masterTetrominoPrefabs.Where(p => p.name.StartsWith("T5-")).OrderBy(x => Random.value).FirstOrDefault();
+        if (lv3 != null) AddTetrominoToPool(lv3);
     }
 }

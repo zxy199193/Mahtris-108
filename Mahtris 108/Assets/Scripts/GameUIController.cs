@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
 
+
+
 // 新增：用于在UI和逻辑间传递奖励数据的结构体
 public class HuRewardPackage
 {
@@ -102,7 +104,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private Sprite playIcon; // 在Inspector中拖入“播放”图标
     [SerializeField] private Sprite pauseIcon; // 在Inspector中拖入“暂停”图标
-
+    private Dictionary<Transform, int> selectionCounts = new Dictionary<Transform, int>();
     void Awake()
     {
         inventoryManager = FindObjectOfType<InventoryManager>();
@@ -249,6 +251,7 @@ public class GameUIController : MonoBehaviour
                             int baseScore, float blockMultiplier, float extraMultiplier, long finalScore,
                             HuRewardPackage rewards, bool isAdvanced)
     {
+        selectionCounts.Clear();
         if (huPopupPanel)
         {
             // 1. 立即激活面板
@@ -339,12 +342,25 @@ public class GameUIController : MonoBehaviour
 
     private void DisableOtherOptions(Transform container, RewardOptionUI selected)
     {
-        foreach (Transform child in container)
+        // 获取最大选择数
+        int maxSelection = GameManager.Instance.isSSSVIPActive ? 2 : 1;
+
+        if (!selectionCounts.ContainsKey(container)) selectionCounts[container] = 0;
+        selectionCounts[container]++;
+
+        // 禁用当前点击的按钮
+        selected.SetInteractable(false);
+
+        // 如果达到上限，禁用该容器内所有其他按钮
+        if (selectionCounts[container] >= maxSelection)
         {
-            var rewardOption = child.GetComponent<RewardOptionUI>();
-            if (rewardOption != null)
+            foreach (Transform child in container)
             {
-                rewardOption.SetInteractable(false);
+                var rewardOption = child.GetComponent<RewardOptionUI>();
+                if (rewardOption != null)
+                {
+                    rewardOption.SetInteractable(false);
+                }
             }
         }
     }

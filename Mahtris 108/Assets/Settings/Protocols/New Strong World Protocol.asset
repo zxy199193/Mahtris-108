@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cee5843d5fcba384d9c6a2eaa0f54708, type: 3}
+  m_Name: New Strong World Protocol
+  m_EditorClassIdentifier: 
+  protocolName: "\u5F3A\u8005\u4E16\u754C"
+  protocolIcon: {fileID: 21300000, guid: d6f53d6993b28224ba973ee6ad10b47e, type: 3}
+  protocolDescription: "\u6BCF\u6B21\u80E1\u724C\u540E\u968F\u673A\u52A0\u5165\u4E00\u4E2ALevel
+    3\u65B9\u5757\uFF0C\u65B9\u5757\u500D\u7387x5"
+  extraMultiplier: 5

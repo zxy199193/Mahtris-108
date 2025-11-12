@@ -86,6 +86,26 @@ public class GameManager : MonoBehaviour
 
     private GameSessionConfig currentSessionConfig; // 【新增】持有当前游戏会话的配置
     private float difficultySpeedMultiplier = 1.0f; // 【新】难度带来的速度乘数
+
+    // 【新增】V4.2 道具/条约 变量
+    private float kidsMealTimer = 0f;
+    private bool hasReviveStone = false;
+    private float reviveAddedTime = 0f;
+
+    public bool isAttackOnGiantActive = false;
+    public bool isCheapWarehouseActive = false;
+    public bool isMarshLandActive = false;
+    private float marshLandTimer = 0f;
+    public bool isRenewableEnergyActive = false;
+    public bool isAllMenEqualActive = false;
+    public bool isStrongWorldActive = false;
+    public bool isAdventFoodActive = false;
+    private float adventFoodTimer = 0f;
+    private int adventFoodBonus = 0; // 临期食品提供的动态加分
+    public bool isRoutineWorkActive = false;
+    public bool isUnstableCurrentActive = false;
+    private float unstableCurrentTimer = 0f;
+    public bool isSSSVIPActive = false;
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -133,6 +153,47 @@ public class GameManager : MonoBehaviour
             }
         }
         if (remainingTime <= 0) GameEvents.TriggerGameOver();
+        // 1. 儿童餐倒计时
+        if (kidsMealTimer > 0)
+        {
+            kidsMealTimer -= Time.deltaTime;
+        }
+
+        // 2. 沼泽地 (10秒消一行)
+        if (isMarshLandActive)
+        {
+            marshLandTimer -= Time.deltaTime;
+            if (marshLandTimer <= 0)
+            {
+                marshLandTimer = 10f;
+                ForceClearRowsFromBottom(1);
+            }
+        }
+
+        // 3. 临期食品 (1秒减1分)
+        if (isAdventFoodActive && adventFoodBonus > 1)
+        {
+            adventFoodTimer -= Time.deltaTime;
+            if (adventFoodTimer <= 0)
+            {
+                adventFoodTimer = 1f;
+                adventFoodBonus--;
+                UpdateCurrentBaseScore(); // 刷新分数
+            }
+        }
+
+        // 4. 不稳定电流 (6秒随机加减)
+        if (isUnstableCurrentActive)
+        {
+            unstableCurrentTimer -= Time.deltaTime;
+            if (unstableCurrentTimer <= 0)
+            {
+                unstableCurrentTimer = 6f;
+                int change = Random.Range(1, 37); // 1~36
+                if (Random.value < 0.5f) change = -change;
+                ApplyRoundBaseScoreBonus(change); // 视为本轮临时加分
+            }
+        }
     }
 
     void OnEnable()
@@ -140,6 +201,7 @@ public class GameManager : MonoBehaviour
         GameEvents.OnRowsCleared += HandleRowsCleared;
         GameEvents.OnHuDeclared += HandleHuDeclared;
         GameEvents.OnGameOver += HandleGameOver;
+        GameEvents.OnPoolCountChanged += CheckCheapWarehouse;
         ScoreManager.OnScoreChanged += OnScoreUpdated;
     }
 
@@ -148,6 +210,7 @@ public class GameManager : MonoBehaviour
         GameEvents.OnRowsCleared -= HandleRowsCleared;
         GameEvents.OnHuDeclared -= HandleHuDeclared;
         GameEvents.OnGameOver -= HandleGameOver;
+        GameEvents.OnPoolCountChanged -= CheckCheapWarehouse;
         ScoreManager.OnScoreChanged -= OnScoreUpdated;
     }
 
@@ -257,6 +320,20 @@ public class GameManager : MonoBehaviour
         isTyphoonActive = false;
         isMeteorShowerActive = false;
         isTrickRoomActive = false;
+        // 重置 V4.2 变量
+        kidsMealTimer = 0f;
+        hasReviveStone = false;
+        isAttackOnGiantActive = false;
+        isCheapWarehouseActive = false;
+        isMarshLandActive = false;
+        isRenewableEnergyActive = false;
+        isAllMenEqualActive = false;
+        isStrongWorldActive = false;
+        isAdventFoodActive = false;
+        isRoutineWorkActive = false;
+        isUnstableCurrentActive = false;
+        isSSSVIPActive = false;
+        adventFoodBonus = 0;
 
         remainingPauses = maxPauses;
         if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
@@ -332,6 +409,38 @@ public class GameManager : MonoBehaviour
         {
             // “功能饮料”的 (+8) 效果在本轮结束，移除
             roundBaseScoreBonus = 0;
+        }
+        // 【新增】临期食品：重置为120
+        if (isAdventFoodActive)
+        {
+            adventFoodBonus = 120;
+            adventFoodTimer = 1f;
+        }
+        else
+        {
+            adventFoodBonus = 0;
+        }
+        UpdateCurrentBaseScore();
+
+        // 【新增】朝九晚五：固定时间95秒
+        if (isRoutineWorkActive)
+        {
+            remainingTime = 95f;
+        }
+        // 【新增】新能源：加时
+        if (isRenewableEnergyActive)
+        {
+            remainingTime += 20f;
+        }
+
+        // ... (调用 Spawner.StartNextRound 之前) ...
+
+        spawner.StartNextRound();
+
+        // 【新增】强者世界：加入Lv3方块
+        if (isStrongWorldActive)
+        {
+            spawner.AddRandomLevel3Block();
         }
         // 在重置后，立即更新一次基础分和UI
         UpdateCurrentBaseScore();
@@ -534,7 +643,17 @@ public class GameManager : MonoBehaviour
         if (spawner.GetActivePrefabs() != null)
         {
             foreach (var prefab in spawner.GetActivePrefabs())
-                blockMultiplier += prefab.GetComponent<Tetromino>().extraMultiplier;
+            {
+                // 【修改】人人平等逻辑
+                if (isAllMenEqualActive)
+                {
+                    blockMultiplier += 3f;
+                }
+                else
+                {
+                    blockMultiplier += prefab.GetComponent<Tetromino>().extraMultiplier;
+                }
+            }
         }
 
         if (blockMultiplier < 1f) blockMultiplier = 1f;
@@ -814,6 +933,19 @@ public class GameManager : MonoBehaviour
 
     private void HandleGameOver()
     {
+        // 【新增】复活石逻辑
+        if (hasReviveStone)
+        {
+            Debug.Log("复活石触发！");
+            hasReviveStone = false; // 消耗
+            remainingTime += reviveAddedTime;
+
+            // 清空桌面
+            tetrisGrid.ClearAllBlocks();
+
+            // 不停止游戏，不显示结束面板，直接返回
+            return;
+        }
         Time.timeScale = 0f;
         int finalScore = scoreManager.GetCurrentScore();
         bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore); // 需要在ScoreManager中实现此方法
@@ -910,7 +1042,7 @@ public class GameManager : MonoBehaviour
         int defaultScore = settings.baseFanScore;
 
         // 2. 累加所有加法加成
-        int addedScore = defaultScore + permanentBaseScoreBonus + roundBaseScoreBonus;
+        int addedScore = defaultScore + permanentBaseScoreBonus + roundBaseScoreBonus + adventFoodBonus;
 
         // 3. 【修改】应用乘法加成
         int calculatedScore = (int)(addedScore * permanentBaseScoreMultiplier);
@@ -1026,5 +1158,29 @@ public class GameManager : MonoBehaviour
     public void UpdateSpeedUITemp(int speedValue)
     {
         gameUI.UpdateSpeedText(speedValue);
+    }
+    // 【新增】供儿童餐调用
+    public void ActivateKidsMeal(float duration)
+    {
+        kidsMealTimer = duration;
+        // 立即刷新下一个方块
+        spawner.ForceRerollToLevel(0); // Lv.1
+    }
+
+    // 【新增】供复活石调用
+    public void ActivateReviveStone(float addedTime)
+    {
+        hasReviveStone = true;
+        reviveAddedTime = addedTime;
+    }
+
+    // 【新增】供Spawner查询
+    public bool IsKidsMealActive() => kidsMealTimer > 0;
+    private void CheckCheapWarehouse(int count)
+    {
+        if (isCheapWarehouseActive && count < 36)
+        {
+            GameEvents.TriggerGameOver();
+        }
     }
 }
