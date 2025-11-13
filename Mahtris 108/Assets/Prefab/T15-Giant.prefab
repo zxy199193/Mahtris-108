@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6397951426550284323}
   - component: {fileID: 6630394668471189789}
   m_Layer: 0
-  m_Name: T15-Gaint
+  m_Name: T15-Giant
   m_TagString: PlayerBlock
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

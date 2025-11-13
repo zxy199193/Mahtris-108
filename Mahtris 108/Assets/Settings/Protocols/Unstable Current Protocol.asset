@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 34b82b02648d62440b6b8e74002856fa, type: 3}
-  m_Name: New Unstable Current Protocol
+  m_Name: Unstable Current Protocol
   m_EditorClassIdentifier: 
   protocolName: "\u4E0D\u7A33\u5B9A\u7535\u6D41"
   protocolIcon: {fileID: 21300000, guid: d6f53d6993b28224ba973ee6ad10b47e, type: 3}

@@ -60,7 +60,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3291218612000371160}
   m_Layer: 5
-  m_Name: UI T15-Gaint
+  m_Name: UI T15-Giant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

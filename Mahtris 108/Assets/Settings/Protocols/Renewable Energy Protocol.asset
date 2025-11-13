@@ -9,11 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cee5843d5fcba384d9c6a2eaa0f54708, type: 3}
-  m_Name: New Strong World Protocol
+  m_Script: {fileID: 11500000, guid: 1c2d9bd95853c024a9efa1b3d91af6a2, type: 3}
+  m_Name: Renewable Energy Protocol
   m_EditorClassIdentifier: 
-  protocolName: "\u5F3A\u8005\u4E16\u754C"
+  protocolName: "\u65B0\u80FD\u6E90"
   protocolIcon: {fileID: 21300000, guid: d6f53d6993b28224ba973ee6ad10b47e, type: 3}
-  protocolDescription: "\u6BCF\u6B21\u80E1\u724C\u540E\u968F\u673A\u52A0\u5165\u4E00\u4E2ALevel
-    3\u65B9\u5757\uFF0C\u65B9\u5757\u500D\u7387x5"
-  extraMultiplier: 5
+  protocolDescription: "\u6BCF\u6B21\u80E1\u724C\u7684\u65F6\u95F4\u5956\u52B1\u52A020\u79D2"

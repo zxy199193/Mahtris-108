@@ -81,7 +81,7 @@ public class Spawner : MonoBehaviour
         // 1. 【攻击的巨人】逻辑 (优先级最高)
         if (isFirstBlockOfRound && GameManager.Instance.isAttackOnGiantActive)
         {
-            var giant = masterTetrominoPrefabs.FirstOrDefault(p => p.name == "T5-Giant");
+            var giant = masterTetrominoPrefabs.FirstOrDefault(p => p.name == "T15-Giant");
             if (giant != null)
             {
                 nextTetrominoPrefab = giant;

@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a678c9b06d712a48a925e7b06d46dc7, type: 3}
-  m_Name: New Routine Work Protocol
+  m_Script: {fileID: 11500000, guid: 6285bad089c762e47aa611d492db343a, type: 3}
+  m_Name: SSSVIP Protocol
   m_EditorClassIdentifier: 
-  protocolName: "\u671D\u4E5D\u665A\u4E94"
+  protocolName: "\u8D85\u8D85\u8D85\u8D35\u5BBE"
   protocolIcon: {fileID: 21300000, guid: d6f53d6993b28224ba973ee6ad10b47e, type: 3}
-  protocolDescription: "\u6BCF\u8F6E\u6E38\u620F\u5F00\u59CB\u65F6\u7684\u5269\u4F59\u65F6\u95F4\u53D8\u4E3A\u56FA\u5B9A95\u79D2"
+  protocolDescription: "\u80E1\u724C\u65F6\u6BCF\u79CD\u5956\u52B1\u53EF\u4EE5\u9009\u62E92\u4E2A"
