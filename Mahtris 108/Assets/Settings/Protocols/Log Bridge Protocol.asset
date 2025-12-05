@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5f298cd70218bf429c7343638976e15, type: 3}
+  m_Name: Log Bridge Protocol
+  m_EditorClassIdentifier: 
+  protocolName: "\u72EC\u6728\u6865"
+  protocolIcon: {fileID: 21300000, guid: b326e7a3179264c4e817f68a4486c1c8, type: 3}
+  protocolDescription: "\u80E1\u724C\u65F6\u6BCF\u79CD\u80E1\u724C\u5956\u52B1\u6570\u91CF\u53D8\u4E3A1\u4E2A\uFF0C\u989D\u5916\u500D\u7387x3"
+  extraMultiplier: 3

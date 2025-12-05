@@ -26,6 +26,15 @@ MonoBehaviour:
   baseFanScore: 10
   fanBonusPerKong: 1
   scorePerRow: 2
+  husPerLoop: 2
+  normalWeight: 10
+  legendaryWeightBase: 5
+  legendaryWeightIncreasePerLoop: 2.5
+  legendaryIcon: {fileID: 21300000, guid: 71b55c0a7c1906e48bd3b525833135cf, type: 3}
+  tooltipBgCommon: {fileID: 21300000, guid: 0a8ab05b60e1f0545b5c1135286dc257, type: 3}
+  tooltipBgAdvanced: {fileID: 21300000, guid: 16a703e8884276e4fa171e89c5794046, type: 3}
+  tooltipBgProtocol: {fileID: 21300000, guid: 8e5615668b1302049900db9ba72af096, type: 3}
+  tooltipBgLegendary: {fileID: 21300000, guid: 13a2397528ebcc34f9dbf3f0bc05eeb2, type: 3}
   initialTimeLimit: 300
   huTimeBonus: 60
   scoreLevels:
@@ -65,8 +74,9 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 3
   commonItemPool:
-  - {fileID: 11400000, guid: 1ad3d39db778d4e45883ef01fa2a1999, type: 2}
-  - {fileID: 11400000, guid: 0afb30e8bc85279448670b1037fe466b, type: 2}
+  - {fileID: 11400000, guid: b10149d81e5881d4cb485f78a59bfab0, type: 2}
+  - {fileID: 11400000, guid: e45f0377631f8fe41bc5d9b251893eb0, type: 2}
+  - {fileID: 11400000, guid: 7e9371a6d760f7b4987cf7eb538f714d, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}
@@ -74,5 +84,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8fac18ac5ccff8b479496f3c47bf64d2, type: 2}
   maxProtocolCount: 5
   protocolPool:
-  - {fileID: 11400000, guid: fdb8f78abf84b6346a11c54ddc00ec2d, type: 2}
-  - {fileID: 11400000, guid: 25f71ffe43c6eba468055ce29cee42ee, type: 2}
+  - {fileID: 11400000, guid: c7e790c46601bdb438475c53926486c9, type: 2}
+  - {fileID: 11400000, guid: 6d3541585e2b964459b59addd88a14f3, type: 2}

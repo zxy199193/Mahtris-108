@@ -6,48 +6,38 @@ public class TooltipTriggerUI : MonoBehaviour, IPointerEnterHandler, IPointerExi
 {
     private string title;
     private string description;
-    private bool hasData = false;
+    private Sprite icon;
+    private bool isLegendary;
 
-    /// <summary>
-    /// 更新此触发器显示的提示信息
-    /// </summary>
-    public void SetData(string newTitle, string newDescription)
+    // 供 GameUIController 动态设置数据用
+    public void SetData(string title, string description, Sprite icon = null, bool isLegendary = false)
     {
-        if (!string.IsNullOrEmpty(newTitle))
-        {
-            this.title = newTitle;
-            this.description = newDescription;
-            this.hasData = true;
-        }
-        else
-        {
-            this.hasData = false;
-        }
+        this.title = title;
+        this.description = description;
+        this.icon = icon;
+        this.isLegendary = isLegendary;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // 仅在有数据（非空槽位）时显示提示
-        if (hasData && TooltipSystem.Instance != null)
+        if (string.IsNullOrEmpty(title) && string.IsNullOrEmpty(description)) return;
+
+        // 调用新的 TooltipController
+        if (TooltipController.Instance != null)
         {
-            TooltipSystem.Instance.Show(title, description);
+            // 获取设置中的背景图
+            GameSettings settings = GameManager.Instance.GetSettings();
+            Sprite bg = isLegendary ? settings.tooltipBgLegendary : settings.tooltipBgCommon; // 默认为普通背景，您可以根据需要扩展判断逻辑
+
+            TooltipController.Instance.Show(title, description, icon, bg, isLegendary, this.transform);
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (TooltipSystem.Instance != null)
+        if (TooltipController.Instance != null)
         {
-            TooltipSystem.Instance.Hide();
-        }
-    }
-
-    // 当物体被禁用时（例如槽位变空），也隐藏提示
-    void OnDisable()
-    {
-        if (TooltipSystem.Instance != null)
-        {
-            TooltipSystem.Instance.Hide();
+            TooltipController.Instance.Hide();
         }
     }
 }

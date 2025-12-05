@@ -101,4 +101,19 @@ public class HuPaiArea : MonoBehaviour
             }
         }
     }
+    // 【HuPaiArea.cs 新增方法】
+    public bool UpgradePungToKong(int pungTileValue, int fourthTileId)
+    {
+        // 查找匹配的刻子（拥有3张牌，且牌值相同）
+        // 注意：这里使用 % 27 来匹配牌面数值，忽略ID差异
+        var pungSet = huPaiSets.FirstOrDefault(set => set.Count == 3 && (set[0] % 27) == (pungTileValue % 27));
+
+        if (pungSet != null)
+        {
+            pungSet.Add(fourthTileId); // 将第4张牌加入该组
+            RefreshDisplay();          // 刷新UI显示
+            return true;
+        }
+        return false;
+    }
 }

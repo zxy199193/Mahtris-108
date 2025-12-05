@@ -60,6 +60,26 @@ public class GameSettings : ScriptableObject
     public int fanBonusPerKong = 1;
     public int scorePerRow = 10;
 
+    [Header("游戏循环配置")]
+    [Tooltip("完成一圈所需的胡牌次数 (默认为4)")]
+    public int husPerLoop = 4;
+
+    [Header("传奇系统")]
+    [Tooltip("常规道具/条约的权重 (例如 10)")]
+    public float normalWeight = 10f;
+    [Tooltip("传奇道具/条约的基础权重 (例如 5)")]
+    public float legendaryWeightBase = 5f;
+    [Tooltip("每完成一圈，传奇权重增加的值 (例如 2.5)")]
+    public float legendaryWeightIncreasePerLoop = 2.5f;
+    [Tooltip("传奇图标 (用于UI显示)")]
+    public Sprite legendaryIcon;
+    
+    [Header("UI 样式配置")]
+    public Sprite tooltipBgCommon;    // 普通道具背板
+    public Sprite tooltipBgAdvanced;  // 高级道具背板
+    public Sprite tooltipBgProtocol;  // 条约背板
+    public Sprite tooltipBgLegendary; // 传奇背板
+
     [Header("目标分数与时间")]
     public float initialTimeLimit = 180f;
     public float huTimeBonus = 60f;

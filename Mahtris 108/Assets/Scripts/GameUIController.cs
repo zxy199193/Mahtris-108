@@ -27,6 +27,8 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Text blockMultiplierText;
     [SerializeField] private Text baseScoreText; // 新增
     [SerializeField] private Text extraMultiplierText; // 新增
+    [SerializeField] private Text goldText;
+    [SerializeField] private Text loopProgressText;
 
     [Header("目标进度条")]
     [SerializeField] private Slider targetProgressBar;
@@ -112,7 +114,16 @@ public class GameUIController : MonoBehaviour
         SetupButtonListeners();
         InitializeTooltipTriggers();
     }
-
+    void Start()
+    {
+        // 初始化金币显示
+        if (GameSession.Instance != null)
+        {
+            UpdateGoldText(GameSession.Instance.CurrentGold);
+            // 订阅金币变化事件
+            GameSession.OnGoldChanged += UpdateGoldText;
+        }
+    }
     void OnEnable()
     {
         GameEvents.OnNextBlockReady += UpdateNextBlockPreview;
@@ -128,7 +139,11 @@ public class GameUIController : MonoBehaviour
         GameEvents.OnPoolCountChanged -= UpdatePoolCountText;
         if (inventoryManager != null) inventoryManager.OnInventoryChanged -= UpdateInventoryUI;
     }
-
+    void OnDestroy()
+    {
+        if (GameSession.Instance != null)
+            GameSession.OnGoldChanged -= UpdateGoldText;
+    }
     void Update()
     {
         if (inventoryManager == null) return;
@@ -163,7 +178,16 @@ public class GameUIController : MonoBehaviour
     public void UpdateExtraMultiplierText(float multiplier) { if (extraMultiplierText) extraMultiplierText.text = $"{multiplier:F0}"; }
     private void UpdateScoreText(int newScore) { if (scoreText) scoreText.text = $"{newScore}"; }
     private void UpdatePoolCountText(int count) { if (poolCountText) poolCountText.text = $"{count}"; }
-
+    // 【新增】供 GameManager 调用，更新圈数显示 (例如 "第1圈 2/4")
+    public void UpdateLoopProgressText(string text)
+    {
+        if (loopProgressText) loopProgressText.text = text;
+    }
+    // 【新增】内部使用，更新金币显示
+    private void UpdateGoldText(int gold)
+    {
+        if (goldText) goldText.text = gold.ToString();
+    }
     private void UpdateInventoryUI(List<ItemData> items)
     {
         currentItems = items;
@@ -174,9 +198,16 @@ public class GameUIController : MonoBehaviour
                 itemSlotIcons[i].sprite = items[i].itemIcon;
                 itemSlotIcons[i].enabled = true;
                 itemSlotButtons[i].interactable = true;
+
                 if (itemTooltipTriggers.Count > i && itemTooltipTriggers[i] != null)
                 {
-                    itemTooltipTriggers[i].SetData(items[i].itemName, items[i].itemDescription);
+                    // 【修改】传递图标和传奇标签信息给 TooltipTrigger
+                    itemTooltipTriggers[i].SetData(
+                        items[i].itemName,
+                        items[i].itemDescription,
+                        items[i].itemIcon,
+                        items[i].isLegendary
+                    );
                 }
             }
             else
@@ -184,6 +215,7 @@ public class GameUIController : MonoBehaviour
                 itemSlotIcons[i].sprite = null;
                 itemSlotIcons[i].enabled = false;
                 itemSlotButtons[i].interactable = false;
+
                 if (itemTooltipTriggers.Count > i && itemTooltipTriggers[i] != null)
                 {
                     itemTooltipTriggers[i].SetData(null, null); // 清除数据
@@ -201,15 +233,23 @@ public class GameUIController : MonoBehaviour
             {
                 protocolIconSlots[i].sprite = protocols[i].protocolIcon;
                 protocolIconSlots[i].enabled = true;
+
                 if (protocolTooltipTriggers.Count > i && protocolTooltipTriggers[i] != null)
                 {
-                    protocolTooltipTriggers[i].SetData(protocols[i].protocolName, protocols[i].protocolDescription);
+                    // 【修改】传递图标和传奇标签信息给 TooltipTrigger
+                    protocolTooltipTriggers[i].SetData(
+                        protocols[i].protocolName,
+                        protocols[i].protocolDescription,
+                        protocols[i].protocolIcon,
+                        protocols[i].isLegendary
+                    );
                 }
             }
             else
             {
                 protocolIconSlots[i].sprite = null;
                 protocolIconSlots[i].enabled = false;
+
                 if (protocolTooltipTriggers.Count > i && protocolTooltipTriggers[i] != null)
                 {
                     protocolTooltipTriggers[i].SetData(null, null); // 清除数据
@@ -218,7 +258,8 @@ public class GameUIController : MonoBehaviour
         }
     }
 
-    public void UpdateTetrominoList(IEnumerable<GameObject> prefabs, float totalMultiplier)
+    // 【修改】增加 overrideMultiplier 参数
+    public void UpdateTetrominoList(IEnumerable<GameObject> prefabs, float totalMultiplier, float overrideMultiplier = -1f)
     {
         if (tetrominoListContent == null) return;
         foreach (Transform child in tetrominoListContent) Destroy(child.gameObject);
@@ -236,7 +277,8 @@ public class GameUIController : MonoBehaviour
             var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
             if (listItemUI == null) continue;
 
-            listItemUI.InitializeForPrefab(tetromino.uiPrefab, $"x{tetromino.extraMultiplier:F0}");
+            // 【修改】传递 overrideMultiplier
+            listItemUI.InitializeForPrefab(representativePrefab.GetComponent<Tetromino>().uiPrefab, $"{tetromino.extraMultiplier:F0}", overrideMultiplier);
 
             if (listItemUI.countText != null)
             {
@@ -249,7 +291,7 @@ public class GameUIController : MonoBehaviour
 
     public void ShowHuPopup(List<List<int>> huHand, HandAnalysisResult analysis,
                             int baseScore, float blockMultiplier, float extraMultiplier, long finalScore,
-                            HuRewardPackage rewards, bool isAdvanced)
+                            HuRewardPackage rewards, bool isAdvanced, bool isBerserkerActive)
     {
         selectionCounts.Clear();
         if (huPopupPanel)
@@ -311,62 +353,75 @@ public class GameUIController : MonoBehaviour
             var rewardUI = optionGO.GetComponent<RewardOptionUI>();
             if (rewardUI == null) continue;
 
+            // 使用重载的 Setup 方法
             if (choice is GameObject blockPrefab)
             {
-                var tetromino = blockPrefab.GetComponent<Tetromino>();
-                rewardUI.InitializeForPrefab(
-                 tetromino.uiPrefab,$"x{tetromino.extraMultiplier:F0}", $"{blockPrefab.name}",$"将该方块加入方块列表，方块倍率 +{tetromino.extraMultiplier:F0}。", (clickedUI) =>
-                 { 
-                 FindObjectOfType<Spawner>().AddTetrominoToPool(blockPrefab);
-                 DisableOtherOptions(container, clickedUI);
-                 },ShowTooltip,HideTooltip); 
+                rewardUI.Setup(blockPrefab, (clickedUI) => {
+
+                    // 【新增】幸运瓶盖逻辑
+                    // 检查是否激活了幸运瓶盖
+                    if (GameManager.Instance.isLuckyCapActive)
+                    {
+                        // 效果：获得 2 个相同的方块
+                        FindObjectOfType<Spawner>().AddTetrominoToPool(blockPrefab);
+                        FindObjectOfType<Spawner>().AddTetrominoToPool(blockPrefab);
+
+                        // 消耗道具状态
+                        GameManager.Instance.ConsumeLuckyCap();
+                        Debug.Log("幸运瓶盖生效！获得双倍方块。");
+                    }
+                    else
+                    {
+                        // 正常逻辑：获得 1 个方块
+                        FindObjectOfType<Spawner>().AddTetrominoToPool(blockPrefab);
+                    }
+
+                    DisableOtherOptions(container, clickedUI);
+                });
             }
             else if (choice is ItemData itemData)
             {
-                rewardUI.InitializeForSprite(itemData.itemIcon, $"{itemData.itemName}", itemData.itemDescription,
-                (clickedUI) => {
+                rewardUI.Setup(itemData, (clickedUI) => {
                     FindObjectOfType<InventoryManager>().AddItem(itemData);
                     DisableOtherOptions(container, clickedUI);
-                }, ShowTooltip, HideTooltip);
+                });
             }
             else if (choice is ProtocolData protocolData)
             {
-                rewardUI.InitializeForSprite(protocolData.protocolIcon, $"{protocolData.protocolName}", protocolData.protocolDescription,
-                (clickedUI) => {
+                rewardUI.Setup(protocolData, (clickedUI) => {
                     GameManager.Instance.AddProtocol(protocolData);
                     DisableOtherOptions(container, clickedUI);
-                }, ShowTooltip, HideTooltip);
+                });
             }
         }
     }
 
     private void DisableOtherOptions(Transform container, RewardOptionUI selected)
     {
-        // 获取最大选择数
-        int maxSelection = GameManager.Instance.isSSSVIPActive ? 2 : 1;
+        int maxSelection = GameManager.Instance.GetCurrentRewardSelectionLimit();
 
         if (!selectionCounts.ContainsKey(container)) selectionCounts[container] = 0;
         selectionCounts[container]++;
 
-        // 禁用当前点击的按钮
+        // 1. 设置当前按钮为“已选中”状态 (显示勾选标记)
+        selected.SetSelected(true);
+        // 2. 禁用交互 (防止重复点击)
         selected.SetInteractable(false);
 
-        // 如果达到上限，禁用该容器内所有其他按钮
+        // 3. 检查是否达到上限
         if (selectionCounts[container] >= maxSelection)
         {
+            // 满了：禁用该容器内所有剩余按钮
             foreach (Transform child in container)
             {
-                var rewardOption = child.GetComponent<RewardOptionUI>();
-                if (rewardOption != null)
+                var ui = child.GetComponent<RewardOptionUI>();
+                if (ui != null)
                 {
-                    rewardOption.SetInteractable(false);
+                    ui.SetInteractable(false);
                 }
             }
         }
     }
-
-    private void ShowTooltip(string title, string desc) { if (TooltipSystem.Instance) TooltipSystem.Instance.Show(title, desc); }
-    private void HideTooltip() { if (TooltipSystem.Instance) TooltipSystem.Instance.Hide(); }
 
     public void HideAllPanels()
     {

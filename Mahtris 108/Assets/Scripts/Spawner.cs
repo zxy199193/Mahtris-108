@@ -130,6 +130,26 @@ public class Spawner : MonoBehaviour
                     nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)];
                 }
             }
+            else if (GameManager.Instance.isFilterActive)
+            {
+                // 过滤掉所有 T5 (Lv3) 方块
+                var filteredPool = activeTetrominoPool.Where(p => !p.name.StartsWith("T5-")).ToList();
+
+                if (filteredPool.Count > 0)
+                {
+                    nextTetrominoPrefab = filteredPool[Random.Range(0, filteredPool.Count)];
+                }
+                else
+                {
+                    // 如果过滤后为空 (例如全都是Lv3)，则不得不从 MasterList 中随机一个非Lv3的
+                    // 或者直接失效。为了游戏体验，建议从 MasterList 补货
+                    var backupPool = masterTetrominoPrefabs.Where(p => !p.name.StartsWith("T5-")).ToList();
+                    if (backupPool.Count > 0)
+                        nextTetrominoPrefab = backupPool[Random.Range(0, backupPool.Count)];
+                    else
+                        nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)]; // 彻底没办法了
+                }
+            }
             else
             {
                 GameEvents.TriggerGameOver();
@@ -235,5 +255,23 @@ public class Spawner : MonoBehaviour
     {
         var lv3 = masterTetrominoPrefabs.Where(p => p.name.StartsWith("T5-")).OrderBy(x => Random.value).FirstOrDefault();
         if (lv3 != null) AddTetrominoToPool(lv3);
+    }
+    // 【新增】大革命条约：重新随机活跃池
+    public void RandomizeActivePool()
+    {
+        if (activeTetrominoPool == null || masterTetrominoPrefabs == null) return;
+
+        int count = activeTetrominoPool.Count;
+        activeTetrominoPool.Clear();
+
+        var masterList = masterTetrominoPrefabs.ToList();
+        if (masterList.Count > 0)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                activeTetrominoPool.Add(masterList[Random.Range(0, masterList.Count)]);
+            }
+        }
+        GameManager.Instance.UpdateActiveBlockListUI();
     }
 }

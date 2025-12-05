@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Strong World Protocol
   m_EditorClassIdentifier: 
   protocolName: "\u5F3A\u8005\u4E16\u754C"
-  protocolIcon: {fileID: 21300000, guid: d6f53d6993b28224ba973ee6ad10b47e, type: 3}
+  protocolIcon: {fileID: 21300000, guid: 83ff15fcdae01184bb279ffa389ebcb9, type: 3}
   protocolDescription: "\u6BCF\u6B21\u80E1\u724C\u540E\u968F\u673A\u52A0\u5165\u4E00\u4E2ALevel
     3\u65B9\u5757\uFF0C\u65B9\u5757\u500D\u7387x5"
   extraMultiplier: 5

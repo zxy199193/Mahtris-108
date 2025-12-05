@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: SSSVIP Protocol
   m_EditorClassIdentifier: 
   protocolName: "\u8D85\u8D85\u8D85\u8D35\u5BBE"
-  protocolIcon: {fileID: 21300000, guid: d6f53d6993b28224ba973ee6ad10b47e, type: 3}
+  protocolIcon: {fileID: 21300000, guid: 26c95d70f51023b48abf2fbe916f54c1, type: 3}
   protocolDescription: "\u80E1\u724C\u65F6\u6BCF\u79CD\u5956\u52B1\u53EF\u4EE5\u9009\u62E92\u4E2A"
+  isLegendary: 1

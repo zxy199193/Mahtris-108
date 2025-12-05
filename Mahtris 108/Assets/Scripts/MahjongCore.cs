@@ -15,8 +15,11 @@ public class HandAnalysisResult
 {
     public string PatternName { get; set; } = "未知牌型";
     public int TotalFan { get; set; } = 0;
-    // 使用 Mathf.Pow 需要 using UnityEngine;
-    public float FanMultiplier => Mathf.Pow(2, TotalFan);
+
+    // 【修改】增加底数变量，默认为2
+    public float BaseMultiplier { get; set; } = 2f;
+
+    public float FanMultiplier => Mathf.Pow(BaseMultiplier, TotalFan);
 }
 
 public class MahjongCore

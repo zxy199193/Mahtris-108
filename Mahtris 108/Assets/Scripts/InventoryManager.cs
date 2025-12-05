@@ -84,4 +84,20 @@ public class InventoryManager : MonoBehaviour
         }
         OnInventoryChanged?.Invoke(new List<ItemData>(itemSlots));
     }
+    // 【新增】狂战士条约：自动使用所有道具
+    public void UseAllItems()
+    {
+        for (int i = 0; i < maxSlots; i++)
+        {
+            if (i < itemSlots.Count && itemSlots[i] != null)
+            {
+                bool success = itemSlots[i].Use(GameManager.Instance);
+                if (success)
+                {
+                    itemSlots[i] = null;
+                }
+            }
+        }
+        OnInventoryChanged?.Invoke(new List<ItemData>(itemSlots));
+    }
 }

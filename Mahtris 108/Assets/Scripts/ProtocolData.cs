@@ -7,6 +7,7 @@ public abstract class ProtocolData : ScriptableObject
     public Sprite protocolIcon;
     [TextArea(3, 5)]
     public string protocolDescription;
+    public bool isLegendary = false;
 
     public abstract void ApplyEffect(GameManager gameManager);
     public abstract void RemoveEffect(GameManager gameManager);

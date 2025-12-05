@@ -106,6 +106,29 @@ public class GameManager : MonoBehaviour
     public bool isUnstableCurrentActive = false;
     private float unstableCurrentTimer = 0f;
     public bool isSSSVIPActive = false;
+
+    // 【新增】V4.3 条约状态
+    public bool isDelayGratificationActive = false;
+    private int delayGratificationBonus = 0;
+    public bool isDrMahjongActive = false;
+    public bool isOldSchoolActive = false;
+    public bool isBerserkerActive = false;
+    public bool isTimeIsMoneyActive = false;
+    public bool isBulletTimeActive = false;
+    public bool isLogBridgeActive = false;
+    public bool isGreatRevolutionActive = false;
+    public bool isTrinityActive = false;
+    public bool isRealpolitikActive = false;
+
+    private bool isWantedPosterActive = false;
+    private int wantedPosterGoldMult = 1;
+    // 【新增】条约状态快照 (用于处理生效时机)
+    private bool _snapshotSSSVIP = false;
+    private bool _snapshotStrongWorld = false;
+    // 【新增】V4.4 道具状态
+    public bool isLuckyCapActive = false;
+    public bool isFilterActive = false;
+    private float filterTimer = 0f;
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -124,76 +147,65 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            TogglePause();
-        }
-        // 原有的暂停判断逻辑
+        if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
         if (isPaused || isProcessingRows || Time.timeScale == 0f) return;
-        if (isProcessingRows || Time.timeScale == 0f) return;
-        remainingTime -= Time.deltaTime;
-        gameUI.UpdateTimerText(remainingTime);
-        // 【新增】处理“点金手”计时器
-        if (midasTimer > 0)
+
+        // 【新增】子弹时间：仅影响倒计时流逝，不影响 System.Time
+        float logicDeltaTime = Time.deltaTime;
+
+        if (isBulletTimeActive && tetrisGrid.GetMaxColumnHeight() > 8)
         {
-            midasTimer -= Time.deltaTime;
-            if (midasTimer <= 0)
-            {
-                midasTimer = 0;
-                midasGoldValue = 0;
-            }
-        }
-        // 【新增】处理“计分板”计时器
-        if (scoreboardTimer > 0)
-        {
-            scoreboardTimer -= Time.deltaTime;
-            if (scoreboardTimer <= 0)
-            {
-                scoreboardTimer = 0;
-            }
-        }
-        if (remainingTime <= 0) GameEvents.TriggerGameOver();
-        // 1. 儿童餐倒计时
-        if (kidsMealTimer > 0)
-        {
-            kidsMealTimer -= Time.deltaTime;
+            logicDeltaTime *= 0.2f; // 时间流速变慢
         }
 
-        // 2. 沼泽地 (10秒消一行)
+        // 道具计时器也受子弹时间影响吗？通常是的，统一使用 logicDeltaTime
+        remainingTime -= logicDeltaTime;
+        gameUI.UpdateTimerText(remainingTime);
+
+        if (kidsMealTimer > 0) kidsMealTimer -= logicDeltaTime;
+
         if (isMarshLandActive)
         {
-            marshLandTimer -= Time.deltaTime;
-            if (marshLandTimer <= 0)
-            {
-                marshLandTimer = 10f;
-                ForceClearRowsFromBottom(1);
-            }
+            marshLandTimer -= logicDeltaTime;
+            if (marshLandTimer <= 0) { marshLandTimer = 10f; ForceClearRowsFromBottom(1); }
         }
 
-        // 3. 临期食品 (1秒减1分)
         if (isAdventFoodActive && adventFoodBonus > 1)
         {
-            adventFoodTimer -= Time.deltaTime;
-            if (adventFoodTimer <= 0)
-            {
-                adventFoodTimer = 1f;
-                adventFoodBonus--;
-                UpdateCurrentBaseScore(); // 刷新分数
-            }
+            adventFoodTimer -= logicDeltaTime;
+            if (adventFoodTimer <= 0) { adventFoodTimer = 1f; adventFoodBonus--; UpdateCurrentBaseScore(); }
         }
 
-        // 4. 不稳定电流 (6秒随机加减)
         if (isUnstableCurrentActive)
         {
-            unstableCurrentTimer -= Time.deltaTime;
+            unstableCurrentTimer -= logicDeltaTime;
             if (unstableCurrentTimer <= 0)
             {
                 unstableCurrentTimer = 6f;
-                int change = Random.Range(1, 37); // 1~36
+                int change = Random.Range(1, 37);
                 if (Random.value < 0.5f) change = -change;
-                ApplyRoundBaseScoreBonus(change); // 视为本轮临时加分
+
+                // 【修复】防止基础分 < 1
+                // 我们不能直接在 ApplyRoundBaseScoreBonus 里限制，因为那是通用方法。
+                // 我们预先计算一下：
+                if (baseFanScore + change < 1) change = 1 - baseFanScore; // 保证最少为1
+
+                ApplyRoundBaseScoreBonus(change);
             }
         }
+        if (isFilterActive)
+        {
+            filterTimer -= logicDeltaTime; // 使用受子弹时间影响的 delta
+            if (filterTimer <= 0)
+            {
+                isFilterActive = false;
+            }
+        }
+        // 点金手和计分板也应受影响
+        if (midasTimer > 0) midasTimer -= logicDeltaTime; // 如果要归零逻辑需补全
+        if (scoreboardTimer > 0) scoreboardTimer -= logicDeltaTime;
+
+        if (remainingTime <= 0) GameEvents.TriggerGameOver();
     }
 
     void OnEnable()
@@ -334,6 +346,24 @@ public class GameManager : MonoBehaviour
         isUnstableCurrentActive = false;
         isSSSVIPActive = false;
         adventFoodBonus = 0;
+        // 重置 V4.3 变量
+        isDelayGratificationActive = false;
+        delayGratificationBonus = 0;
+        isDrMahjongActive = false;
+        isOldSchoolActive = false;
+        isBerserkerActive = false;
+        isTimeIsMoneyActive = false;
+        isBulletTimeActive = false;
+        isLogBridgeActive = false;
+        isGreatRevolutionActive = false;
+        isTrinityActive = false;
+        isRealpolitikActive = false;
+        isWantedPosterActive = false;
+        wantedPosterGoldMult = 1;
+        isLuckyCapActive = false;
+        isFilterActive = false;
+        filterTimer = 0f;
+        gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
 
         remainingPauses = maxPauses;
         if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
@@ -360,27 +390,103 @@ public class GameManager : MonoBehaviour
         UpdateTargetScoreUI();
         gameUI.UpdateBaseScoreText(baseFanScore);
         gameUI.UpdateExtraMultiplierText(extraMultiplier);
+        gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
     }
 
     private void HandleHuDeclared(List<List<int>> huHand)
     {
+        _snapshotSSSVIP = isSSSVIPActive;
+        _snapshotStrongWorld = isStrongWorldActive;
         isProcessingRows = true;
         Time.timeScale = 0f;
+        // 每次胡牌后更新圈数显示
+        gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+
 
         bool isAdvancedReward = scoreManager.IncrementHuCountAndCheckCycle();
 
+        // 1. 基础番数计算
         var analysisResult = mahjongCore.CalculateHandFan(huHand, settings);
+
+        // 2. 【修复】混淆视听 (HunYaoShiTing) 优先级最高
+        // 如果牌型只有2种花色，强制视为清一色
+        if (isHunYaoShiTingActive)
+        {
+            var allTileIds = huHand.SelectMany(s => s).ToList();
+            int suitCount = allTileIds.Select(id => ((id % 27) / 9)).Distinct().Count();
+            if (suitCount == 2)
+            {
+                analysisResult.PatternName = "清一色";
+                // (可选择是否要调整番数，这里暂只调整名称以触发后续逻辑)
+            }
+        }
+
+        // 3. 【修复】麻将博士 (DrMahjong)
+        // 依赖修正后的 PatternName
+        if (isDrMahjongActive)
+        {
+            // 如果是平胡 (且未被混淆视听改为清一色)，倍率为0
+            if (analysisResult.PatternName == "平胡" && !isOldSchoolActive)
+            {
+                extraMultiplier = 0;
+            }
+            else
+            {
+                // 其他牌型，底数变3
+                analysisResult.BaseMultiplier = 3f;
+            }
+        }
+
+        // 4. 【修复】老派玩家 (OldSchool)
+        // 强制覆盖为平胡，但此时已过了麻将博士的检查
+        // 需求：老派玩家虽然显示平胡，但要按 10 * 2^行数 计分。
+        // 这里只是处理胡牌倍率。根据规则，老派玩家胡牌视为平胡(1番)。
+        if (isOldSchoolActive)
+        {
+            analysisResult.PatternName = "平胡";
+            analysisResult.TotalFan = 1; // 强制1番
+        }
+
         double scorePart = baseFanScore * analysisResult.FanMultiplier;
         long finalScore = (long)(scorePart * blockMultiplier * extraMultiplier);
         scoreManager.AddScore((int)Mathf.Min(finalScore, int.MaxValue));
-        remainingTime += settings.huTimeBonus;
+
+        // 【修复】时间就是金钱 (TimeIsMoney)
+        // 只有在未激活该条约时，才奖励时间
+        if (!isTimeIsMoneyActive)
+        {
+            remainingTime += settings.huTimeBonus;
+            // 处理新能源 (RenewableEnergy) 的额外加时
+            if (isRenewableEnergyActive)
+            {
+                remainingTime += 20f;
+            }
+            gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+        }
 
         var rewards = GenerateHuRewards(isAdvancedReward);
-        gameUI.ShowHuPopup(huHand, analysisResult, baseFanScore, blockMultiplier, extraMultiplier, finalScore, rewards, isAdvancedReward);
+
+        // 狂战士 (Berserker) 逻辑
+        if (isBerserkerActive)
+        {
+            if (rewards.BlockChoices.Count > 0) rewards.BlockChoices = rewards.BlockChoices.Take(1).ToList();
+            if (rewards.ItemChoices.Count > 0) rewards.ItemChoices = rewards.ItemChoices.Take(1).ToList();
+            if (rewards.ProtocolChoices.Count > 0) rewards.ProtocolChoices = rewards.ProtocolChoices.Take(1).ToList();
+
+            if (rewards.BlockChoices.Count > 0) spawner.AddTetrominoToPool(rewards.BlockChoices[0]);
+            if (rewards.ItemChoices.Count > 0) inventoryManager.AddItem(rewards.ItemChoices[0]);
+            if (rewards.ProtocolChoices.Count > 0) AddProtocol(rewards.ProtocolChoices[0]);
+        }
+
+        gameUI.ShowHuPopup(huHand, analysisResult, baseFanScore, blockMultiplier, extraMultiplier, finalScore, rewards, isAdvancedReward, isBerserkerActive);
     }
 
     public void ContinueAfterHu()
     {
+        delayGratificationBonus = 0; // 重置延迟满足
+        if (isGreatRevolutionActive) spawner.RandomizeActivePool(); // 大革命
+        if (isBerserkerActive) inventoryManager.UseAllItems(); // 狂战士
+        UpdateCurrentBaseScore();
         // 【新增】胡牌时重置“点金手”和“计分板”
         midasTimer = 0f;
         midasGoldValue = 0;
@@ -390,7 +496,9 @@ public class GameManager : MonoBehaviour
         roundSpeedBonus = 0;
         countedSpeedBonus = 0;
         countedBonusBlocksRemaining = 0;
-
+        isFilterActive = false;
+        filterTimer = 0f;
+        isLuckyCapActive = false;
         // --- 【新增】基础分重置逻辑 ---
         if (isSteroidReversalActive)
         {
@@ -432,10 +540,17 @@ public class GameManager : MonoBehaviour
         {
             remainingTime += 20f;
         }
-
+        // 【修复】不稳定电流：新一轮开始后重置计时器（6秒后触发）
+        if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
         // ... (调用 Spawner.StartNextRound 之前) ...
 
         spawner.StartNextRound();
+        // 【修改】使用快照变量 _snapshotStrongWorld
+        // 只有在胡牌“前”就已经拥有该条约，才会触发效果
+        if (_snapshotStrongWorld)
+        {
+            spawner.AddRandomLevel3Block();
+        }
 
         // 【新增】强者世界：加入Lv3方块
         if (isStrongWorldActive)
@@ -468,6 +583,8 @@ public class GameManager : MonoBehaviour
         tetrisGrid.ClearAllBlocks();
         huPaiArea.ClearAll();
         spawner.StartNextRound();
+        gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+        // ...
         // 【新增】“试用小样”奖励逻辑
         if (bonusBlocksOnHuCount > 0 && !string.IsNullOrEmpty(bonusBlockPrefabName))
         {
@@ -492,86 +609,159 @@ public class GameManager : MonoBehaviour
         rowIndices.Sort();
 
         List<Transform> allClearedTransforms = new List<Transform>();
-        List<int> allRemainingIds = new List<int>();
+        List<List<int>> rowsBlockIds = new List<List<int>>();
 
-        // 【核心修改】统一遍历每一行，根据剩余的垃圾桶次数决定如何处理
+        // 1. 先清理Grid，收集数据
         foreach (var y in rowIndices)
         {
-            // 1. 获取行数据并收集销毁对象
             var rowData = tetrisGrid.GetRowDataAndClear(y);
             allClearedTransforms.AddRange(rowData.transforms);
+            rowsBlockIds.Add(rowData.blockIds);
+            ApplyRowClearRewards(); // 点金手/计分板
+        }
 
-            // 2. 触发“点金手”和“计分板”奖励 (针对每一行都触发)
-            ApplyRowClearRewards();
-
-            // 3. 分支判断：是“垃圾桶移除”还是“正常判定”？
-            if (ignoreMahjongCheckCount > 0)
+        // 2. 计分 (老派玩家 vs 正常)
+        // 如果垃圾桶生效，通常不加消除分，但如果规则允许，可移出else
+        if (ignoreMahjongCheckCount <= 0)
+        {
+            if (isOldSchoolActive)
             {
-                // --- 垃圾桶模式 ---
-                ignoreMahjongCheckCount--; // 消耗一次计数
-
-                // 【关键】直接丢弃 rowData.blockIds
-                // 不加入 allRemainingIds，也不归还给 BlockPool
-                // 从而实现“本轮移除”的效果
-
-                // (垃圾桶模式下通常不加 scorePerRow 基础分，仅移除)
+                // 老派玩家：Base * 2^Count
+                long oldSchoolScore = (long)(baseFanScore * Mathf.Pow(2, rowIndices.Count));
+                scoreManager.AddScore((int)Mathf.Min(oldSchoolScore, int.MaxValue));
             }
             else
             {
-                // --- 正常模式 ---
-                scoreManager.AddScore(settings.scorePerRow);
-
-                var result = mahjongCore.DetectSets(rowData.blockIds);
-                var setsToAdd = new List<List<int>>();
-                setsToAdd.AddRange(result.Kongs); setsToAdd.AddRange(result.Pungs); setsToAdd.AddRange(result.Chows);
-
-                int needed = settings.setsForHu - huPaiArea.GetSetCount();
-                if (setsToAdd.Count > needed)
-                {
-                    var shuffledSets = setsToAdd.OrderBy(a => Random.value).ToList();
-                    var chosenSets = shuffledSets.Take(needed).ToList();
-                    result.RemainingIds.AddRange(shuffledSets.Skip(needed).SelectMany(set => set));
-                    setsToAdd = chosenSets;
-                }
-
-                if (setsToAdd.Count > 0) huPaiArea.AddSets(setsToAdd);
-
-                // 检查胡牌
-                if (huPaiArea.GetSetCount() >= settings.setsForHu)
-                {
-                    var pair = mahjongCore.FindPair(result.RemainingIds);
-                    if (pair != null)
-                    {
-                        result.RemainingIds.Remove(pair[0]); result.RemainingIds.Remove(pair[1]);
-                        var finalHand = huPaiArea.GetAllSets(); finalHand.Add(pair);
-
-                        // 触发胡牌前，先处理完手头的清理工作
-                        GameEvents.TriggerHuDeclared(finalHand);
-
-                        allRemainingIds.AddRange(result.RemainingIds);
-                        blockPool.ReturnBlockIds(allRemainingIds); // 归还所有暂存的牌
-                        tetrisGrid.DestroyTransforms(allClearedTransforms); // 销毁所有收集到的方块
-                        return; // 结束流程
-                    }
-                }
-
-                // 如果没胡，将剩余牌加入待归还列表
-                allRemainingIds.AddRange(result.RemainingIds);
+                scoreManager.AddScore(settings.scorePerRow * rowIndices.Count);
             }
         }
 
-        // 循环结束后的清理工作
-        blockPool.ReturnBlockIds(allRemainingIds);
+        // 3. 延迟满足 (+8)
+        if (isDelayGratificationActive && rowIndices.Count >= 4)
+        {
+            delayGratificationBonus += 8;
+            UpdateCurrentBaseScore();
+        }
+
+        List<int> finalIdsToReturn = new List<int>();
+
+        // 4. 判定逻辑 (垃圾桶 vs 合纵连横 vs 正常)
+        if (ignoreMahjongCheckCount > 0)
+        {
+            // --- 垃圾桶模式 ---
+            // 假设规则：垃圾桶消耗次数 = 消除的行数。
+            // 例如大垃圾桶(3)，一次消4行，前3行被移除，第4行正常判定？
+            // 这里简化处理：只要有垃圾桶计数，这次消除涉及的所有牌都视为被移除（或只移除前N行）
+            // 为了符合“最先消除的行被移除”：
+
+            int rowsTotal = rowsBlockIds.Count;
+            int rowsToRemove = Mathf.Min(rowsTotal, ignoreMahjongCheckCount);
+            ignoreMahjongCheckCount -= rowsToRemove;
+
+            // 将被移除的行的牌丢弃 (不加入 finalIdsToReturn)
+            // 将剩下的行的牌进行判定
+
+            if (rowsToRemove < rowsTotal)
+            {
+                // 有剩余行需要判定
+                List<List<int>> remainingRowsData = new List<List<int>>();
+                for (int i = rowsToRemove; i < rowsTotal; i++)
+                {
+                    remainingRowsData.Add(rowsBlockIds[i]);
+                }
+
+                // 对剩余行进行判定
+                if (isRealpolitikActive)
+                {
+                    List<int> mergedIds = new List<int>();
+                    foreach (var list in remainingRowsData) mergedIds.AddRange(list);
+                    ProcessMahjongDetection(mergedIds, ref finalIdsToReturn, allClearedTransforms);
+                }
+                else
+                {
+                    foreach (var list in remainingRowsData)
+                    {
+                        ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms);
+                    }
+                }
+            }
+        }
+        else
+        {
+            // --- 正常模式 ---
+            if (isRealpolitikActive)
+            {
+                // 合纵连横：合并所有ID一次性判定
+                List<int> mergedIds = new List<int>();
+                foreach (var list in rowsBlockIds) mergedIds.AddRange(list);
+                ProcessMahjongDetection(mergedIds, ref finalIdsToReturn, allClearedTransforms);
+            }
+            else
+            {
+                // 正常：逐行判定
+                foreach (var list in rowsBlockIds)
+                {
+                    ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms);
+                }
+            }
+        }
+
+        // 5. 清理
+        blockPool.ReturnBlockIds(finalIdsToReturn);
         tetrisGrid.DestroyTransforms(allClearedTransforms);
         tetrisGrid.CompactAllColumns(rowIndices);
 
-        if (!_isBombOrSpecialClear)
-        {
-            spawner.SpawnBlock();
-        }
-
+        if (!_isBombOrSpecialClear) spawner.SpawnBlock();
         _isBombOrSpecialClear = false;
         isProcessingRows = false;
+    }
+
+    // 【辅助方法】封装麻将判定
+    private void ProcessMahjongDetection(List<int> tileIds, ref List<int> idsToReturn, List<Transform> transformsToDestroy)
+    {
+        var result = mahjongCore.DetectSets(tileIds);
+
+        // 三位一体：检测碰/杠
+        if (isTrinityActive)
+        {
+            int setBonus = (result.Pungs.Count + result.Kongs.Count) * 5;
+            if (setBonus > 0) ApplyPermanentBaseScoreBonus(setBonus);
+        }
+
+        var setsToAdd = new List<List<int>>();
+        setsToAdd.AddRange(result.Kongs); setsToAdd.AddRange(result.Pungs); setsToAdd.AddRange(result.Chows);
+
+        int needed = settings.setsForHu - huPaiArea.GetSetCount();
+        if (setsToAdd.Count > needed)
+        {
+            var shuffled = setsToAdd.OrderBy(a => Random.value).ToList();
+            var chosen = shuffled.Take(needed).ToList();
+            result.RemainingIds.AddRange(shuffled.Skip(needed).SelectMany(set => set));
+            setsToAdd = chosen;
+        }
+
+        if (setsToAdd.Count > 0) huPaiArea.AddSets(setsToAdd);
+
+        if (huPaiArea.GetSetCount() >= settings.setsForHu)
+        {
+            var pair = mahjongCore.FindPair(result.RemainingIds);
+            if (pair != null)
+            {
+                result.RemainingIds.Remove(pair[0]); result.RemainingIds.Remove(pair[1]);
+                var finalHand = huPaiArea.GetAllSets(); finalHand.Add(pair);
+
+                GameEvents.TriggerHuDeclared(finalHand);
+
+                idsToReturn.AddRange(result.RemainingIds);
+                blockPool.ReturnBlockIds(idsToReturn);
+                tetrisGrid.DestroyTransforms(transformsToDestroy);
+
+                _isBombOrSpecialClear = true; // 阻止生成新方块
+                return; // 退出本层检测
+            }
+        }
+
+        idsToReturn.AddRange(result.RemainingIds);
     }
 
     // 【辅助方法】避免代码重复
@@ -662,20 +852,16 @@ public class GameManager : MonoBehaviour
     }
     public void UpdateActiveBlockListUI()
     {
-        // 1. 调用现有的方法来计算总倍率并更新倍率文本
-        // RecalculateBlockMultiplier() 会计算并更新 this.blockMultiplier 字段
         RecalculateBlockMultiplier();
-
-        // 2. 从 Spawner 获取当前的方块池
         var prefabs = spawner.GetActivePrefabs();
-
-        // 3. 获取刚计算出的总倍率
         float totalMultiplier = this.blockMultiplier;
 
-        // 4. 调用 GameUIController 来更新方块列表的UI显示
+        // 【修复】检查是否有人人平等，传递 3f 或 -1f
+        float overrideMult = isAllMenEqualActive ? 3f : -1f;
+
         if (gameUI != null)
         {
-            gameUI.UpdateTetrominoList(prefabs, totalMultiplier);
+            gameUI.UpdateTetrominoList(prefabs, totalMultiplier, overrideMult);
         }
     }
     public void ApplyBlockMultiplierModifier(float amount)
@@ -743,20 +929,40 @@ public class GameManager : MonoBehaviour
     // --- 私有辅助方法 ---
     private HuRewardPackage GenerateHuRewards(bool isAdvanced)
     {
+        // 【新增】麻将博士：如果是平胡（extraMultiplier被置为0），则无法获得任何奖励
+        if (isDrMahjongActive && extraMultiplier == 0)
+        {
+            return new HuRewardPackage(); // 返回空包，不显示任何选项
+        }
+
         var package = new HuRewardPackage();
+
+        // 【新增】独木桥：每种奖励数量变为1个
+        // 如果是独木桥模式，数量固定为1；否则按原有逻辑（高级5/2/2，普通3/3）
+        int blockCount = isLogBridgeActive ? 1 : (isAdvanced ? 5 : 3);
+        int itemCount = isLogBridgeActive ? 1 : (isAdvanced ? 2 : 3);
+        int protocolCount = isLogBridgeActive ? 1 : 2;
+
+        // 生成方块奖励
+        package.BlockChoices = GetWeightedRandomBlocks(blockCount, isAdvanced ? settings.advancedBlockRewardWeights : settings.commonBlockRewardWeights).ToList();
+
         if (isAdvanced)
         {
-            package.BlockChoices = GetWeightedRandomBlocks(5, settings.advancedBlockRewardWeights).ToList();
-            package.ItemChoices = settings.advancedItemPool.OrderBy(x => Random.value).Take(2).ToList();
-            package.ProtocolChoices = settings.protocolPool.Except(activeProtocols).OrderBy(x => Random.value).Take(2).ToList();
+            // 【修改】使用加权随机
+            package.ItemChoices = GetWeightedRandomList(settings.advancedItemPool, itemCount);
+
+            var availableProtocols = settings.protocolPool.Except(activeProtocols).ToList();
+            package.ProtocolChoices = GetWeightedRandomList(availableProtocols, protocolCount);
         }
         else
         {
-            package.BlockChoices = GetWeightedRandomBlocks(3, settings.commonBlockRewardWeights).ToList();
-            package.ItemChoices = settings.commonItemPool.OrderBy(x => Random.value).Take(3).ToList();
+            // 【修改】使用加权随机
+            package.ItemChoices = GetWeightedRandomList(settings.commonItemPool, itemCount);
         }
+
         return package;
     }
+
 
     private IEnumerable<GameObject> GetWeightedRandomBlocks(int count, BlockRewardWeights weights)
     {
@@ -853,44 +1059,56 @@ public class GameManager : MonoBehaviour
 
     private void UpdateFallSpeed()
     {
-        // 1. 获取基础速度 (例如 10)
         int baseSpeed = settings.baseDisplayedSpeed;
-
-        // 2. 【修复】只对基础速度应用难度乘数
         int baseSpeedWithDifficulty = (int)(baseSpeed * this.difficultySpeedMultiplier);
-
-        // 3. 【修复】单独获取“胡牌加成” (不受难度影响)
         int huBonus = scoreManager.GetHuCount() * settings.speedIncreasePerHu_Int;
-
-        // 4. 【修复】单独获取“道具/条约加成” (不受难度影响)
         int currentCountedBonus = (countedBonusBlocksRemaining > 0) ? countedSpeedBonus : 0;
         int totalBonus = permanentSpeedBonus + roundSpeedBonus + currentCountedBonus;
 
-        // 5. 【修复】将三部分相加：(基础*难度) + (胡牌) + (道具)
         int totalDisplayedSpeed = baseSpeedWithDifficulty + huBonus + totalBonus;
-
-        // 6. 【保留】根据“喷气背包”需求，速度最低为 1
         if (totalDisplayedSpeed < 1) totalDisplayedSpeed = 1;
 
-        // 7. 应用新公式：下落时间 = 20 / 显示速度
         currentFallSpeed = 20.0f / totalDisplayedSpeed;
 
-        // 8. 更新UI
+        // 【新增】子弹时间逻辑 (覆盖最终计算)
+        if (isBulletTimeActive && tetrisGrid.GetMaxColumnHeight() > 8)
+        {
+            totalDisplayedSpeed = 5; // 显示为5
+            currentFallSpeed = 20.0f / 5.0f; // 实际速度也是5
+        }
+
         gameUI.UpdateSpeedText(totalDisplayedSpeed);
     }
 
     private void OnScoreUpdated(int newScore)
     {
-        // 【修改】使用 currentSessionConfig，并检查其是否为null
-        if (isEndlessMode || currentSessionConfig == null || currentSessionConfig.DifficultyScoreLevels.Count == 0) return;
+        // 1. 处理悬赏令 (Wanted Poster)
+        // 这里的逻辑是：只要分数变化了（通常是因为消除），就检查是否激活了悬赏令
+        // 但悬赏令通常作用于"金币奖励"。
+        // 我们将其移动到发放奖励的时刻判断，或者保持在这里修改 multiplier
+        // 之前的逻辑：isWantedPosterActive -> 奖励翻倍 -> 重置。
+        // 这里需要注意：AddGold 是在循环内部调用的。
 
-        // 【修改】使用 currentSessionConfig
-        while (currentScoreLevelIndex < currentSessionConfig.DifficultyScoreLevels.Count && newScore >= currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex].targetScore)
+        if (currentSessionConfig == null || currentSessionConfig.DifficultyScoreLevels == null) return;
+
+        // 【修复】增加索引越界检查，防止无尽模式或通关后报错
+        while (currentScoreLevelIndex < currentSessionConfig.DifficultyScoreLevels.Count &&
+               newScore >= currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex].targetScore)
         {
+            // 获取基础奖励
+            int reward = currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex].goldReward;
+
+            // 【修复】悬赏令逻辑：在发放前应用倍率
+            if (isWantedPosterActive)
+            {
+                reward *= wantedPosterGoldMult;
+                isWantedPosterActive = false; // 消耗掉效果
+                wantedPosterGoldMult = 1;
+            }
+
             if (GameSession.Instance != null)
             {
-                // 【修改】使用 currentSessionConfig
-                GameSession.Instance.AddGold(currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex].goldReward);
+                GameSession.Instance.AddGold(reward);
             }
 
             if (AudioManager.Instance != null)
@@ -900,16 +1118,17 @@ public class GameManager : MonoBehaviour
 
             currentScoreLevelIndex++;
 
-            // 【修改】使用 currentSessionConfig
+            // 【修复】如果索引已达到上限（通关），立即停止循环并触发获胜
             if (currentScoreLevelIndex >= currentSessionConfig.DifficultyScoreLevels.Count)
             {
                 HandleGameWon();
+                break; // 【关键】必须退出循环，否则下次判断条件时会越界
             }
 
             UpdateTargetScoreUI();
         }
 
-        // (此行来自“进度条”功能，保持不变)
+        // 更新进度条
         gameUI.UpdateScoreProgress(newScore);
     }
 
@@ -937,18 +1156,35 @@ public class GameManager : MonoBehaviour
         if (hasReviveStone)
         {
             Debug.Log("复活石触发！");
-            hasReviveStone = false; // 消耗
-            remainingTime += reviveAddedTime;
+            hasReviveStone = false; // 消耗道具
+            remainingTime += reviveAddedTime; // 增加时间
 
-            // 清空桌面
+            // 1. 获取胡牌区已有的牌，防止被重置掉
+            List<int> excludedIds = new List<int>();
+            foreach (var set in huPaiArea.GetAllSets())
+            {
+                excludedIds.AddRange(set);
+            }
+
+            // 2. 重置牌库 (使用我们在第一模块修改过的 ResetFullDeck)
+            // 这会将场上的牌对应的ID归还回牌库，但保留胡牌区的牌
+            blockPool.ResetFullDeck(excludedIds);
+
+            // 3. 清空场上所有方块
             tetrisGrid.ClearAllBlocks();
 
-            // 不停止游戏，不显示结束面板，直接返回
-            return;
+            // 4. 【关键修复】重启游戏流程
+            isProcessingRows = false; // 解除消除锁定
+            Time.timeScale = 1f;      // 恢复时间流动
+            spawner.StartNextRound(); // 立即生成新方块继续游戏
+
+            return; // 阻止后续的游戏结束流程
         }
+
+        // 正常游戏结束流程
         Time.timeScale = 0f;
         int finalScore = scoreManager.GetCurrentScore();
-        bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore); // 需要在ScoreManager中实现此方法
+        bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore);
         gameUI.ShowGameEndPanel(false, finalScore, isNewHighScore);
     }
 
@@ -1036,27 +1272,20 @@ public class GameManager : MonoBehaviour
         }
     }
     // 【新增】用于计算和更新所有基础分加成
-    private void UpdateCurrentBaseScore()
+    public void UpdateCurrentBaseScore()
     {
-        // 1. 从设置中获取默认基础分
         int defaultScore = settings.baseFanScore;
+        // 【新增】延迟满足 (-10)
+        int delayPenalty = isDelayGratificationActive ? -10 : 0;
 
-        // 2. 累加所有加法加成
-        int addedScore = defaultScore + permanentBaseScoreBonus + roundBaseScoreBonus + adventFoodBonus;
-
-        // 3. 【修改】应用乘法加成
+        int addedScore = defaultScore + permanentBaseScoreBonus + roundBaseScoreBonus + adventFoodBonus + delayGratificationBonus + delayPenalty;
         int calculatedScore = (int)(addedScore * permanentBaseScoreMultiplier);
 
-        // 4. 应用“类固醇”的特殊规则（最低为1）
-        if (isSteroidReversalActive && calculatedScore < 1)
-        {
-            calculatedScore = 1;
-        }
+        if (isSteroidReversalActive && calculatedScore < 1) calculatedScore = 1;
+        // 【新增】延迟满足最低为1
+        if (isDelayGratificationActive && calculatedScore < 1) calculatedScore = 1;
 
-        // 5. 设置最终的基础分
         baseFanScore = calculatedScore;
-
-        // 6. 更新UI
         gameUI.UpdateBaseScoreText(baseFanScore);
     }
     // 【新增】供“快进按钮”调用
@@ -1182,5 +1411,134 @@ public class GameManager : MonoBehaviour
         {
             GameEvents.TriggerGameOver();
         }
+    }
+    public bool ActivateMagnetV2()
+    {
+        // 1. 找刻子 (胡牌区中拥有3张一样的牌)
+        var pungs = huPaiArea.GetAllSets().Where(s => s.Count == 3).ToList();
+        if (pungs.Count == 0) return false;
+
+        // 2. 随机打乱刻子顺序，避免每次都只吸第一个刻子
+        var shuffledPungs = pungs.OrderBy(x => Random.value).ToList();
+
+        // 3. 遍历每一个刻子，尝试在场上找对应的第4张牌
+        foreach (var pung in shuffledPungs)
+        {
+            int targetValue = pung[0] % 27; // 获取牌面值 (0-26)
+
+            // 使用 TetrisGrid 的新方法精确查找
+            Transform targetTransform = tetrisGrid.GetBlockTransformByValue(targetValue);
+
+            if (targetTransform != null)
+            {
+                // 找到了！
+                var blockUnit = targetTransform.GetComponent<BlockUnit>();
+                int targetId = blockUnit.blockId;
+
+                // 4. 逻辑移除 (加入胡牌区)
+                if (huPaiArea.UpgradePungToKong(targetValue, targetId))
+                {
+                    // 5. 【关键修复】物理移除 (销毁物体)
+                    // 使用 RemoveSpecificBlock 彻底从网格中移除并销毁 GameObject
+                    tetrisGrid.RemoveSpecificBlock(targetTransform);
+
+                    // 触发三位一体条约效果
+                    if (isTrinityActive) ApplyPermanentBaseScoreBonus(5);
+
+                    return true; // 成功使用
+                }
+            }
+        }
+
+        return false; // 没找到任何可吸的牌
+    }
+
+    public void ActivateWantedPoster(int goldMult, float scorePercent)
+    {
+        // 1. 先设置状态，确保 AddScore 触发 OnScoreUpdated 时倍率已生效
+        isWantedPosterActive = true;
+        wantedPosterGoldMult = goldMult;
+
+        // 2. 增加当前分数 (例如增加 20%)
+        int currentScore = scoreManager.GetCurrentScore();
+        int bonus = (int)(currentScore * scorePercent);
+
+        // 这次加分可能会直接触发升级并获得金币，正好应用上面的倍率
+        scoreManager.AddScore(bonus);
+    }
+    // 【新增】供 UI 调用，获取当前允许的选择数量
+    // 使用快照数据，确保本次新获得的 SSSVIP 不会立刻生效
+    public int GetCurrentRewardSelectionLimit()
+    {
+        return _snapshotSSSVIP ? 2 : 1;
+    }
+    public GameSettings GetSettings()
+    {
+        return settings;
+    }
+    // 【新增】幸运瓶盖
+    public void ActivateLuckyCap() { isLuckyCapActive = true; }
+    public void ConsumeLuckyCap() { isLuckyCapActive = false; } // 使用后消耗
+
+    // 【新增】漏斗
+    public void ActivateFilter(float duration) { isFilterActive = true; filterTimer = duration; }
+
+    // 【新增】通用加权随机选择 (用于道具和条约)
+    // 根据传奇标签动态计算权重
+    public T GetWeightedRandomItem<T>(List<T> pool) where T : ScriptableObject
+    {
+        if (pool == null || pool.Count == 0) return null;
+
+        // 1. 计算当前传奇权重
+        // 公式：基础 + (基础 * 0.5 * (圈数 - 1))
+        // 也就是每一圈增加 50% 的基础权重
+        float legendaryBase = settings.legendaryWeightBase;
+        int currentLoop = scoreManager.GetCurrentLoop();
+        float currentLegendaryWeight = legendaryBase + (legendaryBase * settings.legendaryWeightIncreasePerLoop * (currentLoop - 1));
+
+        float normalWeight = settings.normalWeight;
+
+        // 2. 构建权重列表
+        Dictionary<T, float> weightedPool = new Dictionary<T, float>();
+        float totalWeight = 0f;
+
+        foreach (var item in pool)
+        {
+            // 通过反射或接口检查 isLegendary 属性
+            // 由于 ItemData 和 ProtocolData 都有 isLegendary，我们可以强制转换检查
+            bool isLegendary = false;
+            if (item is ItemData iData) isLegendary = iData.isLegendary;
+            else if (item is ProtocolData pData) isLegendary = pData.isLegendary;
+
+            float w = isLegendary ? currentLegendaryWeight : normalWeight;
+            weightedPool[item] = w;
+            totalWeight += w;
+        }
+
+        // 3. 随机抽取
+        float randomValue = Random.value * totalWeight;
+        foreach (var kvp in weightedPool)
+        {
+            if (randomValue < kvp.Value) return kvp.Key;
+            randomValue -= kvp.Value;
+        }
+
+        return pool[pool.Count - 1]; // 保底
+    }
+
+    // 【新增】获取列表的加权随机子集 (用于 GenerateHuRewards)
+    public List<T> GetWeightedRandomList<T>(List<T> sourcePool, int count) where T : ScriptableObject
+    {
+        List<T> result = new List<T>();
+        List<T> tempPool = new List<T>(sourcePool); // 复制一份，避免重复选择
+
+        for (int i = 0; i < count; i++)
+        {
+            if (tempPool.Count == 0) break;
+            T selected = GetWeightedRandomItem(tempPool);
+            result.Add(selected);
+            tempPool.Remove(selected); // 选过的不由再选
+        }
+        return result;
     }
 }

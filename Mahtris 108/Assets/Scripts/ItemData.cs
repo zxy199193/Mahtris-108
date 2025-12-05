@@ -7,6 +7,7 @@ public abstract class ItemData : ScriptableObject
     public Sprite itemIcon;
     [TextArea(3, 5)]
     public string itemDescription;
+    public bool isLegendary = false;
 
     // 返回bool值表示道具是否使用成功
     public abstract bool Use(GameManager gameManager);

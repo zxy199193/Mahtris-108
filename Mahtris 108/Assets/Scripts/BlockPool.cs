@@ -17,33 +17,53 @@ public class BlockPool : MonoBehaviour
             System.Array.Sort(mahjongSprites, (a, b) => string.Compare(a.name, b.name, System.StringComparison.Ordinal));
     }
 
-    public void ResetFullDeck()
+    public void ResetFullDeck(List<int> excludedIds = null)
     {
         availableBlocks.Clear();
-        for (int i = 0; i < totalBlocks; i++) availableBlocks.Add(i);
+        int totalTiles = GameManager.Instance.GetSettings().TotalTileCount;
 
-        var rng = new System.Random();
-        availableBlocks = availableBlocks.OrderBy(a => rng.Next()).ToList();
-        // 【新增】应用条约过滤器
+        // 1. 生成完整的 0~107 ID 列表
+        var fullDeck = new List<int>();
+        for (int i = 0; i < totalTiles; i++)
+        {
+            fullDeck.Add(i);
+        }
+
+        // 2. 如果有需要排除的牌 (复活石逻辑：胡牌区的牌不应回到牌库)
+        if (excludedIds != null)
+        {
+            foreach (int id in excludedIds)
+            {
+                fullDeck.Remove(id);
+            }
+        }
+
+        availableBlocks = fullDeck;
+
+        // 3. 应用条约过滤器 (断幺九、缺一门)
+        // 这些过滤器只针对"剩余牌库"生效，不会影响已经胡掉的牌
         if (GameManager.Instance != null)
         {
-            // “断幺九”：移除1和9
+            // 断幺九：移除所有 1 和 9
             if (GameManager.Instance.useDuanYaoJiuFilter)
             {
                 availableBlocks.RemoveAll(id =>
-                    (id % 27) % 9 == 0 || // 1 (0, 9, 18)
-                    (id % 27) % 9 == 8  // 9 (8, 17, 26)
+                    (id % 27) % 9 == 0 || // 1万/1条/1筒
+                    (id % 27) % 9 == 8    // 9万/9条/9筒
                 );
             }
 
-            // “缺一门”：移除指定花色
+            // 缺一门：移除指定花色
             if (GameManager.Instance.useQueYiMenFilter && GameManager.Instance.queYiMenSuitToRemove >= 0)
             {
-                int suitToRemove = GameManager.Instance.queYiMenSuitToRemove; // 0, 1, or 2
+                int suitToRemove = GameManager.Instance.queYiMenSuitToRemove;
                 availableBlocks.RemoveAll(id => (id % 27) / 9 == suitToRemove);
             }
         }
-        // --- 过滤器结束 ---
+
+        // 4. 洗牌
+        var rng = new System.Random();
+        availableBlocks = availableBlocks.OrderBy(a => rng.Next()).ToList();
 
         GameEvents.TriggerPoolCountChanged(availableBlocks.Count);
     }

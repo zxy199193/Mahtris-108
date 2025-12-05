@@ -8,85 +8,151 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 {
     [Header("UI 引用")]
     public Button optionButton;
-    public Image optionIcon; // 用于显示道具/条约的图标
-    public Transform shapeContainer; // 新增：用于容纳方块形状UI预制件的容器
-    
+    public Image optionIcon;
+    public Transform shapeContainer;
+    public GameObject checkMark; // 【新增】勾选标记
+    public GameObject legendaryBadge; // 【新增】传奇角标
+    public Image backgroundImage; // 【新增】用于切换背板 (需在Prefab中拖拽)
+
     [Header("文本显示")]
-    public GameObject textContainer; // 【修改】引用包含文本和背板的父节点
-    public Text optionText; // 【修改】引用 textContainer 下的文本
+    public GameObject textContainer;
+    public Text optionText;
 
-    private Action<RewardOptionUI> onClickCallback;
-    private Action<string, string> onHoverEnterCallback;
-    private Action onHoverExitCallback;
+    // 数据引用
+    private ItemData _itemData;
+    private ProtocolData _protocolData;
+    private bool _isBlock;
 
-    private string title;
-    private string description;
+    // 回调
+    private Action<RewardOptionUI> _onClick;
 
-    // 方法1：用于初始化显示Sprite图标的奖励（道具/条约）
-    public void InitializeForSprite(Sprite icon, string title, string desc, Action<RewardOptionUI> onClick, Action<string, string> onHoverEnter, Action onHoverExit)
+    // --- 初始化方法 1: 道具 ---
+    public void Setup(ItemData item, Action<RewardOptionUI> onClick)
+    {
+        _itemData = item;
+        _isBlock = false;
+        SetupCommon(item.itemIcon, onClick);
+
+        // 传奇显示
+        if (legendaryBadge) legendaryBadge.SetActive(item.isLegendary);
+    }
+
+    // --- 初始化方法 2: 条约 ---
+    public void Setup(ProtocolData protocol, Action<RewardOptionUI> onClick)
+    {
+        _protocolData = protocol;
+        _isBlock = false;
+        SetupCommon(protocol.protocolIcon, onClick);
+
+        // 传奇显示
+        if (legendaryBadge) legendaryBadge.SetActive(protocol.isLegendary);
+    }
+
+    // --- 初始化方法 3: 方块 ---
+    public void Setup(GameObject prefab, Action<RewardOptionUI> onClick)
+    {
+        _isBlock = true;
+
+        if (optionIcon) optionIcon.gameObject.SetActive(false);
+        if (shapeContainer)
+        {
+            shapeContainer.gameObject.SetActive(true);
+            foreach (Transform child in shapeContainer) Destroy(child.gameObject);
+            var tet = prefab.GetComponent<Tetromino>();
+            if (tet && tet.uiPrefab) Instantiate(tet.uiPrefab, shapeContainer);
+        }
+
+        if (textContainer) textContainer.SetActive(true);
+        if (optionText)
+        {
+            var tet = prefab.GetComponent<Tetromino>();
+            if (tet) optionText.text = $"x{tet.extraMultiplier:F0}";
+        }
+
+        if (legendaryBadge) legendaryBadge.SetActive(false); // 方块无传奇
+
+        // 绑定点击
+        _onClick = onClick;
+        if (optionButton)
+        {
+            optionButton.onClick.RemoveAllListeners();
+            optionButton.onClick.AddListener(() => _onClick?.Invoke(this));
+        }
+        SetSelected(false);
+    }
+
+    // 私有通用设置
+    private void SetupCommon(Sprite icon, Action<RewardOptionUI> onClick)
     {
         if (shapeContainer) shapeContainer.gameObject.SetActive(false);
+        if (textContainer) textContainer.SetActive(false);
+
         if (optionIcon)
         {
             optionIcon.gameObject.SetActive(true);
             optionIcon.sprite = icon;
         }
-        if (textContainer) textContainer.SetActive(false); // 道具和条约不显示额外文本
 
-        SetupCallbacks(title, desc, onClick, onHoverEnter, onHoverExit);
-    }
-
-    // 方法2：用于初始化显示GameObject预制件的奖励（方块）
-    public void InitializeForPrefab(GameObject uiPrefab, string text, string title, string desc, Action<RewardOptionUI> onClick, Action<string, string> onHoverEnter, Action onHoverExit)
-    {
-        if (optionIcon) optionIcon.gameObject.SetActive(false);
-        if (shapeContainer)
-        {
-            shapeContainer.gameObject.SetActive(true);
-            // 清空旧的形状
-            foreach (Transform child in shapeContainer) Destroy(child.gameObject);
-            // 实例化新的形状
-            if (uiPrefab) Instantiate(uiPrefab, shapeContainer);
-        }
-        if(textContainer) textContainer.SetActive(true);
-        if (optionText) optionText.text = text; // 显示方块倍率
-
-        SetupCallbacks(title, desc, onClick, onHoverEnter, onHoverExit);
-    }
-
-    // 统一设置回调和通用信息
-    private void SetupCallbacks(string title, string desc, Action<RewardOptionUI> onClick, Action<string, string> onHoverEnter, Action onHoverExit)
-    {
-        this.title = title;
-        this.description = desc;
-        this.onClickCallback = onClick;
-        this.onHoverEnterCallback = onHoverEnter;
-        this.onHoverExitCallback = onHoverExit;
-
+        _onClick = onClick;
         if (optionButton)
         {
-            optionButton.onClick.RemoveAllListeners(); // 先移除旧的监听器
-            optionButton.onClick.AddListener(OnClick);
+            optionButton.onClick.RemoveAllListeners();
+            optionButton.onClick.AddListener(() => _onClick?.Invoke(this));
         }
+        SetSelected(false);
     }
 
-    private void OnClick()
+    // 交互状态控制
+    public void SetSelected(bool selected)
     {
-        onClickCallback?.Invoke(this);
+        if (checkMark) checkMark.SetActive(selected);
+        // 如果选中了，按钮不再可交互（防止重复点击），但也可能通过 SetInteractable 统一控制
     }
 
+    public void SetInteractable(bool active)
+    {
+        if (optionButton) optionButton.interactable = active;
+    }
+
+    // --- 鼠标悬停逻辑 (调用 TooltipController) ---
     public void OnPointerEnter(PointerEventData eventData)
     {
-        onHoverEnterCallback?.Invoke(title, description);
+        // 方块不显示浮窗 (根据需求)
+        if (_isBlock) return;
+
+        if (TooltipController.Instance == null) return;
+
+        string title = "";
+        string desc = "";
+        Sprite icon = null;
+        bool legendary = false;
+        Sprite bg = null;
+        GameSettings settings = GameManager.Instance.GetSettings();
+
+        if (_itemData != null)
+        {
+            title = _itemData.itemName;
+            desc = _itemData.itemDescription;
+            icon = _itemData.itemIcon;
+            legendary = _itemData.isLegendary;
+            // 简单判断背板
+            bg = legendary ? settings.tooltipBgLegendary : settings.tooltipBgCommon;
+        }
+        else if (_protocolData != null)
+        {
+            title = _protocolData.protocolName;
+            desc = _protocolData.protocolDescription;
+            icon = _protocolData.protocolIcon;
+            legendary = _protocolData.isLegendary;
+            bg = legendary ? settings.tooltipBgLegendary : settings.tooltipBgProtocol;
+        }
+
+        // 显示浮窗
+        TooltipController.Instance.Show(title, desc, icon, bg, legendary, this.transform);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        onHoverExitCallback?.Invoke();
-    }
-
-    public void SetInteractable(bool interactable)
-    {
-        if (optionButton) optionButton.interactable = interactable;
+        if (TooltipController.Instance != null) TooltipController.Instance.Hide();
     }
 }

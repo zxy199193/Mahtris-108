@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Renewable Energy Protocol
   m_EditorClassIdentifier: 
   protocolName: "\u65B0\u80FD\u6E90"
-  protocolIcon: {fileID: 21300000, guid: d6f53d6993b28224ba973ee6ad10b47e, type: 3}
+  protocolIcon: {fileID: 21300000, guid: e4ada9885250c524984749afeaef374a, type: 3}
   protocolDescription: "\u6BCF\u6B21\u80E1\u724C\u7684\u65F6\u95F4\u5956\u52B1\u52A020\u79D2"

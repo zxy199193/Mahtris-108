@@ -182,4 +182,54 @@ public class TetrisGrid : MonoBehaviour
             }
         }
     }
+    // 【新增】获取当前场上最高的方块高度 (用于子弹时间)
+    public int GetMaxColumnHeight()
+    {
+        for (int y = height - 1; y >= 0; y--)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (grid[x, y] != null) return y + 1;
+            }
+        }
+        return 0;
+    }
+    // 【TetrisGrid.cs 新增方法】
+    public void RemoveSpecificBlock(Transform blockTransform)
+    {
+        if (blockTransform == null) return;
+
+        // 获取方块坐标
+        Vector2 pos = RoundVector2(blockTransform.position);
+        int x = (int)pos.x;
+        int y = (int)pos.y;
+
+        // 确认坐标在网格内，且该位置确实是我们要移除的方块
+        if (IsInsideBorder(pos) && grid[x, y] == blockTransform)
+        {
+            Destroy(blockTransform.gameObject);
+            grid[x, y] = null;
+        }
+    }
+    public Transform GetBlockTransformByValue(int value0to26)
+    {
+        // 遍历所有格子
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (grid[x, y] != null)
+                {
+                    var unit = grid[x, y].GetComponent<BlockUnit>();
+                    // 【关键修复】使用 % 27 进行严格数值比对
+                    // 确保 5万 (id%27=4) 绝不会匹配到 6万 (id%27=5)
+                    if (unit != null && (unit.blockId % 27) == value0to26)
+                    {
+                        return grid[x, y];
+                    }
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -14,25 +14,26 @@ public class TetrominoListItemUI : MonoBehaviour
     [Header("堆叠显示 (可选)")]
     [Tooltip("用于显示堆叠数量的Text组件 (例如 'x2')")]
     public Text countText;
-    public void InitializeForPrefab(GameObject uiPrefab, string text)
+    // 【修改】增加 overrideMultiplier 参数
+    public void InitializeForPrefab(GameObject uiPrefab, string text, float overrideMultiplier = -1f)
     {
         if (shapeContainer != null)
         {
-            // 清空旧的形状
-            foreach (Transform child in shapeContainer)
-            {
-                Destroy(child.gameObject);
-            }
-            // 实例化新的形状
-            if (uiPrefab != null)
-            {
-                Instantiate(uiPrefab, shapeContainer);
-            }
+            foreach (Transform child in shapeContainer) Destroy(child.gameObject);
+            if (uiPrefab != null) Instantiate(uiPrefab, shapeContainer);
         }
 
         if (multiplierText != null)
         {
-            multiplierText.text = text;
+            // 如果有覆盖值（>0），则显示覆盖值，否则显示原文本
+            if (overrideMultiplier > 0)
+            {
+                multiplierText.text = $"x{overrideMultiplier:F1}";
+            }
+            else
+            {
+                multiplierText.text = text;
+            }
         }
     }
 }
