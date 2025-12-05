@@ -274,4 +274,31 @@ public class Spawner : MonoBehaviour
         }
         GameManager.Instance.UpdateActiveBlockListUI();
     }
+    public void ForceRerollIfLevel3()
+    {
+        if (nextTetrominoPrefab == null) return;
+
+        // 假设 Lv3 的命名规则是 "T5-"
+        if (nextTetrominoPrefab.name.StartsWith("T5-"))
+        {
+            // 筛选所有非 Lv3 的方块
+            var nonLv3Pool = activeTetrominoPool.Where(p => !p.name.StartsWith("T5-")).ToList();
+
+            // 如果活跃池里没有，就去总表里找
+            if (nonLv3Pool.Count == 0)
+            {
+                nonLv3Pool = masterTetrominoPrefabs.Where(p => !p.name.StartsWith("T5-")).ToList();
+            }
+
+            if (nonLv3Pool.Count > 0)
+            {
+                nextTetrominoPrefab = nonLv3Pool[Random.Range(0, nonLv3Pool.Count)];
+                // 通知 UI 更新预览
+                // (这一步 GameEvents.TriggerNextBlockReady 会在 StartNextRound 或 这里的上下文里被触发吗？
+                //  通常是在 SpawnBlock 时触发。如果是道具改变了预览，最好手动刷新一下预览UI)
+                // 这里暂不手动触发，等待下一次 SpawnBlock 自然更新，或者：
+                // GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, ...); // 如果需要立即刷新预览
+            }
+        }
+    }
 }

@@ -84,5 +84,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8fac18ac5ccff8b479496f3c47bf64d2, type: 2}
   maxProtocolCount: 5
   protocolPool:
-  - {fileID: 11400000, guid: 7b13910c1074a534ea16e549bb8cb788, type: 2}
-  - {fileID: 11400000, guid: 43503c7b59e478a40b9e5cc44c2f1526, type: 2}
+  - {fileID: 11400000, guid: c4d10d887bde7464d85b7c6a1c4eaca6, type: 2}
+  - {fileID: 11400000, guid: 6d3541585e2b964459b59addd88a14f3, type: 2}

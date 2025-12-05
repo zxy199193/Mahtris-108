@@ -291,7 +291,8 @@ public class GameUIController : MonoBehaviour
 
     public void ShowHuPopup(List<List<int>> huHand, HandAnalysisResult analysis,
                             int baseScore, float blockMultiplier, float extraMultiplier, long finalScore,
-                            HuRewardPackage rewards, bool isAdvanced, bool isBerserkerActive)
+                            HuRewardPackage rewards, bool isAdvanced, bool isBerserkerActive,
+                            int autoBlockIdx = -1, int autoItemIdx = -1, int autoProtocolIdx = -1)
     {
         selectionCounts.Clear();
         if (huPopupPanel)
@@ -313,7 +314,7 @@ public class GameUIController : MonoBehaviour
                 .SetEase(Ease.OutBounce)
                 .SetUpdate(true);
         }
-
+        if (formulaFanBaseText) formulaFanBaseText.text = $"{analysis.BaseMultiplier}"; 
         if (patternNameText) patternNameText.text = $"{analysis.PatternName} ({analysis.TotalFan}番)";
         if (formulaBaseScoreText) formulaBaseScoreText.text = $"{baseScore}";
         if (formulaFanBaseText) formulaFanBaseText.text = "2"; // (注：如果"高端局"条约实装，这里需要改成动态的)
@@ -322,6 +323,7 @@ public class GameUIController : MonoBehaviour
         if (formulaExtraMultText) formulaExtraMultText.text = $"{extraMultiplier:F0}";
         if (formulaFinalScoreText) formulaFinalScoreText.text = $"{finalScore}";
         if (huCycleText) huCycleText.text = isAdvanced ? "4/4" : $"第X圈 第{scoreManager.GetHuCountInCycle()}轮";
+        if (formulaFanBaseText) formulaFanBaseText.text = $"{analysis.BaseMultiplier}";
 
         BuildUIHand(huHandDisplayArea, huHand);
 
@@ -330,25 +332,26 @@ public class GameUIController : MonoBehaviour
 
         if (isAdvanced)
         {
-            PopulateRewardOptions(advancedRewardBlockArea, rewards.BlockChoices);
-            PopulateRewardOptions(advancedRewardItemArea, rewards.ItemChoices);
-            PopulateRewardOptions(advancedRewardProtocolArea, rewards.ProtocolChoices);
+            PopulateRewardOptions(advancedRewardBlockArea, rewards.BlockChoices, isBerserkerActive, autoBlockIdx);
+            PopulateRewardOptions(advancedRewardItemArea, rewards.ItemChoices, isBerserkerActive, autoItemIdx);
+            PopulateRewardOptions(advancedRewardProtocolArea, rewards.ProtocolChoices, isBerserkerActive, autoProtocolIdx);
         }
         else
         {
-            PopulateRewardOptions(commonRewardBlockArea, rewards.BlockChoices);
-            PopulateRewardOptions(commonRewardItemArea, rewards.ItemChoices);
+            PopulateRewardOptions(commonRewardBlockArea, rewards.BlockChoices, isBerserkerActive, autoBlockIdx);
+            PopulateRewardOptions(commonRewardItemArea, rewards.ItemChoices, isBerserkerActive, autoItemIdx);
         }
     }
 
-    private void PopulateRewardOptions<T>(Transform container, List<T> choices) where T : class
+    private void PopulateRewardOptions<T>(Transform container, List<T> choices, bool isBerserker, int autoPickIndex) where T : class
     {
         if (container == null) return;
         foreach (Transform child in container) Destroy(child.gameObject);
         if (choices == null) return;
 
-        foreach (var choice in choices)
+        for (int i = 0; i < choices.Count; i++)
         {
+            var choice = choices[i];
             var optionGO = Instantiate(rewardOptionPrefab, container);
             var rewardUI = optionGO.GetComponent<RewardOptionUI>();
             if (rewardUI == null) continue;
@@ -392,6 +395,17 @@ public class GameUIController : MonoBehaviour
                     GameManager.Instance.AddProtocol(protocolData);
                     DisableOtherOptions(container, clickedUI);
                 });
+            }
+            if (isBerserker)
+            {
+                // 所有人不可点击
+                rewardUI.SetInteractable(false);
+
+                // 如果是“天选之子”
+                if (i == autoPickIndex)
+                {
+                    rewardUI.SetSelected(true); // 显示勾选标记/被选状态
+                }
             }
         }
     }
@@ -538,7 +552,7 @@ public class GameUIController : MonoBehaviour
         if (pausePanel) pausePanel.SetActive(show);
     }
     // 【新增】这个方法用于显示目标和进度条
-    public void UpdateTargetScoreDisplay(int target, int reward)
+    public void UpdateTargetScoreDisplay(int target, int reward, bool isBonusActive = false)
     {
         if (targetProgressBar)
         {
@@ -546,7 +560,13 @@ public class GameUIController : MonoBehaviour
             targetProgressBar.maxValue = target;
         }
         if (currentScoreForBarText) currentScoreForBarText.gameObject.SetActive(true);
-        if (goldRewardText) goldRewardText.text = $"{reward}";
+
+        if (goldRewardText)
+        {
+            goldRewardText.text = $"{reward}";
+            // 【修复】变色逻辑
+            goldRewardText.color = isBonusActive ? Color.red : Color.white;
+        }
     }
 
     // 【新增】这个方法用于显示“无尽模式”

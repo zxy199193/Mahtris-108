@@ -468,18 +468,22 @@ public class GameManager : MonoBehaviour
         var rewards = GenerateHuRewards(isAdvancedReward);
 
         // 狂战士 (Berserker) 逻辑
+        int autoBlockIndex = -1;
+        int autoItemIndex = -1;
+        int autoProtocolIndex = -1;
         if (isBerserkerActive)
         {
-            if (rewards.BlockChoices.Count > 0) rewards.BlockChoices = rewards.BlockChoices.Take(1).ToList();
-            if (rewards.ItemChoices.Count > 0) rewards.ItemChoices = rewards.ItemChoices.Take(1).ToList();
-            if (rewards.ProtocolChoices.Count > 0) rewards.ProtocolChoices = rewards.ProtocolChoices.Take(1).ToList();
+            // 后台自动随机选择索引
+            if (rewards.BlockChoices.Count > 0) autoBlockIndex = Random.Range(0, rewards.BlockChoices.Count);
+            if (rewards.ItemChoices.Count > 0) autoItemIndex = Random.Range(0, rewards.ItemChoices.Count);
+            if (rewards.ProtocolChoices.Count > 0) autoProtocolIndex = Random.Range(0, rewards.ProtocolChoices.Count);
 
-            if (rewards.BlockChoices.Count > 0) spawner.AddTetrominoToPool(rewards.BlockChoices[0]);
-            if (rewards.ItemChoices.Count > 0) inventoryManager.AddItem(rewards.ItemChoices[0]);
-            if (rewards.ProtocolChoices.Count > 0) AddProtocol(rewards.ProtocolChoices[0]);
+            // 立即应用效果
+            if (autoBlockIndex != -1) spawner.AddTetrominoToPool(rewards.BlockChoices[autoBlockIndex]);
+            if (autoItemIndex != -1) inventoryManager.AddItem(rewards.ItemChoices[autoItemIndex]);
+            if (autoProtocolIndex != -1) AddProtocol(rewards.ProtocolChoices[autoProtocolIndex]);
         }
-
-        gameUI.ShowHuPopup(huHand, analysisResult, baseFanScore, blockMultiplier, extraMultiplier, finalScore, rewards, isAdvancedReward, isBerserkerActive);
+        gameUI.ShowHuPopup(huHand, analysisResult, baseFanScore, blockMultiplier, extraMultiplier, finalScore,rewards, isAdvancedReward, isBerserkerActive,autoBlockIndex, autoItemIndex, autoProtocolIndex);
     }
 
     public void ContinueAfterHu()
@@ -1090,8 +1094,7 @@ public class GameManager : MonoBehaviour
         // 【新增】子弹时间逻辑 (覆盖最终计算)
         if (isBulletTimeActive && tetrisGrid.GetMaxColumnHeight() > 8)
         {
-            totalDisplayedSpeed = 5; // 显示为5
-            currentFallSpeed = 20.0f / 5.0f; // 实际速度也是5
+            currentFallSpeed = currentFallSpeed * 0.2f;
         }
 
         gameUI.UpdateSpeedText(totalDisplayedSpeed);
@@ -1113,19 +1116,21 @@ public class GameManager : MonoBehaviour
                newScore >= currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex].targetScore)
         {
             // 获取基础奖励
-            int reward = currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex].goldReward;
+            int baseReward = currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex].goldReward;
+
+            int totalMult = GetCurrentGoldMultiplier();
+            int finalReward = baseReward * totalMult;
 
             // 【修复】悬赏令逻辑：在发放前应用倍率
             if (isWantedPosterActive)
             {
-                reward *= wantedPosterGoldMult;
-                isWantedPosterActive = false; // 消耗掉效果
+                isWantedPosterActive = false;
                 wantedPosterGoldMult = 1;
             }
 
             if (GameSession.Instance != null)
             {
-                GameSession.Instance.AddGold(reward);
+                GameSession.Instance.AddGold(finalReward);
             }
 
             if (AudioManager.Instance != null)
@@ -1160,7 +1165,11 @@ public class GameManager : MonoBehaviour
         {
             // 【修改】使用 currentSessionConfig
             var level = currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex];
-            gameUI.UpdateTargetScoreDisplay(level.targetScore, level.goldReward);
+
+            int mult = GetCurrentGoldMultiplier();
+            int displayedReward = level.goldReward * mult;
+
+            gameUI.UpdateTargetScoreDisplay(level.targetScore, displayedReward, mult > 1);
 
             // (此行来自“进度条”功能，保持不变)
             gameUI.UpdateScoreProgress(scoreManager.GetCurrentScore());
@@ -1243,7 +1252,8 @@ public class GameManager : MonoBehaviour
     }
     private void HandleGameWon()
     {
-        Time.timeScale = 0f;
+        Time.timeScale = 0f; // 【修复】确保暂停，方块停止下落
+        isPaused = true;     // 更新状态
         int finalScore = scoreManager.GetCurrentScore();
         bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore);
         gameUI.ShowGameEndPanel(true, finalScore, isNewHighScore);
@@ -1431,43 +1441,39 @@ public class GameManager : MonoBehaviour
     }
     public bool ActivateMagnetV2()
     {
-        // 1. 找刻子 (胡牌区中拥有3张一样的牌)
-        var pungs = huPaiArea.GetAllSets().Where(s => s.Count == 3).ToList();
+        // 1. 找刻子 (必须是 count==3 且所有牌ID对应的数值相同)
+        // Set: List<int> ids. check values: id % 27
+        var pungs = huPaiArea.GetAllSets().Where(set =>
+            set.Count == 3 &&
+            set.Select(id => id % 27).Distinct().Count() == 1 // 确保3张牌是同一种
+        ).ToList();
+
         if (pungs.Count == 0) return false;
 
-        // 2. 随机打乱刻子顺序，避免每次都只吸第一个刻子
         var shuffledPungs = pungs.OrderBy(x => Random.value).ToList();
 
-        // 3. 遍历每一个刻子，尝试在场上找对应的第4张牌
         foreach (var pung in shuffledPungs)
         {
-            int targetValue = pung[0] % 27; // 获取牌面值 (0-26)
-
-            // 使用 TetrisGrid 的新方法精确查找
+            int targetValue = pung[0] % 27;
             Transform targetTransform = tetrisGrid.GetBlockTransformByValue(targetValue);
 
             if (targetTransform != null)
             {
-                // 找到了！
                 var blockUnit = targetTransform.GetComponent<BlockUnit>();
                 int targetId = blockUnit.blockId;
 
-                // 4. 逻辑移除 (加入胡牌区)
+                // 尝试升级
                 if (huPaiArea.UpgradePungToKong(targetValue, targetId))
                 {
-                    // 5. 【关键修复】物理移除 (销毁物体)
-                    // 使用 RemoveSpecificBlock 彻底从网格中移除并销毁 GameObject
+                    // 【修复】确保物理移除
                     tetrisGrid.RemoveSpecificBlock(targetTransform);
 
-                    // 触发三位一体条约效果
                     if (isTrinityActive) ApplyPermanentBaseScoreBonus(5);
-
-                    return true; // 成功使用
+                    return true;
                 }
             }
         }
-
-        return false; // 没找到任何可吸的牌
+        return false;
     }
 
     public void ActivateWantedPoster(int goldMult, float scorePercent)
@@ -1498,7 +1504,14 @@ public class GameManager : MonoBehaviour
     public void ConsumeLuckyCap() { isLuckyCapActive = false; } // 使用后消耗
 
     // 【新增】漏斗
-    public void ActivateFilter(float duration) { isFilterActive = true; filterTimer = duration; }
+    public void ActivateFilter(float duration)
+    {
+        isFilterActive = true;
+        filterTimer = duration;
+
+        // 【新增】如果下一个已经是Lv3，立刻换掉
+        spawner.ForceRerollIfLevel3();
+    }
 
     // 【新增】通用加权随机选择 (用于道具和条约)
     // 根据传奇标签动态计算权重
@@ -1557,5 +1570,12 @@ public class GameManager : MonoBehaviour
             tempPool.Remove(selected); // 选过的不由再选
         }
         return result;
+    }
+    public int GetCurrentGoldMultiplier()
+    {
+        int mult = 1;
+        if (isWantedPosterActive) mult *= 3; // 悬赏令 x3
+        if (isTimeIsMoneyActive) mult *= 2;  // 时间就是金钱 x2
+        return mult;
     }
 }
