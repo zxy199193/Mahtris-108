@@ -1660,6 +1660,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!114 &114272521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1838,6 +1841,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!114 &118188589
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2146,6 +2152,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!1001 &163328244
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2518,7 +2527,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 197910068}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &197910068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2586,6 +2607,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!1001 &231495812
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3069,6 +3093,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!114 &272380965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4963,7 +4990,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 49.99998, y: -50}
+  m_AnchoredPosition: {x: 50, y: -50}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &585564800
@@ -5256,6 +5283,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!114 &602475684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6586,6 +6616,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!114 &714495956
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7213,6 +7246,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!1 &855337773
 GameObject:
   m_ObjectHideFlags: 0
@@ -10703,6 +10739,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!114 &1314497951
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11970,7 +12009,7 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 1616713187}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -12824,6 +12863,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!114 &1607409391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14123,6 +14165,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!114 &1728399170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14869,6 +14914,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!114 &1835812221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15367,6 +15415,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableParticleEffect: 1
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!114 &1905447998
 MonoBehaviour:
   m_ObjectHideFlags: 0

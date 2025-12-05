@@ -66,7 +66,7 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         if (optionText)
         {
             var tet = prefab.GetComponent<Tetromino>();
-            if (tet) optionText.text = $"x{tet.extraMultiplier:F0}";
+            if (tet) optionText.text = $"{tet.extraMultiplier:F0}";
         }
 
         if (legendaryBadge) legendaryBadge.SetActive(false); // ·½¿éÎÞ´«Ææ

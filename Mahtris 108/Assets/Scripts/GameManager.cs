@@ -59,6 +59,7 @@ public class GameManager : MonoBehaviour
 
     // 用于特殊流程控制的内部变量
     private bool _isBombOrSpecialClear = false;
+    private bool _hasDeclaredHuThisFrame = false; // 【新增】防连击锁
 
     private int permanentSpeedBonus = 0; // 永久加成 (气球, 神之救济, 条约)
     private int roundSpeedBonus = 0; // 本轮加成 (降落伞)
@@ -606,6 +607,10 @@ public class GameManager : MonoBehaviour
     {
         if (isProcessingRows) return;
         isProcessingRows = true;
+
+        // 【新增】重置防连击锁
+        _hasDeclaredHuThisFrame = false;
+
         rowIndices.Sort();
 
         List<Transform> allClearedTransforms = new List<Transform>();
@@ -620,13 +625,11 @@ public class GameManager : MonoBehaviour
             ApplyRowClearRewards(); // 点金手/计分板
         }
 
-        // 2. 计分 (老派玩家 vs 正常)
-        // 如果垃圾桶生效，通常不加消除分，但如果规则允许，可移出else
+        // 2. 计分
         if (ignoreMahjongCheckCount <= 0)
         {
             if (isOldSchoolActive)
             {
-                // 老派玩家：Base * 2^Count
                 long oldSchoolScore = (long)(baseFanScore * Mathf.Pow(2, rowIndices.Count));
                 scoreManager.AddScore((int)Mathf.Min(oldSchoolScore, int.MaxValue));
             }
@@ -636,7 +639,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // 3. 延迟满足 (+8)
+        // 3. 延迟满足
         if (isDelayGratificationActive && rowIndices.Count >= 4)
         {
             delayGratificationBonus += 8;
@@ -645,32 +648,22 @@ public class GameManager : MonoBehaviour
 
         List<int> finalIdsToReturn = new List<int>();
 
-        // 4. 判定逻辑 (垃圾桶 vs 合纵连横 vs 正常)
+        // 4. 判定逻辑
         if (ignoreMahjongCheckCount > 0)
         {
             // --- 垃圾桶模式 ---
-            // 假设规则：垃圾桶消耗次数 = 消除的行数。
-            // 例如大垃圾桶(3)，一次消4行，前3行被移除，第4行正常判定？
-            // 这里简化处理：只要有垃圾桶计数，这次消除涉及的所有牌都视为被移除（或只移除前N行）
-            // 为了符合“最先消除的行被移除”：
-
             int rowsTotal = rowsBlockIds.Count;
             int rowsToRemove = Mathf.Min(rowsTotal, ignoreMahjongCheckCount);
             ignoreMahjongCheckCount -= rowsToRemove;
 
-            // 将被移除的行的牌丢弃 (不加入 finalIdsToReturn)
-            // 将剩下的行的牌进行判定
-
             if (rowsToRemove < rowsTotal)
             {
-                // 有剩余行需要判定
                 List<List<int>> remainingRowsData = new List<List<int>>();
                 for (int i = rowsToRemove; i < rowsTotal; i++)
                 {
                     remainingRowsData.Add(rowsBlockIds[i]);
                 }
 
-                // 对剩余行进行判定
                 if (isRealpolitikActive)
                 {
                     List<int> mergedIds = new List<int>();
@@ -681,6 +674,8 @@ public class GameManager : MonoBehaviour
                 {
                     foreach (var list in remainingRowsData)
                     {
+                        // 【新增】如果已经胡牌，停止后续判定
+                        if (_hasDeclaredHuThisFrame) break;
                         ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms);
                     }
                 }
@@ -691,37 +686,55 @@ public class GameManager : MonoBehaviour
             // --- 正常模式 ---
             if (isRealpolitikActive)
             {
-                // 合纵连横：合并所有ID一次性判定
                 List<int> mergedIds = new List<int>();
                 foreach (var list in rowsBlockIds) mergedIds.AddRange(list);
                 ProcessMahjongDetection(mergedIds, ref finalIdsToReturn, allClearedTransforms);
             }
             else
             {
-                // 正常：逐行判定
                 foreach (var list in rowsBlockIds)
                 {
+                    // 【新增】如果已经胡牌，停止后续判定
+                    if (_hasDeclaredHuThisFrame) break;
                     ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms);
                 }
             }
         }
 
         // 5. 清理
-        blockPool.ReturnBlockIds(finalIdsToReturn);
-        tetrisGrid.DestroyTransforms(allClearedTransforms);
+        // 如果没胡牌（_hasDeclaredHuThisFrame == false），才执行常规清理
+        // 如果胡牌了，ProcessMahjongDetection 内部已经处理了清理
+        if (!_hasDeclaredHuThisFrame)
+        {
+            blockPool.ReturnBlockIds(finalIdsToReturn);
+            tetrisGrid.DestroyTransforms(allClearedTransforms);
+        }
+
         tetrisGrid.CompactAllColumns(rowIndices);
 
-        if (!_isBombOrSpecialClear) spawner.SpawnBlock();
+        if (!_isBombOrSpecialClear && !_hasDeclaredHuThisFrame)
+        {
+            spawner.SpawnBlock();
+        }
+
         _isBombOrSpecialClear = false;
-        isProcessingRows = false;
+
+        // 如果胡牌了，不要重置 isProcessingRows，因为 HandleHuDeclared 会接管状态
+        if (!_hasDeclaredHuThisFrame)
+        {
+            isProcessingRows = false;
+        }
     }
 
     // 【辅助方法】封装麻将判定
     private void ProcessMahjongDetection(List<int> tileIds, ref List<int> idsToReturn, List<Transform> transformsToDestroy)
     {
+        // 【新增】安全检查
+        if (_hasDeclaredHuThisFrame) return;
+
         var result = mahjongCore.DetectSets(tileIds);
 
-        // 三位一体：检测碰/杠
+        // 三位一体
         if (isTrinityActive)
         {
             int setBonus = (result.Pungs.Count + result.Kongs.Count) * 5;
@@ -747,17 +760,21 @@ public class GameManager : MonoBehaviour
             var pair = mahjongCore.FindPair(result.RemainingIds);
             if (pair != null)
             {
+                // --- 触发胡牌 ---
+                _hasDeclaredHuThisFrame = true; // 【关键】上锁！
+
                 result.RemainingIds.Remove(pair[0]); result.RemainingIds.Remove(pair[1]);
                 var finalHand = huPaiArea.GetAllSets(); finalHand.Add(pair);
 
                 GameEvents.TriggerHuDeclared(finalHand);
 
+                // 胡牌后的清理逻辑
                 idsToReturn.AddRange(result.RemainingIds);
                 blockPool.ReturnBlockIds(idsToReturn);
                 tetrisGrid.DestroyTransforms(transformsToDestroy);
 
-                _isBombOrSpecialClear = true; // 阻止生成新方块
-                return; // 退出本层检测
+                _isBombOrSpecialClear = true;
+                return;
             }
         }
 

@@ -74,7 +74,7 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 3
   commonItemPool:
-  - {fileID: 11400000, guid: b10149d81e5881d4cb485f78a59bfab0, type: 2}
+  - {fileID: 11400000, guid: b3b03a98ac620b240a6618563d200135, type: 2}
   - {fileID: 11400000, guid: e45f0377631f8fe41bc5d9b251893eb0, type: 2}
   - {fileID: 11400000, guid: 7e9371a6d760f7b4987cf7eb538f714d, type: 2}
   advancedItemPool:
@@ -84,5 +84,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8fac18ac5ccff8b479496f3c47bf64d2, type: 2}
   maxProtocolCount: 5
   protocolPool:
-  - {fileID: 11400000, guid: c7e790c46601bdb438475c53926486c9, type: 2}
-  - {fileID: 11400000, guid: 6d3541585e2b964459b59addd88a14f3, type: 2}
+  - {fileID: 11400000, guid: 7b13910c1074a534ea16e549bb8cb788, type: 2}
+  - {fileID: 11400000, guid: 43503c7b59e478a40b9e5cc44c2f1526, type: 2}
