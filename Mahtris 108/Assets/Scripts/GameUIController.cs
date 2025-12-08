@@ -322,7 +322,7 @@ public class GameUIController : MonoBehaviour
         if (formulaBlockMultText) formulaBlockMultText.text = $"{blockMultiplier:F0}";
         if (formulaExtraMultText) formulaExtraMultText.text = $"{extraMultiplier:F0}";
         if (formulaFinalScoreText) formulaFinalScoreText.text = $"{finalScore}";
-        if (huCycleText) huCycleText.text = isAdvanced ? "4/4" : $"第X圈 第{scoreManager.GetHuCountInCycle()}轮";
+        //if (huCycleText) huCycleText.text = isAdvanced ? "4/4" : $"第X圈 第{scoreManager.GetHuCountInCycle()}轮";
         if (formulaFanBaseText) formulaFanBaseText.text = $"{analysis.BaseMultiplier}";
 
         BuildUIHand(huHandDisplayArea, huHand);

@@ -34,6 +34,16 @@ public class TooltipController : MonoBehaviour
         if (target != null)
         {
             transform.position = target.position + offset;
+            //RectTransform targetRect = target as RectTransform;
+            //RectTransform tooltipRect = transform as RectTransform;
+
+            //if (targetRect != null && tooltipRect != null)
+            //{
+            //    tooltipRect.pivot = new Vector2(0.5f, 0.5f);
+            //    Vector2 centerPos = targetRect.anchoredPosition;
+            //    Vector2 finalPos = centerPos + (Vector2)offset;
+            //    tooltipRect.anchoredPosition = finalPos;
+            //}
         }
     }
 

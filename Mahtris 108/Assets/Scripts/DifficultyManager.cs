@@ -6,7 +6,7 @@ public class DifficultyManager : MonoBehaviour
 {
     public static DifficultyManager Instance { get; private set; }
 
-    public Difficulty CurrentDifficulty { get; private set; } = Difficulty.Normal;
+    public Difficulty CurrentDifficulty { get; private set; } = Difficulty.Easy;
 
     void Awake()
     {

@@ -151,7 +151,7 @@ public class MahjongCore
         }
         else if (isDuiDuiHu)
         {
-            patternFan = 2;
+            patternFan = 3;
             result.PatternName = "¶Ô¶Ôºú";
         }
         else

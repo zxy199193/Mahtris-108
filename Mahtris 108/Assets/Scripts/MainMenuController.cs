@@ -13,6 +13,9 @@ public class MainMenuController : MonoBehaviour
 
     private string gameSceneName = "GameScene";
 
+    public IntroPanelController introPanel;
+    public Button openIntroButton;
+
     void Start()
     {
         // 游戏开始时，尝试找到GameSession并更新金币显示
@@ -23,6 +26,11 @@ public class MainMenuController : MonoBehaviour
         // 订阅金币变化事件，以便实时更新（例如从商店返回时）
         GameSession.OnGoldChanged += UpdateGoldText;
         UpdateDifficultyText(DifficultyManager.Instance.CurrentDifficulty);
+
+        openIntroButton.onClick.AddListener(() =>
+        {
+            introPanel.Open();
+        });
     }
 
     void OnDestroy()
@@ -118,14 +126,14 @@ public class MainMenuController : MonoBehaviour
             switch (difficulty)
             {
                 case Difficulty.Easy:
-                    currentDifficultyText.text = "简单";
+                    currentDifficultyText.text = "新手";
                     break;
                 case Difficulty.Hard:
-                    currentDifficultyText.text = "困难";
+                    currentDifficultyText.text = "专家";
                     break;
                 case Difficulty.Normal:
                 default:
-                    currentDifficultyText.text = "普通";
+                    currentDifficultyText.text = "大师";
                     break;
             }
         }
