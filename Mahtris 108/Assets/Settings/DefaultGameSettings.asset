@@ -26,7 +26,7 @@ MonoBehaviour:
   baseFanScore: 10
   fanBonusPerKong: 1
   scorePerRow: 2
-  husPerLoop: 4
+  husPerLoop: 2
   normalWeight: 10
   legendaryWeightBase: 5
   legendaryWeightIncreasePerLoop: 2.5
@@ -74,26 +74,7 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 5
   commonItemPool:
-  - {fileID: 11400000, guid: 1fb733d140bb12e4a81824d4e18f236d, type: 2}
-  - {fileID: 11400000, guid: ffc57473305f5944491607a4d2593e62, type: 2}
-  - {fileID: 11400000, guid: c3ade023d44989d4ca30cfcae1d8ed79, type: 2}
-  - {fileID: 11400000, guid: 92b90391a006cac489e8f1728cce7ff0, type: 2}
-  - {fileID: 11400000, guid: 09a40bce8a17bfa4689ace9c1173fa3e, type: 2}
-  - {fileID: 11400000, guid: 7e9371a6d760f7b4987cf7eb538f714d, type: 2}
-  - {fileID: 11400000, guid: 9a7e2b2bb73de494288909c06af11c3f, type: 2}
-  - {fileID: 11400000, guid: 62ff08fc95f0ac145b24f368c825383e, type: 2}
-  - {fileID: 11400000, guid: 0afb30e8bc85279448670b1037fe466b, type: 2}
-  - {fileID: 11400000, guid: e45f0377631f8fe41bc5d9b251893eb0, type: 2}
-  - {fileID: 11400000, guid: 5b40825730be1644ca7a88ab44fe1c27, type: 2}
-  - {fileID: 11400000, guid: 085ab0d21261c324f8bd134d92bd9967, type: 2}
-  - {fileID: 11400000, guid: 2be156880e12a124fafe8abea3a85568, type: 2}
-  - {fileID: 11400000, guid: 03028a293d35d044badd2dd39864e90b, type: 2}
-  - {fileID: 11400000, guid: beed3a2373849d14cb998965027abdfb, type: 2}
-  - {fileID: 11400000, guid: e0419e9cdff76534ab5437c4d5677c74, type: 2}
-  - {fileID: 11400000, guid: f8d2b9c0194cf2b4da26e19bd1b338a9, type: 2}
-  - {fileID: 11400000, guid: 666e6ac47852de246be41fa1a614445d, type: 2}
-  - {fileID: 11400000, guid: bd31d860b62dbee46bf57ad3b9043fa8, type: 2}
-  - {fileID: 11400000, guid: b0b84eeb2b1316b4ca686819f027a1ca, type: 2}
+  - {fileID: 11400000, guid: 81c37f71ba9d54f4897fa6de64d32181, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   - {fileID: 11400000, guid: b3b03a98ac620b240a6618563d200135, type: 2}
@@ -109,5 +90,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 36103f95fe5f7f34a8019a28742705dd, type: 2}
   maxProtocolCount: 5
   protocolPool:
-  - {fileID: 11400000, guid: 5c0a1ec3f99f8994282bf306094e35ce, type: 2}
-  - {fileID: 11400000, guid: 2d17be02ae1c4ea4f82b496e1398b034, type: 2}
+  - {fileID: 11400000, guid: b82659882aa5184408ce8e800b49d9d2, type: 2}
+  - {fileID: 11400000, guid: c243f1db1cf2e5c4cbae8ec2faa373a6, type: 2}

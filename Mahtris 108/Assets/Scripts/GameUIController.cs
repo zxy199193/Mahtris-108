@@ -168,10 +168,21 @@ public class GameUIController : MonoBehaviour
         if (endlessModeButton) endlessModeButton.onClick.AddListener(() => GameManager.Instance.StartEndlessMode());
     }
 
-    public void UpdateTimerText(float time) { if (timerText) timerText.text = $"{Mathf.Max(0, time):F0}"; }
-    public void UpdateSpeedText(int speedValue)
+    public void UpdateTimerText(float time, bool isSpecialState = false)
     {
-        if (speedText) speedText.text = $"{speedValue}";
+        if (timerText)
+        {
+            timerText.text = $"{Mathf.Max(0, time):F0}";
+            timerText.color = isSpecialState ? Color.cyan : Color.white;
+        }
+    }
+    public void UpdateSpeedText(int speedValue, bool isSpecialState = false)
+    {
+        if (speedText)
+        {
+            speedText.text = $"{speedValue}";
+            speedText.color = isSpecialState ? Color.cyan : Color.white;
+        }
     }
     public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"{multiplier:F0}"; }
     public void UpdateBaseScoreText(int score) { if (baseScoreText) baseScoreText.text = $"{score}"; }

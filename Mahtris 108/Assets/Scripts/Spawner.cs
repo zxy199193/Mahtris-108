@@ -76,101 +76,86 @@ public class Spawner : MonoBehaviour
 
     private void PrepareNextTetromino()
     {
-        bool blockSelected = false; // 用于标记是否已经选定了方块
+        bool blockSelected = false;
 
-        // 1. 【攻击的巨人】逻辑 (优先级最高)
+        // 1. 【攻击的巨人】逻辑
         if (isFirstBlockOfRound && GameManager.Instance.isAttackOnGiantActive)
         {
             var giant = masterTetrominoPrefabs.FirstOrDefault(p => p.name == "T15-Giant");
-            if (giant != null)
-            {
-                nextTetrominoPrefab = giant;
-                blockSelected = true; // 标记已选中
-            }
+            if (giant != null) { nextTetrominoPrefab = giant; blockSelected = true; }
         }
 
-        // 2. 【方尖塔】逻辑 (如果巨人没触发，检查强制方块)
+        // 2. 【方尖塔】逻辑
         if (!blockSelected && forcedNextBlock != null)
         {
-            nextTetrominoPrefab = forcedNextBlock;
-            forcedNextBlock = null; // 立即消耗
-            replicationCount = 0;
-            replicationPrefab = null;
-            blockSelected = true;
+            nextTetrominoPrefab = forcedNextBlock; forcedNextBlock = null; replicationCount = 0; replicationPrefab = null; blockSelected = true;
         }
 
-        // 3. 【复制器】逻辑 (如果上面都没触发)
+        // 3. 【复制器】逻辑
         else if (!blockSelected && replicationCount > 0 && replicationPrefab != null)
         {
-            nextTetrominoPrefab = replicationPrefab;
-            replicationCount--;
-            if (replicationCount == 0) replicationPrefab = null;
-            blockSelected = true;
+            nextTetrominoPrefab = replicationPrefab; replicationCount--; if (replicationCount == 0) replicationPrefab = null; blockSelected = true;
         }
 
-        // 4. 【常规/儿童餐】逻辑 (如果上面都没触发，进行随机)
+        // 4. 【常规/儿童餐/漏斗】逻辑
         if (!blockSelected)
         {
             if (activeTetrominoPool.Count > 0)
             {
-                // 【儿童餐】逻辑
+                // A. 【儿童餐】逻辑 (优先级最高，强制 Lv1)
                 if (GameManager.Instance.IsKidsMealActive())
                 {
-                    // 尝试找 Lv1
                     var lv1Options = activeTetrominoPool.Where(p => p.GetComponentsInChildren<BlockUnit>(true).Length <= 3).ToList();
                     if (lv1Options.Count > 0)
                         nextTetrominoPrefab = lv1Options[Random.Range(0, lv1Options.Count)];
                     else
-                        // 保底：从 MasterList 找 Lv1
                         nextTetrominoPrefab = masterTetrominoPrefabs.Where(p => p.name.StartsWith("T1-") || p.name.StartsWith("T2-") || p.name.StartsWith("T3-")).OrderBy(x => Random.value).FirstOrDefault();
                 }
-                else
+                // B. 【漏斗】逻辑 (其次，屏蔽 Lv3)
+                else if (GameManager.Instance.isFilterActive)
                 {
-                    // 正常随机
-                    nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)];
-                }
-            }
-            else if (GameManager.Instance.isFilterActive)
-            {
-                // 过滤掉所有 T5 (Lv3) 方块
-                var filteredPool = activeTetrominoPool.Where(p => !p.name.StartsWith("T5-")).ToList();
+                    // 【修复】将漏斗逻辑移入 pool.Count > 0 的分支内
+                    var filteredPool = activeTetrominoPool.Where(p => !p.name.StartsWith("T5-")).ToList();
 
-                if (filteredPool.Count > 0)
-                {
-                    nextTetrominoPrefab = filteredPool[Random.Range(0, filteredPool.Count)];
+                    if (filteredPool.Count > 0)
+                    {
+                        nextTetrominoPrefab = filteredPool[Random.Range(0, filteredPool.Count)];
+                    }
+                    else
+                    {
+                        // 如果活跃池全是 Lv3，尝试从 MasterList 补充非 Lv3
+                        var backupPool = masterTetrominoPrefabs.Where(p => !p.name.StartsWith("T5-")).ToList();
+                        if (backupPool.Count > 0)
+                            nextTetrominoPrefab = backupPool[Random.Range(0, backupPool.Count)];
+                        else
+                            // 实在没办法（MasterList也全是Lv3），只能随机
+                            nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)];
+                    }
                 }
+                // C. 【正常随机】
                 else
                 {
-                    // 如果过滤后为空 (例如全都是Lv3)，则不得不从 MasterList 中随机一个非Lv3的
-                    // 或者直接失效。为了游戏体验，建议从 MasterList 补货
-                    var backupPool = masterTetrominoPrefabs.Where(p => !p.name.StartsWith("T5-")).ToList();
-                    if (backupPool.Count > 0)
-                        nextTetrominoPrefab = backupPool[Random.Range(0, backupPool.Count)];
-                    else
-                        nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)]; // 彻底没办法了
+                    nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)];
                 }
             }
             else
             {
+                // 池为空，通常意味着游戏初始化失败或配置错误
                 GameEvents.TriggerGameOver();
                 return;
             }
         }
 
-        // --- 公共收尾逻辑 (无论怎么选的方块，都要执行) ---
-
-        isFirstBlockOfRound = false; // 标记每轮首个方块已处理
+        // --- 公共收尾逻辑 ---
+        isFirstBlockOfRound = false;
 
         if (nextTetrominoPrefab == null) { GameEvents.TriggerGameOver(); return; }
 
-        int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length; // 记得加 true
+        int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length;
         nextTileIds = blockPool.GetBlockIds(tilesNeeded);
 
-        if (nextTileIds == null)
-        {
-            GameEvents.TriggerGameOver();
-            return;
-        }
+        if (nextTileIds == null) { GameEvents.TriggerGameOver(); return; }
+
         GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, nextTileIds);
     }
 
@@ -276,28 +261,42 @@ public class Spawner : MonoBehaviour
     }
     public void ForceRerollIfLevel3()
     {
+        // 如果当前没有下一个方块，直接返回
         if (nextTetrominoPrefab == null) return;
 
-        // 假设 Lv3 的命名规则是 "T5-"
+        // 检查当前预览的是否是 Lv3 (假设命名以 T5- 开头)
         if (nextTetrominoPrefab.name.StartsWith("T5-"))
         {
-            // 筛选所有非 Lv3 的方块
+            // 1. 从活跃池中筛选非 Lv3 方块
             var nonLv3Pool = activeTetrominoPool.Where(p => !p.name.StartsWith("T5-")).ToList();
 
-            // 如果活跃池里没有，就去总表里找
+            // 2. 如果活跃池里全是 Lv3（极少见），则从总表 MasterList 里找非 Lv3 进行保底
             if (nonLv3Pool.Count == 0)
             {
                 nonLv3Pool = masterTetrominoPrefabs.Where(p => !p.name.StartsWith("T5-")).ToList();
             }
 
+            // 3. 执行替换
             if (nonLv3Pool.Count > 0)
             {
+                // 随机选一个新的
                 nextTetrominoPrefab = nonLv3Pool[Random.Range(0, nonLv3Pool.Count)];
-                // 通知 UI 更新预览
-                // (这一步 GameEvents.TriggerNextBlockReady 会在 StartNextRound 或 这里的上下文里被触发吗？
-                //  通常是在 SpawnBlock 时触发。如果是道具改变了预览，最好手动刷新一下预览UI)
-                // 这里暂不手动触发，等待下一次 SpawnBlock 自然更新，或者：
-                // GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, ...); // 如果需要立即刷新预览
+
+                // 【关键步骤】重新生成麻将牌数据
+                // 因为 Lv3 方块通常有5个格子，而 Lv1/Lv2 只有3或4个
+                // 如果不重新生成 IDs，会导致数组越界或数据不匹配
+                int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length;
+
+                // 注意：这里假设 blockPool 引用在 Spawner 中是可用的
+                if (blockPool != null)
+                {
+                    nextTileIds = blockPool.GetBlockIds(tilesNeeded);
+                }
+
+                // 【关键步骤】立即通知 UI 刷新预览区域
+                GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, nextTileIds);
+
+                Debug.Log("漏斗生效：已将当前预览的 Lv3 方块替换为 " + nextTetrominoPrefab.name);
             }
         }
     }
