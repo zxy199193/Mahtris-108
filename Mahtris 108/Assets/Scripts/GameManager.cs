@@ -273,13 +273,13 @@ public class GameManager : MonoBehaviour
                     var level3Random = L3_Blocks.OrderBy(x => Random.value).Take(2).ToList();
                     hardInitial.AddRange(level3Random);
                     currentSessionConfig.InitialTetrominoes = hardInitial;
-                    scoreMultiplier = 4f;
+                    scoreMultiplier = 30f;
                     speedMultiplier = 1.5f;
                     break;
                 case Difficulty.Normal:
                 default:
                     currentSessionConfig.InitialTetrominoes = L2_Blocks; // 使用筛选好的列表
-                    scoreMultiplier = 2f;
+                    scoreMultiplier = 8f;
                     speedMultiplier = 1.2f;
                     break;
             }
@@ -376,7 +376,19 @@ public class GameManager : MonoBehaviour
         huPaiArea.ClearAll();
         scoreManager.ResetScore();
         inventoryManager.ClearInventory();
+        GrantStartingRewards(DifficultyManager.Instance.CurrentDifficulty);
+        if (isAdventFoodActive) { adventFoodBonus = 120; adventFoodTimer = 1f; }
+        else { adventFoodBonus = 0; }
 
+        // 2. 例行公事：如果有条约，锁定时间
+        if (isRoutineWorkActive) remainingTime = 95f;
+
+        // 3. 新能源：如果有条约，加时
+        if (isRenewableEnergyActive) remainingTime += 20f;
+
+        // 4. 不稳定电流：初始化计时器
+        if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
+        UpdateCurrentBaseScore();
         // 【修复】必须先计算速度，再生成方块
         UpdateFallSpeed();
 
@@ -390,6 +402,7 @@ public class GameManager : MonoBehaviour
         gameUI.UpdateBaseScoreText(baseFanScore);
         gameUI.UpdateExtraMultiplierText(extraMultiplier);
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+        
     }
 
     private void HandleHuDeclared(List<List<int>> huHand)
@@ -1219,8 +1232,15 @@ public class GameManager : MonoBehaviour
     }
     private void HandleGameWon()
     {
-        Time.timeScale = 0f; // 【修复】确保暂停，方块停止下落
-        isPaused = true;     // 更新状态
+        Time.timeScale = 0f;
+        isPaused = true;
+
+        // 【新增】通关时触发难度解锁检查
+        // 获取当前正在玩的难度
+        Difficulty currentDiff = DifficultyManager.Instance.CurrentDifficulty;
+        // 尝试解锁下一级
+        DifficultyManager.Instance.CompleteDifficulty(currentDiff);
+
         int finalScore = scoreManager.GetCurrentScore();
         bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore);
         gameUI.ShowGameEndPanel(true, finalScore, isNewHighScore);
@@ -1569,5 +1589,57 @@ public class GameManager : MonoBehaviour
         }
 
         return mult;
+    }
+
+    private void GrantStartingRewards(Difficulty difficulty)
+    {
+        // 如果是简单模式，什么都不送
+        if (difficulty == Difficulty.Easy) return;
+
+        // 1. 准备道具池 (只取普通道具池中的非传奇道具)
+        var validItems = settings.commonItemPool.Where(i => !i.isLegendary).ToList();
+
+        // 2. 准备条约池 (只取条约池中的非传奇条约)
+        var validProtocols = settings.protocolPool.Where(p => !p.isLegendary).ToList();
+
+        // 3. 根据难度发奖
+        if (difficulty == Difficulty.Normal)
+        {
+            // 普通模式：送 1 个道具
+            AddRandomItems(validItems, 1);
+            Debug.Log("普通难度开局奖励：1个随机普通道具");
+        }
+        else if (difficulty == Difficulty.Hard)
+        {
+            // 困难模式：送 2 个道具 + 1 个条约
+            AddRandomItems(validItems, 2);
+            AddRandomProtocol(validProtocols);
+            Debug.Log("困难难度开局奖励：2个随机普通道具 + 1个随机条约");
+        }
+    }
+    private void AddRandomItems(List<ItemData> sourcePool, int count)
+    {
+        if (sourcePool == null || sourcePool.Count == 0) return;
+
+        for (int i = 0; i < count; i++)
+        {
+            ItemData randomItem = sourcePool[Random.Range(0, sourcePool.Count)];
+            inventoryManager.AddItem(randomItem);
+        }
+    }
+
+    private void AddRandomProtocol(List<ProtocolData> sourcePool)
+    {
+        if (sourcePool == null || sourcePool.Count == 0) return;
+
+        // 随机取一个，确保不重复添加已有的（虽然开局通常是空的，但为了健壮性）
+        // 排除掉已经激活的条约
+        var available = sourcePool.Except(activeProtocols).ToList();
+
+        if (available.Count > 0)
+        {
+            ProtocolData randomProtocol = available[Random.Range(0, available.Count)];
+            AddProtocol(randomProtocol);
+        }
     }
 }

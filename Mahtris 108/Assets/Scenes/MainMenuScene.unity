@@ -3094,6 +3094,17 @@ MonoBehaviour:
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
+--- !u!114 &204364094 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2344034446678798074, guid: c8b4c87427ec3654bb9ce4ef0aa59497, type: 3}
+  m_PrefabInstance: {fileID: 1063076504}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &231495812
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5057,6 +5068,13 @@ MonoBehaviour:
   highScoreText: {fileID: 311542607}
   difficultyPopupPanel: {fileID: 981614066}
   currentDifficultyText: {fileID: 1824454682}
+  normalLockMask: {fileID: 779996193}
+  hardLockMask: {fileID: 1414706576}
+  easyButton: {fileID: 345825585}
+  normalButton: {fileID: 694463420}
+  hardButton: {fileID: 204364094}
+  selectedColor: {r: 0.627451, g: 0.627451, b: 0.627451, a: 1}
+  unselectedColor: {r: 1, g: 0.6627451, b: 0, a: 1}
   introPanel: {fileID: 1599489014}
   openIntroButton: {fileID: 790036614}
 --- !u!1001 &344975128
@@ -5221,6 +5239,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5759413369332049256, guid: 27693d5c6c0a3774c94dd72a0cd402ac, type: 3}
   m_PrefabInstance: {fileID: 344975128}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &345825585 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2344034446678798074, guid: c8b4c87427ec3654bb9ce4ef0aa59497, type: 3}
+  m_PrefabInstance: {fileID: 110203428}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &352688160
 GameObject:
   m_ObjectHideFlags: 0
@@ -9247,6 +9276,17 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &694463420 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2344034446678798074, guid: c8b4c87427ec3654bb9ce4ef0aa59497, type: 3}
+  m_PrefabInstance: {fileID: 2085238853}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &712337141
 GameObject:
   m_ObjectHideFlags: 0
@@ -9945,6 +9985,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 770728620}
   m_CullTransparentMesh: 1
+--- !u!1 &779996193 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1027958924322372824, guid: c8b4c87427ec3654bb9ce4ef0aa59497, type: 3}
+  m_PrefabInstance: {fileID: 2085238853}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &790036609
 GameObject:
   m_ObjectHideFlags: 0
@@ -13132,6 +13177,10 @@ PrefabInstance:
     - target: {fileID: 2344034446678798074, guid: c8b4c87427ec3654bb9ce4ef0aa59497, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 2664179907711711547, guid: c8b4c87427ec3654bb9ce4ef0aa59497, type: 3}
+      propertyPath: m_Name
+      value: Button Hard
       objectReference: {fileID: 0}
     - target: {fileID: 2904050806789150449, guid: c8b4c87427ec3654bb9ce4ef0aa59497, type: 3}
       propertyPath: m_AnchorMax.y
@@ -17968,6 +18017,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1390372923}
   m_CullTransparentMesh: 1
+--- !u!1 &1414706576 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1027958924322372824, guid: c8b4c87427ec3654bb9ce4ef0aa59497, type: 3}
+  m_PrefabInstance: {fileID: 1063076504}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1430806598 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7610630072314321725, guid: 651471dbb12095a4b964dbee9b6a5b32, type: 3}
@@ -25902,6 +25956,10 @@ PrefabInstance:
     - target: {fileID: 2344034446678798074, guid: c8b4c87427ec3654bb9ce4ef0aa59497, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 2664179907711711547, guid: c8b4c87427ec3654bb9ce4ef0aa59497, type: 3}
+      propertyPath: m_Name
+      value: Button Normal
       objectReference: {fileID: 0}
     - target: {fileID: 2904050806789150449, guid: c8b4c87427ec3654bb9ce4ef0aa59497, type: 3}
       propertyPath: m_AnchorMax.y

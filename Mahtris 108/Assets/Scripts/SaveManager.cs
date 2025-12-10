@@ -12,6 +12,8 @@ public static class SaveManager
     private const string BgmKey = "Setting_BgmOn";
     private const string SfxKey = "Setting_SfxOn";
     private const string FullscreenKey = "Setting_IsFullscreen";
+    private const string SelectedDiffKey = "Meta_SelectedDifficulty";
+    private const string UnlockedDiffKey = "Meta_UnlockedDifficultyLevel";
 
     // --- 金币存档 ---
     public static void SaveGold(int goldAmount)
@@ -67,6 +69,28 @@ public static class SaveManager
     public static void SaveFullscreenState(bool isFullscreen)
     {
         PlayerPrefs.SetInt(FullscreenKey, isFullscreen ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    public static Difficulty LoadSelectedDifficulty()
+    {
+        // 默认为 Easy (0)
+        return (Difficulty)PlayerPrefs.GetInt(SelectedDiffKey, 0);
+    }
+    public static void SaveSelectedDifficulty(Difficulty difficulty)
+    {
+        PlayerPrefs.SetInt(SelectedDiffKey, (int)difficulty);
+        PlayerPrefs.Save();
+    }
+    public static int LoadUnlockedLevel()
+    {
+        // 默认只解锁到 0 (Easy)
+        return PlayerPrefs.GetInt(UnlockedDiffKey, 0);
+    }
+
+    public static void SaveUnlockedLevel(int level)
+    {
+        PlayerPrefs.SetInt(UnlockedDiffKey, level);
         PlayerPrefs.Save();
     }
     // --- 编辑器功能 ---
