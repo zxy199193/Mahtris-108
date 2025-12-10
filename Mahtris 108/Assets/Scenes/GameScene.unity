@@ -7605,7 +7605,7 @@ MonoBehaviour:
   scoreManager: {fileID: 558386357}
   inventoryManager: {fileID: 558386362}
   currentFallSpeed: 0
-  isTestMode: 0
+  isTestMode: 1
   useDuanYaoJiuFilter: 0
   useQueYiMenFilter: 0
   queYiMenSuitToRemove: -1

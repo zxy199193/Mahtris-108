@@ -525,8 +525,6 @@ public class GameManager : MonoBehaviour
         _lastBulletTimeState = false;
         _hasDeclaredHuThisFrame = false;
 
-        spawner.StartNextRound();
-
         if (_snapshotStrongWorld) spawner.AddRandomLevel3Block();
 
         UpdateCurrentBaseScore();
@@ -548,7 +546,7 @@ public class GameManager : MonoBehaviour
         // 【核心修复 4】防止“时间就是金钱”导致的时间耗尽误杀
         // 如果剩余时间极少(<=0)，给予 minimal 保护，或者确保 GameOver 逻辑不会误触
         if (remainingTime <= 0.1f && !isTimeIsMoneyActive) remainingTime = 1f;
-
+        UpdateFallSpeed();
         spawner.StartNextRound();
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
 
