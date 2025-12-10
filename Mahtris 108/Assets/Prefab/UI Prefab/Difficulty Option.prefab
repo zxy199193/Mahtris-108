@@ -1087,6 +1087,7 @@ GameObject:
   - component: {fileID: 530329080482425132}
   - component: {fileID: 2344034446678798074}
   - component: {fileID: 3233618595720445238}
+  - component: {fileID: 1626554055994957281}
   m_Layer: 5
   m_Name: Button Simple
   m_TagString: Untagged
@@ -1211,6 +1212,25 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 3, y: -3}
   m_UseGraphicAlpha: 1
+--- !u!114 &1626554055994957281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2664179907711711547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff6616f02dcdee44c8365f5d590713ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleFactor: 0.95
+  scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
+  enableParticleEffect: 0
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!1 &2717148279786373563
 GameObject:
   m_ObjectHideFlags: 0

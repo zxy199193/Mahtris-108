@@ -156,8 +156,8 @@ public class GameUIController : MonoBehaviour
 
     private void SetupButtonListeners()
     {
-        if (continueButton) continueButton.onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); GameManager.Instance.ContinueAfterHu(); });
-        if (restartButton) restartButton.onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); ReturnToMainMenu(); });
+        if (continueButton) continueButton.onClick.AddListener(() => { GameManager.Instance.ContinueAfterHu(); });
+        if (restartButton) restartButton.onClick.AddListener(() => { ReturnToMainMenu(); });
 
         for (int i = 0; i < itemSlotButtons.Count; i++)
         {

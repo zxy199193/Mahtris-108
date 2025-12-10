@@ -70,6 +70,11 @@ public class InventoryManager : MonoBehaviour
         // 只有成功使用的道具才会被消耗
         if (success)
         {
+            // 【新增】播放道具音效
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayItemUseSound(itemSlots[slotIndex].useSound);
+            }
             itemSlots[slotIndex] = null; // 消耗道具
             OnInventoryChanged?.Invoke(new List<ItemData>(itemSlots));
         }

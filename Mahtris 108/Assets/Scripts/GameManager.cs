@@ -152,24 +152,22 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
         if (isPaused || isProcessingRows || Time.timeScale == 0f) return;
 
-        // 子弹时间逻辑
-        // 【修复】确保只有在高度确实大于8时才触发，不包含下落中的方块
-        bool isBulletTimeTriggered = isBulletTimeActive && tetrisGrid.GetMaxColumnHeight() > 8;
+        // 【修复】移除这里的实时高度检测，改为使用缓存的状态 _lastBulletTimeState
+        // 这样正在下落的方块不会导致状态频繁闪烁或误判
 
-        if (isBulletTimeTriggered != _lastBulletTimeState)
-        {
-            _lastBulletTimeState = isBulletTimeTriggered;
-            UpdateFallSpeed();
-        }
-
+        // 计算时间流逝
         float logicDeltaTime = Time.deltaTime;
-        if (isBulletTimeTriggered)
+
+        // 使用缓存的状态来决定时间流速
+        if (_lastBulletTimeState)
         {
             logicDeltaTime *= 0.2f;
         }
 
         remainingTime -= logicDeltaTime;
-        gameUI.UpdateTimerText(remainingTime, isBulletTimeTriggered);
+
+        // 更新时间UI
+        gameUI.UpdateTimerText(remainingTime, _lastBulletTimeState);
 
         if (kidsMealTimer > 0) kidsMealTimer -= logicDeltaTime;
 
@@ -512,11 +510,11 @@ public class GameManager : MonoBehaviour
         // 【核心修复 2】重置子弹时间状态记录
         // 这样新一轮开始时，系统会重新检测高度，不会沿用上一轮的 true 状态
         _lastBulletTimeState = false;
+        _hasDeclaredHuThisFrame = false;
 
         spawner.StartNextRound();
 
         if (_snapshotStrongWorld) spawner.AddRandomLevel3Block();
-        if (isStrongWorldActive) spawner.AddRandomLevel3Block(); // 注意：这里是否重复添加？请根据需求确认保留哪一个
 
         UpdateCurrentBaseScore();
 
@@ -528,15 +526,15 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
 
         // 【核心修复 3】重新计算一次速度，确保开局速度正确
-        UpdateFallSpeed();
 
         blockPool.ResetFullDeck();
         tetrisGrid.ClearAllBlocks();
+        CheckAndApplyBulletTime();
         huPaiArea.ClearAll();
 
         // 【核心修复 4】防止“时间就是金钱”导致的时间耗尽误杀
         // 如果剩余时间极少(<=0)，给予 minimal 保护，或者确保 GameOver 逻辑不会误触
-        if (remainingTime <= 0.1f && !isTimeIsMoneyActive) remainingTime = 1f; // 仅作保险，通常不会发生
+        if (remainingTime <= 0.1f && !isTimeIsMoneyActive) remainingTime = 1f;
 
         spawner.StartNextRound();
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
@@ -649,14 +647,9 @@ public class GameManager : MonoBehaviour
 
         // 【核心修复 1】在生成新方块前，立即强制检测高度并更新速度
         // 这解决了“消除后下一个方块依然减速”的问题
-        if (isBulletTimeActive)
+        if (!_hasDeclaredHuThisFrame)
         {
-            bool currentTriggerState = tetrisGrid.GetMaxColumnHeight() > 8;
-            if (currentTriggerState != _lastBulletTimeState)
-            {
-                _lastBulletTimeState = currentTriggerState;
-                UpdateFallSpeed(); // 立即恢复正常速度
-            }
+            CheckAndApplyBulletTime();
         }
 
         if (!_isBombOrSpecialClear && !_hasDeclaredHuThisFrame)
@@ -878,16 +871,20 @@ public class GameManager : MonoBehaviour
     // 【新增】供 Spawner 调用，用于“喷气背包”计数
     public void NotifyBlockSpawned()
     {
+        // 1. 处理喷气背包计数
         if (countedBonusBlocksRemaining > 0)
         {
             countedBonusBlocksRemaining--;
-            // 如果是最后一个方块，则在它生成后重置加成并更新速度
             if (countedBonusBlocksRemaining == 0)
             {
-                countedSpeedBonus = 0; // 效果结束
-                UpdateFallSpeed(); // 更新全局速度，下一个方块将恢复正常
+                countedSpeedBonus = 0;
+                UpdateFallSpeed();
             }
         }
+
+        // 2. 【关键修复】在方块生成时，检测一次子弹时间状态
+        // 此时检测的是底部堆积的静态高度，不会被正在下落的方块干扰
+        CheckAndApplyBulletTime();
     }
     // --- 私有辅助方法 ---
     private HuRewardPackage GenerateHuRewards(bool isAdvanced)
@@ -1019,10 +1016,29 @@ public class GameManager : MonoBehaviour
 
         return result;
     }
+    private void CheckAndApplyBulletTime()
+    {
+        if (!isBulletTimeActive)
+        {
+            if (_lastBulletTimeState) // 如果之前是激活的，现在关掉
+            {
+                _lastBulletTimeState = false;
+                UpdateFallSpeed();
+            }
+            return;
+        }
 
+        // 检测高度 (GetMaxColumnHeight 计算的是锁定在网格里的方块)
+        bool shouldTrigger = tetrisGrid.GetMaxColumnHeight() > 8;
+
+        if (shouldTrigger != _lastBulletTimeState)
+        {
+            _lastBulletTimeState = shouldTrigger;
+            UpdateFallSpeed(); // 状态改变，刷新速度
+        }
+    }
     private void UpdateFallSpeed()
     {
-        // 1. 基础速度计算
         int baseSpeed = settings.baseDisplayedSpeed;
         int baseSpeedWithDifficulty = (int)(baseSpeed * this.difficultySpeedMultiplier);
         int huBonus = scoreManager.GetHuCount() * settings.speedIncreasePerHu_Int;
@@ -1032,34 +1048,22 @@ public class GameManager : MonoBehaviour
         int totalDisplayedSpeed = baseSpeedWithDifficulty + huBonus + totalBonus;
         if (totalDisplayedSpeed < 1) totalDisplayedSpeed = 1;
 
-        // 2. 默认实际速度
         currentFallSpeed = 20.0f / totalDisplayedSpeed;
 
-        // 3. 【修复】子弹时间逻辑
-        // 使用 _lastBulletTimeState，因为它在 Update 中已经实时更新了
+        // 【修复】使用缓存的状态 _lastBulletTimeState
         if (_lastBulletTimeState)
         {
-            // 强制显示为 5
             totalDisplayedSpeed = 5;
-
-            // 强制实际延迟为 4秒 (20/5)
-            // 这样能保证方块肉眼可见地变慢
-            currentFallSpeed = 20.0f / 5.0f;
+            currentFallSpeed = 20.0f / 5.0f; // 4.0
         }
 
-        // 4. 【修复】通知 UI (传入状态以变色)
-        // 确保 GameUIController.UpdateSpeedText 已支持第二个 bool 参数
         gameUI.UpdateSpeedText(totalDisplayedSpeed, _lastBulletTimeState);
 
-        // 5. 【关键】尝试将新速度立即应用到当前下落的方块
-        // 这一步解决了“正在下落的方块速度不变”的问题
+        // 尝试推送到当前方块 (解决生成瞬间速度不匹配问题)
         var currentTetromino = FindObjectOfType<Tetromino>();
         if (currentTetromino != null)
         {
-            // 如果 Tetromino 脚本中没有 UpdateFallSpeedNow 方法，
-            // 只要它在 Update 里是读取 GameManager.Instance.currentFallSpeed 的，那也没问题。
-            // 这里我们尝试直接赋值（如果有这个方法的话），或者依赖变量更新。
-            // 鉴于您没发 Tetromino 脚本，我们假设它是读取 GameManager 的。
+            currentTetromino.UpdateFallSpeedNow(currentFallSpeed);
         }
     }
 

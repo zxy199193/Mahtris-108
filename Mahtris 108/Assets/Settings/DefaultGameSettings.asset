@@ -26,7 +26,7 @@ MonoBehaviour:
   baseFanScore: 10
   fanBonusPerKong: 1
   scorePerRow: 2
-  husPerLoop: 2
+  husPerLoop: 3
   normalWeight: 10
   legendaryWeightBase: 5
   legendaryWeightIncreasePerLoop: 2.5
@@ -74,21 +74,10 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 5
   commonItemPool:
-  - {fileID: 11400000, guid: 81c37f71ba9d54f4897fa6de64d32181, type: 2}
-  advancedItemPool:
-  - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
-  - {fileID: 11400000, guid: b3b03a98ac620b240a6618563d200135, type: 2}
-  - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}
-  - {fileID: 11400000, guid: 640357944c5db1c46be5ce054a1ff85f, type: 2}
-  - {fileID: 11400000, guid: 5f24d3ea78bdfea40a255df77ca6636d, type: 2}
-  - {fileID: 11400000, guid: d51932ccf95c4a24293ed3ca50184169, type: 2}
-  - {fileID: 11400000, guid: 176ea642ebae7c24eba9c060508b4bb5, type: 2}
-  - {fileID: 11400000, guid: 1ad3d39db778d4e45883ef01fa2a1999, type: 2}
-  - {fileID: 11400000, guid: 79a2bab4e6f48a4458e95f15ea2fd940, type: 2}
-  - {fileID: 11400000, guid: b10149d81e5881d4cb485f78a59bfab0, type: 2}
-  - {fileID: 11400000, guid: 8fac18ac5ccff8b479496f3c47bf64d2, type: 2}
-  - {fileID: 11400000, guid: 36103f95fe5f7f34a8019a28742705dd, type: 2}
+  - {fileID: 11400000, guid: 0afb30e8bc85279448670b1037fe466b, type: 2}
+  - {fileID: 11400000, guid: ffc57473305f5944491607a4d2593e62, type: 2}
+  advancedItemPool: []
   maxProtocolCount: 5
   protocolPool:
-  - {fileID: 11400000, guid: b82659882aa5184408ce8e800b49d9d2, type: 2}
-  - {fileID: 11400000, guid: c243f1db1cf2e5c4cbae8ec2faa373a6, type: 2}
+  - {fileID: 11400000, guid: 6acbde308fb3f2241828efc56aa7549c, type: 2}
+  - {fileID: 11400000, guid: 1287da6a4cbe0764a87ff7951bc9dffb, type: 2}

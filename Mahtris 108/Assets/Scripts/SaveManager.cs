@@ -9,6 +9,9 @@ public static class SaveManager
     // 定义用于存储数据的键 (Key)
     private const string GoldKey = "PlayerGold";
     private const string HighScoreKey = "PlayerHighScore";
+    private const string BgmKey = "Setting_BgmOn";
+    private const string SfxKey = "Setting_SfxOn";
+    private const string FullscreenKey = "Setting_IsFullscreen";
 
     // --- 金币存档 ---
     public static void SaveGold(int goldAmount)
@@ -34,7 +37,38 @@ public static class SaveManager
     {
         return PlayerPrefs.GetInt(HighScoreKey, 0);
     }
+    public static bool LoadBgmState()
+    {
+        return PlayerPrefs.GetInt(BgmKey, 1) == 1;
+    }
 
+    public static void SaveBgmState(bool isOn)
+    {
+        PlayerPrefs.SetInt(BgmKey, isOn ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    public static bool LoadSfxState()
+    {
+        return PlayerPrefs.GetInt(SfxKey, 1) == 1;
+    }
+
+    public static void SaveSfxState(bool isOn)
+    {
+        PlayerPrefs.SetInt(SfxKey, isOn ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
+    public static bool LoadFullscreenState()
+    {
+        return PlayerPrefs.GetInt(FullscreenKey, 0) == 1;
+    }
+
+    public static void SaveFullscreenState(bool isFullscreen)
+    {
+        PlayerPrefs.SetInt(FullscreenKey, isFullscreen ? 1 : 0);
+        PlayerPrefs.Save();
+    }
     // --- 编辑器功能 ---
 #if UNITY_EDITOR
     [MenuItem("游戏/清除玩家存档")]

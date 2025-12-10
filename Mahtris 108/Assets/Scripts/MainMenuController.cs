@@ -22,7 +22,11 @@ public class MainMenuController : MonoBehaviour
         UpdateGoldText();
         // 同时读取并显示最高分
         UpdateHighScoreText();
-
+        bool savedFullscreenState = SaveManager.LoadFullscreenState();
+        if (Screen.fullScreen != savedFullscreenState)
+        {
+            Screen.fullScreen = savedFullscreenState;
+        }
         // 订阅金币变化事件，以便实时更新（例如从商店返回时）
         GameSession.OnGoldChanged += UpdateGoldText;
         UpdateDifficultyText(DifficultyManager.Instance.CurrentDifficulty);
@@ -71,7 +75,6 @@ public class MainMenuController : MonoBehaviour
 
     public void StartGame()
     {
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayButtonClickSound();
         SceneManager.LoadScene(gameSceneName);
     }
 

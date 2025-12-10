@@ -1981,7 +1981,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114272518}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1742523520}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!114 &114272518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2034,6 +2046,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -2215,6 +2229,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 0}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -2526,6 +2542,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 0}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -3071,6 +3089,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -4251,6 +4271,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 0}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -4885,6 +4907,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 0}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -5533,6 +5557,7 @@ GameObject:
   - component: {fileID: 367615017}
   - component: {fileID: 367615016}
   - component: {fileID: 367615015}
+  - component: {fileID: 367615018}
   m_Layer: 5
   m_Name: Button Previous
   m_TagString: Untagged
@@ -5642,6 +5667,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 367615013}
   m_CullTransparentMesh: 1
+--- !u!114 &367615018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367615013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff6616f02dcdee44c8365f5d590713ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleFactor: 0.95
+  scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
+  enableParticleEffect: 0
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!1 &377344740
 GameObject:
   m_ObjectHideFlags: 0
@@ -7547,6 +7591,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -7880,6 +7926,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 0}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -8991,6 +9039,7 @@ GameObject:
   - component: {fileID: 690278145}
   - component: {fileID: 690278144}
   - component: {fileID: 690278143}
+  - component: {fileID: 690278146}
   m_Layer: 5
   m_Name: Button Intro
   m_TagString: Untagged
@@ -9100,6 +9149,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 690278141}
   m_CullTransparentMesh: 1
+--- !u!114 &690278146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 690278141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff6616f02dcdee44c8365f5d590713ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleFactor: 0.95
+  scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
+  enableParticleEffect: 0
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!1 &690612393
 GameObject:
   m_ObjectHideFlags: 0
@@ -9394,6 +9462,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 0}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -10053,6 +10123,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -10608,6 +10680,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 0}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -11649,8 +11723,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgmSource: {fileID: 980194823}
   sfxSource: {fileID: 980194822}
-  bgmVolume: 0.5
-  sfxVolume: 1
+  _bgmVolume: 0.5
+  _sfxVolume: 1
   backgroundMusic: {fileID: 8300000, guid: f95963f5381e91849a80107edf412d8e, type: 3}
   soundLibrary:
     buttonClick: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
@@ -11659,6 +11733,7 @@ MonoBehaviour:
     addSetToHuArea: {fileID: 8300000, guid: 978af390c05311942b0d76f476900878, type: 3}
     huSuccess: {fileID: 8300000, guid: 2ea3246d9e4fc494db2b2784ed5c1a45, type: 3}
     targetReached: {fileID: 8300000, guid: 0616fa99755b5d749a3c02933e55f9d5, type: 3}
+    defaultItemUse: {fileID: 8300000, guid: e6dd353435ef0304ba5a25cda1d59695, type: 3}
 --- !u!4 &980194825
 Transform:
   m_ObjectHideFlags: 0
@@ -16521,6 +16596,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 0}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -19551,6 +19628,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -19821,6 +19900,7 @@ GameObject:
   - component: {fileID: 1637526022}
   - component: {fileID: 1637526021}
   - component: {fileID: 1637526020}
+  - component: {fileID: 1637526023}
   m_Layer: 5
   m_Name: Button Type
   m_TagString: Untagged
@@ -19930,6 +20010,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1637526018}
   m_CullTransparentMesh: 1
+--- !u!114 &1637526023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1637526018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff6616f02dcdee44c8365f5d590713ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleFactor: 0.95
+  scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
+  enableParticleEffect: 0
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!1001 &1642170227
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20104,6 +20203,7 @@ GameObject:
   - component: {fileID: 1642447199}
   - component: {fileID: 1642447198}
   - component: {fileID: 1642447197}
+  - component: {fileID: 1642447200}
   m_Layer: 5
   m_Name: Button Next
   m_TagString: Untagged
@@ -20213,6 +20313,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1642447195}
   m_CullTransparentMesh: 1
+--- !u!114 &1642447200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1642447195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff6616f02dcdee44c8365f5d590713ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleFactor: 0.95
+  scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
+  enableParticleEffect: 0
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!1 &1644451351
 GameObject:
   m_ObjectHideFlags: 0
@@ -21618,6 +21737,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 0}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -21645,6 +21766,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1742523521}
+  - component: {fileID: 1742523522}
   m_Layer: 5
   m_Name: Popup Setting
   m_TagString: Untagged
@@ -21673,6 +21795,22 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1742523522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1742523520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39c9506d91e05d94b80a0d0f3b0d39c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bgmToggle: {fileID: 2391080}
+  sfxToggle: {fileID: 1687288031}
+  fullscreenToggle: {fileID: 1379196389}
+  closeButton: {fileID: 323055675}
 --- !u!1001 &1768716602
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22574,6 +22712,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 0}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -23188,6 +23328,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scaleFactor: 0.95
   scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 0}
   enableParticleEffect: 1
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
