@@ -24,6 +24,10 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private Color selectedColor = Color.green;   // 【新增】选中时的颜色 (例如绿色)
     [SerializeField] private Color unselectedColor = Color.white;
 
+    [Header("商店")]
+    [SerializeField] private Button openStoreButton;
+    [SerializeField] private StorePanelController storePanel;
+
     private string gameSceneName = "GameScene";
 
     public IntroPanelController introPanel;
@@ -44,7 +48,14 @@ public class MainMenuController : MonoBehaviour
         GameSession.OnGoldChanged += UpdateGoldText;
         InitDifficultyUI();
         UpdateDifficultyText(DifficultyManager.Instance.CurrentDifficulty);
-
+        if (openStoreButton != null && storePanel != null)
+        {
+            openStoreButton.onClick.AddListener(() =>
+            {
+                // 如果你有点击音效，可以在这里播，或者让 UIButtonClickEffect 处理
+                storePanel.OpenStore();
+            });
+        }
         openIntroButton.onClick.AddListener(() =>
         {
             introPanel.Open();

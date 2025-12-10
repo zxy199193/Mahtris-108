@@ -16,5 +16,9 @@ MonoBehaviour:
   itemIcon: {fileID: 21300000, guid: 21a16686bc7517440a3330a380b968e3, type: 3}
   itemDescription: "\u4E0B\u6B21\u80E1\u724C\u989D\u5916\u83B7\u5F972\u4E2A1\u683C\u65B9\u5757\r"
   isLegendary: 0
+  useSound: {fileID: 0}
+  price: 500
+  isInitial: 0
+  unlockConditionCount: 0
   bonusBlockCount: 2
   blockPrefabName: T1-Dot

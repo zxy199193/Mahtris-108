@@ -16,4 +16,8 @@ MonoBehaviour:
   itemIcon: {fileID: 21300000, guid: 1a9a1d8e148d10d499c538403f3120c3, type: 3}
   itemDescription: "\u4E0B\u4E00\u4E2A\u65B9\u5757\u5F62\u72B6\u4F1A\u8FDE\u7EED\u51FA\u73B03\u6B21\r"
   isLegendary: 0
+  useSound: {fileID: 0}
+  price: 500
+  isInitial: 0
+  unlockConditionCount: 0
   repeatCount: 3

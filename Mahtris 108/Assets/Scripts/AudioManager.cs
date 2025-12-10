@@ -13,6 +13,9 @@ public class SoundLibrary
 
     [Header("通用音效")]
     public AudioClip defaultItemUse;
+    [Header("商店音效")]
+    public AudioClip buySuccess;
+    public AudioClip buyFail;
 
 }
 
@@ -190,4 +193,6 @@ public class AudioManager : MonoBehaviour
         if (sfxSource) sfxSource.mute = !isOn;
         SaveManager.SaveSfxState(isOn);
     }
+    public void PlayBuySuccessSound() => PlaySFX(soundLibrary.buySuccess);
+    public void PlayBuyFailSound() => PlaySFX(soundLibrary.buyFail);
 }

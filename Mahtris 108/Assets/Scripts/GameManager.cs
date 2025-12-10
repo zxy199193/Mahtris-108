@@ -919,16 +919,31 @@ public class GameManager : MonoBehaviour
 
         if (isAdvanced)
         {
-            // 【修改】使用加权随机
-            package.ItemChoices = GetWeightedRandomList(settings.advancedItemPool, itemCount);
+            // 【修改】高级道具池筛选：测试模式 或 已解锁
+            var unlockedItems = settings.advancedItemPool
+                .Where(i => isTestMode || SaveManager.IsItemUnlocked(i.itemName, i.isInitial))
+                .ToList();
 
-            var availableProtocols = settings.protocolPool.Except(activeProtocols).ToList();
+            // 使用加权随机
+            package.ItemChoices = GetWeightedRandomList(unlockedItems, itemCount);
+
+            // 【修改】条约池筛选：排除已激活 && (测试模式 或 已解锁)
+            var availableProtocols = settings.protocolPool
+                .Except(activeProtocols)
+                .Where(p => isTestMode || SaveManager.IsProtocolUnlocked(p.protocolName, p.isInitial))
+                .ToList();
+
             package.ProtocolChoices = GetWeightedRandomList(availableProtocols, protocolCount);
         }
         else
         {
-            // 【修改】使用加权随机
-            package.ItemChoices = GetWeightedRandomList(settings.commonItemPool, itemCount);
+            // 【修改】普通道具池筛选：测试模式 或 已解锁
+            var unlockedItems = settings.commonItemPool
+                .Where(i => isTestMode || SaveManager.IsItemUnlocked(i.itemName, i.isInitial))
+                .ToList();
+
+            // 使用加权随机
+            package.ItemChoices = GetWeightedRandomList(unlockedItems, itemCount);
         }
 
         return package;
@@ -1591,28 +1606,28 @@ public class GameManager : MonoBehaviour
 
     private void GrantStartingRewards(Difficulty difficulty)
     {
-        // 如果是简单模式，什么都不送
         if (difficulty == Difficulty.Easy) return;
 
-        // 1. 准备道具池 (只取普通道具池中的非传奇道具)
-        var validItems = settings.commonItemPool.Where(i => !i.isLegendary).ToList();
+        // 【修改】添加 (isTestMode || ...) 判断
+        // 逻辑：如果是测试模式，或者道具已解锁，则允许放入随机池
+        var validItems = settings.commonItemPool
+            .Where(i => !i.isLegendary && (isTestMode || SaveManager.IsItemUnlocked(i.itemName, i.isInitial)))
+            .ToList();
 
-        // 2. 准备条约池 (只取条约池中的非传奇条约)
-        var validProtocols = settings.protocolPool.Where(p => !p.isLegendary).ToList();
+        var validProtocols = settings.protocolPool
+            .Where(p => !p.isLegendary && (isTestMode || SaveManager.IsProtocolUnlocked(p.protocolName, p.isInitial)))
+            .ToList();
 
-        // 3. 根据难度发奖
         if (difficulty == Difficulty.Normal)
         {
-            // 普通模式：送 1 个道具
             AddRandomItems(validItems, 1);
-            Debug.Log("普通难度开局奖励：1个随机普通道具");
+            Debug.Log($"普通难度开局奖励 (TestMode:{isTestMode})");
         }
         else if (difficulty == Difficulty.Hard)
         {
-            // 困难模式：送 2 个道具 + 1 个条约
             AddRandomItems(validItems, 2);
             AddRandomProtocol(validProtocols);
-            Debug.Log("困难难度开局奖励：2个随机普通道具 + 1个随机条约");
+            Debug.Log($"困难难度开局奖励 (TestMode:{isTestMode})");
         }
     }
     private void AddRandomItems(List<ItemData> sourcePool, int count)

@@ -93,6 +93,38 @@ public static class SaveManager
         PlayerPrefs.SetInt(UnlockedDiffKey, level);
         PlayerPrefs.Save();
     }
+
+    // --- 商店解锁存档 ---
+
+    // 检查道具是否解锁
+    public static bool IsItemUnlocked(string itemName, bool isInitial)
+    {
+        // 如果是初始道具，或者存档里标记为 1，则视为解锁
+        if (isInitial) return true;
+        return PlayerPrefs.GetInt($"Unlock_Item_{itemName}", 0) == 1;
+    }
+
+    // 解锁道具
+    public static void UnlockItem(string itemName)
+    {
+        PlayerPrefs.SetInt($"Unlock_Item_{itemName}", 1);
+        PlayerPrefs.Save();
+    }
+
+    // 检查条约是否解锁
+    public static bool IsProtocolUnlocked(string protocolName, bool isInitial)
+    {
+        if (isInitial) return true;
+        return PlayerPrefs.GetInt($"Unlock_Protocol_{protocolName}", 0) == 1;
+    }
+
+    // 解锁条约
+    public static void UnlockProtocol(string protocolName)
+    {
+        PlayerPrefs.SetInt($"Unlock_Protocol_{protocolName}", 1);
+        PlayerPrefs.Save();
+    }
+
     // --- 编辑器功能 ---
 #if UNITY_EDITOR
     [MenuItem("游戏/清除玩家存档")]

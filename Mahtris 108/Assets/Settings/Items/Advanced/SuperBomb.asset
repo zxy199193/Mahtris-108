@@ -16,4 +16,8 @@ MonoBehaviour:
   itemIcon: {fileID: 21300000, guid: 8c52b82d11540e54192f5d14bbd941f5, type: 3}
   itemDescription: "\u5F3A\u884C\u6D88\u9664\u5E95\u4E0B5\u884C\u65B9\u5757\r\r"
   isLegendary: 0
+  useSound: {fileID: 0}
+  price: 0
+  isInitial: 1
+  unlockConditionCount: 0
   rowsToClear: 3

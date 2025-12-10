@@ -16,4 +16,8 @@ MonoBehaviour:
   itemIcon: {fileID: 21300000, guid: 9a15df2a8436e5744982009b30b06564, type: 3}
   itemDescription: "\u4E0B\u4E00\u4E2A\u5F62\u72B6\u4F1A\u53D8\u4E3A7\u683C\u957F\u6761\u65B9\u5757\r"
   isLegendary: 0
+  useSound: {fileID: 0}
+  price: 500
+  isInitial: 0
+  unlockConditionCount: 0
   sevenBlockPrefabName: T7-I
