@@ -102,7 +102,7 @@ public class GameUIController : MonoBehaviour
     private List<ItemData> currentItems;
     private List<ProtocolData> currentProtocols;
     private ScoreManager scoreManager;
-
+    private Tween poolCountBlinkTween;
     private List<ItemSlotUI> activeItemSlotUIs = new List<ItemSlotUI>();
     private List<ProtocolSlotUI> activeProtocolSlotUIs = new List<ProtocolSlotUI>();
 
@@ -585,6 +585,8 @@ public class GameUIController : MonoBehaviour
         {
             sortedBlockUnits[i].Initialize(ids[i], blockPool); // 【修改】使用排序后的数组
         }
+        bool isInsufficient = ids.Contains(-1);
+        UpdatePoolCountVisuals(isInsufficient);
     }
 
     private void ReturnToMainMenu()
@@ -677,5 +679,39 @@ public class GameUIController : MonoBehaviour
         seq.AppendInterval(0.8f);
         seq.Append(toastCanvasGroup.DOFade(0, 0.4f));
         seq.SetUpdate(true); // 确保在 Time.timeScale=0 (暂停/胡牌) 时也能播放动画！
+    }
+    private void UpdatePoolCountVisuals(bool isInsufficient)
+    {
+        if (poolCountText == null) return;
+
+        if (isInsufficient)
+        {
+            // === 状态：不足 ===
+            // 1. 变红
+            poolCountText.color = Color.red;
+
+            // 2. 闪烁 (如果还没开始闪)
+            if (poolCountBlinkTween == null || !poolCountBlinkTween.IsActive())
+            {
+                // 0.5秒内透明度降到 0.2，循环往复 (Yoyo)
+                poolCountBlinkTween = poolCountText.DOFade(0.5f, 0.5f)
+                    .SetLoops(-1, LoopType.Yoyo)
+                    .SetUpdate(true); // 确保在暂停时也能看到警示（可选）
+            }
+        }
+        else
+        {
+            // === 状态：正常 ===
+            // 1. 停止闪烁
+            if (poolCountBlinkTween != null)
+            {
+                poolCountBlinkTween.Kill();
+                poolCountBlinkTween = null;
+            }
+
+            // 2. 恢复白色和不透明
+            poolCountText.color = Color.white;
+            poolCountText.DOFade(1f, 0.1f); // 快速恢复 Alpha 到 1
+        }
     }
 }

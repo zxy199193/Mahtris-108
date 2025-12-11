@@ -75,7 +75,7 @@ public class MainMenuController : MonoBehaviour
     {
         if (goldText != null)
         {
-            goldText.text = $"½ð±Ò: {newGoldAmount}";
+            goldText.text = $"{newGoldAmount}";
         }
     }
 
