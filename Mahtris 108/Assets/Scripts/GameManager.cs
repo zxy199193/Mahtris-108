@@ -481,7 +481,7 @@ public class GameManager : MonoBehaviour
             }
             gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
         }
-
+        ProcessPendingProtocolRemovals();
         var rewards = GenerateHuRewards(isAdvancedReward);
 
         // 狂战士 (Berserker) 逻辑
@@ -1691,5 +1691,32 @@ public class GameManager : MonoBehaviour
             AddProtocol(randomProtocol);
         }
     }
+    public bool IsProtocolListFull()
+    {
+        return activeProtocols.Count >= settings.maxProtocolCount;
+    }
+    private void ProcessPendingProtocolRemovals()
+    {
+        if (protocolsMarkedForRemoval.Count > 0)
+        {
+            foreach (var proto in protocolsMarkedForRemoval)
+            {
+                if (activeProtocols.Contains(proto))
+                {
+                    // 1. 移除效果
+                    proto.RemoveEffect(this);
+                    // 2. 从激活列表中移除
+                    activeProtocols.Remove(proto);
+                }
+            }
+            // 清空待删除列表
+            protocolsMarkedForRemoval.Clear();
 
+            // 刷新 UI
+            if (gameUI != null)
+            {
+                gameUI.UpdateProtocolUI(activeProtocols);
+            }
+        }
+    }
 }

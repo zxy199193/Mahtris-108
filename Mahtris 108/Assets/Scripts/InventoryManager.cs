@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -104,5 +105,17 @@ public class InventoryManager : MonoBehaviour
             }
         }
         OnInventoryChanged?.Invoke(new List<ItemData>(itemSlots));
+    }
+    public bool IsFull()
+    {
+        // 你的背包逻辑是预先生成固定数量的槽位 (itemSlots)，没东西时存的是 null
+        // 所以我们遍历所有槽位，只要发现有一个是 null，就说明没满
+        foreach (var item in itemSlots)
+        {
+            if (item == null) return false;
+        }
+
+        // 如果循环结束都没找到 null，说明全满了
+        return true;
     }
 }

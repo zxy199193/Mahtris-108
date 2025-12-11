@@ -91,7 +91,7 @@ public class BlockUnit : MonoBehaviour
             // }
 
             // --- 如果没有 DoTween，使用 Coroutine ---
-            StartCoroutine(FadeCoroutine(3f));
+            StartCoroutine(FadeCoroutine(12f));
         }
     }
 

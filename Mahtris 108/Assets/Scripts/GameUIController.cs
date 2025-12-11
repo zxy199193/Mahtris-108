@@ -92,6 +92,11 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private GameObject newHighScoreIndicator;
     [SerializeField] private Button endlessModeButton;
 
+    [Header("提示信息 (Toast)")]
+    [SerializeField] private Text toastText;       // 提示文字
+    [SerializeField] private CanvasGroup toastCanvasGroup;
+
+
     private GameObject currentPreviewObject;
     private InventoryManager inventoryManager;
     private List<ItemData> currentItems;
@@ -448,6 +453,12 @@ public class GameUIController : MonoBehaviour
             else if (choice is ItemData itemData)
             {
                 rewardUI.Setup(itemData, (clickedUI) => {
+                    if (inventoryManager != null && inventoryManager.IsFull())
+                    {
+                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound(); // 播放失败音效
+                        ShowToast("道具栏已满！");
+                        return; // <--- 拦截操作，不执行后面的 DisableOtherOptions
+                    }
                     FindObjectOfType<InventoryManager>().AddItem(itemData);
                     DisableOtherOptions(container, clickedUI);
                 });
@@ -455,6 +466,12 @@ public class GameUIController : MonoBehaviour
             else if (choice is ProtocolData protocolData)
             {
                 rewardUI.Setup(protocolData, (clickedUI) => {
+                    if (GameManager.Instance.IsProtocolListFull())
+                    {
+                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound(); // 播放失败音效
+                        ShowToast("条约栏已满！");
+                        return; // <--- 拦截操作
+                    }
                     GameManager.Instance.AddProtocol(protocolData);
                     DisableOtherOptions(container, clickedUI);
                 });
@@ -644,5 +661,21 @@ public class GameUIController : MonoBehaviour
         {
             slot.HideDeleteButton();
         }
+    }
+    private void ShowToast(string message)
+    {
+        if (toastText == null || toastCanvasGroup == null) return;
+
+        // 杀掉旧动画防止冲突
+        toastCanvasGroup.DOKill();
+
+        toastText.text = message;
+        toastCanvasGroup.alpha = 1; // 立刻显示
+
+        // 持续 0.8s 后，用 0.4s 淡出
+        Sequence seq = DOTween.Sequence();
+        seq.AppendInterval(0.8f);
+        seq.Append(toastCanvasGroup.DOFade(0, 0.4f));
+        seq.SetUpdate(true); // 确保在 Time.timeScale=0 (暂停/胡牌) 时也能播放动画！
     }
 }

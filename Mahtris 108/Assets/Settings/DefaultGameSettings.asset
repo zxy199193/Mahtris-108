@@ -26,7 +26,7 @@ MonoBehaviour:
   baseFanScore: 10
   fanBonusPerKong: 1
   scorePerRow: 2
-  husPerLoop: 2
+  husPerLoop: 1
   normalWeight: 10
   legendaryWeightBase: 5
   legendaryWeightIncreasePerLoop: 2.5
