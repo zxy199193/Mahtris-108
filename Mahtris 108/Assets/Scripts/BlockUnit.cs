@@ -11,6 +11,11 @@ public class BlockUnit : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Image uiImage; // 【新增】UI Image引用
 
+    [Header("空缺状态配置")]
+    [SerializeField] private Text statusText;   // 【新增】用于显示说明文字 (如 "缺" 或 "!")
+    [SerializeField] private Sprite emptySprite; // 【新增】空缺时的底图 (可以是纯白方块，然后用Color染红)
+    [SerializeField] private string emptyMessage = "缺"; // 【新增】空缺时显示的文字内容
+    [SerializeField] private Color emptyColor = new Color(0.8f, 0.2f, 0.2f, 1f); // 【新增】空缺时的颜色 (红色)
     private BlockPool blockPool;
 
     void Awake()
@@ -40,30 +45,47 @@ public class BlockUnit : MonoBehaviour
     {
         this.blockPool = pool;
 
-        // 【修改】处理 -1 黑块逻辑
+        // --- 核心修改逻辑 ---
         if (id == -1)
         {
-            // === 黑块状态 (警示) ===
+            // === 状态：麻将不足 (显示纯色图 + 文字) ===
             blockId = -1;
+
+            // 1. 设置底图
             if (uiImage != null)
             {
-                uiImage.sprite = null; // 或者用专门的空底图
-                uiImage.color = new Color(0.2f, 0.2f, 0.2f, 0.8f); // 深灰色半透明
+                // 如果有专门的空图就用，没有就设为null(显示纯色块)
+                uiImage.sprite = emptySprite;
+                uiImage.color = emptyColor; // 设置为红色或你想要的颜色
                 uiImage.enabled = true;
             }
             if (spriteRenderer != null)
             {
-                spriteRenderer.sprite = null;
-                spriteRenderer.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+                spriteRenderer.sprite = emptySprite;
+                spriteRenderer.color = emptyColor;
+            }
+
+            // 2. 显示文字
+            if (statusText != null)
+            {
+                statusText.text = emptyMessage;
+                statusText.gameObject.SetActive(true);
             }
         }
         else
         {
-            // === 正常状态 ===
-            // 恢复白色 (因为可能被对象池复用)
+            // === 状态：正常 ===
+            // 1. 恢复底图颜色
             if (uiImage != null) uiImage.color = Color.white;
             if (spriteRenderer != null) spriteRenderer.color = Color.white;
 
+            // 2. 隐藏文字
+            if (statusText != null)
+            {
+                statusText.gameObject.SetActive(false);
+            }
+
+            // 3. 应用正常麻将牌
             ApplyIdAndSprite(id);
         }
     }
