@@ -39,7 +39,33 @@ public class BlockUnit : MonoBehaviour
     public void Initialize(int id, BlockPool pool)
     {
         this.blockPool = pool;
-        ApplyIdAndSprite(id);
+
+        // 【修改】处理 -1 黑块逻辑
+        if (id == -1)
+        {
+            // === 黑块状态 (警示) ===
+            blockId = -1;
+            if (uiImage != null)
+            {
+                uiImage.sprite = null; // 或者用专门的空底图
+                uiImage.color = new Color(0.2f, 0.2f, 0.2f, 0.8f); // 深灰色半透明
+                uiImage.enabled = true;
+            }
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.sprite = null;
+                spriteRenderer.color = new Color(0.2f, 0.2f, 0.2f, 0.8f);
+            }
+        }
+        else
+        {
+            // === 正常状态 ===
+            // 恢复白色 (因为可能被对象池复用)
+            if (uiImage != null) uiImage.color = Color.white;
+            if (spriteRenderer != null) spriteRenderer.color = Color.white;
+
+            ApplyIdAndSprite(id);
+        }
     }
 
     private void ApplyIdAndSprite(int id)

@@ -127,4 +127,31 @@ public class BlockPool : MonoBehaviour
         GameEvents.TriggerPoolCountChanged(availableBlocks.Count);
         return true;
     }
+    // 【新增】偷看牌库 (不消耗)。如果数量不足，不足的部分用 -1 填充
+    // 用于 Spawner 生成带黑块的预览
+    public List<int> PeekBlockIDs(int count)
+    {
+        List<int> result = new List<int>();
+
+        // 1. 先把有的都装进去 (模拟取牌)
+        for (int i = 0; i < availableBlocks.Count && i < count; i++)
+        {
+            result.Add(availableBlocks[i]);
+        }
+
+        // 2. 不够的用 -1 补齐 (黑块标记)
+        while (result.Count < count)
+        {
+            result.Add(-1);
+        }
+
+        return result;
     }
+
+    // 【新增】硬性检查：是否真的足够
+    // 用于 Spawner 在生成实体方块前做最后一次生死判定
+    public bool HasEnoughBlocks(int count)
+    {
+        return availableBlocks.Count >= count;
+    }
+}

@@ -152,7 +152,7 @@ public class Spawner : MonoBehaviour
         if (nextTetrominoPrefab == null) { GameEvents.TriggerGameOver(); return; }
 
         int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length;
-        nextTileIds = blockPool.GetBlockIds(tilesNeeded);
+        nextTileIds = blockPool.PeekBlockIDs(tilesNeeded);
 
         if (nextTileIds == null) { GameEvents.TriggerGameOver(); return; }
 
@@ -164,7 +164,14 @@ public class Spawner : MonoBehaviour
         // 【新增】通知GameManager一个方块已被生成，用于喷气背包计数
         GameManager.Instance.NotifyBlockSpawned();
         if (nextTetrominoPrefab == null) { GameEvents.TriggerGameOver(); return; }
-
+        int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length;
+        if (!blockPool.HasEnoughBlocks(tilesNeeded))
+        {
+            Debug.Log("【Game Over】牌库枯竭！无法生成下一个方块。");
+            GameEvents.TriggerGameOver();
+            return;
+        }
+        List<int> realIds = blockPool.GetBlockIds(tilesNeeded);
         Vector3 spawnPosition = new Vector3(settings.gridWidth / 2, settings.gridHeight - 2, 0);
         GameObject blockGO = Instantiate(nextTetrominoPrefab, spawnPosition, Quaternion.identity);
         var tetromino = blockGO.GetComponent<Tetromino>();
@@ -299,5 +306,19 @@ public class Spawner : MonoBehaviour
                 Debug.Log("漏斗生效：已将当前预览的 Lv3 方块替换为 " + nextTetrominoPrefab.name);
             }
         }
+    }
+    // 【新增】供 GameManager 在消行后调用，刷新预览状态
+    // 如果之前显示黑块，消行后牌够了，这里会把黑块变回正常牌
+    public void RefreshPreviewUI()
+    {
+        if (nextTetrominoPrefab == null) return;
+
+        int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length;
+
+        // 再次偷看牌库
+        nextTileIds = blockPool.PeekBlockIDs(tilesNeeded);
+
+        // 通知 UI 刷新
+        GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, nextTileIds);
     }
 }

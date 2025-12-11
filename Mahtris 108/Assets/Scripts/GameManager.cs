@@ -380,7 +380,7 @@ public class GameManager : MonoBehaviour
         inventoryManager.ClearInventory();
         protocolsMarkedForRemoval.Clear();
         GrantStartingRewards(DifficultyManager.Instance.CurrentDifficulty);
-        if (isAdventFoodActive) { adventFoodBonus = 120; adventFoodTimer = 1f; }
+        if (isAdventFoodActive) { adventFoodBonus = 90; adventFoodTimer = 1f; }
         else { adventFoodBonus = 0; }
 
         // 2. 例行公事：如果有条约，锁定时间
@@ -691,7 +691,12 @@ public class GameManager : MonoBehaviour
 
         // 【关键步骤】整理网格
         tetrisGrid.CompactAllColumns(rowIndices);
-
+        if (!_hasDeclaredHuThisFrame)
+        {
+            // 此时牌库已经因为 ReturnBlockIds 补充了
+            // 立即让 Spawner 重新计算预览，把可能的黑块变回亮块
+            spawner.RefreshPreviewUI();
+        }
         // 【核心修复 1】在生成新方块前，立即强制检测高度并更新速度
         // 这解决了“消除后下一个方块依然减速”的问题
         if (!_hasDeclaredHuThisFrame)
