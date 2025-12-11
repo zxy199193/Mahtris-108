@@ -1,4 +1,5 @@
 // FileName: MainMenuController.cs
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,6 +10,7 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private Text goldText;
     [SerializeField] private Text highScoreText; // 新增
     [SerializeField] private GameObject difficultyPopupPanel; // 【新增】拖入你的难度选择弹窗面板
+    [SerializeField] private RectTransform difficultyPopupWindow;
     [SerializeField] private Text currentDifficultyText;
     // 【新增】遮罩引用 (请在 Inspector 中拖入)
     [SerializeField] private GameObject normalLockMask; // 挡住普通按钮的遮罩
@@ -27,6 +29,7 @@ public class MainMenuController : MonoBehaviour
     [Header("商店")]
     [SerializeField] private Button openStoreButton;
     [SerializeField] private StorePanelController storePanel;
+
 
     private string gameSceneName = "GameScene";
 
@@ -170,16 +173,43 @@ public class MainMenuController : MonoBehaviour
     {
         if (difficultyPopupPanel != null)
         {
+            // 1. 激活根节点 (遮罩立刻显示)
             difficultyPopupPanel.SetActive(true);
+
+            // 2. 执行窗口滑入动画
+            if (difficultyPopupWindow != null)
+            {
+                // 初始位置：屏幕下方
+                difficultyPopupWindow.anchoredPosition = new Vector2(0, -1200);
+
+                // 动画：滑到中心
+                difficultyPopupWindow.DOLocalMove(Vector2.zero, 0.4f).SetEase(Ease.OutBack).SetUpdate(true);
+            }
         }
     }
 
     // 【新增】用于关闭弹窗
     public void CloseDifficultyPopup()
     {
-        if (difficultyPopupPanel != null)
+        if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
+
+        if (difficultyPopupWindow != null)
         {
-            difficultyPopupPanel.SetActive(false);
+            // 1. 动画：滑到屏幕下方
+            difficultyPopupWindow.DOLocalMove(new Vector2(0, -1200), 0.3f).SetEase(Ease.InBack).SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    // 2. 动画结束后，关闭整个面板 (包括遮罩)
+                    if (difficultyPopupPanel != null)
+                    {
+                        difficultyPopupPanel.SetActive(false);
+                    }
+                });
+        }
+        else
+        {
+            // 如果没配置窗口引用，直接关闭
+            if (difficultyPopupPanel != null) difficultyPopupPanel.SetActive(false);
         }
     }
     private void UpdateDifficultyText(Difficulty difficulty)

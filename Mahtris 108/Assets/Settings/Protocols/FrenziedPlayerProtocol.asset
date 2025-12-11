@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4533e7aef89eeb04cae60b7d22bdc69f, type: 3}
   m_Name: FrenziedPlayerProtocol
   m_EditorClassIdentifier: 
-  protocolName: "\u72C2\u724C\u58EB"
-  protocolIcon: {fileID: 21300000, guid: 66f944da3727a3d4ca04924611a1ffa3, type: 3}
+  protocolName: "\u7A7A\u624B\u9053\u5927\u5E08"
+  protocolIcon: {fileID: 21300000, guid: 88937b15ad54b58488c331deca52d3cf, type: 3}
   protocolDescription: "\u4E0D\u53EF\u4F7F\u7528\u9053\u5177\uFF0C<color=#E682E6>\u989D\u5916\u500D\u7387x4</color>\r"
   isLegendary: 0
   price: 0
   isInitial: 1
   unlockConditionCount: 0
-  extraMultiplier: 3
+  extraMultiplier: 4

@@ -27,6 +27,9 @@ public class StorePanelController : MonoBehaviour
     [SerializeField] private Button closeButton;
     [SerializeField] private Text currentGoldText;
 
+    [Header("动画对象")]
+    [SerializeField] private RectTransform popupWindow;
+
     [Header("核心配置 (必须拖入)")]
     [SerializeField] private GameSettings settings;
     private bool showingItems = true; // 当前是否显示道具页签
@@ -53,27 +56,40 @@ public class StorePanelController : MonoBehaviour
 
     public void OpenStore()
     {
+        // 1. 瞬间激活根节点（包含黑色遮罩），所以遮罩会立刻显示
         gameObject.SetActive(true);
 
-        // 动画：从下往上弹出
-        RectTransform rt = GetComponent<RectTransform>();
-        rt.anchoredPosition = new Vector2(0, -1200);
-        rt.DOLocalMove(Vector2.zero, 0.5f).SetEase(Ease.OutBack).SetUpdate(true);
+        if (popupWindow != null)
+        {
+            // 2. 将弹窗移到屏幕下方
+            popupWindow.anchoredPosition = new Vector2(0, -1200);
+
+            // 3. 只对弹窗执行滑入动画
+            popupWindow.DOLocalMove(Vector2.zero, 0.4f).SetEase(Ease.OutBack).SetUpdate(true);
+        }
 
         UpdateGoldDisplay();
-        ShowItemsTab(); // 默认打开道具页
+        ShowItemsTab();
     }
 
     public void CloseStore()
     {
-        // 动画：往下掉
-        RectTransform rt = GetComponent<RectTransform>();
-        rt.DOLocalMove(new Vector2(0, -1200), 0.3f).SetEase(Ease.InBack).SetUpdate(true).OnComplete(() =>
-        {
-            gameObject.SetActive(false);
-        });
-
         if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
+
+        if (popupWindow != null)
+        {
+            // 1. 只让弹窗滑下去
+            popupWindow.DOLocalMove(new Vector2(0, -1200), 0.3f).SetEase(Ease.InBack).SetUpdate(true).OnComplete(() =>
+            {
+                // 2. 动画结束后，再把整个根节点（包括遮罩）关掉
+                gameObject.SetActive(false);
+            });
+        }
+        else
+        {
+            // 如果忘了拖引用，直接关闭
+            gameObject.SetActive(false);
+        }
     }
 
     private void UpdateGoldDisplay()

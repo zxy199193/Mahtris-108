@@ -17,7 +17,7 @@ MonoBehaviour:
   itemDescription: "\u5F53\u524D\u76EE\u6807\u5206\u6570-20%\r"
   isLegendary: 0
   useSound: {fileID: 0}
-  price: 0
+  price: 2000
   isInitial: 1
   unlockConditionCount: 0
   reductionPercentage: 0.5

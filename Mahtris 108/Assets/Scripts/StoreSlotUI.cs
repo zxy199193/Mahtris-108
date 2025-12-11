@@ -66,7 +66,7 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
             case SlotStatus.Hidden:
                 hiddenOverlay.SetActive(true);
-                unlockConditionText.text = $"解锁 {conditionCount} 个{typeName}后显示";
+                unlockConditionText.text = $"获得{conditionCount}个{typeName}后显示";
                 break;
         }
     }
