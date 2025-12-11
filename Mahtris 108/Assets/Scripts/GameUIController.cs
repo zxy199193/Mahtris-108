@@ -39,11 +39,13 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Transform nextBlockPreviewArea;
 
     [Header("道具栏")]
-    [SerializeField] private List<Button> itemSlotButtons;
-    [SerializeField] private List<Image> itemSlotIcons;
+    [SerializeField] private Transform itemContainer;
+    [SerializeField] private GameObject itemSlotPrefab;
 
     [Header("条约栏")]
-    [SerializeField] private List<Image> protocolIconSlots; // 新增
+    [SerializeField] private Transform protocolContainer;
+    [SerializeField] private GameObject protocolSlotPrefab;
+    [SerializeField] private int maxProtocolSlots = 5;
 
     [Header("胡牌弹窗")]
     [SerializeField] private GameObject huPopupPanel;
@@ -96,8 +98,8 @@ public class GameUIController : MonoBehaviour
     private List<ProtocolData> currentProtocols;
     private ScoreManager scoreManager;
 
-    private List<TooltipTriggerUI> itemTooltipTriggers = new List<TooltipTriggerUI>();
-    private List<TooltipTriggerUI> protocolTooltipTriggers = new List<TooltipTriggerUI>();
+    private List<ItemSlotUI> activeItemSlotUIs = new List<ItemSlotUI>();
+    private List<ProtocolSlotUI> activeProtocolSlotUIs = new List<ProtocolSlotUI>();
 
     [Header("暂停功能")]
     [SerializeField] private Button pauseButton;
@@ -112,7 +114,6 @@ public class GameUIController : MonoBehaviour
         inventoryManager = FindObjectOfType<InventoryManager>();
         scoreManager = FindObjectOfType<ScoreManager>();
         SetupButtonListeners();
-        InitializeTooltipTriggers();
     }
     void Start()
     {
@@ -123,6 +124,8 @@ public class GameUIController : MonoBehaviour
             // 订阅金币变化事件
             GameSession.OnGoldChanged += UpdateGoldText;
         }
+        if (activeProtocolSlotUIs.Count == 0) InitializeProtocolSlots();
+        if (activeItemSlotUIs.Count == 0) InitializeItemSlots();
     }
     void OnEnable()
     {
@@ -147,23 +150,73 @@ public class GameUIController : MonoBehaviour
     void Update()
     {
         if (inventoryManager == null) return;
+
+        // 道具快捷键
         if (Input.GetKeyDown(KeyCode.Alpha1)) inventoryManager.UseItem(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) inventoryManager.UseItem(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) inventoryManager.UseItem(2);
         if (Input.GetKeyDown(KeyCode.Alpha4)) inventoryManager.UseItem(3);
         if (Input.GetKeyDown(KeyCode.Alpha5)) inventoryManager.UseItem(4);
-    }
 
+        // 【修改】全局点击检测：如果点击了鼠标左键
+        if (Input.GetMouseButtonDown(0))
+        {
+            // 检查鼠标是否点击在 UI 上 (如果不包含 IsPointerOverGameObject，说明点在了场景空地)
+            if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            {
+                HideAllDeleteButtons();
+            }
+        }
+    }
+    private void InitializeItemSlots()
+    {
+        foreach (Transform child in itemContainer) Destroy(child.gameObject);
+        activeItemSlotUIs.Clear();
+
+        // 假设最大道具数为 5
+        for (int i = 0; i < 5; i++)
+        {
+            GameObject go = Instantiate(itemSlotPrefab, itemContainer);
+            ItemSlotUI slotUI = go.GetComponent<ItemSlotUI>();
+
+            // 初始化为空，并传入索引
+            slotUI.Setup(null, i);
+
+            // 动态添加 Tooltip
+            TooltipTriggerUI trigger = go.GetComponent<TooltipTriggerUI>();
+            if (trigger == null) trigger = go.AddComponent<TooltipTriggerUI>();
+            trigger.SetData(null, null);
+
+            activeItemSlotUIs.Add(slotUI);
+        }
+    }
+    private void InitializeProtocolSlots()
+    {
+        // 先清理可能存在的（比如编辑器里留下的）
+        foreach (Transform child in protocolContainer) Destroy(child.gameObject);
+        activeProtocolSlotUIs.Clear();
+
+        for (int i = 0; i < maxProtocolSlots; i++)
+        {
+            GameObject go = Instantiate(protocolSlotPrefab, protocolContainer);
+            ProtocolSlotUI slotUI = go.GetComponent<ProtocolSlotUI>();
+
+            // 初始化为空
+            slotUI.Setup(null);
+
+            // 动态添加 Tooltip (如果需要)
+            TooltipTriggerUI trigger = go.GetComponent<TooltipTriggerUI>();
+            if (trigger == null) trigger = go.AddComponent<TooltipTriggerUI>();
+            // 空状态下 Tooltip 数据设为 null 即可
+            trigger.SetData(null, null);
+
+            activeProtocolSlotUIs.Add(slotUI);
+        }
+    }
     private void SetupButtonListeners()
     {
         if (continueButton) continueButton.onClick.AddListener(() => { GameManager.Instance.ContinueAfterHu(); });
         if (restartButton) restartButton.onClick.AddListener(() => { ReturnToMainMenu(); });
-
-        for (int i = 0; i < itemSlotButtons.Count; i++)
-        {
-            int slotIndex = i;
-            itemSlotButtons[i].onClick.AddListener(() => { if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound(); if (inventoryManager) inventoryManager.UseItem(slotIndex); });
-        }
         if (pauseButton) pauseButton.onClick.AddListener(() => GameManager.Instance.TogglePause());
         if (endlessModeButton) endlessModeButton.onClick.AddListener(() => GameManager.Instance.StartEndlessMode());
     }
@@ -201,35 +254,34 @@ public class GameUIController : MonoBehaviour
     }
     private void UpdateInventoryUI(List<ItemData> items)
     {
-        currentItems = items;
-        for (int i = 0; i < itemSlotIcons.Count; i++)
+        if (activeItemSlotUIs.Count == 0) InitializeItemSlots();
+
+        for (int i = 0; i < activeItemSlotUIs.Count; i++)
         {
+            ItemSlotUI slotUI = activeItemSlotUIs[i];
+            TooltipTriggerUI trigger = slotUI.GetComponent<TooltipTriggerUI>();
+
             if (i < items.Count && items[i] != null)
             {
-                itemSlotIcons[i].sprite = items[i].itemIcon;
-                itemSlotIcons[i].enabled = true;
-                itemSlotButtons[i].interactable = true;
+                // === 填入道具 ===
+                ItemData item = items[i];
+                slotUI.Setup(item, i); // 传入 item 和 索引
 
-                if (itemTooltipTriggers.Count > i && itemTooltipTriggers[i] != null)
+                // 更新 Tooltip
+                if (trigger != null)
                 {
-                    // 【修改】传递图标和传奇标签信息给 TooltipTrigger
-                    itemTooltipTriggers[i].SetData(
-                        items[i].itemName,
-                        items[i].itemDescription,
-                        items[i].itemIcon,
-                        items[i].isLegendary
-                    );
+                    trigger.SetData(item.itemName, item.itemDescription, item.itemIcon, item.isLegendary);
                 }
             }
             else
             {
-                itemSlotIcons[i].sprite = null;
-                itemSlotIcons[i].enabled = false;
-                itemSlotButtons[i].interactable = false;
+                // === 置空 ===
+                slotUI.Setup(null, i);
 
-                if (itemTooltipTriggers.Count > i && itemTooltipTriggers[i] != null)
+                // 清空 Tooltip
+                if (trigger != null)
                 {
-                    itemTooltipTriggers[i].SetData(null, null); // 清除数据
+                    trigger.SetData(null, null);
                 }
             }
         }
@@ -237,34 +289,34 @@ public class GameUIController : MonoBehaviour
 
     public void UpdateProtocolUI(List<ProtocolData> protocols)
     {
-        currentProtocols = protocols;
-        for (int i = 0; i < protocolIconSlots.Count; i++)
+        if (activeProtocolSlotUIs == null || activeProtocolSlotUIs.Count == 0)
         {
-            if (i < protocols.Count && protocols[i] != null)
-            {
-                protocolIconSlots[i].sprite = protocols[i].protocolIcon;
-                protocolIconSlots[i].enabled = true;
+            InitializeProtocolSlots();
+        }
+        // 遍历所有固定槽位
+        for (int i = 0; i < activeProtocolSlotUIs.Count; i++)
+        {
+            ProtocolSlotUI slotUI = activeProtocolSlotUIs[i];
+            TooltipTriggerUI trigger = slotUI.GetComponent<TooltipTriggerUI>();
 
-                if (protocolTooltipTriggers.Count > i && protocolTooltipTriggers[i] != null)
-                {
-                    // 【修改】传递图标和传奇标签信息给 TooltipTrigger
-                    protocolTooltipTriggers[i].SetData(
-                        protocols[i].protocolName,
-                        protocols[i].protocolDescription,
-                        protocols[i].protocolIcon,
-                        protocols[i].isLegendary
-                    );
-                }
+            if (i < protocols.Count)
+            {
+                // === 填入条约 ===
+                ProtocolData data = protocols[i];
+                slotUI.Setup(data);
+
+                // 更新 Tooltip
+                if (trigger != null)
+                    trigger.SetData(data.protocolName, data.protocolDescription, data.protocolIcon, data.isLegendary);
             }
             else
             {
-                protocolIconSlots[i].sprite = null;
-                protocolIconSlots[i].enabled = false;
+                // === 置空 ===
+                slotUI.Setup(null);
 
-                if (protocolTooltipTriggers.Count > i && protocolTooltipTriggers[i] != null)
-                {
-                    protocolTooltipTriggers[i].SetData(null, null); // 清除数据
-                }
+                // 清空 Tooltip
+                if (trigger != null)
+                    trigger.SetData(null, null);
             }
         }
     }
@@ -524,32 +576,6 @@ public class GameUIController : MonoBehaviour
         SceneManager.LoadScene("MainMenuScene");
     }
 
-    private void InitializeTooltipTriggers()
-    {
-        itemTooltipTriggers.Clear();
-        foreach (var button in itemSlotButtons)
-        {
-            // 我们将触发器添加到按钮的GameObject上
-            TooltipTriggerUI trigger = button.gameObject.GetComponent<TooltipTriggerUI>();
-            if (trigger == null)
-            {
-                trigger = button.gameObject.AddComponent<TooltipTriggerUI>();
-            }
-            itemTooltipTriggers.Add(trigger);
-        }
-
-        protocolTooltipTriggers.Clear();
-        foreach (var image in protocolIconSlots)
-        {
-            // 我们将触发器添加到图标的GameObject上
-            TooltipTriggerUI trigger = image.gameObject.GetComponent<TooltipTriggerUI>();
-            if (trigger == null)
-            {
-                trigger = image.gameObject.AddComponent<TooltipTriggerUI>();
-            }
-            protocolTooltipTriggers.Add(trigger);
-        }
-    }
     public void UpdatePauseUI(bool isCurrentlyPaused, int count)
     {
         if (pauseButtonIcon) pauseButtonIcon.sprite = isCurrentlyPaused ? playIcon : pauseIcon;
@@ -596,6 +622,27 @@ public class GameUIController : MonoBehaviour
             {
                 currentScoreForBarText.text = $"{targetProgressBar.maxValue}";
             }
+        }
+    }
+    public void OnProtocolSlotClicked(ProtocolSlotUI clickedSlot)
+    {
+        // 1. 隐藏所有其他的删除按钮
+        foreach (var slot in activeProtocolSlotUIs)
+        {
+            if (slot != clickedSlot)
+            {
+                slot.HideDeleteButton();
+            }
+        }
+
+        // 2. 显示当前的
+        clickedSlot.ShowDeleteButton();
+    }
+    public void HideAllDeleteButtons()
+    {
+        foreach (var slot in activeProtocolSlotUIs)
+        {
+            slot.HideDeleteButton();
         }
     }
 }

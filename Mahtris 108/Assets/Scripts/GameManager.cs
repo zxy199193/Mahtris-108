@@ -131,6 +131,8 @@ public class GameManager : MonoBehaviour
     public bool isLuckyCapActive = false;
     public bool isFilterActive = false;
     private float filterTimer = 0f;
+
+    private List<ProtocolData> protocolsMarkedForRemoval = new List<ProtocolData>();
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -376,6 +378,7 @@ public class GameManager : MonoBehaviour
         huPaiArea.ClearAll();
         scoreManager.ResetScore();
         inventoryManager.ClearInventory();
+        protocolsMarkedForRemoval.Clear();
         GrantStartingRewards(DifficultyManager.Instance.CurrentDifficulty);
         if (isAdventFoodActive) { adventFoodBonus = 120; adventFoodTimer = 1f; }
         else { adventFoodBonus = 0; }
@@ -402,7 +405,10 @@ public class GameManager : MonoBehaviour
         gameUI.UpdateBaseScoreText(baseFanScore);
         gameUI.UpdateExtraMultiplierText(extraMultiplier);
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
-        
+        if (gameUI != null)
+        {
+            gameUI.UpdateProtocolUI(activeProtocols);
+        }
     }
 
     private void HandleHuDeclared(List<List<int>> huHand)
@@ -496,7 +502,20 @@ public class GameManager : MonoBehaviour
         }
         gameUI.ShowHuPopup(huHand, analysisResult, baseFanScore, blockMultiplier, extraMultiplier, finalScore,rewards, isAdvancedReward, isBerserkerActive,autoBlockIndex, autoItemIndex, autoProtocolIndex);
     }
+    public void MarkProtocolForRemoval(ProtocolData protocol)
+    {
+        if (!protocolsMarkedForRemoval.Contains(protocol))
+        {
+            protocolsMarkedForRemoval.Add(protocol);
+            Debug.Log($"条约 [{protocol.protocolName}] 已标记为待删除，将在下次胡牌后移除。");
+        }
+    }
 
+    // 【新增】检查条约是否已标记（用于UI刷新）
+    public bool IsProtocolMarkedForRemoval(ProtocolData protocol)
+    {
+        return protocolsMarkedForRemoval.Contains(protocol);
+    }
     public void ContinueAfterHu()
     {
         // ... (前面的重置逻辑保持不变)
@@ -537,7 +556,24 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
 
         // 【核心修复 3】重新计算一次速度，确保开局速度正确
+        if (protocolsMarkedForRemoval.Count > 0)
+        {
+            foreach (var proto in protocolsMarkedForRemoval)
+            {
+                if (activeProtocols.Contains(proto))
+                {
+                    // 1. 移除效果
+                    proto.RemoveEffect(this);
+                    // 2. 从激活列表中移除
+                    activeProtocols.Remove(proto);
+                }
+            }
+            // 清空待删除列表
+            protocolsMarkedForRemoval.Clear();
 
+            // 刷新 UI
+            gameUI.UpdateProtocolUI(activeProtocols);
+        }
         blockPool.ResetFullDeck();
         tetrisGrid.ClearAllBlocks();
         CheckAndApplyBulletTime();
@@ -1655,4 +1691,5 @@ public class GameManager : MonoBehaviour
             AddProtocol(randomProtocol);
         }
     }
+
 }

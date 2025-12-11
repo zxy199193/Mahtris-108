@@ -196,7 +196,7 @@ public class MainMenuController : MonoBehaviour
         if (difficultyPopupWindow != null)
         {
             // 1. 动画：滑到屏幕下方
-            difficultyPopupWindow.DOLocalMove(new Vector2(0, -1200), 0.3f).SetEase(Ease.InBack).SetUpdate(true)
+            difficultyPopupWindow.DOLocalMove(new Vector2(0, -1200), 0.4f).SetEase(Ease.InBack).SetUpdate(true)
                 .OnComplete(() =>
                 {
                     // 2. 动画结束后，关闭整个面板 (包括遮罩)
