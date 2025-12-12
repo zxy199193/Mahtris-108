@@ -20,37 +20,30 @@ public class ProtocolSlotUI : MonoBehaviour, IPointerClickHandler
     public void Setup(ProtocolData protocol)
     {
         currentProtocol = protocol;
-
-        // 重置交互状态
         HideDeleteButton();
-        deleteButton.onClick.RemoveAllListeners();
+        if (deleteButton) deleteButton.onClick.RemoveAllListeners();
+
+        TooltipTriggerUI trigger = GetComponent<TooltipTriggerUI>();
+        if (trigger == null) trigger = gameObject.AddComponent<TooltipTriggerUI>();
 
         if (protocol != null)
         {
-            // === 状态 A：有条约 ===
             isEmpty = false;
-
-            // 1. 显示内容层
-            if (iconImage)
-            {
-                iconImage.gameObject.SetActive(true);
-                iconImage.sprite = protocol.protocolIcon;
-            }
+            if (iconImage) { iconImage.gameObject.SetActive(true); iconImage.sprite = protocol.protocolIcon; }
             if (backplateImage) backplateImage.gameObject.SetActive(true);
-
-            // 2. 隐藏空状态层
             if (emptyStateImage) emptyStateImage.gameObject.SetActive(false);
 
-            // 3. 处理交互逻辑
             isPendingRemoval = GameManager.Instance.IsProtocolMarkedForRemoval(protocol);
-            pendingOverlay.SetActive(isPendingRemoval);
+            if (pendingOverlay) pendingOverlay.SetActive(isPendingRemoval);
+            if (deleteButton) deleteButton.onClick.AddListener(OnDeleteClicked);
 
-            deleteButton.onClick.AddListener(OnDeleteClicked);
+            // 【核心修复】强制传入 Protocol 类型
+            trigger.SetData(protocol.protocolName, protocol.protocolDescription, protocol.protocolIcon, protocol.isLegendary, TooltipTriggerUI.TooltipType.Protocol);
         }
         else
         {
-            // === 状态 B：空槽位 ===
             SetEmpty();
+            trigger.SetData(null, null);
         }
     }
     private void SetEmpty()

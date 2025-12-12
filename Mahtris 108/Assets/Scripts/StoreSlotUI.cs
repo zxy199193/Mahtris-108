@@ -1,3 +1,4 @@
+// FileName: StoreSlotUI.cs
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -39,41 +40,34 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void SetupStatus(SlotStatus status, int price, bool isLegendary, int conditionCount, string typeName)
     {
-        // 1. 先把所有状态相关的 UI 都隐藏/重置
         lockedOverlay.SetActive(false);
         hiddenOverlay.SetActive(false);
 
-        // 【新增】显式隐藏购买按钮 (防止它不在 lockedOverlay 里时无法消失)
         if (buyButton != null) buyButton.gameObject.SetActive(false);
-
         buyButton.onClick.RemoveAllListeners();
 
         switch (status)
         {
             case SlotStatus.Unlocked:
-                // 已解锁：什么都不用显示，保持上面的隐藏状态即可
                 break;
 
             case SlotStatus.Locked:
                 lockedOverlay.SetActive(true);
-
-                // 【新增】锁定状态：显式打开购买按钮
                 if (buyButton != null) buyButton.gameObject.SetActive(true);
-
                 priceText.text = price.ToString();
                 buyButton.onClick.AddListener(() => controller.TryBuy(this));
                 break;
 
             case SlotStatus.Hidden:
                 hiddenOverlay.SetActive(true);
-                unlockConditionText.text = $"获得{conditionCount}个{typeName}后显示";
+                unlockConditionText.text = $"解锁 {conditionCount} 个{typeName}后显示";
                 break;
         }
     }
 
+    // 【核心修复】修改 OnPointerEnter 方法
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // 隐藏状态下不显示详情浮窗 (或显示特殊的)
         if (hiddenOverlay.activeSelf) return;
 
         if (TooltipController.Instance != null)
@@ -83,18 +77,43 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
             Sprite icon = isItem ? itemData.itemIcon : protocolData.protocolIcon;
             bool legendary = isItem ? itemData.isLegendary : protocolData.isLegendary;
 
+            // 获取 Settings
             GameSettings settings = null;
-            if (controller != null)
+            if (controller != null) settings = controller.GetSettings();
+            if (settings == null && GameManager.Instance != null) settings = GameManager.Instance.GetSettings();
+            if (settings == null) return;
+
+            Sprite bg = null;
+
+            // 【核心修复】必须在这里准确计算出 type，既用于选背景，也用于传参数
+            TooltipTriggerUI.TooltipType type = TooltipTriggerUI.TooltipType.Common;
+
+            if (isItem)
             {
-                settings = controller.GetSettings();
+                if (itemData.isAdvanced)
+                {
+                    type = TooltipTriggerUI.TooltipType.Advanced; // 标记为高级
+                    bg = settings.tooltipBgAdvanced;
+                }
+                else
+                {
+                    type = TooltipTriggerUI.TooltipType.Common; // 标记为普通
+                    bg = settings.tooltipBgCommon;
+                }
+            }
+            else // 是条约
+            {
+                type = TooltipTriggerUI.TooltipType.Protocol; // 标记为条约
+                bg = settings.tooltipBgProtocol;
             }
 
-            // 安全检查，防止没拿到 settings 导致后面报错
-            if (settings != null)
-            {
-                Sprite bg = legendary ? settings.tooltipBgLegendary : (isItem ? settings.tooltipBgCommon : settings.tooltipBgProtocol);
-                TooltipController.Instance.Show(title, desc, icon, bg, legendary, transform);
-            }
+            // 保底检查
+            if (bg == null) bg = settings.tooltipBgCommon;
+            // 传奇覆盖背景，但【不要】改变 type (保持类型标签显示 "高级道具" 或 "条约")
+            if (legendary) bg = settings.tooltipBgLegendary;
+
+            // 调用 Show，传入计算好的 type
+            TooltipController.Instance.Show(title, desc, icon, bg, legendary, type, transform);
         }
     }
 

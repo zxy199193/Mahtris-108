@@ -730,12 +730,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74033fcacc44f7646aac11357ea4b114, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inspectorSettings: {fileID: 11400000, guid: 5a2bb427df5e60a4daeb0e68a9f2c8c0, type: 2}
   panel: {fileID: 3057963400749150143}
   backgroundImage: {fileID: 3719157952226624200}
   iconImage: {fileID: 6383406464821223516}
   titleText: {fileID: 6887400926025436817}
   descriptionText: {fileID: 4735144235009480564}
   legendaryIcon: {fileID: 5608451262107619319}
+  typeLabelObj: {fileID: 5608575554221390195}
+  typeLabelBackground: {fileID: 4022451036816925548}
+  typeLabelText: {fileID: 822453847024588739}
   offset: {x: 0, y: 200, z: 0}
 --- !u!1 &5608451262107619319
 GameObject:
@@ -848,8 +852,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -115, y: 12}
-  m_SizeDelta: {x: 100, y: 26}
+  m_AnchoredPosition: {x: -115, y: 14}
+  m_SizeDelta: {x: 100, y: 28}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &2061725800451645424
 CanvasRenderer:
@@ -872,7 +876,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.972549, g: 0.5882353, b: 0.11764706, a: 1}
+  m_Color: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

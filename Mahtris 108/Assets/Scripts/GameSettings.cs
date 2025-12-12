@@ -80,6 +80,11 @@ public class GameSettings : ScriptableObject
     public Sprite tooltipBgProtocol;  // 条约背板
     public Sprite tooltipBgLegendary; // 传奇背板
 
+    [Header("浮窗标签颜色配置")] // 【新增】
+    public Color labelColorCommon = new Color(0.2f, 0.6f, 1f);
+    public Color labelColorAdvanced = new Color(1f, 0.5f, 0f);
+    public Color labelColorProtocol = new Color(0.5f, 0.5f, 0.5f);
+
     [Header("目标分数与时间")]
     public float initialTimeLimit = 180f;
     public float huTimeBonus = 60f;

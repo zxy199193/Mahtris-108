@@ -7,6 +7,7 @@ public abstract class ItemData : ScriptableObject
     public Sprite itemIcon;
     [TextArea(3, 5)]
     public string itemDescription;
+    public bool isAdvanced;
     public bool isLegendary = false;
     public AudioClip useSound;
     [Header("…ÃµÍ≈‰÷√")]

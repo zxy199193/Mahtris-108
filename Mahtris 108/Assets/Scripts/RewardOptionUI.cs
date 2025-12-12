@@ -1,8 +1,8 @@
 // FileName: RewardOptionUI.cs
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using System;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -10,9 +10,9 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public Button optionButton;
     public Image optionIcon;
     public Transform shapeContainer;
-    public GameObject checkMark; // 【新增】勾选标记
-    public GameObject legendaryBadge; // 【新增】传奇角标
-    public Image backgroundImage; // 【新增】用于切换背板 (需在Prefab中拖拽)
+    public GameObject checkMark;
+    public GameObject legendaryBadge;
+    public Image backgroundImage;
 
     [Header("文本显示")]
     public GameObject textContainer;
@@ -23,7 +23,6 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     private ProtocolData _protocolData;
     private bool _isBlock;
 
-    // 回调
     private Action<RewardOptionUI> _onClick;
 
     // --- 初始化方法 1: 道具 ---
@@ -32,8 +31,6 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         _itemData = item;
         _isBlock = false;
         SetupCommon(item.itemIcon, onClick);
-
-        // 传奇显示
         if (legendaryBadge) legendaryBadge.SetActive(item.isLegendary);
     }
 
@@ -43,8 +40,6 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         _protocolData = protocol;
         _isBlock = false;
         SetupCommon(protocol.protocolIcon, onClick);
-
-        // 传奇显示
         if (legendaryBadge) legendaryBadge.SetActive(protocol.isLegendary);
     }
 
@@ -52,7 +47,6 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public void Setup(GameObject prefab, Action<RewardOptionUI> onClick)
     {
         _isBlock = true;
-
         if (optionIcon) optionIcon.gameObject.SetActive(false);
         if (shapeContainer)
         {
@@ -61,17 +55,13 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             var tet = prefab.GetComponent<Tetromino>();
             if (tet && tet.uiPrefab) Instantiate(tet.uiPrefab, shapeContainer);
         }
-
         if (textContainer) textContainer.SetActive(true);
         if (optionText)
         {
             var tet = prefab.GetComponent<Tetromino>();
             if (tet) optionText.text = $"{tet.extraMultiplier:F0}";
         }
-
-        if (legendaryBadge) legendaryBadge.SetActive(false); // 方块无传奇
-
-        // 绑定点击
+        if (legendaryBadge) legendaryBadge.SetActive(false);
         _onClick = onClick;
         if (optionButton)
         {
@@ -81,18 +71,15 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         SetSelected(false);
     }
 
-    // 私有通用设置
     private void SetupCommon(Sprite icon, Action<RewardOptionUI> onClick)
     {
         if (shapeContainer) shapeContainer.gameObject.SetActive(false);
         if (textContainer) textContainer.SetActive(false);
-
         if (optionIcon)
         {
             optionIcon.gameObject.SetActive(true);
             optionIcon.sprite = icon;
         }
-
         _onClick = onClick;
         if (optionButton)
         {
@@ -102,11 +89,9 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         SetSelected(false);
     }
 
-    // 交互状态控制
     public void SetSelected(bool selected)
     {
         if (checkMark) checkMark.SetActive(selected);
-        // 如果选中了，按钮不再可交互（防止重复点击），但也可能通过 SetInteractable 统一控制
     }
 
     public void SetInteractable(bool active)
@@ -114,12 +99,10 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         if (optionButton) optionButton.interactable = active;
     }
 
-    // --- 鼠标悬停逻辑 (调用 TooltipController) ---
+    // --- 【核心修复】鼠标悬停逻辑 ---
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // 方块不显示浮窗 (根据需求)
         if (_isBlock) return;
-
         if (TooltipController.Instance == null) return;
 
         string title = "";
@@ -127,6 +110,10 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         Sprite icon = null;
         bool legendary = false;
         Sprite bg = null;
+
+        // 【新增】定义类型变量，默认为 Common
+        TooltipTriggerUI.TooltipType type = TooltipTriggerUI.TooltipType.Common;
+
         GameSettings settings = GameManager.Instance.GetSettings();
 
         if (_itemData != null)
@@ -135,8 +122,18 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             desc = _itemData.itemDescription;
             icon = _itemData.itemIcon;
             legendary = _itemData.isLegendary;
-            // 简单判断背板
-            bg = legendary ? settings.tooltipBgLegendary : settings.tooltipBgCommon;
+
+            // 【新增】判断道具类型 (普通/高级)
+            if (_itemData.isAdvanced)
+            {
+                type = TooltipTriggerUI.TooltipType.Advanced;
+                bg = settings.tooltipBgAdvanced;
+            }
+            else
+            {
+                type = TooltipTriggerUI.TooltipType.Common;
+                bg = settings.tooltipBgCommon;
+            }
         }
         else if (_protocolData != null)
         {
@@ -144,11 +141,19 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             desc = _protocolData.protocolDescription;
             icon = _protocolData.protocolIcon;
             legendary = _protocolData.isLegendary;
-            bg = legendary ? settings.tooltipBgLegendary : settings.tooltipBgProtocol;
+
+            // 【新增】设定为条约类型
+            type = TooltipTriggerUI.TooltipType.Protocol;
+            bg = settings.tooltipBgProtocol;
         }
 
-        // 显示浮窗
-        TooltipController.Instance.Show(title, desc, icon, bg, legendary, this.transform);
+        // 传奇背景覆盖
+        if (legendary) bg = settings.tooltipBgLegendary;
+        // 保底背景
+        if (bg == null) bg = settings.tooltipBgCommon;
+
+        // 【修复】传入 type 参数 (第 6 个参数)
+        TooltipController.Instance.Show(title, desc, icon, bg, legendary, type, this.transform);
     }
 
     public void OnPointerExit(PointerEventData eventData)

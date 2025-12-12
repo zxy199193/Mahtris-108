@@ -190,7 +190,6 @@ public class GameUIController : MonoBehaviour
             // 动态添加 Tooltip
             TooltipTriggerUI trigger = go.GetComponent<TooltipTriggerUI>();
             if (trigger == null) trigger = go.AddComponent<TooltipTriggerUI>();
-            trigger.SetData(null, null);
 
             activeItemSlotUIs.Add(slotUI);
         }
@@ -213,7 +212,6 @@ public class GameUIController : MonoBehaviour
             TooltipTriggerUI trigger = go.GetComponent<TooltipTriggerUI>();
             if (trigger == null) trigger = go.AddComponent<TooltipTriggerUI>();
             // 空状态下 Tooltip 数据设为 null 即可
-            trigger.SetData(null, null);
 
             activeProtocolSlotUIs.Add(slotUI);
         }
@@ -264,30 +262,17 @@ public class GameUIController : MonoBehaviour
         for (int i = 0; i < activeItemSlotUIs.Count; i++)
         {
             ItemSlotUI slotUI = activeItemSlotUIs[i];
-            TooltipTriggerUI trigger = slotUI.GetComponent<TooltipTriggerUI>();
 
             if (i < items.Count && items[i] != null)
             {
                 // === 填入道具 ===
                 ItemData item = items[i];
                 slotUI.Setup(item, i); // 传入 item 和 索引
-
-                // 更新 Tooltip
-                if (trigger != null)
-                {
-                    trigger.SetData(item.itemName, item.itemDescription, item.itemIcon, item.isLegendary);
-                }
             }
             else
             {
                 // === 置空 ===
                 slotUI.Setup(null, i);
-
-                // 清空 Tooltip
-                if (trigger != null)
-                {
-                    trigger.SetData(null, null);
-                }
             }
         }
     }
@@ -302,26 +287,17 @@ public class GameUIController : MonoBehaviour
         for (int i = 0; i < activeProtocolSlotUIs.Count; i++)
         {
             ProtocolSlotUI slotUI = activeProtocolSlotUIs[i];
-            TooltipTriggerUI trigger = slotUI.GetComponent<TooltipTriggerUI>();
 
             if (i < protocols.Count)
             {
                 // === 填入条约 ===
                 ProtocolData data = protocols[i];
                 slotUI.Setup(data);
-
-                // 更新 Tooltip
-                if (trigger != null)
-                    trigger.SetData(data.protocolName, data.protocolDescription, data.protocolIcon, data.isLegendary);
             }
             else
             {
                 // === 置空 ===
                 slotUI.Setup(null);
-
-                // 清空 Tooltip
-                if (trigger != null)
-                    trigger.SetData(null, null);
             }
         }
     }

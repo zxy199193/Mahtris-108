@@ -23,36 +23,37 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
     {
         currentItem = item;
         slotIndex = index;
+
         if (shortcutText != null)
         {
             shortcutText.text = (index + 1).ToString();
-
-            // 选项：如果你希望没有道具时也显示数字（推荐，方便记忆键位），保持 SetActive(true)
             shortcutText.gameObject.SetActive(true);
-
-            // 选项：如果你希望只有在有道具时才显示数字，可以使用下面这行：
-            // shortcutText.gameObject.SetActive(item != null);
         }
+
+        // 获取 Trigger
+        TooltipTriggerUI trigger = GetComponent<TooltipTriggerUI>();
+        if (trigger == null) trigger = gameObject.AddComponent<TooltipTriggerUI>();
+
         if (item != null)
         {
-            // === 有道具状态 ===
+            // === 有道具 ===
             isEmpty = false;
-
-            // 1. 显示内容层
-            if (iconImage)
-            {
-                iconImage.gameObject.SetActive(true);
-                iconImage.sprite = item.itemIcon;
-            }
+            if (iconImage) { iconImage.gameObject.SetActive(true); iconImage.sprite = item.itemIcon; }
             if (backplateImage) backplateImage.gameObject.SetActive(true);
-
-            // 2. 隐藏空状态层
             if (emptyStateImage) emptyStateImage.gameObject.SetActive(false);
+
+            // 【核心修复】计算类型并传入
+            TooltipTriggerUI.TooltipType type = item.isAdvanced
+                ? TooltipTriggerUI.TooltipType.Advanced
+                : TooltipTriggerUI.TooltipType.Common;
+
+            // 传入 5 个参数，确保 type 被传递
+            trigger.SetData(item.itemName, item.itemDescription, item.itemIcon, item.isLegendary, type);
         }
         else
         {
-            // === 空槽位状态 ===
             SetEmpty();
+            trigger.SetData(null, null);
         }
     }
 
