@@ -60,6 +60,7 @@ public class GameManager : MonoBehaviour
     // 用于特殊流程控制的内部变量
     private bool _isBombOrSpecialClear = false;
     private bool _hasDeclaredHuThisFrame = false; // 【新增】防连击锁
+    private bool _pendingGameWin = false;
 
     private int permanentSpeedBonus = 0; // 永久加成 (气球, 神之救济, 条约)
     private int roundSpeedBonus = 0; // 本轮加成 (降落伞)
@@ -366,6 +367,7 @@ public class GameManager : MonoBehaviour
         isLuckyCapActive = false;
         isFilterActive = false;
         filterTimer = 0f;
+        _pendingGameWin = false; 
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
 
         remainingPauses = maxPauses;
@@ -403,7 +405,14 @@ public class GameManager : MonoBehaviour
         UpdateActiveBlockListUI();
         isProcessingRows = false;
         gameUI.HideAllPanels();
+        gameUI.SetEndlessModeLabelActive(false);
         UpdateTargetScoreUI();
+        if (currentSessionConfig != null && currentSessionConfig.DifficultyScoreLevels != null)
+        {
+            int total = currentSessionConfig.DifficultyScoreLevels.Count;
+            // currentScoreLevelIndex 初始为 0，所以显示 1
+            gameUI.UpdateLevelProgress(currentScoreLevelIndex + 1, total);
+        }
         gameUI.UpdateBaseScoreText(baseFanScore);
         gameUI.UpdateExtraMultiplierText(extraMultiplier);
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
@@ -474,18 +483,27 @@ public class GameManager : MonoBehaviour
         long finalScore = (long)(scorePart * blockMultiplier * extraMultiplier);
         scoreManager.AddScore((int)Mathf.Min(finalScore, int.MaxValue));
 
+        float addedTime = 0f;
         // 【修复】时间就是金钱 (TimeIsMoney)
         // 只有在未激活该条约时，才奖励时间
         if (!isTimeIsMoneyActive)
         {
-            remainingTime += settings.huTimeBonus;
+            addedTime += settings.huTimeBonus;
             // 处理新能源 (RenewableEnergy) 的额外加时
             if (isRenewableEnergyActive)
             {
-                remainingTime += 20f;
+                addedTime += 20f;
             }
+
+            // 实际应用时间奖励
+            remainingTime += addedTime;
+
             gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
         }
+
+        // 计算下一轮速度增加值 (仅用于显示)
+        // 这里的逻辑是：每一轮胡牌，速度等级增加 settings.speedIncreasePerHu_Int
+        int speedIncrease = settings.speedIncreasePerHu_Int;
         ProcessPendingProtocolRemovals();
         var rewards = GenerateHuRewards(isAdvancedReward);
 
@@ -505,7 +523,22 @@ public class GameManager : MonoBehaviour
             if (autoItemIndex != -1) inventoryManager.AddItem(rewards.ItemChoices[autoItemIndex]);
             if (autoProtocolIndex != -1) AddProtocol(rewards.ProtocolChoices[autoProtocolIndex]);
         }
-        gameUI.ShowHuPopup(huHand, analysisResult, baseFanScore, blockMultiplier, extraMultiplier, finalScore,rewards, isAdvancedReward, isBerserkerActive,autoBlockIndex, autoItemIndex, autoProtocolIndex);
+        gameUI.ShowHuPopup(
+            huHand,
+            analysisResult,
+            baseFanScore,
+            blockMultiplier,
+            extraMultiplier,
+            finalScore,
+            rewards,
+            isAdvancedReward,
+            isBerserkerActive,
+            addedTime,      // <--- 传入正确的时间 (如 60)
+            speedIncrease,  // <--- 传入正确的速度 (如 2)
+            autoBlockIndex, // <--- 这里的 -1 才是正确的 autoIdx
+            autoItemIndex,
+            autoProtocolIndex
+        );
     }
     public void MarkProtocolForRemoval(ProtocolData protocol)
     {
@@ -552,12 +585,102 @@ public class GameManager : MonoBehaviour
         if (_snapshotStrongWorld) spawner.AddRandomLevel3Block();
 
         UpdateCurrentBaseScore();
-
+        isPaused = false;
         if (isStopwatchActive) { remainingPauses = maxPauses; isStopwatchActive = false; }
         else { remainingPauses = maxPauses; }
 
         if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
-        gameUI.HideHuPopup();
+        gameUI.PlayHuPopupExitAnimation(() =>
+        {
+            // ==========================================
+            // 以下代码会在动画播放完毕后执行
+            // ==========================================
+
+            // 1. 【修复】重置暂停状态
+            // 必须显式设为 false，防止从"游戏胜利"面板切回来时按钮状态卡在"暂停中"
+            isPaused = false;
+
+            // 重置暂停次数显示
+            if (isStopwatchActive) { remainingPauses = maxPauses; isStopwatchActive = false; }
+            else { remainingPauses = maxPauses; }
+
+            if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
+
+            // 2. 【原有的重置变量逻辑】
+            // (直接搬进来即可)
+            delayGratificationBonus = 0;
+            if (isGreatRevolutionActive) spawner.RandomizeActivePool();
+            if (isBerserkerActive) inventoryManager.UseAllItems();
+
+            midasTimer = 0f; midasGoldValue = 0; scoreboardTimer = 0f;
+            ignoreMahjongCheckCount = 0;
+            roundSpeedBonus = 0; countedSpeedBonus = 0; countedBonusBlocksRemaining = 0;
+            isFilterActive = false; filterTimer = 0f; isLuckyCapActive = false;
+
+            if (isSteroidReversalActive) { roundBaseScoreBonus = 0; isSteroidReversalActive = false; }
+            else if (isSteroidActive) { roundBaseScoreBonus = -16; isSteroidActive = false; isSteroidReversalActive = true; }
+            else { roundBaseScoreBonus = 0; }
+
+            if (isAdventFoodActive) { adventFoodBonus = 120; adventFoodTimer = 1f; } else { adventFoodBonus = 0; }
+
+            UpdateCurrentBaseScore();
+
+            if (isRoutineWorkActive) remainingTime = 95f;
+            if (isRenewableEnergyActive) remainingTime += 20f;
+            if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
+
+            _lastBulletTimeState = false;
+            _hasDeclaredHuThisFrame = false;
+
+            if (_snapshotStrongWorld) spawner.AddRandomLevel3Block();
+
+            UpdateCurrentBaseScore();
+
+            // 3. 【检查延迟获胜】
+            if (!isEndlessMode && _pendingGameWin)
+            {
+                _pendingGameWin = false;
+                HandleGameWon();
+                return; // 如果赢了，直接去显示胜利面板，不执行下面的恢复游戏
+            }
+            _pendingGameWin = false;
+
+            // 4. 【恢复游戏状态】
+            Time.timeScale = 1f;
+            if (AudioManager.Instance) AudioManager.Instance.ResumeCountdownSound();
+
+            // 移除到期条约
+            ProcessPendingProtocolRemovals();
+
+            // 5. 【重置网格与牌库】
+            hasClearedRowsInThisRound = false;
+            blockPool.ResetFullDeck();
+            tetrisGrid.ClearAllBlocks();
+            CheckAndApplyBulletTime();
+            huPaiArea.ClearAll();
+
+            if (remainingTime <= 0.1f && !isTimeIsMoneyActive) remainingTime = 1f;
+
+            UpdateFallSpeed();
+            spawner.StartNextRound();
+            gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+
+            if (bonusBlocksOnHuCount > 0 && !string.IsNullOrEmpty(bonusBlockPrefabName))
+            {
+                var prefab = spawner.GetMasterList().FirstOrDefault(p => p.name == bonusBlockPrefabName);
+                if (prefab != null) { for (int i = 0; i < bonusBlocksOnHuCount; i++) spawner.AddTetrominoToPool(prefab); }
+                bonusBlocksOnHuCount = 0; bonusBlockPrefabName = "";
+            }
+            isProcessingRows = false;
+        });
+        if (!isEndlessMode && _pendingGameWin)
+        {
+            _pendingGameWin = false;
+            HandleGameWon();
+            // 这里 return，等待玩家点击无尽模式按钮
+            return;
+        }
+        _pendingGameWin = false;
         Time.timeScale = 1f;
         if (AudioManager.Instance) AudioManager.Instance.ResumeCountdownSound();
         // 【核心修复 3】重新计算一次速度，确保开局速度正确
@@ -1190,12 +1313,24 @@ public class GameManager : MonoBehaviour
             }
 
             currentScoreLevelIndex++;
-
+            int total = currentSessionConfig.DifficultyScoreLevels.Count;
+            gameUI.UpdateLevelProgress(currentScoreLevelIndex + 1, total);
             // 【修复】如果索引已达到上限（通关），立即停止循环并触发获胜
             if (currentScoreLevelIndex >= currentSessionConfig.DifficultyScoreLevels.Count)
             {
-                HandleGameWon();
-                break; // 【关键】必须退出循环，否则下次判断条件时会越界
+                // 如果当前正在处理胡牌 (Time.timeScale == 0) 或者正在处理消行
+                // 我们不立即显示胜利面板，而是推迟到 ContinueAfterHu
+                if (Time.timeScale == 0f || isProcessingRows || _hasDeclaredHuThisFrame)
+                {
+                    _pendingGameWin = true;
+                    Debug.Log("达成胜利条件！但当前处于胡牌/暂停中，将推迟显示胜利面板。");
+                }
+                else
+                {
+                    // 只有在正常游戏过程中达成，才立即显示
+                    HandleGameWon();
+                }
+                break;
             }
 
             UpdateTargetScoreUI();
@@ -1322,10 +1457,22 @@ public class GameManager : MonoBehaviour
 
     public void StartEndlessMode()
     {
-        isEndlessMode = true;
-        Time.timeScale = 1f;
-        gameUI.HideAllPanels(); // 确保结束面板被隐藏
-        UpdateTargetScoreUI();
+        // 【核心修改】先播放退出动画，再执行逻辑
+        gameUI.PlayGameOverExitAnimation(() =>
+        {
+            isEndlessMode = true;
+
+            // 这里的 HideAllPanels 其实已经在动画回调里处理了隐藏，
+            // 但保留它作为双重保险也没问题，或者可以删掉
+            gameUI.HideAllPanels();
+            gameUI.HideLevelProgress();
+
+            UpdateTargetScoreUI();
+            gameUI.SetEndlessModeLabelActive(true);
+
+            // 继续游戏
+            ContinueAfterHu();
+        });
     }
     public void SetStopwatchActive(bool isActive)
     {

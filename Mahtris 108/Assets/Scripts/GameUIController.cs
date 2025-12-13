@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Analytics;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
+using System;
 
 
 
@@ -34,6 +34,9 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Slider targetProgressBar;
     [SerializeField] private Text currentScoreForBarText; // (可选)显示 "1200 / 5000"
     [SerializeField] private Text goldRewardText;
+    [SerializeField] private GameObject targetProgressParent;
+    [SerializeField] private Text targetProgressText;
+    [SerializeField] private GameObject endlessModeLabel;
 
     [Header("下一个方块预览")]
     [SerializeField] private Transform nextBlockPreviewArea;
@@ -50,7 +53,26 @@ public class GameUIController : MonoBehaviour
     [Header("胡牌弹窗")]
     [SerializeField] private GameObject huPopupPanel;
     [SerializeField] private Transform huHandDisplayArea;
+
+    [Header("胡牌弹窗 - 结构引用")]
+    [SerializeField] private GameObject huPopupRoot;
+    [SerializeField] private RectTransform huPopupContainer;
+
+    [Header("胡牌弹窗 - 信息显示")]
     [SerializeField] private Text patternNameText;
+    [SerializeField] private Text patternFanText;
+    [SerializeField] private GameObject kongInfoGroup;
+    [SerializeField] private Text kongCountText;
+    [SerializeField] private Text kongFanText;
+
+    [Header("胡牌弹窗 - 分页结构")] // 【新增】
+    [SerializeField] private GameObject huStage1Panel; // 第一页：得分与手牌
+    [SerializeField] private GameObject huStage2Panel; // 第二页：奖励与下轮预告
+    [SerializeField] private Button nextStepButton;    // 第一页上的"下一步"按钮
+
+    [Header("胡牌弹窗 - 第二页信息")] // 【新增】
+    [SerializeField] private Text nextRoundTimeText;   // 显示 "时间 +60s"
+    [SerializeField] private Text nextRoundSpeedText;  // 显示 "速度 Lv.+2"
 
     [Header("胡牌得分公式 (拆分)")]
     [SerializeField] private Text formulaBaseScoreText;
@@ -61,6 +83,12 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Text formulaFinalScoreText;
     [SerializeField] private Button continueButton;
     [SerializeField] private Text huCycleText;
+
+    [Header("胡牌弹窗 - 动效配置")] // 【新增】
+    [Tooltip("分数滚动动画持续时间 (秒)")]
+    [SerializeField] private float scoreRollDuration = 2.0f;
+    private Tween scoreRollTween;
+    private long _currentDisplayScoreTarget;
 
     [Header("胡牌奖励区域")]
     [SerializeField] private GameObject commonRewardPanel;
@@ -73,6 +101,7 @@ public class GameUIController : MonoBehaviour
 
     [Header("游戏结束")]
     [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private RectTransform gameOverContainer;
     [SerializeField] private Button restartButton;
 
     [Header("Tetromino列表")]
@@ -227,8 +256,30 @@ public class GameUIController : MonoBehaviour
         if (restartButton) restartButton.onClick.AddListener(() => { ReturnToMainMenu(); });
         if (pauseButton) pauseButton.onClick.AddListener(() => GameManager.Instance.TogglePause());
         if (endlessModeButton) endlessModeButton.onClick.AddListener(() => GameManager.Instance.StartEndlessMode());
+        if (nextStepButton) nextStepButton.onClick.AddListener(OnNextStepClicked);
     }
+    private void OnNextStepClicked()
+    {
+        // 1. 停止分数滚动
+        if (scoreRollTween != null) { scoreRollTween.Kill(); scoreRollTween = null; }
+        if (formulaFinalScoreText) formulaFinalScoreText.text = $"{_currentDisplayScoreTarget}";
 
+        // 2. 切换页面：隐藏第一页，显示第二页
+        if (huStage1Panel) huStage1Panel.SetActive(false);
+
+        if (huStage2Panel)
+        {
+            huStage2Panel.SetActive(true);
+
+            // 可选：给第二页单独加个微小的弹动效果，增加交互感
+            RectTransform stage2Rect = huStage2Panel.GetComponent<RectTransform>();
+            if (stage2Rect)
+            {
+                stage2Rect.anchoredPosition = new Vector2(0, -500); // 从稍微下面一点的地方
+                stage2Rect.DOLocalMove(Vector2.zero, 0.4f).SetEase(Ease.OutBack).SetUpdate(true);
+            }
+        }
+    }
     public void UpdateTimerText(float time, bool isSpecialState = false)
     {
         if (timerText)
@@ -392,41 +443,104 @@ public class GameUIController : MonoBehaviour
     public void ShowHuPopup(List<List<int>> huHand, HandAnalysisResult analysis,
                             int baseScore, float blockMultiplier, float extraMultiplier, long finalScore,
                             HuRewardPackage rewards, bool isAdvanced, bool isBerserkerActive,
+                            float addedTime, int speedIncrease,
                             int autoBlockIdx = -1, int autoItemIdx = -1, int autoProtocolIdx = -1)
     {
         selectionCounts.Clear();
-        if (huPopupPanel)
+        _currentDisplayScoreTarget = finalScore;
+        if (huPopupRoot) huPopupRoot.SetActive(true);
+        if (huPopupContainer)
         {
-            // 1. 立即激活面板
-            huPopupPanel.SetActive(true);
+            huPopupContainer.gameObject.SetActive(true);
 
-            // 确保 RectTransform 锚点居中（Inspector 设置）
-            RectTransform rectTransform = huPopupPanel.GetComponent<RectTransform>();
-            rectTransform.anchorMin = new Vector2(0.5f, 0.5f); // 屏幕中心
-            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            rectTransform.pivot = new Vector2(0.5f, 0.5f); // 轴心居中
+            // 确保第一页显示，第二页隐藏
+            if (huStage1Panel) huStage1Panel.SetActive(true);
+            if (huStage2Panel) huStage2Panel.SetActive(false);
 
-            // 设置初始位置（本地坐标）
-            rectTransform.anchoredPosition = new Vector2(0, 1200); // 使用 anchoredPosition 而非 position
+            // 重置位置到屏幕下方 (准备滑入)
+            huPopupContainer.anchoredPosition = new Vector2(0, -1500);
 
-            // 执行本地移动动画
-            rectTransform.DOLocalMove(new Vector2(0, 0), 0.8f)
-                .SetEase(Ease.OutBounce)
+            // 执行滑入动画
+            huPopupContainer.DOLocalMove(Vector2.zero, 0.6f)
+                .SetEase(Ease.OutBack)
                 .SetUpdate(true);
         }
-        if (formulaFanBaseText) formulaFanBaseText.text = $"{analysis.BaseMultiplier}"; 
-        if (patternNameText) patternNameText.text = $"{analysis.PatternName} ({analysis.TotalFan}番)";
+        int kongCount = 0;
+        if (huHand != null)
+        {
+            kongCount = huHand.Count(set => set.Count == 4);
+        }
+
+        // 2. 获取每杠番数配置
+        int fanPerKong = 1; // 默认防空值
+        if (GameManager.Instance != null)
+        {
+            fanPerKong = GameManager.Instance.GetSettings().fanBonusPerKong;
+        }
+
+        // 3. 计算具体番数
+        int kongFanTotal = kongCount * fanPerKong;
+        int patternFanOnly = analysis.TotalFan - kongFanTotal; // 牌型番 = 总番 - 杠番
+
+        // 4. 更新 UI 文本
+        if (patternNameText) patternNameText.text = analysis.PatternName; // 只显示名字
+        if (patternFanText) patternFanText.text = patternFanOnly.ToString(); // 只显示数字
+
+        if (kongInfoGroup != null)
+        {
+            if (kongCount > 0)
+            {
+                // 有杠：显示组，并更新文本
+                kongInfoGroup.SetActive(true);
+                if (kongCountText) kongCountText.text = kongCount.ToString();
+                if (kongFanText) kongFanText.text = kongFanTotal.ToString();
+            }
+            else
+            {
+                // 无杠：直接隐藏整个组
+                kongInfoGroup.SetActive(false);
+            }
+        }
+        else
+        {
+            // (保底逻辑) 如果没绑定父节点但绑定了文本，还是尝试更新一下
+            if (kongCountText) kongCountText.text = kongCount.ToString();
+            if (kongFanText) kongFanText.text = kongFanTotal.ToString();
+        }
+
+        // =========================================================
+
         if (formulaBaseScoreText) formulaBaseScoreText.text = $"{baseScore}";
-        if (formulaFanBaseText) formulaFanBaseText.text = "2"; // (注：如果"高端局"条约实装，这里需要改成动态的)
+        if (formulaFanBaseText) formulaFanBaseText.text = $"{analysis.BaseMultiplier}";
         if (formulaFanExpText) formulaFanExpText.text = $"{analysis.TotalFan}";
         if (formulaBlockMultText) formulaBlockMultText.text = $"{blockMultiplier:F0}";
         if (formulaExtraMultText) formulaExtraMultText.text = $"{extraMultiplier:F0}";
-        if (formulaFinalScoreText) formulaFinalScoreText.text = $"{finalScore}";
-        //if (huCycleText) huCycleText.text = isAdvanced ? "4/4" : $"第X圈 第{scoreManager.GetHuCountInCycle()}轮";
-        if (formulaFanBaseText) formulaFanBaseText.text = $"{analysis.BaseMultiplier}";
+        if (formulaFinalScoreText)
+        {
+            // 1. 先重置为 0
+            formulaFinalScoreText.text = "0";
 
+            // 2. 杀掉旧动画 (防止连击出bug)
+            if (scoreRollTween != null) scoreRollTween.Kill();
+
+            // 3. 创建数字滚动动画
+            // 使用 DOTween.To 处理 long 类型 (Docounter 只能处理 int)
+            long startValue = 0;
+            scoreRollTween = DOTween.To(
+                () => startValue,               // Getter
+                x => {                          // Setter
+                    startValue = (long)x;
+                    formulaFinalScoreText.text = $"{startValue}";
+                },
+                finalScore,                     // Target
+                scoreRollDuration               // Duration
+            )
+            .SetEase(Ease.OutExpo) // 使用 OutExpo 缓动，让数字在快结束时减速，更有质感
+            .SetUpdate(true);      // 【关键】忽略 Time.timeScale = 0
+        }
         BuildUIHand(huHandDisplayArea, huHand);
-
+        if (nextRoundTimeText) nextRoundTimeText.text = $"+{addedTime:F0}";
+        if (nextRoundSpeedText) nextRoundSpeedText.text = $"+{speedIncrease}";
         if (commonRewardPanel) commonRewardPanel.SetActive(!isAdvanced);
         if (advancedRewardPanel) advancedRewardPanel.SetActive(isAdvanced);
 
@@ -554,27 +668,55 @@ public class GameUIController : MonoBehaviour
         if (huPopupPanel) huPopupPanel.SetActive(false);
         if (gameOverPanel) gameOverPanel.SetActive(false);
     }
+    public void PlayHuPopupExitAnimation(Action onComplete)
+    {
+        if (huPopupContainer && huPopupRoot.activeInHierarchy)
+        {
+            // 1. 杀掉旧动画，防止冲突
+            huPopupContainer.DOKill();
 
-    public void HideHuPopup() { if (huPopupPanel) huPopupPanel.SetActive(false); }
+            // 2. 执行退出动画 (向下滑出)
+            huPopupContainer.DOLocalMove(new Vector2(0, -1500), 0.5f)
+                .SetEase(Ease.InBack)
+                .SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    // 3. 动画播完后，才真正隐藏父节点
+                    HideHuPopup();
+                    onComplete?.Invoke();
+                });
+        }
+        else
+        {
+            // 如果容器为空，或者面板本来就是关的，直接执行回调
+            HideHuPopup();
+            onComplete?.Invoke();
+        }
+    }
+    public void HideHuPopup()
+    {
+        if (huPopupRoot) huPopupRoot.SetActive(false);
+    }
     public void ShowGameEndPanel(bool isWin, int finalScore, bool isNewHighScore)
     {
         if (gameOverPanel)
         {
-            // 1. 立即激活面板
+            // 1. 激活父节点 (遮罩立即显示)
             gameOverPanel.SetActive(true);
+        }
+        if (gameOverContainer)
+        {
+            // 确保锚点居中
+            gameOverContainer.anchorMin = new Vector2(0.5f, 0.5f);
+            gameOverContainer.anchorMax = new Vector2(0.5f, 0.5f);
+            gameOverContainer.pivot = new Vector2(0.5f, 0.5f);
 
-            // 确保 RectTransform 锚点居中（Inspector 设置）
-            RectTransform rectTransform = gameOverPanel.GetComponent<RectTransform>();
-            rectTransform.anchorMin = new Vector2(0.5f, 0.5f); // 屏幕中心
-            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            rectTransform.pivot = new Vector2(0.5f, 0.5f); // 轴心居中
+            // 初始位置：屏幕下方
+            gameOverContainer.anchoredPosition = new Vector2(0, -1200);
 
-            // 设置初始位置（本地坐标）
-            rectTransform.anchoredPosition = new Vector2(0, 1200); // 使用 anchoredPosition 而非 position
-
-            // 执行本地移动动画
-            rectTransform.DOLocalMove(new Vector2(0, 0), 0.8f)
-                .SetEase(Ease.OutBounce)
+            // 滑入动画
+            gameOverContainer.DOLocalMove(Vector2.zero, 0.6f)
+                .SetEase(Ease.OutBack)
                 .SetUpdate(true);
         }
         if (gameOverTitleText) gameOverTitleText.text = isWin ? "恭喜过关！" : "游戏结束";
@@ -582,7 +724,28 @@ public class GameUIController : MonoBehaviour
         if (newHighScoreIndicator) newHighScoreIndicator.SetActive(isNewHighScore);
         if (endlessModeButton) endlessModeButton.gameObject.SetActive(isWin);
     }
-
+    public void PlayGameOverExitAnimation(Action onComplete)
+    {
+        if (gameOverContainer && gameOverPanel.activeSelf)
+        {
+            // 向下滑出
+            gameOverContainer.DOLocalMove(new Vector2(0, -1200), 0.5f)
+                .SetEase(Ease.InBack)
+                .SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    // 动画结束后隐藏父节点
+                    if (gameOverPanel) gameOverPanel.SetActive(false);
+                    onComplete?.Invoke();
+                });
+        }
+        else
+        {
+            // 如果面板本来没开，直接完成
+            if (gameOverPanel) gameOverPanel.SetActive(false);
+            onComplete?.Invoke();
+        }
+    }
     private void BuildUIHand(Transform container, List<List<int>> hand)
     {
         if (container == null) return;
@@ -798,6 +961,27 @@ public class GameUIController : MonoBehaviour
             // 2. 恢复白色和不透明
             poolCountText.color = Color.white;
             poolCountText.DOFade(1f, 0.1f); // 快速恢复 Alpha 到 1
+        }
+    }
+    public void UpdateLevelProgress(int currentLevel, int totalLevels)
+    {
+        if (targetProgressParent) targetProgressParent.SetActive(true);
+        if (targetProgressText)
+        {
+            // 确保显示不超限
+            int displayCurrent = Mathf.Clamp(currentLevel, 1, totalLevels);
+            targetProgressText.text = $"{displayCurrent}/{totalLevels}";
+        }
+    }
+    public void HideLevelProgress()
+    {
+        if (targetProgressParent) targetProgressParent.SetActive(false);
+    }
+    public void SetEndlessModeLabelActive(bool isActive)
+    {
+        if (endlessModeLabel)
+        {
+            endlessModeLabel.SetActive(isActive);
         }
     }
 }
