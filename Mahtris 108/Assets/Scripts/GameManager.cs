@@ -6,11 +6,19 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    // ========================================================================
+    // 1. 单例与核心配置
+    // ========================================================================
     public static GameManager Instance { get; private set; }
 
     [Header("核心配置")]
     [SerializeField] private GameSettings settings;
+    [Tooltip("开启后, 将忽略难度选择, 并使用Spawner中的'Initial Tetromino Prefabs'列表开始游戏。")]
+    [SerializeField] private bool isTestMode = false;
 
+    // ========================================================================
+    // 2. 模块引用
+    // ========================================================================
     [Header("模块引用")]
     [SerializeField] private Spawner spawner;
     [SerializeField] private TetrisGrid tetrisGrid;
@@ -20,32 +28,63 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ScoreManager scoreManager;
     [SerializeField] private InventoryManager inventoryManager;
 
+    // 内部核心实例
     private MahjongCore mahjongCore;
+    public Spawner Spawner => spawner;
+    public HuPaiArea HuPaiArea => huPaiArea;
+
+    // 【修正】防止 Inventory 定义冲突，这里保留唯一的定义
+    public InventoryManager Inventory => inventoryManager;
+
+    // ========================================================================
+    // 3. 游戏核心状态
+    // ========================================================================
     [HideInInspector] public float currentFallSpeed;
     private bool isProcessingRows = false;
-
-    [Header("Test Mode")]
-    [Tooltip("开启后, 将忽略难度选择, 并使用Spawner中的'Initial Tetromino Prefabs'列表开始游戏。")]
-    [SerializeField] private bool isTestMode = false;
-
-    // 游戏状态变量
     private float remainingTime;
-    private int currentScoreLevelIndex;
     private bool isEndlessMode = false;
-    private List<ProtocolData> activeProtocols = new List<ProtocolData>();
+    private bool hasClearedRowsInThisRound = false;
 
-    // 会被条约和道具影响的动态变量
+    // 流程控制
+    private bool _hasDeclaredHuThisFrame = false;
+    private bool _pendingGameWin = false;
+    private bool _lastBulletTimeState = false;
+    private bool _tempIsTianHu = false;
+    private bool _tempIsDiHu = false;
+    private bool _isBombOrSpecialClear = false;
+
+    // ========================================================================
+    // 4. 难度与会话配置
+    // ========================================================================
+    private GameSessionConfig currentSessionConfig;
+    private int currentScoreLevelIndex;
+    private float difficultySpeedMultiplier = 1.0f;
+
+    // ========================================================================
+    // 5. 数值倍率与基础分系统 (V4.1+)
+    // ========================================================================
+    [Header("数值系统")]
     private float blockMultiplier;
     private float extraMultiplier;
     private int baseFanScore;
 
-    // 【新增】基础分 V4.1 系统
-    private int permanentBaseScoreBonus = 0; // "果汁" (+3)
-    private int roundBaseScoreBonus = 0; // "功能饮料" (+8) 和 "类固醇" (+16 / -16)
-    private float permanentBaseScoreMultiplier = 1f; // 【新增】"仙酒" (x2)
-    private bool isSteroidActive = false; // 跟踪 "类固醇" (+16) 效果是否激活
-    private bool isSteroidReversalActive = false; // 跟踪 "类固醇" (-16) 效果是否激活
-                                                  // 【新增】条约 V4.1 状态
+    private int permanentBaseScoreBonus = 0;
+    private int roundBaseScoreBonus = 0;
+    private float permanentBaseScoreMultiplier = 1f;
+    private float permanentBlockMultiplierModifier = 0f;
+
+    private int permanentSpeedBonus = 0;
+    private int roundSpeedBonus = 0;
+    private int countedSpeedBonus = 0;
+    private int countedBonusBlocksRemaining = 0;
+
+    // ========================================================================
+    // 6. 条约系统状态 (Protocols)
+    // ========================================================================
+    private List<ProtocolData> activeProtocols = new List<ProtocolData>();
+    private List<ProtocolData> protocolsMarkedForRemoval = new List<ProtocolData>();
+
+    // V4.1
     public bool useDuanYaoJiuFilter = false;
     public bool useQueYiMenFilter = false;
     public int queYiMenSuitToRemove = -1;
@@ -57,62 +96,25 @@ public class GameManager : MonoBehaviour
     public bool isTrickRoomActive = false;
     public bool isNoGravityActive = false;
 
-    // 用于特殊流程控制的内部变量
-    private bool _isBombOrSpecialClear = false;
-    private bool _hasDeclaredHuThisFrame = false; // 【新增】防连击锁
-    private bool _pendingGameWin = false;
-
-    private int permanentSpeedBonus = 0; // 永久加成 (气球, 神之救济, 条约)
-    private int roundSpeedBonus = 0; // 本轮加成 (降落伞)
-    private int countedSpeedBonus = 0; // 计数加成 (喷气背包)
-    private int countedBonusBlocksRemaining = 0; // 喷气背包剩余方块数
-    private bool _lastBulletTimeState = false; // 用于检测状态变化
-    public Spawner Spawner => spawner;
-    public HuPaiArea HuPaiArea => huPaiArea;
-
-    [Header("暂停功能")]
-    private bool isPaused = false;
-    private int remainingPauses;
-    [SerializeField] private int maxPauses = 2;
-
-    private bool isStopwatchActive = false; // 【新增】
-    private bool isBountyActive = false;
-    private int ignoreMahjongCheckCount = 0; // 【新增】"垃圾筒"
-    private int bonusBlocksOnHuCount = 0;    // 【新增】"试用小样"
-    private string bonusBlockPrefabName = "";  // 【新增】"试用小样"
-    // 【新增】“点金手”
-    private float midasTimer = 0f;
-    private int midasGoldValue = 0;
-    // 【新增】“计分板”
-    private float scoreboardTimer = 0f;
-    private float permanentBlockMultiplierModifier = 0f; // 【新增】存储条约的永久方块倍率修正
-
-    private GameSessionConfig currentSessionConfig; // 【新增】持有当前游戏会话的配置
-    private float difficultySpeedMultiplier = 1.0f; // 【新】难度带来的速度乘数
-
-    // 【新增】V4.2 道具/条约 变量
-    private float kidsMealTimer = 0f;
-    private bool hasReviveStone = false;
-    private float reviveAddedTime = 0f;
-
+    // V4.2
     public bool isAttackOnGiantActive = false;
     public bool isCheapWarehouseActive = false;
     public bool isMarshLandActive = false;
-    private float marshLandTimer = 0f;
     public bool isRenewableEnergyActive = false;
     public bool isAllMenEqualActive = false;
     public bool isStrongWorldActive = false;
-    public bool isAdventFoodActive = false;
-    private float adventFoodTimer = 0f;
-    private int adventFoodBonus = 0; // 临期食品提供的动态加分
     public bool isRoutineWorkActive = false;
     public bool isUnstableCurrentActive = false;
-    private float unstableCurrentTimer = 0f;
     public bool isSSSVIPActive = false;
 
-    // 【新增】V4.3 条约状态
+    // 【修正】补回遗漏的 isAdventFoodActive
+    public bool isAdventFoodActive = false;
+
+    private bool _snapshotSSSVIP = false;
+    private bool _snapshotStrongWorld = false;
+
+    // V4.3
     public bool isDelayGratificationActive = false;
-    private int delayGratificationBonus = 0;
     public bool isDrMahjongActive = false;
     public bool isOldSchoolActive = false;
     public bool isBerserkerActive = false;
@@ -123,19 +125,46 @@ public class GameManager : MonoBehaviour
     public bool isTrinityActive = false;
     public bool isRealpolitikActive = false;
 
-    private bool isWantedPosterActive = false;
-    private int wantedPosterGoldMult = 1;
-    // 【新增】条约状态快照 (用于处理生效时机)
-    private bool _snapshotSSSVIP = false;
-    private bool _snapshotStrongWorld = false;
-    // 【新增】V4.4 道具状态
+    // ========================================================================
+    // 7. 道具与特殊机制状态
+    // ========================================================================
     public bool isLuckyCapActive = false;
     public bool isFilterActive = false;
+
+    // 【修正】防止 lastUsedItem 定义冲突，这里保留唯一的定义
+    private ItemData lastUsedItem = null;
+
+    private float kidsMealTimer = 0f;
+    private float marshLandTimer = 0f;
+    private float adventFoodTimer = 0f;
+    private float unstableCurrentTimer = 0f;
     private float filterTimer = 0f;
-    private bool hasClearedRowsInThisRound = false;
-    private bool _tempIsTianHu = false;
-    private bool _tempIsDiHu = false;
-    private List<ProtocolData> protocolsMarkedForRemoval = new List<ProtocolData>();
+    private float midasTimer = 0f;
+    private float scoreboardTimer = 0f;
+
+    private int delayGratificationBonus = 0;
+    private int adventFoodBonus = 0;
+    private int midasGoldValue = 0;
+    private bool hasReviveStone = false;
+    private float reviveAddedTime = 0f;
+    private bool isSteroidActive = false;
+    private bool isSteroidReversalActive = false;
+
+    private bool isWantedPosterActive = false;
+    private int wantedPosterGoldMult = 1;
+    private bool isBountyActive = false;
+    private int ignoreMahjongCheckCount = 0;
+    private int bonusBlocksOnHuCount = 0;
+    private string bonusBlockPrefabName = "";
+
+    // ========================================================================
+    // 8. 暂停控制
+    // ========================================================================
+    [Header("暂停功能")]
+    [SerializeField] private int maxPauses = 2;
+    private bool isPaused = false;
+    private int remainingPauses;
+    private bool isStopwatchActive = false;
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -593,21 +622,36 @@ public class GameManager : MonoBehaviour
         gameUI.PlayHuPopupExitAnimation(() =>
         {
             // ==========================================
-            // 以下代码会在动画播放完毕后执行
+            // 【核心修复】逻辑顺序调整
             // ==========================================
 
-            // 1. 【修复】重置暂停状态
-            // 必须显式设为 false，防止从"游戏胜利"面板切回来时按钮状态卡在"暂停中"
-            isPaused = false;
+            // 1. 【第一优先】检查是否达成胜利 (且非无尽模式)
+            // 如果赢了，直接阻断后续的"恢复游戏"逻辑，保持时间静止，弹出胜利窗口
+            if (!isEndlessMode && _pendingGameWin)
+            {
+                _pendingGameWin = false; // 重置标记
 
-            // 重置暂停次数显示
+                // 此时 Time.timeScale 依然是 0 (从胡牌状态继承过来的)
+                // 我们直接处理胜利，不进行任何重置或生成
+                HandleGameWon();
+
+                return; // 【关键】直接退出，绝不执行下面的代码
+            }
+
+            // 如果没赢，或者已经是无尽模式，才执行下面的重置逻辑
+            _pendingGameWin = false;
+
+            // ==========================================
+            // 2. 只有确定继续游戏了，才重置状态
+            // ==========================================
+
+            // 重置暂停状态
+            isPaused = false;
             if (isStopwatchActive) { remainingPauses = maxPauses; isStopwatchActive = false; }
             else { remainingPauses = maxPauses; }
-
             if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
 
-            // 2. 【原有的重置变量逻辑】
-            // (直接搬进来即可)
+            // 重置各种变量 (保持原有逻辑)
             delayGratificationBonus = 0;
             if (isGreatRevolutionActive) spawner.RandomizeActivePool();
             if (isBerserkerActive) inventoryManager.UseAllItems();
@@ -636,35 +680,34 @@ public class GameManager : MonoBehaviour
 
             UpdateCurrentBaseScore();
 
-            // 3. 【检查延迟获胜】
-            if (!isEndlessMode && _pendingGameWin)
-            {
-                _pendingGameWin = false;
-                HandleGameWon();
-                return; // 如果赢了，直接去显示胜利面板，不执行下面的恢复游戏
-            }
-            _pendingGameWin = false;
+            // ==========================================
+            // 3. 恢复游戏核心系统
+            // ==========================================
 
-            // 4. 【恢复游戏状态】
+            // 恢复时间
             Time.timeScale = 1f;
             if (AudioManager.Instance) AudioManager.Instance.ResumeCountdownSound();
 
             // 移除到期条约
             ProcessPendingProtocolRemovals();
 
-            // 5. 【重置网格与牌库】
+            // 重置网格与牌库
             hasClearedRowsInThisRound = false;
             blockPool.ResetFullDeck();
+
+            // 清理场面 (这会清除上一轮剩下的牌)
             tetrisGrid.ClearAllBlocks();
             CheckAndApplyBulletTime();
             huPaiArea.ClearAll();
 
             if (remainingTime <= 0.1f && !isTimeIsMoneyActive) remainingTime = 1f;
 
+            // 计算速度并生成新方块
             UpdateFallSpeed();
             spawner.StartNextRound();
             gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
 
+            // 处理试用小样
             if (bonusBlocksOnHuCount > 0 && !string.IsNullOrEmpty(bonusBlockPrefabName))
             {
                 var prefab = spawner.GetMasterList().FirstOrDefault(p => p.name == bonusBlockPrefabName);
@@ -673,55 +716,6 @@ public class GameManager : MonoBehaviour
             }
             isProcessingRows = false;
         });
-        if (!isEndlessMode && _pendingGameWin)
-        {
-            _pendingGameWin = false;
-            HandleGameWon();
-            // 这里 return，等待玩家点击无尽模式按钮
-            return;
-        }
-        _pendingGameWin = false;
-        Time.timeScale = 1f;
-        if (AudioManager.Instance) AudioManager.Instance.ResumeCountdownSound();
-        // 【核心修复 3】重新计算一次速度，确保开局速度正确
-        if (protocolsMarkedForRemoval.Count > 0)
-        {
-            foreach (var proto in protocolsMarkedForRemoval)
-            {
-                if (activeProtocols.Contains(proto))
-                {
-                    // 1. 移除效果
-                    proto.RemoveEffect(this);
-                    // 2. 从激活列表中移除
-                    activeProtocols.Remove(proto);
-                }
-            }
-            // 清空待删除列表
-            protocolsMarkedForRemoval.Clear();
-
-            // 刷新 UI
-            gameUI.UpdateProtocolUI(activeProtocols);
-        }
-        hasClearedRowsInThisRound = false;
-        blockPool.ResetFullDeck();
-        tetrisGrid.ClearAllBlocks();
-        CheckAndApplyBulletTime();
-        huPaiArea.ClearAll();
-
-        // 【核心修复 4】防止“时间就是金钱”导致的时间耗尽误杀
-        // 如果剩余时间极少(<=0)，给予 minimal 保护，或者确保 GameOver 逻辑不会误触
-        if (remainingTime <= 0.1f && !isTimeIsMoneyActive) remainingTime = 1f;
-        UpdateFallSpeed();
-        spawner.StartNextRound();
-        gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
-
-        if (bonusBlocksOnHuCount > 0 && !string.IsNullOrEmpty(bonusBlockPrefabName))
-        {
-            var prefab = spawner.GetMasterList().FirstOrDefault(p => p.name == bonusBlockPrefabName);
-            if (prefab != null) { for (int i = 0; i < bonusBlocksOnHuCount; i++) spawner.AddTetrominoToPool(prefab); }
-            bonusBlocksOnHuCount = 0; bonusBlockPrefabName = "";
-        }
-        isProcessingRows = false;
     }
 
     private void HandleRowsCleared(List<int> rowIndices)
@@ -1478,11 +1472,6 @@ public class GameManager : MonoBehaviour
     {
         isStopwatchActive = isActive;
     }
-    // 添加新变量
-    private ItemData lastUsedItem = null;
-
-    // 添加新的公共属性，以便道具脚本可以访问 InventoryManager
-    public InventoryManager Inventory => inventoryManager;
 
     // 添加新方法
     public void SetLastUsedItem(ItemData item)

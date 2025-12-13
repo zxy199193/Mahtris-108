@@ -19,28 +19,40 @@ public class HuRewardPackage
 
 public class GameUIController : MonoBehaviour
 {
-    [Header("文本显示")]
+    // ========================================================================
+    // 1. 核心 HUD 显示 (顶部/侧边栏)
+    // ========================================================================
+    [Header("核心 HUD 显示")]
     [SerializeField] private Text scoreText;
-    [SerializeField] private Text poolCountText;
     [SerializeField] private Text timerText;
     [SerializeField] private Text speedText;
-    [SerializeField] private Text blockMultiplierText;
-    [SerializeField] private Text baseScoreText; // 新增
-    [SerializeField] private Text extraMultiplierText; // 新增
     [SerializeField] private Text goldText;
-    [SerializeField] private Text loopProgressText;
+    [SerializeField] private Text poolCountText;      // 牌库剩余量
+    [SerializeField] private Text loopProgressText;   // 圈数
 
-    [Header("目标进度条")]
+    [Header("倍率与分数详情")]
+    [SerializeField] private Text baseScoreText;      // 基础番
+    [SerializeField] private Text blockMultiplierText;// 方块倍率
+    [SerializeField] private Text extraMultiplierText;// 额外倍率
+
+    // ========================================================================
+    // 2. 目标与进度 (Slider & Level Info)
+    // ========================================================================
+    [Header("目标与进度")]
     [SerializeField] private Slider targetProgressBar;
-    [SerializeField] private Text currentScoreForBarText; // (可选)显示 "1200 / 5000"
-    [SerializeField] private Text goldRewardText;
+    [SerializeField] private Text currentScoreForBarText; // ex: "1200 / 5000"
+    [SerializeField] private Text goldRewardText;         // ex: "100" 或 "无尽模式"
+
+    [Header("关卡进度 (1/8)")]
     [SerializeField] private GameObject targetProgressParent;
     [SerializeField] private Text targetProgressText;
+
+    [Header("无尽模式标识")]
     [SerializeField] private GameObject endlessModeLabel;
 
-    [Header("下一个方块预览")]
-    [SerializeField] private Transform nextBlockPreviewArea;
-
+    // ========================================================================
+    // 3. 容器与插槽 (道具/条约)
+    // ========================================================================
     [Header("道具栏")]
     [SerializeField] private Transform itemContainer;
     [SerializeField] private GameObject itemSlotPrefab;
@@ -50,102 +62,122 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private GameObject protocolSlotPrefab;
     [SerializeField] private int maxProtocolSlots = 5;
 
-    [Header("胡牌弹窗")]
-    [SerializeField] private GameObject huPopupPanel;
-    [SerializeField] private Transform huHandDisplayArea;
+    // ========================================================================
+    // 4. 下一个方块预览
+    // ========================================================================
+    [Header("预览区域")]
+    [SerializeField] private Transform nextBlockPreviewArea;
+    private GameObject currentPreviewObject;
 
-    [Header("胡牌弹窗 - 结构引用")]
-    [SerializeField] private GameObject huPopupRoot;
-    [SerializeField] private RectTransform huPopupContainer;
+    // ========================================================================
+    // 5. 胡牌弹窗 (Hu Popup)
+    // ========================================================================
+    [Header("胡牌弹窗 - 结构")]
+    [SerializeField] private GameObject huPopupRoot;       // 父节点 (黑色全屏遮罩)
+    [SerializeField] private RectTransform huPopupContainer; // 动画容器 (弹窗本体)
+    [SerializeField] private GameObject huStage1Panel;     // 第一页: 得分
+    [SerializeField] private GameObject huStage2Panel;     // 第二页: 奖励
 
-    [Header("胡牌弹窗 - 信息显示")]
-    [SerializeField] private Text patternNameText;
-    [SerializeField] private Text patternFanText;
-    [SerializeField] private GameObject kongInfoGroup;
-    [SerializeField] private Text kongCountText;
-    [SerializeField] private Text kongFanText;
+    [Header("胡牌弹窗 - 第一页 (得分)")]
+    [SerializeField] private Transform huHandDisplayArea;  // 手牌展示
+    [SerializeField] private Text patternNameText;         // 牌型名
+    [SerializeField] private Text patternFanText;          // 牌型番
+    [SerializeField] private GameObject kongInfoGroup;     // 杠信息组
+    [SerializeField] private Text kongCountText;           // 杠数量
+    [SerializeField] private Text kongFanText;             // 杠番数
+    [SerializeField] private Button nextStepButton;        // "下一步"按钮
 
-    [Header("胡牌弹窗 - 分页结构")] // 【新增】
-    [SerializeField] private GameObject huStage1Panel; // 第一页：得分与手牌
-    [SerializeField] private GameObject huStage2Panel; // 第二页：奖励与下轮预告
-    [SerializeField] private Button nextStepButton;    // 第一页上的"下一步"按钮
-
-    [Header("胡牌弹窗 - 第二页信息")] // 【新增】
-    [SerializeField] private Text nextRoundTimeText;   // 显示 "时间 +60s"
-    [SerializeField] private Text nextRoundSpeedText;  // 显示 "速度 Lv.+2"
-
-    [Header("胡牌得分公式 (拆分)")]
+    [Header("胡牌弹窗 - 分数公式")]
     [SerializeField] private Text formulaBaseScoreText;
     [SerializeField] private Text formulaFanBaseText;
     [SerializeField] private Text formulaFanExpText;
     [SerializeField] private Text formulaBlockMultText;
     [SerializeField] private Text formulaExtraMultText;
-    [SerializeField] private Text formulaFinalScoreText;
-    [SerializeField] private Button continueButton;
-    [SerializeField] private Text huCycleText;
+    [SerializeField] private Text formulaFinalScoreText;   // 最终得分 (带滚动动画)
 
-    [Header("胡牌弹窗 - 动效配置")] // 【新增】
-    [Tooltip("分数滚动动画持续时间 (秒)")]
-    [SerializeField] private float scoreRollDuration = 2.0f;
-    private Tween scoreRollTween;
-    private long _currentDisplayScoreTarget;
+    [Header("胡牌弹窗 - 第二页 (奖励)")]
+    [SerializeField] private Text nextRoundTimeText;       // ex: +60s
+    [SerializeField] private Text nextRoundSpeedText;      // ex: Lv.+2
+    [SerializeField] private Button continueButton;        // "继续"按钮
 
-    [Header("胡牌奖励区域")]
+    [Header("奖励选项容器")]
     [SerializeField] private GameObject commonRewardPanel;
     [SerializeField] private Transform commonRewardBlockArea;
     [SerializeField] private Transform commonRewardItemArea;
+
     [SerializeField] private GameObject advancedRewardPanel;
     [SerializeField] private Transform advancedRewardBlockArea;
     [SerializeField] private Transform advancedRewardItemArea;
     [SerializeField] private Transform advancedRewardProtocolArea;
 
-    [Header("游戏结束")]
-    [SerializeField] private GameObject gameOverPanel;
-    [SerializeField] private RectTransform gameOverContainer;
-    [SerializeField] private Button restartButton;
+    [SerializeField] private GameObject rewardOptionPrefab; // 奖励按钮预制件
 
-    [Header("Tetromino列表")]
-    [SerializeField] private Transform tetrominoListContent;
-    [SerializeField] private Text totalMultiplierText;
-
-    [Header("UI预制件")]
-    [SerializeField] private GameObject rewardOptionPrefab;
-    [SerializeField] private GameObject uiBlockPrefab;
-    [SerializeField] private GameObject tetrominoListItemPrefab;
-
-    [Header("模块引用")]
-    [SerializeField] private BlockPool blockPool;
-
-    [Header("游戏结束面板")]
+    // ========================================================================
+    // 6. 游戏结束弹窗 (Game Over)
+    // ========================================================================
+    [Header("游戏结束弹窗")]
+    [SerializeField] private GameObject gameOverPanel;         // 父节点 (遮罩)
+    [SerializeField] private RectTransform gameOverContainer;  // 动画容器
     [SerializeField] private Text gameOverTitleText;
     [SerializeField] private Text finalScoreText;
     [SerializeField] private GameObject newHighScoreIndicator;
+    [SerializeField] private Button restartButton;
     [SerializeField] private Button endlessModeButton;
 
-    [Header("提示信息 (Toast)")]
-    [SerializeField] private Text toastText;       // 提示文字
-    [SerializeField] private CanvasGroup toastCanvasGroup;
+    // ========================================================================
+    // 7. 暂停面板 (Pause)
+    // ========================================================================
+    [Header("暂停面板")]
+    [SerializeField] private GameObject pausePanel;
+    [SerializeField] private Text pauseStatusText; // "暂停中" (带呼吸动画)
 
-
-    private GameObject currentPreviewObject;
-    private InventoryManager inventoryManager;
-    private List<ItemData> currentItems;
-    private List<ProtocolData> currentProtocols;
-    private ScoreManager scoreManager;
-    private Tween poolCountBlinkTween;
-    private Tween timerBlinkTween;
-    private List<ItemSlotUI> activeItemSlotUIs = new List<ItemSlotUI>();
-    private List<ProtocolSlotUI> activeProtocolSlotUIs = new List<ProtocolSlotUI>();
-
-    [Header("暂停功能")]
+    [Header("暂停按钮 (HUD)")]
     [SerializeField] private Button pauseButton;
     [SerializeField] private Image pauseButtonIcon;
     [SerializeField] private Text pauseCountText;
-    [SerializeField] private GameObject pausePanel;
-    [SerializeField] private Text pauseStatusText;
-    [SerializeField] private Sprite playIcon; // 在Inspector中拖入“播放”图标
-    [SerializeField] private Sprite pauseIcon; // 在Inspector中拖入“暂停”图标
+    [SerializeField] private Sprite playIcon;
+    [SerializeField] private Sprite pauseIcon;
+
+    // ========================================================================
+    // 8. 列表与杂项
+    // ========================================================================
+    [Header("Tetromino 统计列表")]
+    [SerializeField] private Transform tetrominoListContent;
+    [SerializeField] private Text totalMultiplierText;
+    [SerializeField] private GameObject tetrominoListItemPrefab;
+
+    [Header("其他 UI 预制件")]
+    [SerializeField] private GameObject uiBlockPrefab; // 用于展示单个麻将方块
+
+    [Header("提示信息 (Toast)")]
+    [SerializeField] private Text toastText;
+    [SerializeField] private CanvasGroup toastCanvasGroup;
+
+    // ========================================================================
+    // 9. 模块引用
+    // ========================================================================
+    [Header("模块引用")]
+    [SerializeField] private BlockPool blockPool;
+
+    // ========================================================================
+    // 10. 内部状态与动画 Tweens
+    // ========================================================================
+    // 引用缓存
+    private InventoryManager inventoryManager;
+    private ScoreManager scoreManager;
+    private List<ItemSlotUI> activeItemSlotUIs = new List<ItemSlotUI>();
+    private List<ProtocolSlotUI> activeProtocolSlotUIs = new List<ProtocolSlotUI>();
+
+    // 动画 Tweens
+    private Tween poolCountBlinkTween;
+    private Tween timerBlinkTween;
     private Tween pauseBlinkTween;
+
+    [Header("动画配置")]
+    [Tooltip("分数滚动动画持续时间 (秒)")]
+    [SerializeField] private float scoreRollDuration = 2.0f;
+    private Tween scoreRollTween;
+    private long _currentDisplayScoreTarget; // 滚动动画的目标分缓存
 
     private Dictionary<Transform, int> selectionCounts = new Dictionary<Transform, int>();
     void Awake()
@@ -665,7 +697,9 @@ public class GameUIController : MonoBehaviour
 
     public void HideAllPanels()
     {
-        if (huPopupPanel) huPopupPanel.SetActive(false);
+        // 【修正】使用新的变量名 huPopupRoot
+        if (huPopupRoot) huPopupRoot.SetActive(false);
+
         if (gameOverPanel) gameOverPanel.SetActive(false);
     }
     public void PlayHuPopupExitAnimation(Action onComplete)
