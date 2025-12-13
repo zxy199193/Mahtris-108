@@ -26,7 +26,7 @@ MonoBehaviour:
   baseFanScore: 10
   fanBonusPerKong: 1
   scorePerRow: 2
-  husPerLoop: 1
+  husPerLoop: 2
   normalWeight: 10
   legendaryWeightBase: 5
   legendaryWeightIncreasePerLoop: 2.5
@@ -38,7 +38,7 @@ MonoBehaviour:
   labelColorCommon: {r: 0.34901962, g: 0.8078432, b: 1, a: 1}
   labelColorAdvanced: {r: 0.9725491, g: 0.5882353, b: 0.11764707, a: 1}
   labelColorProtocol: {r: 0.43529415, g: 0.43529415, b: 0.43529415, a: 1}
-  initialTimeLimit: 300
+  initialTimeLimit: 40
   huTimeBonus: 60
   scoreLevels:
   - targetScore: 50
@@ -78,25 +78,8 @@ MonoBehaviour:
   itemSlotCount: 5
   commonItemPool:
   - {fileID: 11400000, guid: 1fb733d140bb12e4a81824d4e18f236d, type: 2}
-  - {fileID: 11400000, guid: ffc57473305f5944491607a4d2593e62, type: 2}
   - {fileID: 11400000, guid: c3ade023d44989d4ca30cfcae1d8ed79, type: 2}
-  - {fileID: 11400000, guid: 92b90391a006cac489e8f1728cce7ff0, type: 2}
-  - {fileID: 11400000, guid: 09a40bce8a17bfa4689ace9c1173fa3e, type: 2}
-  - {fileID: 11400000, guid: 7e9371a6d760f7b4987cf7eb538f714d, type: 2}
-  - {fileID: 11400000, guid: 9a7e2b2bb73de494288909c06af11c3f, type: 2}
-  - {fileID: 11400000, guid: 62ff08fc95f0ac145b24f368c825383e, type: 2}
-  - {fileID: 11400000, guid: 0afb30e8bc85279448670b1037fe466b, type: 2}
-  - {fileID: 11400000, guid: e45f0377631f8fe41bc5d9b251893eb0, type: 2}
   - {fileID: 11400000, guid: 5b40825730be1644ca7a88ab44fe1c27, type: 2}
-  - {fileID: 11400000, guid: 085ab0d21261c324f8bd134d92bd9967, type: 2}
-  - {fileID: 11400000, guid: 2be156880e12a124fafe8abea3a85568, type: 2}
-  - {fileID: 11400000, guid: 03028a293d35d044badd2dd39864e90b, type: 2}
-  - {fileID: 11400000, guid: beed3a2373849d14cb998965027abdfb, type: 2}
-  - {fileID: 11400000, guid: e0419e9cdff76534ab5437c4d5677c74, type: 2}
-  - {fileID: 11400000, guid: f8d2b9c0194cf2b4da26e19bd1b338a9, type: 2}
-  - {fileID: 11400000, guid: 666e6ac47852de246be41fa1a614445d, type: 2}
-  - {fileID: 11400000, guid: bd31d860b62dbee46bf57ad3b9043fa8, type: 2}
-  - {fileID: 11400000, guid: b0b84eeb2b1316b4ca686819f027a1ca, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}

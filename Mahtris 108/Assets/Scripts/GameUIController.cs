@@ -51,6 +51,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private GameObject huPopupPanel;
     [SerializeField] private Transform huHandDisplayArea;
     [SerializeField] private Text patternNameText;
+
     [Header("胡牌得分公式 (拆分)")]
     [SerializeField] private Text formulaBaseScoreText;
     [SerializeField] private Text formulaFanBaseText;
@@ -103,6 +104,7 @@ public class GameUIController : MonoBehaviour
     private List<ProtocolData> currentProtocols;
     private ScoreManager scoreManager;
     private Tween poolCountBlinkTween;
+    private Tween timerBlinkTween;
     private List<ItemSlotUI> activeItemSlotUIs = new List<ItemSlotUI>();
     private List<ProtocolSlotUI> activeProtocolSlotUIs = new List<ProtocolSlotUI>();
 
@@ -111,8 +113,11 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Image pauseButtonIcon;
     [SerializeField] private Text pauseCountText;
     [SerializeField] private GameObject pausePanel;
+    [SerializeField] private Text pauseStatusText;
     [SerializeField] private Sprite playIcon; // 在Inspector中拖入“播放”图标
     [SerializeField] private Sprite pauseIcon; // 在Inspector中拖入“暂停”图标
+    private Tween pauseBlinkTween;
+
     private Dictionary<Transform, int> selectionCounts = new Dictionary<Transform, int>();
     void Awake()
     {
@@ -228,8 +233,59 @@ public class GameUIController : MonoBehaviour
     {
         if (timerText)
         {
-            timerText.text = $"{Mathf.Max(0, time):F0}";
-            timerText.color = isSpecialState ? Color.cyan : Color.white;
+            float displayTime = Mathf.Max(0, time);
+            timerText.text = $"{displayTime:F0}";
+
+            if (isSpecialState)
+            {
+                // === 状态 1: 特殊状态 (子弹时间) ===
+                StopTimerBlink();
+                timerText.color = Color.cyan;
+                timerText.DOFade(1f, 0.1f);
+                if (AudioManager.Instance) AudioManager.Instance.StopCountdownSound();
+            }
+            else if (displayTime <= 30f && displayTime > 0f)
+            {
+                // === 状态 2: 低电量警报 ===
+
+                // 【核心修复】
+                // 1. 如果动画还没开始，强制设为红色不透明，并启动动画
+                if (timerBlinkTween == null || !timerBlinkTween.IsActive())
+                {
+                    timerText.color = Color.red;
+
+                    timerBlinkTween = timerText.DOFade(0.5f, 0.5f)
+                        .SetLoops(-1, LoopType.Yoyo)
+                        .SetUpdate(true);
+                }
+                else
+                {
+                    // 2. 如果动画正在运行，我们只确保它是红色的，但绝不能覆盖 Alpha！
+                    // 获取当前颜色的 Alpha (这个 Alpha 正在被 DOTween 修改)
+                    float currentAlpha = timerText.color.a;
+                    // 只重置 RGB 为红，保留 Alpha
+                    timerText.color = new Color(1f, 0f, 0f, currentAlpha);
+                }
+                if (AudioManager.Instance) AudioManager.Instance.PlayCountdownSound();
+            }
+            else
+            {
+                // === 状态 3: 正常 ===
+                StopTimerBlink();
+                timerText.color = Color.white;
+                timerText.DOFade(1f, 0.1f);
+                if (AudioManager.Instance) AudioManager.Instance.StopCountdownSound();
+            }
+        }
+    }
+
+    // 【新增】辅助方法：停止倒计时闪烁
+    private void StopTimerBlink()
+    {
+        if (timerBlinkTween != null)
+        {
+            timerBlinkTween.Kill();
+            timerBlinkTween = null;
         }
     }
     public void UpdateSpeedText(int speedValue, bool isSpecialState = false)
@@ -567,7 +623,24 @@ public class GameUIController : MonoBehaviour
 
     private void ReturnToMainMenu()
     {
+        // 【核心修复】
+        // 1. 先禁用 GameManager，彻底切断它的 Update 循环
+        // 这样即使下面恢复了时间，GameManager 也不会再跑一帧去触发音效了
+        if (GameManager.Instance)
+        {
+            GameManager.Instance.enabled = false;
+        }
+
+        // 2. 再次强制停止音效 (双重保险)
+        if (AudioManager.Instance)
+        {
+            AudioManager.Instance.StopCountdownSound();
+        }
+
+        // 3. 恢复时间流速 (现在是安全的了)
         Time.timeScale = 1f;
+
+        // 4. 加载场景
         SceneManager.LoadScene("MainMenuScene");
     }
 
@@ -581,7 +654,44 @@ public class GameUIController : MonoBehaviour
 
     public void ShowPausePanel(bool show)
     {
-        if (pausePanel) pausePanel.SetActive(show);
+        if (pausePanel)
+        {
+            pausePanel.SetActive(show);
+
+            if (show)
+            {
+                // === 开启暂停：播放闪烁 ===
+                if (pauseStatusText != null)
+                {
+                    // 1. 先杀掉旧动画（防止重复）
+                    if (pauseBlinkTween != null) pauseBlinkTween.Kill();
+
+                    // 2. 重置透明度为 1 (完全显示)
+                    pauseStatusText.DOFade(1f, 0f).SetUpdate(true);
+
+                    // 3. 开始呼吸闪烁 (Alpha 1 -> 0.3 -> 1)
+                    // SetUpdate(true) 是关键！让动画在 Time.timeScale = 0 时依然运行
+                    pauseBlinkTween = pauseStatusText.DOFade(0.5f, 0.8f)
+                        .SetLoops(-1, LoopType.Yoyo) // 无限循环，悠悠球模式
+                        .SetUpdate(true);
+                }
+            }
+            else
+            {
+                // === 关闭暂停：停止闪烁 ===
+                if (pauseBlinkTween != null)
+                {
+                    pauseBlinkTween.Kill();
+                    pauseBlinkTween = null;
+                }
+
+                // 恢复文字为不透明
+                if (pauseStatusText != null)
+                {
+                    pauseStatusText.DOFade(1f, 0f).SetUpdate(true);
+                }
+            }
+        }
     }
     // 【新增】这个方法用于显示目标和进度条
     public void UpdateTargetScoreDisplay(int target, int reward, bool isBonusActive = false)

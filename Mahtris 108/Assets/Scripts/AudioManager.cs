@@ -28,6 +28,7 @@ public class AudioManager : MonoBehaviour
     [Header("音源")]
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
+    [SerializeField] private AudioSource loopSfxSource;
 
     [Header("音量控制")]
     [Range(0f, 1f)][SerializeField] private float _bgmVolume = 0.5f;
@@ -38,6 +39,9 @@ public class AudioManager : MonoBehaviour
 
     [Header("音效库")]
     [SerializeField] private SoundLibrary soundLibrary;
+
+    [Header("Audio Clips")]
+    [SerializeField] private AudioClip countdownClip;
 
     // 公开访问器
     public SoundLibrary SoundLibrary => soundLibrary;
@@ -195,4 +199,49 @@ public class AudioManager : MonoBehaviour
     }
     public void PlayBuySuccessSound() => PlaySFX(soundLibrary.buySuccess);
     public void PlayBuyFailSound() => PlaySFX(soundLibrary.buyFail);
+
+    public void PlayCountdownSound()
+    {
+        if (loopSfxSource != null && countdownClip != null)
+        {
+            // 如果已经在播放了，就不要重新开始 (防止鬼畜)
+            if (loopSfxSource.isPlaying && loopSfxSource.clip == countdownClip)
+                return;
+
+            loopSfxSource.clip = countdownClip;
+            loopSfxSource.loop = true; // 设置为循环
+            loopSfxSource.Play();
+        }
+    }
+
+    // 【新增】停止倒计时音效
+    public void StopCountdownSound()
+    {
+        if (loopSfxSource != null && loopSfxSource.isPlaying)
+        {
+            // 只有当前播放的是倒计时音效才停止 (防止误停其他循环音效)
+            if (loopSfxSource.clip == countdownClip)
+            {
+                loopSfxSource.Stop();
+                loopSfxSource.clip = null; // 清空引用
+            }
+        }
+    }
+    // 【新增】暂停倒计时音效
+    public void PauseCountdownSound()
+    {
+        if (loopSfxSource != null && loopSfxSource.isPlaying && loopSfxSource.clip == countdownClip)
+        {
+            loopSfxSource.Pause();
+        }
+    }
+
+    // 【新增】恢复倒计时音效
+    public void ResumeCountdownSound()
+    {
+        if (loopSfxSource != null && loopSfxSource.clip == countdownClip)
+        {
+            loopSfxSource.UnPause();
+        }
+    }
 }

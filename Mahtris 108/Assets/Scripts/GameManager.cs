@@ -417,6 +417,7 @@ public class GameManager : MonoBehaviour
         _snapshotStrongWorld = isStrongWorldActive;
         isProcessingRows = true;
         Time.timeScale = 0f;
+        if (AudioManager.Instance) AudioManager.Instance.PauseCountdownSound();
         // 每次胡牌后更新圈数显示
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
 
@@ -554,7 +555,7 @@ public class GameManager : MonoBehaviour
         if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
         gameUI.HideHuPopup();
         Time.timeScale = 1f;
-
+        if (AudioManager.Instance) AudioManager.Instance.ResumeCountdownSound();
         // 【核心修复 3】重新计算一次速度，确保开局速度正确
         if (protocolsMarkedForRemoval.Count > 0)
         {
@@ -1243,6 +1244,7 @@ public class GameManager : MonoBehaviour
 
         // 正常游戏结束流程
         Time.timeScale = 0f;
+        if (AudioManager.Instance) AudioManager.Instance.StopCountdownSound();
         int finalScore = scoreManager.GetCurrentScore();
         bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore);
         gameUI.ShowGameEndPanel(false, finalScore, isNewHighScore);
@@ -1259,6 +1261,7 @@ public class GameManager : MonoBehaviour
             isPaused = false;
             Time.timeScale = 1f;
             gameUI.ShowPausePanel(false);
+            if (AudioManager.Instance) AudioManager.Instance.ResumeCountdownSound();
         }
         else
         {
@@ -1269,6 +1272,7 @@ public class GameManager : MonoBehaviour
                 remainingPauses--;
                 Time.timeScale = 0f;
                 gameUI.ShowPausePanel(true);
+                if (AudioManager.Instance) AudioManager.Instance.PauseCountdownSound();
             }
             else
             {

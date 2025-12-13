@@ -12,8 +12,12 @@ public class HuPaiArea : MonoBehaviour
 
     [Header("布局设置")]
     [SerializeField] private float rowSpacing = 1.2f;
-    [SerializeField] private float columnSpacing = 4.0f; // 新增：用于控制两列之间的间距
+    [SerializeField] private float columnSpacing = 4.0f;
     [SerializeField] private float tileSpacing = 1.1f;
+
+    // 【新增】杠牌时，第4张牌相对于第2张牌的 Y 轴偏移量
+    // 根据你的 tileSpacing 是 1.1f 推测，这个值可能在 0.2f ~ 0.4f 左右比较合适，请在 Inspector 中调整
+    [SerializeField] private float kongOffsetY = 0.3f;
 
     private List<List<int>> huPaiSets = new List<List<int>>();
 
@@ -67,7 +71,6 @@ public class HuPaiArea : MonoBehaviour
             return;
         }
 
-        // 【修正点】重写了布局逻辑以实现双列网格排列
         for (int i = 0; i < huPaiSets.Count; i++)
         {
             var set = huPaiSets[i];
@@ -80,17 +83,37 @@ public class HuPaiArea : MonoBehaviour
             float startX = columnIndex * columnSpacing;
             float yPos = -rowIndex * rowSpacing;
 
-            // 在起始位置的基础上，排列组内的每一张牌
+            // 排列组内的每一张牌
             for (int tileIndex = 0; tileIndex < set.Count; tileIndex++)
             {
                 int blockId = set[tileIndex];
-                float xPos = startX + (tileIndex * tileSpacing);
 
+                // 【核心修改】位置计算逻辑
+                float xPos;
+                float currentYPos = yPos;
+
+                // 判断是否为杠牌的第4张 (索引为3)
+                if (set.Count == 4 && tileIndex == 3)
+                {
+                    // === 放在第2张牌 (索引1) 的上方 ===
+                    // X轴：与索引1的位置相同
+                    xPos = startX + (1 * tileSpacing);
+
+                    // Y轴：在当前行高基础上，向上偏移
+                    currentYPos += kongOffsetY;
+                }
+                else
+                {
+                    // === 正常排列 (索引0, 1, 2) ===
+                    xPos = startX + (tileIndex * tileSpacing);
+                }
+
+                // 实例化并设置位置
                 GameObject go = Instantiate(blockPrefab, displayParent);
                 RectTransform rectTransform = go.GetComponent<RectTransform>();
                 if (rectTransform != null)
                 {
-                    rectTransform.anchoredPosition = new Vector2(xPos, yPos);
+                    rectTransform.anchoredPosition = new Vector2(xPos, currentYPos);
                 }
 
                 var bu = go.GetComponent<BlockUnit>();
@@ -101,17 +124,16 @@ public class HuPaiArea : MonoBehaviour
             }
         }
     }
-    // 【HuPaiArea.cs 新增方法】
+
     public bool UpgradePungToKong(int pungTileValue, int fourthTileId)
     {
-        // 查找匹配的刻子（拥有3张牌，且牌值相同）
-        // 注意：这里使用 % 27 来匹配牌面数值，忽略ID差异
+        // 查找匹配的刻子
         var pungSet = huPaiSets.FirstOrDefault(set => set.Count == 3 && (set[0] % 27) == (pungTileValue % 27));
 
         if (pungSet != null)
         {
-            pungSet.Add(fourthTileId); // 将第4张牌加入该组
-            RefreshDisplay();          // 刷新UI显示
+            pungSet.Add(fourthTileId);
+            RefreshDisplay();
             return true;
         }
         return false;
