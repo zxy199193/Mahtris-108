@@ -131,7 +131,9 @@ public class GameManager : MonoBehaviour
     public bool isLuckyCapActive = false;
     public bool isFilterActive = false;
     private float filterTimer = 0f;
-
+    private bool hasClearedRowsInThisRound = false;
+    private bool _tempIsTianHu = false;
+    private bool _tempIsDiHu = false;
     private List<ProtocolData> protocolsMarkedForRemoval = new List<ProtocolData>();
     void Awake()
     {
@@ -425,8 +427,10 @@ public class GameManager : MonoBehaviour
         bool isAdvancedReward = scoreManager.IncrementHuCountAndCheckCycle();
 
         // 1. 基础番数计算
-        var analysisResult = mahjongCore.CalculateHandFan(huHand, settings);
-
+        var analysisResult = mahjongCore.CalculateHandFan(huHand, settings, _tempIsTianHu, _tempIsDiHu);
+        // 使用完后重置临时变量
+        _tempIsTianHu = false;
+        _tempIsDiHu = false;
         // 2. 【修复】混淆视听 (HunYaoShiTing) 优先级最高
         // 如果牌型只有2种花色，强制视为清一色
         if (isHunYaoShiTingActive)
@@ -575,6 +579,7 @@ public class GameManager : MonoBehaviour
             // 刷新 UI
             gameUI.UpdateProtocolUI(activeProtocols);
         }
+        hasClearedRowsInThisRound = false;
         blockPool.ResetFullDeck();
         tetrisGrid.ClearAllBlocks();
         CheckAndApplyBulletTime();
@@ -630,7 +635,10 @@ public class GameManager : MonoBehaviour
             delayGratificationBonus += 8;
             UpdateCurrentBaseScore();
         }
+        
+        bool wasCleanRound = !hasClearedRowsInThisRound;
 
+        hasClearedRowsInThisRound = true;
         // 3. 判定逻辑 (省略，保持不变) ...
         List<int> finalIdsToReturn = new List<int>();
         // ... (保留您原有的垃圾筒/判定逻辑) ...
@@ -652,14 +660,14 @@ public class GameManager : MonoBehaviour
                 {
                     List<int> merged = new List<int>();
                     foreach (var list in remaining) merged.AddRange(list);
-                    ProcessMahjongDetection(merged, ref finalIdsToReturn, allClearedTransforms);
+                    ProcessMahjongDetection(merged, ref finalIdsToReturn, allClearedTransforms, wasCleanRound);
                 }
                 else
                 {
                     foreach (var list in remaining)
                     {
                         if (_hasDeclaredHuThisFrame) break;
-                        ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms);
+                        ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms, wasCleanRound);
                     }
                 }
             }
@@ -670,14 +678,14 @@ public class GameManager : MonoBehaviour
             {
                 List<int> merged = new List<int>();
                 foreach (var list in rowsBlockIds) merged.AddRange(list);
-                ProcessMahjongDetection(merged, ref finalIdsToReturn, allClearedTransforms);
+                ProcessMahjongDetection(merged, ref finalIdsToReturn, allClearedTransforms, wasCleanRound);
             }
             else
             {
                 foreach (var list in rowsBlockIds)
                 {
                     if (_hasDeclaredHuThisFrame) break;
-                    ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms);
+                    ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms, wasCleanRound);
                 }
             }
         }
@@ -715,7 +723,7 @@ public class GameManager : MonoBehaviour
     }
 
     // 【辅助方法】封装麻将判定
-    private void ProcessMahjongDetection(List<int> tileIds, ref List<int> idsToReturn, List<Transform> transformsToDestroy)
+    private void ProcessMahjongDetection(List<int> tileIds, ref List<int> idsToReturn, List<Transform> transformsToDestroy, bool wasCleanRound)
     {
         // 【新增】安全检查
         if (_hasDeclaredHuThisFrame) return;
@@ -731,7 +739,7 @@ public class GameManager : MonoBehaviour
 
         var setsToAdd = new List<List<int>>();
         setsToAdd.AddRange(result.Kongs); setsToAdd.AddRange(result.Pungs); setsToAdd.AddRange(result.Chows);
-
+        bool isHuPaiAreaEmpty = huPaiArea.GetSetCount() == 0;
         int needed = settings.setsForHu - huPaiArea.GetSetCount();
         if (setsToAdd.Count > needed)
         {
@@ -753,7 +761,15 @@ public class GameManager : MonoBehaviour
 
                 result.RemainingIds.Remove(pair[0]); result.RemainingIds.Remove(pair[1]);
                 var finalHand = huPaiArea.GetAllSets(); finalHand.Add(pair);
+                // 天胡：胡牌区之前为空 (全靠这把消行) && 本轮之前没消过行 (第一手)
+                // 地胡：胡牌区之前为空 (全靠这把消行) && 本轮之前已经消过行了 (非第一手)
 
+                bool isTianHu = isHuPaiAreaEmpty && wasCleanRound;
+                bool isDiHu = isHuPaiAreaEmpty && !wasCleanRound;
+
+                // 暂存状态，供 HandleHuDeclared 使用
+                this._tempIsTianHu = isTianHu;
+                this._tempIsDiHu = isDiHu;
                 GameEvents.TriggerHuDeclared(finalHand);
 
                 // 胡牌后的清理逻辑

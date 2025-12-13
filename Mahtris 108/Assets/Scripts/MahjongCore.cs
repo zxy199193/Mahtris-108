@@ -110,8 +110,48 @@ public class MahjongCore
         if (set.Count < 3) return false;
         return set.Select(id => id % 27).Distinct().Count() == 1;
     }
+    private bool IsQingLaoTou(List<List<int>> sets, List<int> pair)
+    {
+        // 1. 必须全是对对胡结构 (不能有顺子)
+        if (!sets.All(s => IsPungOrKong(s))) return false;
 
-    public HandAnalysisResult CalculateHandFan(List<List<int>> huHand, GameSettings settings)
+        // 2. 检查雀头是否为 1 或 9
+        if ((pair[0] % 27 % 9) != 0 && (pair[0] % 27 % 9) != 8) return false;
+
+        // 3. 检查所有面子是否为 1 或 9
+        foreach (var set in sets)
+        {
+            int val = (set[0] % 27) % 9;
+            if (val != 0 && val != 8) return false;
+        }
+        return true;
+    }
+    private bool IsJiuLianBaoDeng(List<int> allTiles)
+    {
+        // 1. 必须是清一色 (外部已判断花色，这里再次校验更安全)
+        int firstSuit = (allTiles[0] % 27) / 9;
+        if (allTiles.Any(id => (id % 27) / 9 != firstSuit)) return false;
+
+        // 2. 统计每个数字 (0-8) 的数量
+        int[] counts = new int[9];
+        foreach (int id in allTiles)
+        {
+            counts[(id % 27) % 9]++;
+        }
+
+        // 3. 核心检查：
+        // 1(索引0) 和 9(索引8) 必须 >= 3张
+        if (counts[0] < 3 || counts[8] < 3) return false;
+
+        // 2-8 (索引1-7) 必须 >= 1张
+        for (int i = 1; i <= 7; i++)
+        {
+            if (counts[i] < 1) return false;
+        }
+
+        return true;
+    }
+    public HandAnalysisResult CalculateHandFan(List<List<int>> huHand, GameSettings settings, bool isTianHu = false, bool isDiHu = false)
     {
         var result = new HandAnalysisResult();
         if (huHand == null || huHand.Count == 0) return result;
@@ -120,46 +160,78 @@ public class MahjongCore
         var pair = huHand.FirstOrDefault(s => s.Count == 2);
         if (sets.Count < settings.setsForHu || pair == null) return result;
 
-        int patternFan = 0;
-
-        bool isDuiDuiHu = sets.All(s => IsPungOrKong(s));
         var allTileIds = huHand.SelectMany(s => s).ToList();
 
-        // 【修改】“混淆视听”逻辑
+        // 基础特征
+        bool isDuiDuiHu = sets.All(s => IsPungOrKong(s));
+
+        // 新增特征检测
+        bool isQingLaoTou = IsQingLaoTou(sets, pair);
+
+        // 清一色判断
         bool isQingYiSe = false;
         int suitCount = allTileIds.Select(id => ((id % 27) / 9)).Distinct().Count();
 
-        if (suitCount == 1)
-        {
-            isQingYiSe = true; // 原始清一色
-        }
-        else if (GameManager.Instance != null && GameManager.Instance.isHunYaoShiTingActive && suitCount == 2)
-        {
-            isQingYiSe = true; // 混淆视听（2色视为清一色）
-        }
-        // --- 修改结束 ---
+        if (suitCount == 1) isQingYiSe = true;
+        else if (GameManager.Instance != null && GameManager.Instance.isHunYaoShiTingActive && suitCount == 2) isQingYiSe = true;
 
-        if (isQingYiSe && isDuiDuiHu)
+        bool isJiuLian = false;
+        if (suitCount == 1) // 九莲宝灯要求严格同花色
+        {
+            isJiuLian = IsJiuLianBaoDeng(allTileIds);
+        }
+
+        // --- 优先级判定 ---
+
+        int patternFan = 0;
+        string name = "";
+
+        // 1. 特殊事件胡牌 (天胡/地胡) - 优先级最高
+        if (isTianHu)
+        {
+            patternFan = 9;
+            name = "天胡";
+            if (isJiuLian) { patternFan += 12; name += "·九莲宝灯"; } // 可选叠加
+        }
+        else if (isDiHu)
+        {
+            patternFan = 6;
+            name = "地胡";
+            if (isJiuLian) { patternFan += 12; name += "·九莲宝灯"; } // 可选叠加
+        }
+        // 2. 牌型胡牌
+        else if (isJiuLian)
+        {
+            patternFan = 12;
+            name = "九莲宝灯";
+        }
+        else if (isQingLaoTou)
         {
             patternFan = 8;
-            result.PatternName = "清大对";
+            name = "清老头";
+        }
+        else if (isQingYiSe && isDuiDuiHu)
+        {
+            patternFan = 8;
+            name = "清大对";
         }
         else if (isQingYiSe)
         {
             patternFan = 4;
-            result.PatternName = "清一色";
+            name = "清一色";
         }
         else if (isDuiDuiHu)
         {
             patternFan = 3;
-            result.PatternName = "对对胡";
+            name = "对对胡";
         }
         else
         {
             patternFan = 1;
-            result.PatternName = "平胡";
+            name = "平胡";
         }
 
+        result.PatternName = name;
         int kongFan = sets.Count(s => s.Count == 4) * settings.fanBonusPerKong;
         result.TotalFan = patternFan + kongFan;
 
