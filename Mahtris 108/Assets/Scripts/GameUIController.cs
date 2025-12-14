@@ -7,7 +7,16 @@ using UnityEngine.UI;
 using DG.Tweening;
 using System;
 
-
+public static class TransformExtensions
+{
+    public static void DestroyChildren(this Transform t)
+    {
+        foreach (Transform child in t)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+    }
+}
 
 // 新增：用于在UI和逻辑间传递奖励数据的结构体
 public class HuRewardPackage
@@ -153,6 +162,15 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Text toastText;
     [SerializeField] private CanvasGroup toastCanvasGroup;
 
+    [Header("牌库预览弹窗")]
+    [SerializeField] private GameObject poolViewerRoot;       // 父节点 (全屏遮罩)
+    [SerializeField] private RectTransform poolViewerContainer; // 动画主体
+    [SerializeField] private Button poolViewerCloseButton;     // 关闭按钮 (UI上的)
+
+    [Header("牌库预览 - 容器")]
+    [SerializeField] private Transform dotsContainer;  // 筒子 (Dots) 牌面 1-9
+    [SerializeField] private Transform bamboosContainer; // 索子 (Bamboos) 牌面 1-9
+    [SerializeField] private Transform charactersContainer; // 万子 (Characters) 牌面 1-9
     // ========================================================================
     // 9. 模块引用
     // ========================================================================
@@ -167,11 +185,16 @@ public class GameUIController : MonoBehaviour
     private ScoreManager scoreManager;
     private List<ItemSlotUI> activeItemSlotUIs = new List<ItemSlotUI>();
     private List<ProtocolSlotUI> activeProtocolSlotUIs = new List<ProtocolSlotUI>();
+    private Tween poolViewerTween; // 用于控制牌库预览的动画
+    private List<GameObject> activeTileUIs = new List<GameObject>();
 
     // 动画 Tweens
     private Tween poolCountBlinkTween;
     private Tween timerBlinkTween;
     private Tween pauseBlinkTween;
+    private const float POPUP_SLIDE_DURATION = 0.3f;
+    private const float POPUP_HIDDEN_Y = -1000f; // 弹窗滑出屏幕外的Y坐标
+    private const float POPUP_SHOWN_Y = 0f;      // 弹窗显示时的中心Y坐标 (假设锚点在中心)
 
     [Header("动画配置")]
     [Tooltip("分数滚动动画持续时间 (秒)")]
@@ -185,6 +208,10 @@ public class GameUIController : MonoBehaviour
         inventoryManager = FindObjectOfType<InventoryManager>();
         scoreManager = FindObjectOfType<ScoreManager>();
         SetupButtonListeners();
+        if (poolViewerCloseButton != null)
+        {
+            poolViewerCloseButton.onClick.AddListener(HidePoolViewer);
+        }
     }
     void Start()
     {
@@ -697,10 +724,9 @@ public class GameUIController : MonoBehaviour
 
     public void HideAllPanels()
     {
-        // 【修正】使用新的变量名 huPopupRoot
         if (huPopupRoot) huPopupRoot.SetActive(false);
-
         if (gameOverPanel) gameOverPanel.SetActive(false);
+        if (poolViewerRoot) poolViewerRoot.SetActive(false);
     }
     public void PlayHuPopupExitAnimation(Action onComplete)
     {
@@ -790,7 +816,16 @@ public class GameUIController : MonoBehaviour
             foreach (var blockId in set)
             {
                 var uiBlock = Instantiate(uiBlockPrefab, container);
-                if (uiBlock) uiBlock.GetComponent<Image>().sprite = blockPool.GetSpriteForBlock(blockId);
+                if (uiBlock)
+                {
+                    uiBlock.GetComponent<Image>().sprite = blockPool.GetSpriteForBlock(blockId);
+
+                    var bu = uiBlock.GetComponent<BlockUnit>();
+                    if (bu != null)
+                    {
+                        bu.DisablePoolUI();
+                    }
+                }
             }
         }
     }
@@ -813,6 +848,11 @@ public class GameUIController : MonoBehaviour
         for (int i = 0; i < sortedBlockUnits.Length && i < ids.Count; i++)
         {
             sortedBlockUnits[i].Initialize(ids[i], blockPool); // 【修改】使用排序后的数组
+        }
+        var allUnits = currentPreviewObject.GetComponentsInChildren<BlockUnit>();
+        foreach (var unit in allUnits)
+        {
+            unit.DisablePoolUI();
         }
         bool isInsufficient = ids.Contains(-1);
         UpdatePoolCountVisuals(isInsufficient);
@@ -947,7 +987,7 @@ public class GameUIController : MonoBehaviour
             slot.HideDeleteButton();
         }
     }
-    private void ShowToast(string message)
+    public void ShowToast(string message)
     {
         if (toastText == null || toastCanvasGroup == null) return;
 
@@ -1017,5 +1057,107 @@ public class GameUIController : MonoBehaviour
         {
             endlessModeLabel.SetActive(isActive);
         }
+    }
+    public bool IsPoolViewerActive()
+    {
+        return poolViewerRoot != null && poolViewerRoot.activeInHierarchy;
+    }
+    public void ShowPoolViewer()
+    {
+        if (poolViewerRoot == null || poolViewerContainer == null) return;
+
+        // 1. 设置根节点可见
+        poolViewerRoot.SetActive(true);
+
+        // 2. 清理并刷新显示内容
+        RefreshPoolDisplay();
+
+        // 3. 动画：从下方滑入
+        poolViewerTween.Kill(true);
+        // 确保弹窗在屏幕外开始动画
+        poolViewerContainer.anchoredPosition = new Vector2(0, POPUP_HIDDEN_Y);
+        poolViewerTween = poolViewerContainer.DOAnchorPosY(POPUP_SHOWN_Y, POPUP_SLIDE_DURATION)
+            .SetEase(Ease.OutBack)
+            .SetUpdate(true); // 保证暂停时也能动
+    }
+    public void HidePoolViewer()
+    {
+        if (poolViewerRoot == null || poolViewerContainer == null) return;
+
+        // 1. 动画：滑出
+        poolViewerTween.Kill(true);
+        poolViewerTween = poolViewerContainer.DOAnchorPosY(POPUP_HIDDEN_Y, POPUP_SLIDE_DURATION)
+            .SetEase(Ease.InBack)
+            .SetUpdate(true)
+            .OnComplete(() =>
+            {
+                // 动画完成后隐藏根节点
+                poolViewerRoot.SetActive(false);
+                ClearActiveTileUIs(); // 清理UI元素
+            });
+    }
+    private void ClearActiveTileUIs()
+    {
+        // 清理并回收所有生成的麻将 UI
+        foreach (var go in activeTileUIs)
+        {
+            if (go != null) Destroy(go);
+        }
+        activeTileUIs.Clear();
+    }
+    public void RefreshPoolDisplay()
+    {
+        // 1. 清理
+        ClearActiveTileUIs();
+        dotsContainer.DestroyChildren();
+        bamboosContainer.DestroyChildren();
+        charactersContainer.DestroyChildren();
+
+        if (GameManager.Instance == null) return;
+
+        // 2. 获取数据
+        var allIDs = GameManager.Instance.BlockPool.GetRemainingTileIDs();
+
+        // 3. 统计
+        int[] tileCounts = new int[27];
+        foreach (int id in allIDs)
+        {
+            int normalizedId = id % 27;
+            if (normalizedId >= 0 && normalizedId < 27) tileCounts[normalizedId]++;
+        }
+
+        // 4. 容器映射
+        var containers = new Dictionary<int, Transform>()
+        {
+            { 0, dotsContainer }, { 1, bamboosContainer }, { 2, charactersContainer }
+        };
+
+        // 5. 生成 27 个格子
+        for (int i = 0; i < 27; i++)
+        {
+            int suit = i / 9;
+            if (containers.TryGetValue(suit, out var parentTransform))
+            {
+                GameObject go = Instantiate(uiBlockPrefab, parentTransform);
+
+                // 【修改】获取 BlockUnit 组件
+                var bu = go.GetComponent<BlockUnit>();
+                if (bu != null)
+                {
+                    // 【关键】调用新的专用初始化方法
+                    bu.InitializeForPoolViewer(i, tileCounts[i], blockPool);
+                }
+
+                activeTileUIs.Add(go);
+            }
+        }
+    }
+    public bool IsHuPopupActive()
+    {
+        return huPopupRoot != null && huPopupRoot.activeInHierarchy;
+    }
+    public bool IsGameOverPanelActive()
+    {
+        return gameOverPanel != null && gameOverPanel.activeInHierarchy;
     }
 }

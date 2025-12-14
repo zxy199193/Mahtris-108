@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
 
     // 【修正】防止 Inventory 定义冲突，这里保留唯一的定义
     public InventoryManager Inventory => inventoryManager;
-
+    public BlockPool BlockPool => blockPool;
     // ========================================================================
     // 3. 游戏核心状态
     // ========================================================================
@@ -1878,6 +1878,28 @@ public class GameManager : MonoBehaviour
             {
                 gameUI.UpdateProtocolUI(activeProtocols);
             }
+        }
+    }
+    public void TogglePoolViewer()
+    {
+        // 检查是否在不能中断的核心流程中
+        if (gameUI.IsHuPopupActive() || gameUI.IsGameOverPanelActive())
+        {
+            // 游戏处于重要流程，禁止打开/关闭牌库
+            gameUI.ShowToast("当前流程无法打开牌库预览");
+            return;
+        }
+
+        // 切换状态
+        if (gameUI.IsPoolViewerActive())
+        {
+            // 如果已打开，则关闭
+            gameUI.HidePoolViewer();
+        }
+        else
+        {
+            // 如果已关闭，则打开
+            gameUI.ShowPoolViewer();
         }
     }
 }

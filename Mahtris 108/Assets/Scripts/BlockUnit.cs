@@ -1,144 +1,160 @@
 // FileName: BlockUnit.cs
 using UnityEngine;
-using UnityEngine.UI; // 引入UI命名空间
+using UnityEngine.UI;
+using DG.Tweening; // 如果你使用了DoTween，保留引用
 
 public class BlockUnit : MonoBehaviour
 {
     public int blockId { get; private set; } = -1;
 
-    [Header("引用")]
+    [Header("核心引用")]
     [SerializeField] private Transform spriteHolder;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private Image uiImage; // 【新增】UI Image引用
+    [SerializeField] private Image uiImage;
 
-    [Header("空缺状态配置")]
-    [SerializeField] private Text statusText;   // 【新增】用于显示说明文字 (如 "缺" 或 "!")
-    [SerializeField] private Sprite emptySprite; // 【新增】空缺时的底图 (可以是纯白方块，然后用Color染红)
-    [SerializeField] private string emptyMessage = "缺"; // 【新增】空缺时显示的文字内容
-    [SerializeField] private Color emptyColor = new Color(0.8f, 0.2f, 0.2f, 1f); // 【新增】空缺时的颜色 (红色)
+    [Header("游戏内状态配置")]
+    [SerializeField] private Text statusText;
+    [SerializeField] private Sprite emptySprite;
+    [SerializeField] private string emptyMessage = "缺";
+    [SerializeField] private Color emptyColor = new Color(0.8f, 0.2f, 0.2f, 1f);
+
+    // =========================================================
+    // 【新增】牌库预览专用配置 (Pool Viewer)
+    // =========================================================
+    [Header("牌库预览配置")]
+    [SerializeField] private GameObject countInfoGroup; // 数量显示的父节点/背板
+    [SerializeField] private Text countText;            // 数量文本
+    [SerializeField] private GameObject darkMask;       // 数量为0时的遮罩
+    
+    private Color _originalTextColor = Color.white;
     private BlockPool blockPool;
 
     void Awake()
     {
         if (spriteRenderer == null && spriteHolder != null)
-        {
             spriteRenderer = spriteHolder.GetComponent<SpriteRenderer>();
-        }
 
-        // 【新增】如果 uiImage 未在Inspector中指定，则自动获取
         if (uiImage == null)
-        {
             uiImage = GetComponent<Image>();
+
+        if (countText != null)
+        {
+            _originalTextColor = countText.color;
         }
+        DisablePoolUI();
     }
 
     private void LateUpdate()
     {
-        // 【修改】仅在“无重力”条约*未*激活时才重置旋转
+        // 仅在“无重力”条约*未*激活时才重置旋转
         if (spriteHolder != null && (GameManager.Instance == null || !GameManager.Instance.isNoGravityActive))
         {
             spriteHolder.rotation = Quaternion.identity;
         }
     }
 
+    // ---------------------------------------------------------
+    // 1. 原有的初始化方法 (用于游戏内方块、下一个方块预览)
+    // ---------------------------------------------------------
     public void Initialize(int id, BlockPool pool)
     {
         this.blockPool = pool;
 
-        // --- 核心修改逻辑 ---
+        // 确保牌库UI是关闭的
+        DisablePoolUI();
+
         if (id == -1)
         {
-            // === 状态：麻将不足 (显示纯色图 + 文字) ===
+            // === 状态：麻将不足 ===
             blockId = -1;
-
-            // 1. 设置底图
-            if (uiImage != null)
-            {
-                // 如果有专门的空图就用，没有就设为null(显示纯色块)
-                uiImage.sprite = emptySprite;
-                uiImage.color = emptyColor; // 设置为红色或你想要的颜色
-                uiImage.enabled = true;
-            }
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.sprite = emptySprite;
-                spriteRenderer.color = emptyColor;
-            }
-
-            // 2. 显示文字
-            if (statusText != null)
-            {
-                statusText.text = emptyMessage;
-                statusText.gameObject.SetActive(true);
-            }
+            if (uiImage != null) { uiImage.sprite = emptySprite; uiImage.color = emptyColor; uiImage.enabled = true; }
+            if (spriteRenderer != null) { spriteRenderer.sprite = emptySprite; spriteRenderer.color = emptyColor; }
+            if (statusText != null) { statusText.text = emptyMessage; statusText.gameObject.SetActive(true); }
         }
         else
         {
             // === 状态：正常 ===
-            // 1. 恢复底图颜色
             if (uiImage != null) uiImage.color = Color.white;
             if (spriteRenderer != null) spriteRenderer.color = Color.white;
-
-            // 2. 隐藏文字
-            if (statusText != null)
-            {
-                statusText.gameObject.SetActive(false);
-            }
-
-            // 3. 应用正常麻将牌
+            if (statusText != null) statusText.gameObject.SetActive(false);
             ApplyIdAndSprite(id);
         }
     }
 
+    // ---------------------------------------------------------
+    // 2. 【新增】牌库预览专用初始化方法
+    // ---------------------------------------------------------
+    public void InitializeForPoolViewer(int id, int count, BlockPool pool)
+    {
+        this.blockPool = pool;
+        this.blockId = id;
+
+        // 1. 设置麻将图案
+        ApplyIdAndSprite(id);
+
+        // 2. 开启背板
+        if (countInfoGroup != null) countInfoGroup.SetActive(true);
+
+        // 3. 设置数量
+        if (countText != null)
+        {
+            countText.text = count.ToString();
+            if (count == 0)
+            {
+                countText.color = Color.red;
+            }
+            else
+            {
+                // 恢复为 Awake 时记录的颜色
+                countText.color = _originalTextColor;
+            }
+        }
+
+        // 4. 设置遮罩 (没牌了就遮住)
+        if (darkMask != null)
+        {
+            darkMask.SetActive(count <= 0);
+        }
+    }
+
+    // 【新增】强制关闭牌库UI (用于防止在普通方块上显示数量)
+    public void DisablePoolUI()
+    {
+        if (countInfoGroup != null) countInfoGroup.SetActive(false);
+        if (darkMask != null) darkMask.SetActive(false);
+    }
+
+    // ---------------------------------------------------------
+    // 内部逻辑
+    // ---------------------------------------------------------
     private void ApplyIdAndSprite(int id)
     {
         this.blockId = id;
         if (blockPool != null)
         {
             Sprite sprite = blockPool.GetSpriteForBlock(id);
+            if (spriteRenderer != null) spriteRenderer.sprite = sprite;
+            if (uiImage != null) uiImage.sprite = sprite;
 
-            // 【修改】同时更新 SpriteRenderer 和 Image
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.sprite = sprite;
-            }
-            if (uiImage != null)
-            {
-                uiImage.sprite = sprite;
-            }
-            // 【新增】“无重力”逻辑
+            // 无重力逻辑
             if (GameManager.Instance != null && GameManager.Instance.isNoGravityActive && spriteHolder != null)
             {
                 int[] rotations = { 0, 90, 180, 270 };
                 float randomRotation = rotations[Random.Range(0, rotations.Length)];
                 spriteHolder.localRotation = Quaternion.Euler(0, 0, randomRotation);
             }
-            else if (spriteHolder != null) // 确保非条约时转回来
+            else if (spriteHolder != null)
             {
                 spriteHolder.localRotation = Quaternion.identity;
             }
-            // --- 修改结束 ---
         }
     }
-    // 【新增】供“深邃黑暗幻想”条约调用
+
+    // 黑暗幻想淡出逻辑 (保持不变)
     public void StartFadeToBlack()
     {
-        // 检查条约是否激活，且我们有可以修改的Sprite
         if (GameManager.Instance != null && GameManager.Instance.isDarkFantasyActive)
         {
-            // 使用 DoTween 插件在 3 秒内将颜色变为黑色
-            // 确保你已经在项目和脚本中正确导入了 DoTween
-
-            // if (spriteRenderer != null)
-            // {
-            //     spriteRenderer.DOColor(Color.black, 3f);
-            // }
-            // if (uiImage != null)
-            // {
-            //     uiImage.DOColor(Color.black, 3f);
-            // }
-
-            // --- 如果没有 DoTween，使用 Coroutine ---
             StartCoroutine(FadeCoroutine(12f));
         }
     }
@@ -149,20 +165,16 @@ public class BlockUnit : MonoBehaviour
         Color startColor = Color.white;
         if (spriteRenderer != null) startColor = spriteRenderer.color;
         if (uiImage != null) startColor = uiImage.color;
-
         Color endColor = Color.black;
 
         while (timer < duration)
         {
             timer += Time.deltaTime;
             Color newColor = Color.Lerp(startColor, endColor, timer / duration);
-
             if (spriteRenderer != null) spriteRenderer.color = newColor;
             if (uiImage != null) uiImage.color = newColor;
-
             yield return null;
         }
-
         if (spriteRenderer != null) spriteRenderer.color = endColor;
         if (uiImage != null) uiImage.color = endColor;
     }

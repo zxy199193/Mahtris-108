@@ -321,4 +321,15 @@ public class Spawner : MonoBehaviour
         // 通知 UI 刷新
         GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, nextTileIds);
     }
+    public List<int> GetNextTetrominoTileIDs()
+    {
+        // 【修正】直接返回缓存的 nextTileIds 即可
+        // 这个列表在 PrepareNextTetromino 中已经被赋值了
+        if (nextTileIds != null)
+        {
+            return new List<int>(nextTileIds);
+        }
+
+        return new List<int>();
+    }
 }

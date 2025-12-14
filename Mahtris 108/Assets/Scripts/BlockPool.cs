@@ -154,4 +154,13 @@ public class BlockPool : MonoBehaviour
     {
         return availableBlocks.Count >= count;
     }
+    public List<int> GetRemainingTileIDs()
+    {
+        // 【修正】使用类成员变量 availableBlocks
+        if (availableBlocks != null)
+        {
+            return new List<int>(availableBlocks);
+        }
+        return new List<int>();
+    }
 }
