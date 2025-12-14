@@ -1902,4 +1902,24 @@ public class GameManager : MonoBehaviour
             gameUI.ShowPoolViewer();
         }
     }
+    public void TogglePatternViewer()
+    {
+        // 1. 核心流程互斥检查
+        // 如果正在胡牌结算，或者游戏结束了，不允许打开图鉴
+        if (gameUI.IsHuPopupActive() || gameUI.IsGameOverPanelActive())
+        {
+            gameUI.ShowToast("当前流程无法打开图鉴");
+            return;
+        }
+
+        // 2. 切换逻辑
+        if (gameUI.IsPatternViewerActive())
+        {
+            gameUI.HidePatternViewer();
+        }
+        else
+        {
+            gameUI.ShowPatternViewer();
+        }
+    }
 }

@@ -171,14 +171,23 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Transform dotsContainer;  // 筒子 (Dots) 牌面 1-9
     [SerializeField] private Transform bamboosContainer; // 索子 (Bamboos) 牌面 1-9
     [SerializeField] private Transform charactersContainer; // 万子 (Characters) 牌面 1-9
+
     // ========================================================================
-    // 9. 模块引用
+    // 9. 牌型图鉴弹窗 (Pattern Viewer) - NEW
+    // ========================================================================
+    [Header("牌型图鉴弹窗")]
+    [SerializeField] private GameObject patternViewerRoot;       // 父节点 (全屏遮罩)
+    [SerializeField] private RectTransform patternViewerContainer; // 动画主体 (您的牌型内容放在这里)
+    [SerializeField] private Button patternViewerCloseButton;     // 关闭按钮
+
+    // ========================================================================
+    // 10. 模块引用
     // ========================================================================
     [Header("模块引用")]
     [SerializeField] private BlockPool blockPool;
 
     // ========================================================================
-    // 10. 内部状态与动画 Tweens
+    // 11. 内部状态与动画 Tweens
     // ========================================================================
     // 引用缓存
     private InventoryManager inventoryManager;
@@ -192,6 +201,7 @@ public class GameUIController : MonoBehaviour
     private Tween poolCountBlinkTween;
     private Tween timerBlinkTween;
     private Tween pauseBlinkTween;
+    private Tween patternViewerTween;
     private const float POPUP_SLIDE_DURATION = 0.3f;
     private const float POPUP_HIDDEN_Y = -1000f; // 弹窗滑出屏幕外的Y坐标
     private const float POPUP_SHOWN_Y = 0f;      // 弹窗显示时的中心Y坐标 (假设锚点在中心)
@@ -211,6 +221,10 @@ public class GameUIController : MonoBehaviour
         if (poolViewerCloseButton != null)
         {
             poolViewerCloseButton.onClick.AddListener(HidePoolViewer);
+        }
+        if (patternViewerCloseButton != null)
+        {
+            patternViewerCloseButton.onClick.AddListener(HidePatternViewer);
         }
     }
     void Start()
@@ -727,6 +741,7 @@ public class GameUIController : MonoBehaviour
         if (huPopupRoot) huPopupRoot.SetActive(false);
         if (gameOverPanel) gameOverPanel.SetActive(false);
         if (poolViewerRoot) poolViewerRoot.SetActive(false);
+        if (patternViewerRoot) patternViewerRoot.SetActive(false);
     }
     public void PlayHuPopupExitAnimation(Action onComplete)
     {
@@ -1159,5 +1174,40 @@ public class GameUIController : MonoBehaviour
     public bool IsGameOverPanelActive()
     {
         return gameOverPanel != null && gameOverPanel.activeInHierarchy;
+    }
+    public bool IsPatternViewerActive()
+    {
+        return patternViewerRoot != null && patternViewerRoot.activeInHierarchy;
+    }
+    public void ShowPatternViewer()
+    {
+        if (patternViewerRoot == null || patternViewerContainer == null) return;
+
+        // 1. 如果牌库预览开着，先关掉它，避免叠在一起
+        if (IsPoolViewerActive()) HidePoolViewer();
+
+        // 2. 激活根节点
+        patternViewerRoot.SetActive(true);
+
+        // 3. 动画：从下方滑入 (复用之前的动画参数)
+        patternViewerTween.Kill(true);
+        patternViewerContainer.anchoredPosition = new Vector2(0, POPUP_HIDDEN_Y); // -1000
+        patternViewerTween = patternViewerContainer.DOAnchorPosY(POPUP_SHOWN_Y, POPUP_SLIDE_DURATION)
+            .SetEase(Ease.OutBack)
+            .SetUpdate(true); // 暂停时也能动
+    }
+    public void HidePatternViewer()
+    {
+        if (patternViewerRoot == null || patternViewerContainer == null) return;
+
+        // 动画：滑出
+        patternViewerTween.Kill(true);
+        patternViewerTween = patternViewerContainer.DOAnchorPosY(POPUP_HIDDEN_Y, POPUP_SLIDE_DURATION)
+            .SetEase(Ease.InBack)
+            .SetUpdate(true)
+            .OnComplete(() =>
+            {
+                patternViewerRoot.SetActive(false);
+            });
     }
 }
