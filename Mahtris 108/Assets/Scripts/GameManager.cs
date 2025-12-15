@@ -1922,4 +1922,36 @@ public class GameManager : MonoBehaviour
             gameUI.ShowPatternViewer();
         }
     }
+    // 1. 激活空投炸弹
+    public void ActivateDropBomb()
+    {
+        _isBombOrSpecialClear = true;
+
+        Tetromino currentTetromino = FindObjectOfType<Tetromino>();
+        Transform ignoreTransform = currentTetromino != null ? currentTetromino.transform : null;
+        tetrisGrid.ForceClearTopRows(3, ignoreTransform);
+    }
+
+    // 2. 激活剪刀
+    public bool ActivateScissors()
+    {
+        bool success = spawner.RemoveHighestMultiplierBlock();
+        return success;
+    }
+
+    // 3. 激活金苹果
+    public void ActivateGoldenApple()
+    {
+        int uniqueCount = spawner.GetUniqueBlockCount();
+        int bonus = uniqueCount * 3;
+
+        // 永久增加基础分
+        ApplyPermanentBaseScoreBonus(bonus);
+    }
+
+    // 4. 激活魔术幕布
+    public void ActivateMagicCurtain()
+    {
+        tetrisGrid.ShuffleAllBoardTiles();
+    }
 }

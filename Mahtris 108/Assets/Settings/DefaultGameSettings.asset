@@ -16,30 +16,18 @@ MonoBehaviour:
   gridHeight: 16
   deadlineHeight: 13
   setsForHu: 4
-  speedIncreasePerHu: 0.2
-  initialFallSpeed: 1
-  fastFallSpeed: 0.03
-  baseDisplayedSpeed: 10
-  speedIncreasePerHu_Int: 1
   tileRanks: 9
   tilesPerRank: 4
+  baseDisplayedSpeed: 10
+  speedIncreasePerHu_Int: 1
+  fastFallSpeed: 0.03
+  speedIncreasePerHu: 0.2
+  initialFallSpeed: 1
+  initialTimeLimit: 300
+  huTimeBonus: 60
   baseFanScore: 10
   fanBonusPerKong: 1
   scorePerRow: 2
-  husPerLoop: 2
-  normalWeight: 10
-  legendaryWeightBase: 5
-  legendaryWeightIncreasePerLoop: 2.5
-  legendaryIcon: {fileID: 21300000, guid: 71b55c0a7c1906e48bd3b525833135cf, type: 3}
-  tooltipBgCommon: {fileID: 21300000, guid: 0a8ab05b60e1f0545b5c1135286dc257, type: 3}
-  tooltipBgAdvanced: {fileID: 21300000, guid: 16a703e8884276e4fa171e89c5794046, type: 3}
-  tooltipBgProtocol: {fileID: 21300000, guid: 8e5615668b1302049900db9ba72af096, type: 3}
-  tooltipBgLegendary: {fileID: 21300000, guid: 13a2397528ebcc34f9dbf3f0bc05eeb2, type: 3}
-  labelColorCommon: {r: 0.34901962, g: 0.8078432, b: 1, a: 1}
-  labelColorAdvanced: {r: 0.9725491, g: 0.5882353, b: 0.11764707, a: 1}
-  labelColorProtocol: {r: 0.43529415, g: 0.43529415, b: 0.43529415, a: 1}
-  initialTimeLimit: 300
-  huTimeBonus: 60
   scoreLevels:
   - targetScore: 50
     goldReward: 10
@@ -57,6 +45,10 @@ MonoBehaviour:
     goldReward: 1600
   - targetScore: 8000
     goldReward: 3000
+  husPerLoop: 5
+  normalWeight: 10
+  legendaryWeightBase: 5
+  legendaryWeightIncreasePerLoop: 2.5
   tetrominoLevels:
   - levelName: Tetromino Lv.1
     minBlocks: 1
@@ -77,9 +69,10 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 5
   commonItemPool:
-  - {fileID: 11400000, guid: 1fb733d140bb12e4a81824d4e18f236d, type: 2}
-  - {fileID: 11400000, guid: c3ade023d44989d4ca30cfcae1d8ed79, type: 2}
-  - {fileID: 11400000, guid: 5b40825730be1644ca7a88ab44fe1c27, type: 2}
+  - {fileID: 11400000, guid: b30c70e02ca74cd40a7bab8c16f5ac8d, type: 2}
+  - {fileID: 11400000, guid: fc708f6af3962d14bb00fa1297a60727, type: 2}
+  - {fileID: 11400000, guid: 23b6f079f3790704a98216b50a373c93, type: 2}
+  - {fileID: 11400000, guid: c3d545bea5cc3dc438bdbc29ec808853, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}
@@ -127,3 +120,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6f3f303129c04f049b9804fff82dc031, type: 2}
   - {fileID: 11400000, guid: 2d17be02ae1c4ea4f82b496e1398b034, type: 2}
   - {fileID: 11400000, guid: 0c2acdff134033f4793ed84dc2594f2a, type: 2}
+  legendaryIcon: {fileID: 21300000, guid: 71b55c0a7c1906e48bd3b525833135cf, type: 3}
+  tooltipBgCommon: {fileID: 21300000, guid: 0a8ab05b60e1f0545b5c1135286dc257, type: 3}
+  tooltipBgAdvanced: {fileID: 21300000, guid: 16a703e8884276e4fa171e89c5794046, type: 3}
+  tooltipBgProtocol: {fileID: 21300000, guid: 8e5615668b1302049900db9ba72af096, type: 3}
+  tooltipBgLegendary: {fileID: 21300000, guid: 13a2397528ebcc34f9dbf3f0bc05eeb2, type: 3}
+  labelColorCommon: {r: 0.34901962, g: 0.8078432, b: 1, a: 1}
+  labelColorAdvanced: {r: 0.9725491, g: 0.5882353, b: 0.11764707, a: 1}
+  labelColorProtocol: {r: 0.43529415, g: 0.43529415, b: 0.43529415, a: 1}

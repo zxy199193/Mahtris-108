@@ -332,4 +332,58 @@ public class Spawner : MonoBehaviour
 
         return new List<int>();
     }
+    public bool RemoveHighestMultiplierBlock()
+    {
+        // 1. 【核心修复】如果池为空，或者只剩 1 个方块，禁止使用
+        if (activeTetrominoPool == null || activeTetrominoPool.Count <= 1)
+        {
+            Debug.Log("剪刀失效：池中方块不足（至少保留一个）。");
+            return false; // 使用失败，不消耗道具
+        }
+
+        // 2. 找到当前池子里倍率最高的方块
+        float maxMult = -1f;
+        GameObject target = null;
+
+        foreach (var prefab in activeTetrominoPool)
+        {
+            var tet = prefab.GetComponent<Tetromino>();
+            if (tet != null)
+            {
+                if (tet.extraMultiplier > maxMult)
+                {
+                    maxMult = tet.extraMultiplier;
+                    target = prefab;
+                }
+            }
+        }
+
+        // 3. 移除它
+        if (target != null)
+        {
+            activeTetrominoPool.Remove(target);
+            Debug.Log($"剪刀生效：移除了 {target.name} (倍率: {maxMult})");
+
+            // 刷新 UI 列表
+            GameManager.Instance.UpdateActiveBlockListUI();
+
+            // 如果下一个预览的方块正好是被删掉的这个，必须重随
+            if (nextTetrominoPrefab == target)
+            {
+                Debug.Log("剪刀：预览方块即为被删方块，正在替换...");
+                PrepareNextTetromino();
+                GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, nextTileIds);
+            }
+
+            return true; // 使用成功，消耗道具
+        }
+
+        return false;
+    }
+    public int GetUniqueBlockCount()
+    {
+        if (activeTetrominoPool == null) return 0;
+        // 使用 Distinct() 来统计不重复的预制件种类
+        return activeTetrominoPool.Distinct().Count();
+    }
 }

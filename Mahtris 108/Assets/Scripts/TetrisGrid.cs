@@ -232,4 +232,89 @@ public class TetrisGrid : MonoBehaviour
         }
         return null;
     }
+    public void ForceClearTopRows(int count, Transform ignoreSource = null)
+    {
+        // 1. 从上往下扫，找到当前最高的【已锁定】方块在哪一行
+        int maxHeightIndex = -1;
+        for (int y = height - 1; y >= 0; y--)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (grid[x, y] != null)
+                {
+                    // 【关键修复】如果这个格子属于正在下落的方块，则忽略，继续找
+                    if (ignoreSource != null && grid[x, y].parent == ignoreSource)
+                    {
+                        continue;
+                    }
+
+                    // 找到了非下落方块，标记为最高点
+                    maxHeightIndex = y;
+                    goto HeightFound; // 跳出双层循环
+                }
+            }
+        }
+
+    HeightFound:
+        if (maxHeightIndex == -1)
+        {
+            Debug.Log("空投炸弹：场上没有已锁定的方块，无效。");
+            return;
+        }
+
+        // 2. 计算要消除哪些行 (从 maxHeightIndex 向下数 count 行)
+        List<int> rowsToClear = new List<int>();
+        for (int i = 0; i < count; i++)
+        {
+            int targetY = maxHeightIndex - i;
+            if (targetY >= 0)
+            {
+                rowsToClear.Add(targetY);
+            }
+        }
+
+        // 3. 执行消除
+        if (rowsToClear.Count > 0)
+        {
+            GameEvents.TriggerRowsCleared(rowsToClear);
+            Debug.Log($"空投炸弹生效：消除了 {rowsToClear.Count} 行 (最高堆叠: {maxHeightIndex + 1})");
+        }
+    }
+    public void ShuffleAllBoardTiles()
+    {
+        // 1. 收集场上所有的 BlockUnit
+        List<BlockUnit> allUnits = new List<BlockUnit>();
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (grid[x, y] != null)
+                {
+                    var unit = grid[x, y].GetComponent<BlockUnit>();
+                    if (unit != null) allUnits.Add(unit);
+                }
+            }
+        }
+
+        if (allUnits.Count == 0) return;
+
+        // 2. 提取所有 ID 并洗牌 (只交换场上的牌，不引入新牌)
+        List<int> shuffledIds = allUnits.Select(u => u.blockId).ToList();
+
+        // Fisher-Yates 洗牌算法
+        for (int i = 0; i < shuffledIds.Count; i++)
+        {
+            int temp = shuffledIds[i];
+            int randIndex = Random.Range(i, shuffledIds.Count);
+            shuffledIds[i] = shuffledIds[randIndex];
+            shuffledIds[randIndex] = temp;
+        }
+
+        // 3. 重新赋值
+        var pool = GameManager.Instance.BlockPool;
+        for (int i = 0; i < allUnits.Count; i++)
+        {
+            allUnits[i].Initialize(shuffledIds[i], pool);
+        }
+    }
 }
