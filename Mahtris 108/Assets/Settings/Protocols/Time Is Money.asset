@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a4a89195cba8484b8e48724aa4a0c77, type: 3}
+  m_Name: Time Is Money
+  m_EditorClassIdentifier: 
+  protocolName: "\u65F6\u95F4\u5C31\u662F\u91D1\u94B1"
+  protocolIcon: {fileID: 21300000, guid: 5a1f6a42dd8741d48af9e7fa902b6bd8, type: 3}
+  protocolDescription: "\u80E1\u724C\u65F6\u4E0D\u518D\u589E\u52A0\u6E38\u620F\u65F6\u95F4\uFF0C\u76EE\u6807\u91D1\u5E01\u5956\u52B1x2\r"
+  isLegendary: 0
+  price: 0
+  isInitial: 1
+  unlockConditionCount: 0

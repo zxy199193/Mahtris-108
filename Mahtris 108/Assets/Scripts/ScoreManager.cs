@@ -40,16 +40,11 @@ public class ScoreManager : MonoBehaviour
         huCount++;
         huCountInCurrentLoop++; // 完成了一次胡牌
 
-        int target = 4; // 默认值
-        if (GameManager.Instance != null && GameManager.Instance.GetSettings() != null)
-        {
-            target = GameManager.Instance.GetSettings().husPerLoop;
-        }
+        int target = GetCurrentLoopTarget();
 
         // 检查是否达到目标
         if (huCountInCurrentLoop >= target)
         {
-            // 完成了一圈
             currentLoop++;
             huCountInCurrentLoop = 0; // 归零，准备开始下一圈的第1次
             return true; // 发放高级奖励
@@ -65,13 +60,7 @@ public class ScoreManager : MonoBehaviour
     // 胡了3次：已完成3，显示 "4/4" (正在打第4把，这把胡了就发奖)
     public string GetLoopProgressString()
     {
-        int target = 4;
-        if (GameManager.Instance != null && GameManager.Instance.GetSettings() != null)
-        {
-            target = GameManager.Instance.GetSettings().husPerLoop;
-        }
-
-        // 显示正在进行的轮数 (当前完成数 + 1)
+        int target = GetCurrentLoopTarget();
         return $"第{currentLoop}圈 {huCountInCurrentLoop + 1}/{target}";
     }
 
@@ -81,9 +70,8 @@ public class ScoreManager : MonoBehaviour
         huCount += amount;
         huCountInCurrentLoop += amount;
 
-        int target = GameManager.Instance.GetSettings().husPerLoop;
+        int target = GetCurrentLoopTarget();
 
-        // 处理跨圈
         while (huCountInCurrentLoop >= target)
         {
             currentLoop++;
@@ -113,5 +101,21 @@ public class ScoreManager : MonoBehaviour
             return true;
         }
         return false;
+    }
+    private int GetCurrentLoopTarget()
+    {
+        int target = 4; // 默认值
+        if (GameManager.Instance != null && GameManager.Instance.GetSettings() != null)
+        {
+            target = GameManager.Instance.GetSettings().husPerLoop;
+        }
+
+        // 【亚空间逻辑】如果激活，目标减 1 (最低为 1)
+        if (GameManager.Instance != null && GameManager.Instance.isSubspaceActive)
+        {
+            target = Mathf.Max(1, target - 1);
+        }
+
+        return target;
     }
 }

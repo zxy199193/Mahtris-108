@@ -83,8 +83,6 @@ public class GameManager : MonoBehaviour
     // ========================================================================
     private List<ProtocolData> activeProtocols = new List<ProtocolData>();
     private List<ProtocolData> protocolsMarkedForRemoval = new List<ProtocolData>();
-
-    // V4.1
     public bool useDuanYaoJiuFilter = false;
     public bool useQueYiMenFilter = false;
     public int queYiMenSuitToRemove = -1;
@@ -95,8 +93,6 @@ public class GameManager : MonoBehaviour
     public bool isMeteorShowerActive = false;
     public bool isTrickRoomActive = false;
     public bool isNoGravityActive = false;
-
-    // V4.2
     public bool isAttackOnGiantActive = false;
     public bool isCheapWarehouseActive = false;
     public bool isMarshLandActive = false;
@@ -106,14 +102,9 @@ public class GameManager : MonoBehaviour
     public bool isRoutineWorkActive = false;
     public bool isUnstableCurrentActive = false;
     public bool isSSSVIPActive = false;
-
-    // 【修正】补回遗漏的 isAdventFoodActive
     public bool isAdventFoodActive = false;
-
     private bool _snapshotSSSVIP = false;
     private bool _snapshotStrongWorld = false;
-
-    // V4.3
     public bool isDelayGratificationActive = false;
     public bool isDrMahjongActive = false;
     public bool isOldSchoolActive = false;
@@ -124,7 +115,17 @@ public class GameManager : MonoBehaviour
     public bool isGreatRevolutionActive = false;
     public bool isTrinityActive = false;
     public bool isRealpolitikActive = false;
-
+    public bool isNatureReserveActive = false;
+    public bool isLastGaspGoalActive = false;
+    private int lastGaspGoalBonus = 0;
+    public bool isBloomingOnKongActive = false;
+    public bool isSubspaceActive = false;
+    private int cumulativeHuSpeedBonus = 0;
+    public bool isBottomMoonActive = false;
+    public bool isLastStandActive = false;
+    public bool isOneManArmyActive = false;
+    private float _omaCurrentGrowth = 2f;
+    private float _omaAppliedFactor = 1f;
     // ========================================================================
     // 7. 道具与特殊机制状态
     // ========================================================================
@@ -208,7 +209,31 @@ public class GameManager : MonoBehaviour
 
         // 更新时间UI
         gameUI.UpdateTimerText(remainingTime, _lastBulletTimeState);
+        if (isLastGaspGoalActive)
+        {
+            // 判定条件：剩余时间 <= 3秒
+            bool shouldTrigger = remainingTime <= 3.0f;
 
+            if (shouldTrigger && lastGaspGoalBonus == 0)
+            {
+                // 触发绝杀：加 36 分
+                lastGaspGoalBonus = 36;
+                UpdateCurrentBaseScore();
+                // 可选：播放个心跳音效或视觉提示
+            }
+            else if (!shouldTrigger && lastGaspGoalBonus != 0)
+            {
+                // 时间回升 (吃了道具/胡牌加时)：撤销 36 分
+                lastGaspGoalBonus = 0;
+                UpdateCurrentBaseScore();
+            }
+        }
+        else if (lastGaspGoalBonus != 0)
+        {
+            // 条约被移除/失效：清理残余分数
+            lastGaspGoalBonus = 0;
+            UpdateCurrentBaseScore();
+        }
         if (kidsMealTimer > 0) kidsMealTimer -= logicDeltaTime;
 
         if (isMarshLandActive)
@@ -370,11 +395,11 @@ public class GameManager : MonoBehaviour
         // 【新增】重置所有基础分加成
         permanentBaseScoreBonus = 0;
         roundBaseScoreBonus = 0;
-        permanentBaseScoreMultiplier = 1f; // 【新增】重置乘数
+        permanentBaseScoreMultiplier = 1f;
         isSteroidActive = false;
         isSteroidReversalActive = false;
-        ignoreMahjongCheckCount = 0; // 【新增】
-        bonusBlocksOnHuCount = 0;    // 【新增】
+        ignoreMahjongCheckCount = 0;
+        bonusBlocksOnHuCount = 0;
         useDuanYaoJiuFilter = false;
         useQueYiMenFilter = false;
         queYiMenSuitToRemove = -1;
@@ -418,6 +443,17 @@ public class GameManager : MonoBehaviour
         _pendingGameWin = false;
         activePassportSuit = -1;
         passportTimer = 0f;
+        isNatureReserveActive = false;
+        isLastGaspGoalActive = false;
+        lastGaspGoalBonus = 0;
+        isBloomingOnKongActive = false;
+        isSubspaceActive = false;
+        isBottomMoonActive = false;
+        isLastStandActive = false;
+        cumulativeHuSpeedBonus = 0;
+        isOneManArmyActive = false;
+        _omaCurrentGrowth = 2f;
+        _omaAppliedFactor = 1f;
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
 
         remainingPauses = maxPauses;
@@ -481,12 +517,40 @@ public class GameManager : MonoBehaviour
         if (AudioManager.Instance) AudioManager.Instance.PauseCountdownSound();
         // 每次胡牌后更新圈数显示
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+        if (isBottomMoonActive)
+        {
+            // 1. 获取当前牌库剩余的牌数
+            int remainingTiles = blockPool.GetAvailableBlockIDs().Count;
 
+            // 2. 获取下一个方块需要的牌数 (例如 Lv3方块可能需要5张)
+            int neededForNext = spawner.GetNextBlockRequiredTileCount();
+
+            // 3. 动态判断：如果剩余 < 需要，即判定为“牌库不足/会出现黑块”
+            if (neededForNext > 0 && remainingTiles < neededForNext)
+            {
+                ApplyRoundBaseScoreBonus(36);
+                Debug.Log($"海底捞月触发！剩余 {remainingTiles} 张 < 下个方块需要 {neededForNext} 张。基础分 +36");
+            }
+        }
 
         bool isAdvancedReward = scoreManager.IncrementHuCountAndCheckCycle();
-
+        if (isOneManArmyActive && isAdvancedReward)
+        {
+            // 只有当条约处于“生效状态”且“完成了一圈”时，倍率才翻倍
+            // 我们调用 Recalculate 方法，并传入 true 表示这是一次成长事件
+            RecalculateOneManArmy(true);
+        }
         // 1. 基础番数计算
         var analysisResult = mahjongCore.CalculateHandFan(huHand, settings, _tempIsTianHu, _tempIsDiHu);
+        if (isBloomingOnKongActive)
+        {
+            int kongCount = huHand.Count(set => set.Count == 4);
+            if (kongCount > 0)
+            {
+                // MahjongCore 按默认设置算了 (比如1番/杠)，我们这里手动补上额外的 1番/杠
+                analysisResult.TotalFan += kongCount * 1;
+            }
+        }
         // 使用完后重置临时变量
         _tempIsTianHu = false;
         _tempIsDiHu = false;
@@ -534,6 +598,7 @@ public class GameManager : MonoBehaviour
         scoreManager.AddScore((int)Mathf.Min(finalScore, int.MaxValue));
 
         float addedTime = 0f;
+
         // 【修复】时间就是金钱 (TimeIsMoney)
         // 只有在未激活该条约时，才奖励时间
         if (!isTimeIsMoneyActive)
@@ -553,7 +618,14 @@ public class GameManager : MonoBehaviour
 
         // 计算下一轮速度增加值 (仅用于显示)
         // 这里的逻辑是：每一轮胡牌，速度等级增加 settings.speedIncreasePerHu_Int
-        int speedIncrease = settings.speedIncreasePerHu_Int;
+        int perHuSpeed = settings.speedIncreasePerHu_Int;
+        if (isSubspaceActive)
+        {
+            perHuSpeed += 2;
+        }
+        cumulativeHuSpeedBonus += perHuSpeed;
+        int speedIncrease = perHuSpeed;
+
         ProcessPendingProtocolRemovals();
         var rewards = GenerateHuRewards(isAdvancedReward);
 
@@ -833,7 +905,25 @@ public class GameManager : MonoBehaviour
         // 4. 清理
         if (!_hasDeclaredHuThisFrame)
         {
-            blockPool.ReturnBlockIds(finalIdsToReturn);
+            // ==========================================================
+            // 【核心修改】背水一战逻辑
+            // ==========================================================
+            // 正常情况下，没用的牌会归还牌库 (ReturnBlockIds)
+            // 如果背水一战激活，则不归还 (相当于直接销毁/移出游戏)
+            if (!isLastStandActive)
+            {
+                blockPool.ReturnBlockIds(finalIdsToReturn);
+            }
+            else
+            {
+                // 可选：打印日志方便调试
+                if (finalIdsToReturn.Count > 0)
+                {
+                    Debug.Log($"背水一战：{finalIdsToReturn.Count} 张牌被永久移出本局游戏！");
+                }
+            }
+            // ==========================================================
+
             tetrisGrid.DestroyTransforms(allClearedTransforms);
         }
 
@@ -987,7 +1077,10 @@ public class GameManager : MonoBehaviour
             // 【关键修复】如果新条约是“时间就是金钱”，立即刷新金币目标UI
             // 或者更通用一点：只要添加了条约就刷新一次 UI，防止有其他影响数值的条约
             UpdateTargetScoreUI();
+            RecalculateOneManArmy();
         }
+        gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+        UpdateFallSpeed();
     }
     public void RecalculateBlockMultiplier()
     {
@@ -1285,7 +1378,12 @@ public class GameManager : MonoBehaviour
     {
         int baseSpeed = settings.baseDisplayedSpeed;
         int baseSpeedWithDifficulty = (int)(baseSpeed * this.difficultySpeedMultiplier);
-        int huBonus = scoreManager.GetHuCount() * settings.speedIncreasePerHu_Int;
+        int perHuIncrease = settings.speedIncreasePerHu_Int;
+        if (isSubspaceActive)
+        {
+            perHuIncrease += 2; // 亚空间额外 +2
+        }
+        int huBonus = cumulativeHuSpeedBonus;
         int currentCountedBonus = (countedBonusBlocksRemaining > 0) ? countedSpeedBonus : 0;
         int totalBonus = permanentSpeedBonus + roundSpeedBonus + currentCountedBonus;
 
@@ -1545,7 +1643,7 @@ public class GameManager : MonoBehaviour
         // 【新增】延迟满足 (-10)
         int delayPenalty = isDelayGratificationActive ? -10 : 0;
 
-        int addedScore = defaultScore + permanentBaseScoreBonus + roundBaseScoreBonus + adventFoodBonus + delayGratificationBonus + delayPenalty;
+        int addedScore = defaultScore + permanentBaseScoreBonus + roundBaseScoreBonus + adventFoodBonus + delayGratificationBonus + delayPenalty + lastGaspGoalBonus;
         int calculatedScore = (int)(addedScore * permanentBaseScoreMultiplier);
 
         if (isSteroidReversalActive && calculatedScore < 1) calculatedScore = 1;
@@ -1920,8 +2018,11 @@ public class GameManager : MonoBehaviour
             if (gameUI != null)
             {
                 gameUI.UpdateProtocolUI(activeProtocols);
+                RecalculateOneManArmy();
             }
         }
+        gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+        UpdateFallSpeed();
     }
     public void TogglePoolViewer()
     {
@@ -2023,5 +2124,85 @@ public class GameManager : MonoBehaviour
     public int GetActivePassportSuit()
     {
         return activePassportSuit;
+    }
+    public void OnHuPaiTileAdded(int blockId)
+    {
+        if (isNatureReserveActive)
+        {
+            if (blockId % 27 == 0)
+            {
+                int bonus = 6;
+                ApplyRoundBaseScoreBonus(bonus);
+            }
+        }
+    }
+    public int GetEffectiveFanPerKong()
+    {
+        int baseFan = settings.fanBonusPerKong; // 默认为 1
+        return isBloomingOnKongActive ? (baseFan + 1) : baseFan;
+    }
+    public void RecalculateOneManArmy(bool loopFinished = false)
+    {
+        if (!isOneManArmyActive)
+        {
+            // 如果条约都没了，确保存储的倍率被移除
+            if (_omaAppliedFactor != 1f)
+            {
+                ApplyExtraMultiplier(1f / _omaAppliedFactor); // 移除旧倍率
+                _omaAppliedFactor = 1f;
+            }
+            _omaCurrentGrowth = 2f; // 重置潜能
+            return;
+        }
+
+        // 判断生效条件：当前只有 1 个条约 (就是它自己)
+        bool conditionMet = activeProtocols.Count == 1;
+
+        if (conditionMet)
+        {
+            // --- 处于生效状态 ---
+
+            if (_omaAppliedFactor == 1f)
+            {
+                // 情况A：刚被激活，或者刚从“失效状态”恢复
+                // 规则：变回 x2
+                _omaCurrentGrowth = 2f;
+
+                ApplyExtraMultiplier(_omaCurrentGrowth); // 应用 x2
+                _omaAppliedFactor = _omaCurrentGrowth;
+
+                Debug.Log("千里走单骑：激活！倍率 x2");
+            }
+            else if (loopFinished)
+            {
+                // 情况B：一直生效中，且完成了一圈
+                // 规则：倍率翻倍
+                float oldFactor = _omaAppliedFactor;
+                _omaCurrentGrowth *= 2f;
+
+                // 更新全局倍率 (先除旧的，再乘新的)
+                ApplyExtraMultiplier(1f / oldFactor);
+                ApplyExtraMultiplier(_omaCurrentGrowth);
+                _omaAppliedFactor = _omaCurrentGrowth;
+
+                Debug.Log($"千里走单骑：完成一圈！倍率成长为 x{_omaCurrentGrowth}");
+            }
+        }
+        else
+        {
+            // --- 处于失效状态 (有其他条约) ---
+
+            if (_omaAppliedFactor != 1f)
+            {
+                // 移除当前施加的倍率，退回 x1
+                ApplyExtraMultiplier(1f / _omaAppliedFactor);
+                _omaAppliedFactor = 1f;
+
+                // 规则：期间加入条约则失效，潜能重置为 2 (下次激活时从2开始)
+                _omaCurrentGrowth = 2f;
+
+                Debug.Log("千里走单骑：因其他条约加入而失效。倍率恢复 x1");
+            }
+        }
     }
 }

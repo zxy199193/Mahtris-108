@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf6a0afcb6019774cb08b8d7d7504d20, type: 3}
+  m_Name: DuanYaoJiu
+  m_EditorClassIdentifier: 
+  protocolName: "\u65AD\u5E7A\u4E5D"
+  protocolIcon: {fileID: 21300000, guid: 069529682c2a56a439fe176eb35fac2a, type: 3}
+  protocolDescription: "\u79FB\u9664\u6240\u6709\u6570\u5B571\u548C9\u7684\u724C\uFF0C<color=#FF595E>\u65B9\u5757\u500D\u7387-12\uFF08\u6700\u4F4E\u4E3A1\uFF09</color>\r"
+  isLegendary: 0
+  price: 0
+  isInitial: 1
+  unlockConditionCount: 0
+  blockMultiplierPenalty: -12

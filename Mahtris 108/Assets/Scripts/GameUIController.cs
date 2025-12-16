@@ -548,7 +548,7 @@ public class GameUIController : MonoBehaviour
         int fanPerKong = 1; // 默认防空值
         if (GameManager.Instance != null)
         {
-            fanPerKong = GameManager.Instance.GetSettings().fanBonusPerKong;
+            fanPerKong = GameManager.Instance.GetEffectiveFanPerKong();
         }
 
         // 3. 计算具体番数

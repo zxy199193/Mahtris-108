@@ -353,6 +353,14 @@ public class Spawner : MonoBehaviour
 
         return new List<int>();
     }
+    public int GetNextBlockRequiredTileCount()
+    {
+        // nextTetrominoPrefab 是当前预览的方块
+        if (nextTetrominoPrefab == null) return 0;
+
+        // 计算该预制体里有多少个 BlockUnit
+        return nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length;
+    }
     public bool RemoveHighestMultiplierBlock()
     {
         // 1. 【核心修复】如果池为空，或者只剩 1 个方块，禁止使用

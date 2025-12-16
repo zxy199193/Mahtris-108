@@ -14,9 +14,6 @@ public class HuPaiArea : MonoBehaviour
     [SerializeField] private float rowSpacing = 1.2f;
     [SerializeField] private float columnSpacing = 4.0f;
     [SerializeField] private float tileSpacing = 1.1f;
-
-    // 【新增】杠牌时，第4张牌相对于第2张牌的 Y 轴偏移量
-    // 根据你的 tileSpacing 是 1.1f 推测，这个值可能在 0.2f ~ 0.4f 左右比较合适，请在 Inspector 中调整
     [SerializeField] private float kongOffsetY = 0.3f;
 
     private List<List<int>> huPaiSets = new List<List<int>>();
@@ -25,6 +22,16 @@ public class HuPaiArea : MonoBehaviour
     {
         huPaiSets.AddRange(sets);
         RefreshDisplay();
+        if (GameManager.Instance != null)
+        {
+            foreach (var set in sets)
+            {
+                foreach (var id in set)
+                {
+                    GameManager.Instance.OnHuPaiTileAdded(id);
+                }
+            }
+        }
     }
 
     public bool RemoveLastSet()
@@ -134,6 +141,10 @@ public class HuPaiArea : MonoBehaviour
         {
             pungSet.Add(fourthTileId);
             RefreshDisplay();
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.OnHuPaiTileAdded(fourthTileId);
+            }
             return true;
         }
         return false;
