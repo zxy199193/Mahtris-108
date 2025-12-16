@@ -163,4 +163,48 @@ public class BlockPool : MonoBehaviour
         }
         return new List<int>();
     }
+    public List<int> PeekPreferredSuitIDs(int count, int suitIndex)
+    {
+        List<int> result = new List<int>();
+
+        // 1. 复制一份当前的可用列表，避免污染原数据
+        List<int> tempAvailable = new List<int>(availableBlocks);
+
+        // 2. 第一轮筛选：挑出符合花色的牌
+        // 逻辑：(id % 27) / 9 == suitIndex
+        for (int i = 0; i < tempAvailable.Count; i++)
+        {
+            if (result.Count >= count) break; // 找够了就停
+
+            int id = tempAvailable[i];
+            int suit = (id % 27) / 9;
+
+            if (suit == suitIndex)
+            {
+                result.Add(id);
+                // 标记为已选 (这里简单的设为 -999 或者从 temp 移除，但为了保持遍历顺序，最好是用另一个列表存已选索引)
+                // 为简单起见，我们把选中的从 tempAvailable 移到列表末尾或标记，这里采用 "从 tempAvailable 移除" 的逻辑
+                tempAvailable.RemoveAt(i);
+                i--; // 索引回退
+            }
+        }
+
+        // 3. 第二轮筛选：如果不够，用剩下的牌填充
+        if (result.Count < count)
+        {
+            int needed = count - result.Count;
+            for (int i = 0; i < tempAvailable.Count && i < needed; i++)
+            {
+                result.Add(tempAvailable[i]);
+            }
+        }
+
+        // 4. 第三轮：如果还是不够 (牌库快空了)，补 -1
+        while (result.Count < count)
+        {
+            result.Add(-1);
+        }
+
+        return result;
+    }
 }

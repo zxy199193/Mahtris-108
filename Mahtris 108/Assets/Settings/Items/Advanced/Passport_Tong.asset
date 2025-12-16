@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67b1abf4b0748842bca4e1dc69c8e65, type: 3}
+  m_Name: Passport_Tong
+  m_EditorClassIdentifier: 
+  itemName: "\u62A4\u7167-\u7B52\u5B50"
+  itemIcon: {fileID: 21300000, guid: 9f207dec3bf4b8c4b82912cc9c0bde15, type: 3}
+  itemDescription: "\u63A5\u4E0B\u676515\u79D2\u7684\u65B9\u5757\u4F1A\u5C3D\u53EF\u80FD\u53EA\u6709\u7B52\u5B50\u724C"
+  isAdvanced: 1
+  isLegendary: 0
+  useSound: {fileID: 0}
+  price: 3000
+  isInitial: 0
+  unlockConditionCount: 0

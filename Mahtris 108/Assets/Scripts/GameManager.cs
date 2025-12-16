@@ -157,6 +157,12 @@ public class GameManager : MonoBehaviour
     private int bonusBlocksOnHuCount = 0;
     private string bonusBlockPrefabName = "";
 
+    private bool isChampagneActive = false;
+    private int champagneSpawnCount = 0;
+
+    private int activePassportSuit = -1;
+    private float passportTimer = 0f;
+
     // ========================================================================
     // 8. 暂停控制
     // ========================================================================
@@ -239,6 +245,19 @@ public class GameManager : MonoBehaviour
         if (scoreboardTimer > 0) scoreboardTimer -= logicDeltaTime;
 
         if (remainingTime <= 0) GameEvents.TriggerGameOver();
+        if (activePassportSuit != -1)
+        {
+            passportTimer -= Time.deltaTime; // 使用非逻辑时间，或者 logicDeltaTime 取决于是否受暂停影响
+                                             // 建议使用 logicDeltaTime (受暂停影响)
+                                             // passportTimer -= logicDeltaTime; 
+
+            if (passportTimer <= 0)
+            {
+                activePassportSuit = -1; // 过期失效
+                // 可选：过期后刷新一下预览，变回随机牌？
+                // spawner.RefreshPreviewTilesOnly(); 
+            }
+        }
     }
 
     void OnEnable()
@@ -365,7 +384,6 @@ public class GameManager : MonoBehaviour
         isTyphoonActive = false;
         isMeteorShowerActive = false;
         isTrickRoomActive = false;
-        // 重置 V4.2 变量
         kidsMealTimer = 0f;
         hasReviveStone = false;
         isAttackOnGiantActive = false;
@@ -379,7 +397,6 @@ public class GameManager : MonoBehaviour
         isUnstableCurrentActive = false;
         isSSSVIPActive = false;
         adventFoodBonus = 0;
-        // 重置 V4.3 变量
         isDelayGratificationActive = false;
         delayGratificationBonus = 0;
         isDrMahjongActive = false;
@@ -396,7 +413,11 @@ public class GameManager : MonoBehaviour
         isLuckyCapActive = false;
         isFilterActive = false;
         filterTimer = 0f;
-        _pendingGameWin = false; 
+        isChampagneActive = false;
+        champagneSpawnCount = 0;
+        _pendingGameWin = false;
+        activePassportSuit = -1;
+        passportTimer = 0f;
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
 
         remainingPauses = maxPauses;
@@ -585,7 +606,6 @@ public class GameManager : MonoBehaviour
     }
     public void ContinueAfterHu()
     {
-        // ... (前面的重置逻辑保持不变)
         delayGratificationBonus = 0;
         if (isGreatRevolutionActive) spawner.RandomizeActivePool();
         if (isBerserkerActive) inventoryManager.UseAllItems();
@@ -605,7 +625,9 @@ public class GameManager : MonoBehaviour
         if (isRoutineWorkActive) remainingTime = 95f;
         if (isRenewableEnergyActive) remainingTime += 20f;
         if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
-
+        isChampagneActive = false;
+        champagneSpawnCount = 0;
+        activePassportSuit = -1;
         // 【核心修复 2】重置子弹时间状态记录
         // 这样新一轮开始时，系统会重新检测高度，不会沿用上一轮的 true 状态
         _lastBulletTimeState = false;
@@ -1067,7 +1089,28 @@ public class GameManager : MonoBehaviour
                 UpdateFallSpeed();
             }
         }
+        if (isChampagneActive)
+        {
+            champagneSpawnCount++;
 
+            // 逻辑推演：
+            // 0: 使用道具 (当前方块A正在下落)
+            // 1: 方块B生成 (Notify触发)
+            // 2: 方块C生成 (Notify触发) -> 这就是“下下个方块”
+
+            if (champagneSpawnCount == 2)
+            {
+                // 到了预定回合，基础分 +10
+                // 这会实时更新UI，玩家能看到分数变多了
+                ApplyRoundBaseScoreBonus(10);
+            }
+            else if (champagneSpawnCount == 3)
+            {
+                // 过了预定回合还没胡 (方块D生成了)，把分扣回去
+                ApplyRoundBaseScoreBonus(-10);
+                isChampagneActive = false;
+            }
+        }
         // 2. 【关键修复】在方块生成时，检测一次子弹时间状态
         // 此时检测的是底部堆积的静态高度，不会被正在下落的方块干扰
         CheckAndApplyBulletTime();
@@ -1953,5 +1996,32 @@ public class GameManager : MonoBehaviour
     public void ActivateMagicCurtain()
     {
         tetrisGrid.ShuffleAllBoardTiles();
+    }
+    public void ActivateChampagne()
+    {
+        isChampagneActive = true;
+        champagneSpawnCount = 0;
+    }
+    public void ActivatePassport(int suitIndex)
+    {
+        // 1. 设置状态
+        activePassportSuit = suitIndex;
+        passportTimer = 15f; // 15秒
+
+        // 2. 立即刷新当前预览的方块
+        // 这样玩家能立刻看到下一个方块变成了指定花色
+        if (spawner != null)
+        {
+            spawner.RefreshPreviewTilesOnly();
+        }
+
+        // 3. UI 提示
+        string suitName = suitIndex == 0 ? "筒子" : (suitIndex == 1 ? "条子" : "万子");
+        // 如果您移除了 ShowToast，这里可以不写，或者保留 Debug
+        Debug.Log($"护照生效：接下来 15秒 尽可能是 {suitName}");
+    }
+    public int GetActivePassportSuit()
+    {
+        return activePassportSuit;
     }
 }

@@ -154,6 +154,20 @@ public class Spawner : MonoBehaviour
         int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length;
         nextTileIds = blockPool.PeekBlockIDs(tilesNeeded);
 
+        int passportSuit = GameManager.Instance.GetActivePassportSuit();
+
+        if (passportSuit != -1)
+        {
+            // 如果有护照，优先拿指定花色
+            nextTileIds = blockPool.PeekPreferredSuitIDs(tilesNeeded, passportSuit);
+        }
+        else
+        {
+            // 正常逻辑
+            nextTileIds = blockPool.PeekBlockIDs(tilesNeeded);
+        }
+
+
         if (nextTileIds == null) { GameEvents.TriggerGameOver(); return; }
 
         GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, nextTileIds);
@@ -171,7 +185,14 @@ public class Spawner : MonoBehaviour
             GameEvents.TriggerGameOver();
             return;
         }
-        List<int> realIds = blockPool.GetBlockIds(tilesNeeded);
+        bool removeSuccess = blockPool.RemoveSpecificBlockIds(nextTileIds);
+
+        if (!removeSuccess)
+        {
+            // 防御性编程：理论上不应发生，除非 Prepare 和 Spawn 之间牌库被改了
+            Debug.LogError("SpawnBlock 移除指定牌失败，回退到普通抽取");
+            blockPool.GetBlockIds(tilesNeeded);
+        }
         Vector3 spawnPosition = new Vector3(settings.gridWidth / 2, settings.gridHeight - 2, 0);
         GameObject blockGO = Instantiate(nextTetrominoPrefab, spawnPosition, Quaternion.identity);
         var tetromino = blockGO.GetComponent<Tetromino>();
@@ -385,5 +406,27 @@ public class Spawner : MonoBehaviour
         if (activeTetrominoPool == null) return 0;
         // 使用 Distinct() 来统计不重复的预制件种类
         return activeTetrominoPool.Distinct().Count();
+    }
+    public void RefreshPreviewTilesOnly()
+    {
+        if (nextTetrominoPrefab == null) return;
+
+        // 强制重新运行 ID 获取逻辑 (PrepareNextTetromino 里已经写好了护照判断)
+        // 但我们需要避免重新随机形状，所以只跑 ID 获取部分
+
+        int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length;
+        int passportSuit = GameManager.Instance.GetActivePassportSuit();
+
+        if (passportSuit != -1)
+        {
+            nextTileIds = blockPool.PeekPreferredSuitIDs(tilesNeeded, passportSuit);
+        }
+        else
+        {
+            nextTileIds = blockPool.PeekBlockIDs(tilesNeeded);
+        }
+
+        // 刷新 UI
+        GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, nextTileIds);
     }
 }
