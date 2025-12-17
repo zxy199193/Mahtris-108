@@ -557,18 +557,7 @@ public class GameManager : MonoBehaviour
         // 使用完后重置临时变量
         _tempIsTianHu = false;
         _tempIsDiHu = false;
-        // 2. 【修复】混淆视听 (HunYaoShiTing) 优先级最高
-        // 如果牌型只有2种花色，强制视为清一色
-        if (isHunYaoShiTingActive)
-        {
-            var allTileIds = huHand.SelectMany(s => s).ToList();
-            int suitCount = allTileIds.Select(id => ((id % 27) / 9)).Distinct().Count();
-            if (suitCount == 2)
-            {
-                analysisResult.PatternName = "清一色";
-                // (可选择是否要调整番数，这里暂只调整名称以触发后续逻辑)
-            }
-        }
+
 
         // 3. 【修复】麻将博士 (DrMahjong)
         // 依赖修正后的 PatternName

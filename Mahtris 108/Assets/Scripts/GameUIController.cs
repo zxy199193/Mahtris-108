@@ -96,6 +96,12 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Text kongFanText;             // 杠番数
     [SerializeField] private Button nextStepButton;        // "下一步"按钮
 
+    [Header("胡牌展示 - 布局设置")]
+    [SerializeField] private float uiTileWidth = 45f;    // 单张麻将牌UI宽度
+    [SerializeField] private float uiTileHeight = 64f;   // 单张麻将牌UI高度
+    [SerializeField] private float uiKongOffsetY = 18f;  // 杠牌第4张的向上偏移量
+    [SerializeField] private float uiSetSpacing = 20f;   // 组与组之间的间距
+
     [Header("胡牌弹窗 - 分数公式")]
     [SerializeField] private Text formulaBaseScoreText;
     [SerializeField] private Text formulaFanBaseText;
@@ -831,23 +837,83 @@ public class GameUIController : MonoBehaviour
     private void BuildUIHand(Transform container, List<List<int>> hand)
     {
         if (container == null) return;
+
+        // 1. 清理旧内容
         foreach (Transform child in container) Destroy(child.gameObject);
 
+        // 2. 确保主容器有 HorizontalLayoutGroup 组件 (用于排列"组")
+        HorizontalLayoutGroup layoutGroup = container.GetComponent<HorizontalLayoutGroup>();
+        if (layoutGroup == null) layoutGroup = container.gameObject.AddComponent<HorizontalLayoutGroup>();
+
+        // 配置主容器布局
+        layoutGroup.spacing = uiSetSpacing;         // 设置组间距
+        layoutGroup.childAlignment = TextAnchor.MiddleCenter; // 居中对齐
+        layoutGroup.childControlWidth = false;      // 由子物体自己控制宽度
+        layoutGroup.childControlHeight = false;     // 由子物体自己控制高度
+        layoutGroup.childForceExpandWidth = false;
+        layoutGroup.childForceExpandHeight = false;
+
+        // 3. 遍历每一组牌 (面子/将牌)
         foreach (var set in hand)
         {
-            foreach (var blockId in set)
-            {
-                var uiBlock = Instantiate(uiBlockPrefab, container);
-                if (uiBlock)
-                {
-                    uiBlock.GetComponent<Image>().sprite = blockPool.GetSpriteForBlock(blockId);
+            // --- 创建“组容器” ---
+            GameObject setContainer = new GameObject("SetContainer", typeof(RectTransform), typeof(LayoutElement));
+            setContainer.transform.SetParent(container, false);
+            RectTransform containerRT = setContainer.GetComponent<RectTransform>();
 
-                    var bu = uiBlock.GetComponent<BlockUnit>();
-                    if (bu != null)
-                    {
-                        bu.DisablePoolUI();
-                    }
+            // 【关键修复】设置 Pivot 为 (0, 0.5)，即“左中”
+            // 这样 x=0 就在最左边，牌会向右填充，完美填满 LayoutElement 预留的空间
+            containerRT.pivot = new Vector2(0f, 0.5f);
+            // 计算该组的视觉宽度
+            // 对子(2张) = 2宽
+            // 刻子/顺子(3张) = 3宽
+            // 杠(4张) = 3宽 (第4张叠在上面，不占横向空间)
+            int visualCount = (set.Count == 4) ? 3 : set.Count;
+            float setWidth = visualCount * uiTileWidth;
+
+            // 设置 LayoutElement 告诉父级 LayoutGroup 这个组有多宽
+            LayoutElement le = setContainer.GetComponent<LayoutElement>();
+            le.minWidth = setWidth;
+            le.preferredWidth = setWidth;
+            le.minHeight = uiTileHeight + (set.Count == 4 ? uiKongOffsetY : 0); // 如果是杠，稍微高一点
+            le.preferredHeight = le.minHeight;
+
+            // --- 填充牌 ---
+            for (int i = 0; i < set.Count; i++)
+            {
+                int blockId = set[i];
+                GameObject tileObj = Instantiate(uiBlockPrefab, setContainer.transform);
+
+                // 设置图片
+                var img = tileObj.GetComponent<Image>();
+                if (img) img.sprite = blockPool.GetSpriteForBlock(blockId);
+
+                // 禁用逻辑组件
+                var bu = tileObj.GetComponent<BlockUnit>();
+                if (bu != null) bu.DisablePoolUI();
+
+                // 设置 RectTransform (手动定位)
+                RectTransform rt = tileObj.GetComponent<RectTransform>();
+
+                // 锚点设为左下角，方便计算
+                rt.anchorMin = Vector2.zero;
+                rt.anchorMax = Vector2.zero;
+                rt.pivot = Vector2.zero;
+                rt.sizeDelta = new Vector2(uiTileWidth, uiTileHeight);
+
+                // --- 核心：位置计算 ---
+                float xPos = i * uiTileWidth;
+                float yPos = 0;
+
+                // 特殊处理：杠牌的第4张 (Index 3)
+                // 放在第2张 (Index 1) 的正上方
+                if (set.Count == 4 && i == 3)
+                {
+                    xPos = 1 * uiTileWidth; // 和第2张牌X一样
+                    yPos = uiKongOffsetY;   // Y轴抬高
                 }
+
+                rt.anchoredPosition = new Vector2(xPos, yPos);
             }
         }
     }

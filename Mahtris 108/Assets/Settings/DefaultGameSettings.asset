@@ -69,89 +69,13 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 5
   commonItemPool:
-  - {fileID: 11400000, guid: 1fb733d140bb12e4a81824d4e18f236d, type: 2}
-  - {fileID: 11400000, guid: ffc57473305f5944491607a4d2593e62, type: 2}
-  - {fileID: 11400000, guid: 2616de08032776d4ca2fd12e01662f93, type: 2}
-  - {fileID: 11400000, guid: 23b6f079f3790704a98216b50a373c93, type: 2}
-  - {fileID: 11400000, guid: c3ade023d44989d4ca30cfcae1d8ed79, type: 2}
-  - {fileID: 11400000, guid: 92b90391a006cac489e8f1728cce7ff0, type: 2}
-  - {fileID: 11400000, guid: 09a40bce8a17bfa4689ace9c1173fa3e, type: 2}
-  - {fileID: 11400000, guid: 7e9371a6d760f7b4987cf7eb538f714d, type: 2}
-  - {fileID: 11400000, guid: 9a7e2b2bb73de494288909c06af11c3f, type: 2}
-  - {fileID: 11400000, guid: 62ff08fc95f0ac145b24f368c825383e, type: 2}
-  - {fileID: 11400000, guid: 0afb30e8bc85279448670b1037fe466b, type: 2}
-  - {fileID: 11400000, guid: e45f0377631f8fe41bc5d9b251893eb0, type: 2}
-  - {fileID: 11400000, guid: c3d545bea5cc3dc438bdbc29ec808853, type: 2}
   - {fileID: 11400000, guid: 5b40825730be1644ca7a88ab44fe1c27, type: 2}
-  - {fileID: 11400000, guid: 085ab0d21261c324f8bd134d92bd9967, type: 2}
-  - {fileID: 11400000, guid: 2be156880e12a124fafe8abea3a85568, type: 2}
-  - {fileID: 11400000, guid: 03028a293d35d044badd2dd39864e90b, type: 2}
-  - {fileID: 11400000, guid: fc708f6af3962d14bb00fa1297a60727, type: 2}
-  - {fileID: 11400000, guid: beed3a2373849d14cb998965027abdfb, type: 2}
-  - {fileID: 11400000, guid: e0419e9cdff76534ab5437c4d5677c74, type: 2}
-  - {fileID: 11400000, guid: f8d2b9c0194cf2b4da26e19bd1b338a9, type: 2}
-  - {fileID: 11400000, guid: 666e6ac47852de246be41fa1a614445d, type: 2}
-  - {fileID: 11400000, guid: bd31d860b62dbee46bf57ad3b9043fa8, type: 2}
-  - {fileID: 11400000, guid: b0b84eeb2b1316b4ca686819f027a1ca, type: 2}
   advancedItemPool:
-  - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
-  - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}
-  - {fileID: 11400000, guid: 640357944c5db1c46be5ce054a1ff85f, type: 2}
-  - {fileID: 11400000, guid: 5f24d3ea78bdfea40a255df77ca6636d, type: 2}
-  - {fileID: 11400000, guid: d51932ccf95c4a24293ed3ca50184169, type: 2}
-  - {fileID: 11400000, guid: b30c70e02ca74cd40a7bab8c16f5ac8d, type: 2}
-  - {fileID: 11400000, guid: 176ea642ebae7c24eba9c060508b4bb5, type: 2}
-  - {fileID: 11400000, guid: 1ad3d39db778d4e45883ef01fa2a1999, type: 2}
-  - {fileID: 11400000, guid: 9e89b73ed08866746943c1cd57415515, type: 2}
-  - {fileID: 11400000, guid: ddf2493694ab78642a1a78fef46f9ca9, type: 2}
-  - {fileID: 11400000, guid: 020de3e37fd3ac7459da4c234cd169ca, type: 2}
-  - {fileID: 11400000, guid: 79a2bab4e6f48a4458e95f15ea2fd940, type: 2}
-  - {fileID: 11400000, guid: b10149d81e5881d4cb485f78a59bfab0, type: 2}
-  - {fileID: 11400000, guid: 8fac18ac5ccff8b479496f3c47bf64d2, type: 2}
-  - {fileID: 11400000, guid: 36103f95fe5f7f34a8019a28742705dd, type: 2}
-  - {fileID: 11400000, guid: 81c37f71ba9d54f4897fa6de64d32181, type: 2}
+  - {fileID: 11400000, guid: 5b40825730be1644ca7a88ab44fe1c27, type: 2}
   maxProtocolCount: 5
   protocolPool:
-  - {fileID: 11400000, guid: 6acbde308fb3f2241828efc56aa7549c, type: 2}
-  - {fileID: 11400000, guid: 1287da6a4cbe0764a87ff7951bc9dffb, type: 2}
-  - {fileID: 11400000, guid: fdb8f78abf84b6346a11c54ddc00ec2d, type: 2}
-  - {fileID: 11400000, guid: 9c2ae5f0bdad7354d830dab198bea85b, type: 2}
-  - {fileID: 11400000, guid: 3ccccf99c82680045824653894a034fd, type: 2}
-  - {fileID: 11400000, guid: 72bb63b04a6b82143b635ed3636cb4cf, type: 2}
-  - {fileID: 11400000, guid: b82659882aa5184408ce8e800b49d9d2, type: 2}
-  - {fileID: 11400000, guid: 577b1e4c26d2e2e4799b6a7ff4a42047, type: 2}
-  - {fileID: 11400000, guid: fb93d16f0e201b2459dbbe8c71d04532, type: 2}
-  - {fileID: 11400000, guid: 70efb7bd71dafa148b8fa49c537801b6, type: 2}
-  - {fileID: 11400000, guid: 459616c96c3613947973b789280a260e, type: 2}
-  - {fileID: 11400000, guid: c4d10d887bde7464d85b7c6a1c4eaca6, type: 2}
-  - {fileID: 11400000, guid: 0427b0eee4d02204e8641a4a96dc441f, type: 2}
-  - {fileID: 11400000, guid: a33745465f6131b4d96b60a83061fe86, type: 2}
-  - {fileID: 11400000, guid: e2fa7fc9676cd0947a1e6e79eeabb6e6, type: 2}
   - {fileID: 11400000, guid: e0040851bcbe89f41b84b2f3cb3098d8, type: 2}
-  - {fileID: 11400000, guid: bcd7702d6f70c3f44b848dd04d22584d, type: 2}
-  - {fileID: 11400000, guid: 7e375954288b416439243de27a74b136, type: 2}
-  - {fileID: 11400000, guid: cdf552ccf815e2f43bfb442e828189c0, type: 2}
-  - {fileID: 11400000, guid: 40201f2537fc04941bf57178b6369237, type: 2}
-  - {fileID: 11400000, guid: 43c194dd08a5cc542ad2582461a1c7a7, type: 2}
-  - {fileID: 11400000, guid: 5da3e24136d93ed44b7f7ba65735c116, type: 2}
-  - {fileID: 11400000, guid: 59c4f171aab6301459fadb14ef791df1, type: 2}
-  - {fileID: 11400000, guid: b57dabfcdc4326c4aa67e4f437af0ca9, type: 2}
-  - {fileID: 11400000, guid: 7b13910c1074a534ea16e549bb8cb788, type: 2}
-  - {fileID: 11400000, guid: 698fd8d1efc251348bc2307b293046b7, type: 2}
   - {fileID: 11400000, guid: c7e790c46601bdb438475c53926486c9, type: 2}
-  - {fileID: 11400000, guid: fc2ba9fe3f73f0a438aa71815477e993, type: 2}
-  - {fileID: 11400000, guid: 4b48a8c1b7b2959458879d8905de24b7, type: 2}
-  - {fileID: 11400000, guid: 25f71ffe43c6eba468055ce29cee42ee, type: 2}
-  - {fileID: 11400000, guid: 5171bce60fa6e434c99b8d4e051c19db, type: 2}
-  - {fileID: 11400000, guid: 5c0a1ec3f99f8994282bf306094e35ce, type: 2}
-  - {fileID: 11400000, guid: c243f1db1cf2e5c4cbae8ec2faa373a6, type: 2}
-  - {fileID: 11400000, guid: 0ab855b66ef32e94f9ff3f109f0239f8, type: 2}
-  - {fileID: 11400000, guid: 6d3541585e2b964459b59addd88a14f3, type: 2}
-  - {fileID: 11400000, guid: 249ec6ff622f8b44f9f53db47a91090a, type: 2}
-  - {fileID: 11400000, guid: 43503c7b59e478a40b9e5cc44c2f1526, type: 2}
-  - {fileID: 11400000, guid: 6f3f303129c04f049b9804fff82dc031, type: 2}
-  - {fileID: 11400000, guid: 2d17be02ae1c4ea4f82b496e1398b034, type: 2}
-  - {fileID: 11400000, guid: 0c2acdff134033f4793ed84dc2594f2a, type: 2}
   legendaryIcon: {fileID: 21300000, guid: 71b55c0a7c1906e48bd3b525833135cf, type: 3}
   tooltipBgCommon: {fileID: 21300000, guid: 0a8ab05b60e1f0545b5c1135286dc257, type: 3}
   tooltipBgAdvanced: {fileID: 21300000, guid: 16a703e8884276e4fa171e89c5794046, type: 3}

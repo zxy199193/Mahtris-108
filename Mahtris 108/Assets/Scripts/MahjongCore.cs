@@ -1,7 +1,7 @@
 // FileName: MahjongCore.cs
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine; // 【修正点】增加了对Unity引擎核心库的引用
+using UnityEngine;
 
 public class DetectionResult
 {
@@ -15,15 +15,14 @@ public class HandAnalysisResult
 {
     public string PatternName { get; set; } = "未知牌型";
     public int TotalFan { get; set; } = 0;
-
-    // 【修改】增加底数变量，默认为2
     public float BaseMultiplier { get; set; } = 2f;
-
     public float FanMultiplier => Mathf.Pow(BaseMultiplier, TotalFan);
 }
 
 public class MahjongCore
 {
+    #region 基础拆解逻辑 (保持不变)
+
     private void FindKongs(List<int> ids, DetectionResult result)
     {
         var counts = ids.GroupBy(id => id % 27).ToDictionary(g => g.Key, g => g.ToList());
@@ -56,12 +55,9 @@ public class MahjongCore
             while (true)
             {
                 if (suitGroup.Count < 3) break;
-
                 var valueToIds = suitGroup.GroupBy(id => id % 27 % 9)
                                           .ToDictionary(g => g.Key, g => g.ToList());
-
                 bool foundChowThisPass = false;
-
                 for (int i = 0; i <= 6; i++)
                 {
                     if (valueToIds.ContainsKey(i) && valueToIds.ContainsKey(i + 1) && valueToIds.ContainsKey(i + 2))
@@ -69,17 +65,10 @@ public class MahjongCore
                         int id1 = valueToIds[i][0];
                         int id2 = valueToIds[i + 1][0];
                         int id3 = valueToIds[i + 2][0];
-
                         var chow = new List<int> { id1, id2, id3 };
                         result.Chows.Add(chow);
-
-                        suitGroup.Remove(id1);
-                        suitGroup.Remove(id2);
-                        suitGroup.Remove(id3);
-                        ids.Remove(id1);
-                        ids.Remove(id2);
-                        ids.Remove(id3);
-
+                        suitGroup.Remove(id1); suitGroup.Remove(id2); suitGroup.Remove(id3);
+                        ids.Remove(id1); ids.Remove(id2); ids.Remove(id3);
                         foundChowThisPass = true;
                         break;
                     }
@@ -110,68 +99,28 @@ public class MahjongCore
         if (set.Count < 3) return false;
         return set.Select(id => id % 27).Distinct().Count() == 1;
     }
-    private bool IsQingLaoTou(List<List<int>> sets, List<int> pair)
-    {
-        // 1. 必须全是对对胡结构 (不能有顺子)
-        if (!sets.All(s => IsPungOrKong(s))) return false;
 
-        // 2. 检查雀头是否为 1 或 9
-        if ((pair[0] % 27 % 9) != 0 && (pair[0] % 27 % 9) != 8) return false;
+    #endregion
 
-        // 3. 检查所有面子是否为 1 或 9
-        foreach (var set in sets)
-        {
-            int val = (set[0] % 27) % 9;
-            if (val != 0 && val != 8) return false;
-        }
-        return true;
-    }
-    private bool IsJiuLianBaoDeng(List<int> allTiles)
-    {
-        // 1. 必须是清一色 (外部已判断花色，这里再次校验更安全)
-        int firstSuit = (allTiles[0] % 27) / 9;
-        if (allTiles.Any(id => (id % 27) / 9 != firstSuit)) return false;
+    #region 新增牌型判定方法
 
-        // 2. 统计每个数字 (0-8) 的数量
-        int[] counts = new int[9];
-        foreach (int id in allTiles)
-        {
-            counts[(id % 27) % 9]++;
-        }
-
-        // 3. 核心检查：
-        // 1(索引0) 和 9(索引8) 必须 >= 3张
-        if (counts[0] < 3 || counts[8] < 3) return false;
-
-        // 2-8 (索引1-7) 必须 >= 1张
-        for (int i = 1; i <= 7; i++)
-        {
-            if (counts[i] < 1) return false;
-        }
-
-        return true;
-    }
+    // 【新增】一气通贯：同花色 123, 456, 789
     private bool IsIttsu(List<List<int>> sets)
     {
-        // 标记：[花色, 顺子类型]
-        // 顺子类型 0: 123, 1: 456, 2: 789
-        bool[,] flags = new bool[3, 3];
+        bool[,] flags = new bool[3, 3]; // [花色, 顺子类型(0:123, 1:456, 2:789)]
 
         foreach (var set in sets)
         {
-            // 过滤掉刻子和杠，只看顺子 (Chow)
-            // 顺子的特征：由3张牌组成，且去重后的数值有3个 (因为是连续的，所以数值肯定不同)
-            // 注意：IsPungOrKong 已经有了，反之即为潜在的 Chow (前提是 set.Count==3)
+            // 只检查顺子
             if (set.Count != 3 || IsPungOrKong(set)) continue;
 
-            // 排序以确定起始值
-            var sortedValues = set.Select(id => id % 27).OrderBy(v => v).ToList();
+            var sorted = set.Select(id => id % 27).OrderBy(v => v).ToList();
 
-            // 再次确认是连续顺子 (1,2,3)
-            if (sortedValues[1] == sortedValues[0] + 1 && sortedValues[2] == sortedValues[0] + 1 + 1)
+            // 检查是否连续
+            if (sorted[1] == sorted[0] + 1 && sorted[2] == sorted[0] + 1 + 1)
             {
-                int suit = sortedValues[0] / 9;      // 0=筒, 1=条, 2=万
-                int startNum = sortedValues[0] % 9;  // 0~8
+                int suit = sorted[0] / 9;
+                int startNum = sorted[0] % 9;
 
                 if (startNum == 0) flags[suit, 0] = true; // 1-2-3
                 if (startNum == 3) flags[suit, 1] = true; // 4-5-6
@@ -179,14 +128,67 @@ public class MahjongCore
             }
         }
 
-        // 检查是否有任意一个花色集齐了3种顺子
+        // 检查任一花色是否集齐 3 组
         for (int s = 0; s < 3; s++)
         {
             if (flags[s, 0] && flags[s, 1] && flags[s, 2]) return true;
         }
-
         return false;
     }
+
+    // 【新增】三色同顺：三种花色都有相同的顺子 (如 123筒, 123条, 123万)
+    private bool IsSanSeTongShun(List<List<int>> sets)
+    {
+        // 字典：起始数值(0-8) -> 拥有的花色集合
+        Dictionary<int, HashSet<int>> straightStarts = new Dictionary<int, HashSet<int>>();
+
+        foreach (var set in sets)
+        {
+            // 只检查顺子
+            if (set.Count != 3 || IsPungOrKong(set)) continue;
+
+            var sorted = set.Select(id => id % 27).OrderBy(v => v).ToList();
+            if (sorted[1] == sorted[0] + 1 && sorted[2] == sorted[0] + 1 + 1)
+            {
+                int suit = sorted[0] / 9;
+                int startNum = sorted[0] % 9;
+
+                if (!straightStarts.ContainsKey(startNum))
+                {
+                    straightStarts[startNum] = new HashSet<int>();
+                }
+                straightStarts[startNum].Add(suit);
+            }
+        }
+
+        // 检查是否有某个起始数值凑齐了 3 种花色 (0, 1, 2)
+        foreach (var kvp in straightStarts)
+        {
+            if (kvp.Value.Contains(0) && kvp.Value.Contains(1) && kvp.Value.Contains(2))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 【新增】老头 (老头牌)：所有牌都是 1 或 9
+    // 注：由于全是 1 和 9，必然是对对胡结构，所以会与 IsDuiDuiHu 叠加
+    private bool IsLaoTou(List<int> allTiles)
+    {
+        foreach (var id in allTiles)
+        {
+            int val = (id % 27) % 9;
+            // 如果有任何一张牌不是 1(0) 或 9(8)，则不是老头
+            if (val != 0 && val != 8) return false;
+        }
+        return true;
+    }
+
+    #endregion
+
+    #region 核心结算逻辑 (叠加制)
+
     public HandAnalysisResult CalculateHandFan(List<List<int>> huHand, GameSettings settings, bool isTianHu = false, bool isDiHu = false)
     {
         var result = new HandAnalysisResult();
@@ -198,79 +200,97 @@ public class MahjongCore
 
         var allTileIds = huHand.SelectMany(s => s).ToList();
 
-        // 基础特征
+        // ----------------------------------------------------
+        // 1. 基础特征判定
+        // ----------------------------------------------------
         bool isDuiDuiHu = sets.All(s => IsPungOrKong(s));
 
-        // 新增特征检测
-        bool isQingLaoTou = IsQingLaoTou(sets, pair);
-        bool isIttsu = IsIttsu(sets);
-        // 清一色判断
+        // 清一色判定
         bool isQingYiSe = false;
         int suitCount = allTileIds.Select(id => ((id % 27) / 9)).Distinct().Count();
-
         if (suitCount == 1) isQingYiSe = true;
+        // 支持混淆视听条约 (2种花色视为清一色)
         else if (GameManager.Instance != null && GameManager.Instance.isHunYaoShiTingActive && suitCount == 2) isQingYiSe = true;
 
-        bool isJiuLian = false;
-        if (suitCount == 1) // 九莲宝灯要求严格同花色
-        {
-            isJiuLian = IsJiuLianBaoDeng(allTileIds);
-        }
+        bool isLaoTou = IsLaoTou(allTileIds);
+        bool isIttsu = IsIttsu(sets);
+        bool isSanSe = IsSanSeTongShun(sets);
 
-        // --- 优先级判定 ---
+        // ----------------------------------------------------
+        // 2. 番数叠加计算
+        // ----------------------------------------------------
+        int totalFan = 0;
+        List<string> activePatterns = new List<string>();
 
-        int patternFan = 0;
-        string name = "";
-
-        // 1. 特殊事件胡牌 (天胡/地胡) - 优先级最高
+        // (1) 天胡 / 地胡
         if (isTianHu)
         {
-            patternFan = 9;
-            name = "天胡";
-            if (isJiuLian) { patternFan += 12; name += "·九莲宝灯"; } // 可选叠加
+            totalFan += 6;
+            activePatterns.Add("天胡");
         }
         else if (isDiHu)
         {
-            patternFan = 6;
-            name = "地胡";
-            if (isJiuLian) { patternFan += 12; name += "·九莲宝灯"; } // 可选叠加
-        }
-        // 2. 牌型胡牌
-        else if (isJiuLian)
-        {
-            patternFan = 12;
-            name = "九莲宝灯";
-        }
-        else if (isQingLaoTou)
-        {
-            patternFan = 8;
-            name = "清老头";
-        }
-        else if (isQingYiSe && isDuiDuiHu)
-        {
-            patternFan = 8;
-            name = "清大对";
-        }
-        else if (isQingYiSe)
-        {
-            patternFan = 4;
-            name = "清一色";
-        }
-        else if (isDuiDuiHu)
-        {
-            patternFan = 3;
-            name = "对对胡";
-        }
-        else
-        {
-            patternFan = 1;
-            name = "平胡";
+            totalFan += 4;
+            activePatterns.Add("地胡");
         }
 
-        result.PatternName = name;
+        // (2) 清一色 (5番)
+        if (isQingYiSe)
+        {
+            totalFan += 5;
+            activePatterns.Add("清一色");
+        }
+
+        // (3) 对对 (3番)
+        if (isDuiDuiHu)
+        {
+            totalFan += 3;
+            activePatterns.Add("对对");
+        }
+
+        // (4) 老头 (3番)
+        // 叠加示例：如果全是1和9 -> 是老头(3) + 必然是对对(3) = 6番 (即清老头效果)
+        if (isLaoTou)
+        {
+            totalFan += 3;
+            activePatterns.Add("老头");
+        }
+
+        // (5) 一气通贯 (4番)
+        if (isIttsu)
+        {
+            totalFan += 4;
+            activePatterns.Add("一气通贯");
+        }
+
+        // (6) 三色同顺 (4番)
+        if (isSanSe)
+        {
+            totalFan += 4;
+            activePatterns.Add("三色同顺");
+        }
+
+        // (7) 平胡 (1番)
+        // 只有当没有任何其他番数时，平胡才生效
+        if (totalFan == 0)
+        {
+            totalFan = 1;
+            activePatterns.Add("平胡");
+        }
+
+        // ----------------------------------------------------
+        // 3. 结果构建
+        // ----------------------------------------------------
+
+        // 牌型名称用 " · " 连接
+        result.PatternName = string.Join(" · ", activePatterns);
+
+        // 加上杠牌的额外番数
         int kongFan = sets.Count(s => s.Count == 4) * settings.fanBonusPerKong;
-        result.TotalFan = patternFan + kongFan;
+        result.TotalFan = totalFan + kongFan;
 
         return result;
     }
+
+    #endregion
 }
