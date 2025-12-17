@@ -124,6 +124,7 @@ public class GameManager : MonoBehaviour
     public bool isBottomMoonActive = false;
     public bool isLastStandActive = false;
     public bool isOneManArmyActive = false;
+    public bool isMistActive = false;
     private float _omaCurrentGrowth = 2f;
     private float _omaAppliedFactor = 1f;
     // ========================================================================
@@ -452,6 +453,8 @@ public class GameManager : MonoBehaviour
         isLastStandActive = false;
         cumulativeHuSpeedBonus = 0;
         isOneManArmyActive = false;
+        isMistActive = false;
+        if (gameUI != null) gameUI.SetMistActive(false);
         _omaCurrentGrowth = 2f;
         _omaAppliedFactor = 1f;
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
@@ -2203,6 +2206,13 @@ public class GameManager : MonoBehaviour
 
                 Debug.Log("千里走单骑：因其他条约加入而失效。倍率恢复 x1");
             }
+        }
+    }
+    public void ToggleMistUI(bool isActive)
+    {
+        if (gameUI != null)
+        {
+            gameUI.SetMistActive(isActive);
         }
     }
 }

@@ -213,6 +213,13 @@ public class GameUIController : MonoBehaviour
     private long _currentDisplayScoreTarget; // 滚动动画的目标分缓存
 
     private Dictionary<Transform, int> selectionCounts = new Dictionary<Transform, int>();
+
+    [Header("迷雾效果")]
+    [SerializeField] private GameObject mistOverlayRoot; // 迷雾的父节点 (Panel)
+    [SerializeField] private UnityEngine.UI.Image[] mistImages; // 迷雾图片数组 (3-5张叠加)
+    [SerializeField] private float mistChangeSpeed = 0.5f; // 透明度变化速度
+    [SerializeField] private Vector2 mistAlphaRange = new Vector2(0.2f, 0.8f); // 透明度随机范围
+    private Coroutine mistCoroutine;
     void Awake()
     {
         inventoryManager = FindObjectOfType<InventoryManager>();
@@ -1209,5 +1216,53 @@ public class GameUIController : MonoBehaviour
             {
                 patternViewerRoot.SetActive(false);
             });
+    }
+    public void SetMistActive(bool isActive)
+    {
+        if (mistOverlayRoot == null) return;
+
+        mistOverlayRoot.SetActive(isActive);
+
+        if (isActive)
+        {
+            if (mistCoroutine != null) StopCoroutine(mistCoroutine);
+            mistCoroutine = StartCoroutine(AnimateMist());
+        }
+        else
+        {
+            if (mistCoroutine != null) StopCoroutine(mistCoroutine);
+        }
+    }
+    private System.Collections.IEnumerator AnimateMist()
+    {
+        // 为每张图片随机一个初始目标透明度
+        float[] targetAlphas = new float[mistImages.Length];
+        for (int i = 0; i < mistImages.Length; i++)
+        {
+            targetAlphas[i] = UnityEngine.Random.Range(mistAlphaRange.x, mistAlphaRange.y);
+        }
+
+        while (true)
+        {
+            for (int i = 0; i < mistImages.Length; i++)
+            {
+                if (mistImages[i] == null) continue;
+
+                // 1. 获取当前颜色
+                Color color = mistImages[i].color;
+                float currentAlpha = color.a;
+
+                // 2. 向目标透明度平滑过渡
+                float newAlpha = Mathf.MoveTowards(currentAlpha, targetAlphas[i], mistChangeSpeed * Time.unscaledDeltaTime);
+                mistImages[i].color = new Color(color.r, color.g, color.b, newAlpha);
+
+                // 3. 如果达到了目标，随即寻找下一个目标
+                if (Mathf.Abs(newAlpha - targetAlphas[i]) < 0.01f)
+                {
+                    targetAlphas[i] = UnityEngine.Random.Range(mistAlphaRange.x, mistAlphaRange.y);
+                }
+            }
+            yield return null;
+        }
     }
 }

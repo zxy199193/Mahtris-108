@@ -151,6 +151,42 @@ public class MahjongCore
 
         return true;
     }
+    private bool IsIttsu(List<List<int>> sets)
+    {
+        // 标记：[花色, 顺子类型]
+        // 顺子类型 0: 123, 1: 456, 2: 789
+        bool[,] flags = new bool[3, 3];
+
+        foreach (var set in sets)
+        {
+            // 过滤掉刻子和杠，只看顺子 (Chow)
+            // 顺子的特征：由3张牌组成，且去重后的数值有3个 (因为是连续的，所以数值肯定不同)
+            // 注意：IsPungOrKong 已经有了，反之即为潜在的 Chow (前提是 set.Count==3)
+            if (set.Count != 3 || IsPungOrKong(set)) continue;
+
+            // 排序以确定起始值
+            var sortedValues = set.Select(id => id % 27).OrderBy(v => v).ToList();
+
+            // 再次确认是连续顺子 (1,2,3)
+            if (sortedValues[1] == sortedValues[0] + 1 && sortedValues[2] == sortedValues[0] + 1 + 1)
+            {
+                int suit = sortedValues[0] / 9;      // 0=筒, 1=条, 2=万
+                int startNum = sortedValues[0] % 9;  // 0~8
+
+                if (startNum == 0) flags[suit, 0] = true; // 1-2-3
+                if (startNum == 3) flags[suit, 1] = true; // 4-5-6
+                if (startNum == 6) flags[suit, 2] = true; // 7-8-9
+            }
+        }
+
+        // 检查是否有任意一个花色集齐了3种顺子
+        for (int s = 0; s < 3; s++)
+        {
+            if (flags[s, 0] && flags[s, 1] && flags[s, 2]) return true;
+        }
+
+        return false;
+    }
     public HandAnalysisResult CalculateHandFan(List<List<int>> huHand, GameSettings settings, bool isTianHu = false, bool isDiHu = false)
     {
         var result = new HandAnalysisResult();
@@ -167,7 +203,7 @@ public class MahjongCore
 
         // 新增特征检测
         bool isQingLaoTou = IsQingLaoTou(sets, pair);
-
+        bool isIttsu = IsIttsu(sets);
         // 清一色判断
         bool isQingYiSe = false;
         int suitCount = allTileIds.Select(id => ((id % 27) / 9)).Distinct().Count();
