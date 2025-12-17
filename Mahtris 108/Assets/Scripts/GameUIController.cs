@@ -65,11 +65,13 @@ public class GameUIController : MonoBehaviour
     [Header("道具栏")]
     [SerializeField] private Transform itemContainer;
     [SerializeField] private GameObject itemSlotPrefab;
+    [SerializeField] private GameObject itemBarPanel;
 
     [Header("条约栏")]
     [SerializeField] private Transform protocolContainer;
     [SerializeField] private GameObject protocolSlotPrefab;
     [SerializeField] private int maxProtocolSlots = 5;
+    [SerializeField] private GameObject protocolBarPanel;
 
     // ========================================================================
     // 4. 下一个方块预览
@@ -231,13 +233,22 @@ public class GameUIController : MonoBehaviour
         inventoryManager = FindObjectOfType<InventoryManager>();
         scoreManager = FindObjectOfType<ScoreManager>();
         SetupButtonListeners();
+
+        // 【核心修改】
+        // 将关闭按钮的事件委托给 GameManager，确保能触发时间恢复逻辑
         if (poolViewerCloseButton != null)
         {
-            poolViewerCloseButton.onClick.AddListener(HidePoolViewer);
+            poolViewerCloseButton.onClick.AddListener(() =>
+            {
+                if (GameManager.Instance) GameManager.Instance.TogglePoolViewer();
+            });
         }
         if (patternViewerCloseButton != null)
         {
-            patternViewerCloseButton.onClick.AddListener(HidePatternViewer);
+            patternViewerCloseButton.onClick.AddListener(() =>
+            {
+                if (GameManager.Instance) GameManager.Instance.TogglePatternViewer();
+            });
         }
     }
     void Start()
@@ -338,7 +349,17 @@ public class GameUIController : MonoBehaviour
     }
     private void SetupButtonListeners()
     {
-        if (continueButton) continueButton.onClick.AddListener(() => { GameManager.Instance.ContinueAfterHu(); });
+        if (continueButton)
+        {
+            continueButton.onClick.RemoveAllListeners(); //以此防重复添加
+            continueButton.onClick.AddListener(() =>
+            {
+                // 【新增】满足需求3：点击继续游戏时，立即隐藏所有删除按钮
+                HideAllDeleteButtons();
+
+                GameManager.Instance.ContinueAfterHu();
+            });
+        }
         if (restartButton) restartButton.onClick.AddListener(() => { ReturnToMainMenu(); });
         if (pauseButton) pauseButton.onClick.AddListener(() => GameManager.Instance.TogglePause());
         if (endlessModeButton) endlessModeButton.onClick.AddListener(() => GameManager.Instance.StartEndlessMode());
@@ -356,7 +377,7 @@ public class GameUIController : MonoBehaviour
         if (huStage2Panel)
         {
             huStage2Panel.SetActive(true);
-
+            HighlightBars(true);
             // 可选：给第二页单独加个微小的弹动效果，增加交互感
             RectTransform stage2Rect = huStage2Panel.GetComponent<RectTransform>();
             if (stage2Rect)
@@ -758,6 +779,7 @@ public class GameUIController : MonoBehaviour
     }
     public void PlayHuPopupExitAnimation(Action onComplete)
     {
+        HighlightBars(false);
         if (huPopupContainer && huPopupRoot.activeInHierarchy)
         {
             // 1. 杀掉旧动画，防止冲突
@@ -783,6 +805,12 @@ public class GameUIController : MonoBehaviour
     }
     public void HideHuPopup()
     {
+        // 恢复条约栏层级
+        HighlightBars(false);
+
+        // 【新增】双重保险：弹窗关闭时，确保删除按钮也被隐藏
+        HideAllDeleteButtons();
+
         if (huPopupRoot) huPopupRoot.SetActive(false);
     }
     public void ShowGameEndPanel(bool isWin, int finalScore, bool isNewHighScore)
@@ -1056,23 +1084,32 @@ public class GameUIController : MonoBehaviour
     }
     public void OnProtocolSlotClicked(ProtocolSlotUI clickedSlot)
     {
-        // 1. 隐藏所有其他的删除按钮
-        foreach (var slot in activeProtocolSlotUIs)
-        {
-            if (slot != clickedSlot)
-            {
-                slot.HideDeleteButton();
-            }
-        }
+        // 1. 记录点击之前该按钮的状态
+        bool wasActive = clickedSlot.IsDeleteButtonActive();
 
-        // 2. 显示当前的
-        clickedSlot.ShowDeleteButton();
+        // 2. 先隐藏所有条约的删除按钮 (满足需求2：点击其他隐藏当前)
+        HideAllDeleteButtons();
+
+        // 3. Toggle 逻辑 (满足需求1：再次点击隐藏)
+        // 如果点击之前是关闭的，现在才显示；
+        // 如果点击之前是开启的，第2步已经把它关了，这里就不再打开，实现了“关闭”效果。
+        if (!wasActive)
+        {
+            clickedSlot.ShowDeleteButton();
+        }
     }
     public void HideAllDeleteButtons()
     {
+        // 1. 隐藏条约的
         foreach (var slot in activeProtocolSlotUIs)
         {
-            slot.HideDeleteButton();
+            if (slot != null) slot.HideDeleteButton();
+        }
+
+        // 2. 【新增】隐藏道具的
+        foreach (var slot in activeItemSlotUIs)
+        {
+            if (slot != null) slot.HideDeleteButton();
         }
     }
     public void ShowToast(string message)
@@ -1329,6 +1366,48 @@ public class GameUIController : MonoBehaviour
                 }
             }
             yield return null;
+        }
+    }
+    private void HighlightBars(bool highlight)
+    {
+        // 1. 条约栏
+        HighlightTarget(protocolBarPanel != null ? protocolBarPanel : (protocolContainer != null ? protocolContainer.gameObject : null), highlight);
+
+        // 2. 道具栏
+        HighlightTarget(itemBarPanel != null ? itemBarPanel : (itemContainer != null ? itemContainer.gameObject : null), highlight);
+    }
+    private void HighlightTarget(GameObject target, bool highlight)
+    {
+        if (target == null) return;
+
+        if (highlight)
+        {
+            Canvas canvas = target.GetComponent<Canvas>();
+            if (canvas == null) canvas = target.AddComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = 3000; // 提升层级
+
+            if (target.GetComponent<GraphicRaycaster>() == null) target.AddComponent<GraphicRaycaster>();
+        }
+        else
+        {
+            GraphicRaycaster gr = target.GetComponent<GraphicRaycaster>();
+            if (gr != null) Destroy(gr);
+            Canvas canvas = target.GetComponent<Canvas>();
+            if (canvas != null) Destroy(canvas);
+        }
+    }
+    public void OnItemSlotClicked(ItemSlotUI clickedSlot)
+    {
+        bool wasActive = clickedSlot.IsDeleteButtonActive();
+
+        // 隐藏所有的删除按钮 (条约的 + 道具的)
+        HideAllDeleteButtons();
+
+        // Toggle
+        if (!wasActive)
+        {
+            clickedSlot.ShowDeleteButton();
         }
     }
 }

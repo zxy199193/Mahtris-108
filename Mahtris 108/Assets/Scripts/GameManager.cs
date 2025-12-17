@@ -1074,6 +1074,28 @@ public class GameManager : MonoBehaviour
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
         UpdateFallSpeed();
     }
+    public void RemoveProtocolImmediately(ProtocolData protocol)
+    {
+        if (activeProtocols.Contains(protocol))
+        {
+            // 1. 移除效果 (数值还原)
+            protocol.RemoveEffect(this);
+
+            // 2. 从列表中移除
+            activeProtocols.Remove(protocol);
+
+            // 3. 立即刷新 UI (重新绘制槽位)
+            if (gameUI != null)
+            {
+                gameUI.UpdateProtocolUI(activeProtocols);
+            }
+
+            // 4. 触发必要的数值刷新
+            UpdateFallSpeed();
+            gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+            RecalculateOneManArmy();
+        }
+    }
     public void RecalculateBlockMultiplier()
     {
         // 【修复】从永久修正值开始计算，而不是从 0 开始
@@ -2031,11 +2053,23 @@ public class GameManager : MonoBehaviour
         {
             // 如果已打开，则关闭
             gameUI.HidePoolViewer();
+            if (!isPaused)
+            {
+                Time.timeScale = 1f;
+                if (AudioManager.Instance) AudioManager.Instance.ResumeCountdownSound();
+            }
         }
         else
         {
+            if (gameUI.IsPatternViewerActive())
+            {
+                gameUI.HidePatternViewer();
+                // 注意：这里不需要恢复时间，因为马上要打开牌库预览
+            }
             // 如果已关闭，则打开
             gameUI.ShowPoolViewer();
+            Time.timeScale = 0f;
+            if (AudioManager.Instance) AudioManager.Instance.PauseCountdownSound();
         }
     }
     public void TogglePatternViewer()
@@ -2052,10 +2086,21 @@ public class GameManager : MonoBehaviour
         if (gameUI.IsPatternViewerActive())
         {
             gameUI.HidePatternViewer();
+            if (!isPaused)
+            {
+                Time.timeScale = 1f;
+                if (AudioManager.Instance) AudioManager.Instance.ResumeCountdownSound();
+            }
         }
         else
         {
+            if (gameUI.IsPoolViewerActive())
+            {
+                gameUI.HidePoolViewer();
+            }
             gameUI.ShowPatternViewer();
+            Time.timeScale = 0f;
+            if (AudioManager.Instance) AudioManager.Instance.PauseCountdownSound();
         }
     }
     // 1. 激活空投炸弹

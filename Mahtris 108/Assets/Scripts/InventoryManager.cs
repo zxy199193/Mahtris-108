@@ -118,4 +118,19 @@ public class InventoryManager : MonoBehaviour
         // 如果循环结束都没找到 null，说明全满了
         return true;
     }
+    public void RemoveItem(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= maxSlots) return;
+
+        if (itemSlots[slotIndex] != null)
+        {
+            // 直接置空
+            itemSlots[slotIndex] = null;
+
+            // 刷新 UI
+            OnInventoryChanged?.Invoke(new List<ItemData>(itemSlots));
+
+            Debug.Log($"已移除槽位 {slotIndex} 的道具。");
+        }
+    }
 }

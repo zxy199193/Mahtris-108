@@ -13,6 +13,8 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
 
     [Header("UI 组件 - 通用")]
     [SerializeField] private Text shortcutText;
+    [SerializeField] private Button deleteButton;
+    [SerializeField] private GameObject pendingOverlay;
 
     private ItemData currentItem;
     private int slotIndex = -1; // 记录自己在背包中的索引 (0-4)
@@ -23,7 +25,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
     {
         currentItem = item;
         slotIndex = index;
-
+        HideDeleteButton();
         if (shortcutText != null)
         {
             shortcutText.text = (index + 1).ToString();
@@ -41,7 +43,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
             if (iconImage) { iconImage.gameObject.SetActive(true); iconImage.sprite = item.itemIcon; }
             if (backplateImage) backplateImage.gameObject.SetActive(true);
             if (emptyStateImage) emptyStateImage.gameObject.SetActive(false);
-
+            if (deleteButton) deleteButton.onClick.AddListener(OnDeleteClicked);
             // 【核心修复】计算类型并传入
             TooltipTriggerUI.TooltipType type = item.isAdvanced
                 ? TooltipTriggerUI.TooltipType.Advanced
@@ -61,7 +63,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
     {
         isEmpty = true;
         currentItem = null;
-
+        HideDeleteButton();
         // 1. 隐藏内容层
         if (iconImage) iconImage.gameObject.SetActive(false);
         if (backplateImage) backplateImage.gameObject.SetActive(false);
@@ -72,21 +74,63 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        // 如果是空的，点击无反应
         if (isEmpty) return;
 
-        // 播放点击音效
-        if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
+        // 1. 获取 UI 控制器
+        var uiController = FindObjectOfType<GameUIController>();
 
-        // 调用库存管理器使用道具
-        // FindObjectOfType 开销极小，因为只有点击时才调用一次
-        InventoryManager inventory = FindObjectOfType<InventoryManager>();
-        if (inventory != null && slotIndex != -1)
+        // 2. 判断当前状态
+        if (uiController != null && uiController.IsHuPopupActive())
         {
-            inventory.UseItem(slotIndex);
+            // === 结算状态：显示/隐藏删除按钮 ===
+            uiController.OnItemSlotClicked(this);
+        }
+        else
+        {
+            // === 游戏状态：正常使用道具 ===
+
+            // 播放点击音效
+            if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
+
+            InventoryManager inventory = FindObjectOfType<InventoryManager>();
+            if (inventory != null && slotIndex != -1)
+            {
+                inventory.UseItem(slotIndex);
+            }
+        }
+    }
+    public void ShowDeleteButton()
+    {
+        if (!isEmpty)
+        {
+            if (deleteButton) deleteButton.gameObject.SetActive(true);
+            if (pendingOverlay) pendingOverlay.SetActive(true);
         }
     }
 
-    // 用于 Tooltip 获取数据
+    public void HideDeleteButton()
+    {
+        if (deleteButton) deleteButton.gameObject.SetActive(false);
+        if (pendingOverlay) pendingOverlay.SetActive(false);
+    }
+    public bool IsDeleteButtonActive()
+    {
+        return deleteButton != null && deleteButton.gameObject.activeSelf;
+    }
+
+    private void OnDeleteClicked()
+    {
+        if (isEmpty) return;
+
+        // 1. 隐藏按钮
+        HideDeleteButton();
+
+        // 2. 调用 Inventory 删除数据
+        InventoryManager inventory = FindObjectOfType<InventoryManager>();
+        if (inventory != null && slotIndex != -1)
+        {
+            inventory.RemoveItem(slotIndex);
+        }
+    }
     public ItemData GetItemData() => currentItem;
 }

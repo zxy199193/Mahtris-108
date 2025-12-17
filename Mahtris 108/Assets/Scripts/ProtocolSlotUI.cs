@@ -66,12 +66,22 @@ public class ProtocolSlotUI : MonoBehaviour, IPointerClickHandler
     // (1) 点击图标
     public void OnPointerClick(PointerEventData eventData)
     {
-        // 【新增】如果是空槽位，点击没有任何反应
         if (isEmpty) return;
 
-        if (isPendingRemoval) return;
+        // 1. 获取 UI 控制器
+        var uiController = FindObjectOfType<GameUIController>();
 
-        FindObjectOfType<GameUIController>().OnProtocolSlotClicked(this);
+        // 2. 【核心判断】只有在“胡牌弹窗”激活时，点击才有效
+        if (uiController != null && uiController.IsHuPopupActive())
+        {
+            // 通知 UI 显示删除按钮 (会调用 ShowDeleteButton)
+            uiController.OnProtocolSlotClicked(this);
+        }
+        else
+        {
+            // 游戏进行中点击无反应
+            // 可选：播放个“不可操作”的音效，或者什么都不做
+        }
     }
 
     // 显示删除按钮
@@ -93,13 +103,18 @@ public class ProtocolSlotUI : MonoBehaviour, IPointerClickHandler
     // (2) 点击删除按钮
     private void OnDeleteClicked()
     {
-        if (isEmpty) return; // 安全检查
+        if (isEmpty) return;
 
-        isPendingRemoval = true;
-        pendingOverlay.SetActive(true);
+        // 1. 隐藏删除按钮
         HideDeleteButton();
 
-        GameManager.Instance.MarkProtocolForRemoval(currentProtocol);
+        // 2. 【核心修改】不再标记，而是直接调用 GM 立即删除
+        // 旧逻辑: GameManager.Instance.MarkProtocolForRemoval(currentProtocol);
+
+        GameManager.Instance.RemoveProtocolImmediately(currentProtocol);
+
+        // 注意：RemoveProtocolImmediately 会触发 gameUI.UpdateProtocolUI
+        // 这会导致所有槽位被重新 Setup，视觉上该条约会瞬间消失，后面的条约会补位
     }
 
     // 用于 Tooltip 显示

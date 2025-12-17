@@ -691,6 +691,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3628915358746355779}
   - component: {fileID: 1714906052375840647}
+  - component: {fileID: 1598882393119344253}
   m_Layer: 5
   m_Name: InfoTips
   m_TagString: Untagged
@@ -741,6 +742,29 @@ MonoBehaviour:
   typeLabelBackground: {fileID: 4022451036816925548}
   typeLabelText: {fileID: 822453847024588739}
   offset: {x: 0, y: 200, z: 0}
+--- !u!223 &1598882393119344253
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5061476672969044778}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 4000
+  m_TargetDisplay: 0
 --- !u!1 &5608451262107619319
 GameObject:
   m_ObjectHideFlags: 0
