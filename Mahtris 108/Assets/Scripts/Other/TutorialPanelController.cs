@@ -29,15 +29,25 @@ public class TutorialPanelController : MonoBehaviour
     {
         if (pages.Count == 0) return;
 
-        tutorialImage.sprite = pages[currentPage].image;
-        descriptionText.text = pages[currentPage].description;
+        // 1. 更新内容
+        if (tutorialImage) tutorialImage.sprite = pages[currentPage].image;
+        if (descriptionText) descriptionText.text = pages[currentPage].description;
 
-        // 更新页码
-        pageText.text = $"{currentPage + 1} / {pages.Count}";
+        // 2. 更新页码
+        if (pageText) pageText.text = $"{currentPage + 1} / {pages.Count}";
 
-        // 按钮状态
-        prevButton.interactable = currentPage > 0;
-        nextButton.interactable = currentPage < pages.Count - 1;
+        // 3. 【修改】按钮显隐逻辑
+        // 第一页时，隐藏"上一页"按钮
+        if (prevButton)
+        {
+            prevButton.gameObject.SetActive(currentPage > 0);
+        }
+
+        // 最后一页时，隐藏"下一页"按钮
+        if (nextButton)
+        {
+            nextButton.gameObject.SetActive(currentPage < pages.Count - 1);
+        }
     }
 
     void ShowPrevPage()
