@@ -210,6 +210,7 @@ public class GameUIController : MonoBehaviour
     private Tween timerBlinkTween;
     private Tween pauseBlinkTween;
     private Tween patternViewerTween;
+    private Tween tutorialTween;
     private const float POPUP_SLIDE_DURATION = 0.3f;
     private const float POPUP_HIDDEN_Y = -1000f; // 弹窗滑出屏幕外的Y坐标
     private const float POPUP_SHOWN_Y = 0f;      // 弹窗显示时的中心Y坐标 (假设锚点在中心)
@@ -228,6 +229,15 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private float mistChangeSpeed = 0.5f; // 透明度变化速度
     [SerializeField] private Vector2 mistAlphaRange = new Vector2(0.2f, 0.8f); // 透明度随机范围
     private Coroutine mistCoroutine;
+
+    // ========================================================================
+    // 12. 新手教学 (Tutorial) - NEW
+    // ========================================================================
+    [Header("新手教学")]
+    [SerializeField] private GameObject tutorialRoot;       // 教学弹窗父节点 (含遮罩)
+    [SerializeField] private RectTransform tutorialContainer;
+    [SerializeField] private Button tutorialCloseButton;    // 关闭按钮
+
     void Awake()
     {
         inventoryManager = FindObjectOfType<InventoryManager>();
@@ -248,6 +258,13 @@ public class GameUIController : MonoBehaviour
             patternViewerCloseButton.onClick.AddListener(() =>
             {
                 if (GameManager.Instance) GameManager.Instance.TogglePatternViewer();
+            });
+        }
+        if (tutorialCloseButton != null)
+        {
+            tutorialCloseButton.onClick.AddListener(() =>
+            {
+                if (GameManager.Instance) GameManager.Instance.CloseTutorial();
             });
         }
     }
@@ -1409,5 +1426,58 @@ public class GameUIController : MonoBehaviour
         {
             clickedSlot.ShowDeleteButton();
         }
+    }
+    public void ShowTutorialPanel(bool show)
+    {
+        if (tutorialRoot == null) return;
+
+        if (show)
+        {
+            // === 显示逻辑 ===
+            tutorialRoot.SetActive(true);
+
+            if (tutorialContainer != null)
+            {
+                // 1. 杀掉旧动画
+                tutorialTween.Kill(true);
+
+                // 2. 初始位置：屏幕下方
+                tutorialContainer.anchoredPosition = new Vector2(0, POPUP_HIDDEN_Y);
+
+                // 3. 执行滑入动画 (使用 OutBack 弹性效果)
+                tutorialTween = tutorialContainer.DOAnchorPosY(POPUP_SHOWN_Y, POPUP_SLIDE_DURATION)
+                    .SetEase(Ease.OutBack)
+                    .SetUpdate(true); // 【关键】忽略 Time.timeScale = 0
+            }
+        }
+        else
+        {
+            // === 隐藏逻辑 ===
+            if (tutorialContainer != null)
+            {
+                // 1. 杀掉旧动画
+                tutorialTween.Kill(true);
+
+                // 2. 执行滑出动画 (使用 InBack)
+                tutorialTween = tutorialContainer.DOAnchorPosY(POPUP_HIDDEN_Y, POPUP_SLIDE_DURATION)
+                    .SetEase(Ease.InBack)
+                    .SetUpdate(true) // 【关键】忽略 Time.timeScale = 0
+                    .OnComplete(() =>
+                    {
+                        // 3. 动画结束后，关闭父节点遮罩
+                        tutorialRoot.SetActive(false);
+                    });
+            }
+            else
+            {
+                // 如果没有配置容器，直接关闭
+                tutorialRoot.SetActive(false);
+            }
+        }
+    }
+
+    public bool IsTutorialActive()
+    {
+        return tutorialRoot != null && tutorialRoot.activeSelf;
     }
 }

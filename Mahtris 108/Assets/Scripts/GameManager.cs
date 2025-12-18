@@ -173,6 +173,12 @@ public class GameManager : MonoBehaviour
     private bool isPaused = false;
     private int remainingPauses;
     private bool isStopwatchActive = false;
+
+    // ========================================================================
+    // 9. 教学
+    // ========================================================================
+    private const string PREF_HAS_SEEN_TUTORIAL = "HasSeenTutorial";
+
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -509,6 +515,7 @@ public class GameManager : MonoBehaviour
         {
             gameUI.UpdateProtocolUI(activeProtocols);
         }
+        CheckAndShowTutorial();
     }
 
     private void HandleHuDeclared(List<List<int>> huHand)
@@ -2248,5 +2255,49 @@ public class GameManager : MonoBehaviour
         {
             gameUI.SetMistActive(isActive);
         }
+    }
+    private void CheckAndShowTutorial()
+    {
+        // 检查 PlayerPrefs，默认值为 0 (未看过)
+        bool hasSeen = PlayerPrefs.GetInt(PREF_HAS_SEEN_TUTORIAL, 0) == 1;
+
+        if (!hasSeen)
+        {
+            // === 第一次进入 ===
+
+            // 1. 显示弹窗
+            gameUI.ShowTutorialPanel(true);
+
+            // 2. 暂停游戏 (系统级暂停，不消耗次数)
+            Time.timeScale = 0f;
+            if (AudioManager.Instance) AudioManager.Instance.PauseCountdownSound();
+
+            Debug.Log("首次进入游戏，触发新手教学");
+        }
+        else
+        {
+            // === 非第一次 ===
+            // 确保面板是关闭的
+            gameUI.ShowTutorialPanel(false);
+        }
+    }
+    public void CloseTutorial()
+    {
+        // 1. 隐藏 UI
+        gameUI.ShowTutorialPanel(false);
+
+        // 2. 标记为已看 (永久保存)
+        PlayerPrefs.SetInt(PREF_HAS_SEEN_TUTORIAL, 1);
+        PlayerPrefs.Save();
+
+        // 3. 恢复游戏
+        // 注意：只有在没有手动暂停的情况下才恢复
+        if (!isPaused)
+        {
+            Time.timeScale = 1f;
+            if (AudioManager.Instance) AudioManager.Instance.ResumeCountdownSound();
+        }
+
+        Debug.Log("新手教学结束，游戏开始");
     }
 }
