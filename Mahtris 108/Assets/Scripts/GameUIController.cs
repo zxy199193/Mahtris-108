@@ -202,17 +202,14 @@ public class GameUIController : MonoBehaviour
     private ScoreManager scoreManager;
     private List<ItemSlotUI> activeItemSlotUIs = new List<ItemSlotUI>();
     private List<ProtocolSlotUI> activeProtocolSlotUIs = new List<ProtocolSlotUI>();
-    private Tween poolViewerTween; // 用于控制牌库预览的动画
     private List<GameObject> activeTileUIs = new List<GameObject>();
 
     // 动画 Tweens
     private Tween poolCountBlinkTween;
     private Tween timerBlinkTween;
     private Tween pauseBlinkTween;
-    private Tween patternViewerTween;
-    private Tween tutorialTween;
-    private const float POPUP_SLIDE_DURATION = 0.3f;
-    private const float POPUP_HIDDEN_Y = -1000f; // 弹窗滑出屏幕外的Y坐标
+    private const float POPUP_SLIDE_DURATION = 0.6f;
+    private const float POPUP_HIDDEN_Y = -1500f; // 弹窗滑出屏幕外的Y坐标
     private const float POPUP_SHOWN_Y = 0f;      // 弹窗显示时的中心Y坐标 (假设锚点在中心)
 
     [Header("动画配置")]
@@ -572,23 +569,9 @@ public class GameUIController : MonoBehaviour
     {
         selectionCounts.Clear();
         _currentDisplayScoreTarget = finalScore;
-        if (huPopupRoot) huPopupRoot.SetActive(true);
-        if (huPopupContainer)
-        {
-            huPopupContainer.gameObject.SetActive(true);
-
-            // 确保第一页显示，第二页隐藏
-            if (huStage1Panel) huStage1Panel.SetActive(true);
-            if (huStage2Panel) huStage2Panel.SetActive(false);
-
-            // 重置位置到屏幕下方 (准备滑入)
-            huPopupContainer.anchoredPosition = new Vector2(0, -1500);
-
-            // 执行滑入动画
-            huPopupContainer.DOLocalMove(Vector2.zero, 0.6f)
-                .SetEase(Ease.OutBack)
-                .SetUpdate(true);
-        }
+        PlayPopupShow(huPopupRoot, huPopupContainer);
+        if (huStage1Panel) huStage1Panel.SetActive(true);
+        if (huStage2Panel) huStage2Panel.SetActive(false);
         int kongCount = 0;
         if (huHand != null)
         {
@@ -797,28 +780,11 @@ public class GameUIController : MonoBehaviour
     public void PlayHuPopupExitAnimation(Action onComplete)
     {
         HighlightBars(false);
-        if (huPopupContainer && huPopupRoot.activeInHierarchy)
+        PlayPopupHide(huPopupRoot, huPopupContainer, () =>
         {
-            // 1. 杀掉旧动画，防止冲突
-            huPopupContainer.DOKill();
-
-            // 2. 执行退出动画 (向下滑出)
-            huPopupContainer.DOLocalMove(new Vector2(0, -1500), 0.5f)
-                .SetEase(Ease.InBack)
-                .SetUpdate(true)
-                .OnComplete(() =>
-                {
-                    // 3. 动画播完后，才真正隐藏父节点
-                    HideHuPopup();
-                    onComplete?.Invoke();
-                });
-        }
-        else
-        {
-            // 如果容器为空，或者面板本来就是关的，直接执行回调
             HideHuPopup();
             onComplete?.Invoke();
-        }
+        });
     }
     public void HideHuPopup()
     {
@@ -843,15 +809,8 @@ public class GameUIController : MonoBehaviour
             gameOverContainer.anchorMin = new Vector2(0.5f, 0.5f);
             gameOverContainer.anchorMax = new Vector2(0.5f, 0.5f);
             gameOverContainer.pivot = new Vector2(0.5f, 0.5f);
-
-            // 初始位置：屏幕下方
-            gameOverContainer.anchoredPosition = new Vector2(0, -1200);
-
-            // 滑入动画
-            gameOverContainer.DOLocalMove(Vector2.zero, 0.6f)
-                .SetEase(Ease.OutBack)
-                .SetUpdate(true);
         }
+        PlayPopupShow(gameOverPanel, gameOverContainer);
         if (gameOverTitleText) gameOverTitleText.text = isWin ? "恭喜过关！" : "游戏结束";
         if (finalScoreText) finalScoreText.text = $"{finalScore}";
         if (newHighScoreIndicator) newHighScoreIndicator.SetActive(isNewHighScore);
@@ -859,25 +818,7 @@ public class GameUIController : MonoBehaviour
     }
     public void PlayGameOverExitAnimation(Action onComplete)
     {
-        if (gameOverContainer && gameOverPanel.activeSelf)
-        {
-            // 向下滑出
-            gameOverContainer.DOLocalMove(new Vector2(0, -1200), 0.5f)
-                .SetEase(Ease.InBack)
-                .SetUpdate(true)
-                .OnComplete(() =>
-                {
-                    // 动画结束后隐藏父节点
-                    if (gameOverPanel) gameOverPanel.SetActive(false);
-                    onComplete?.Invoke();
-                });
-        }
-        else
-        {
-            // 如果面板本来没开，直接完成
-            if (gameOverPanel) gameOverPanel.SetActive(false);
-            onComplete?.Invoke();
-        }
+        PlayPopupHide(gameOverPanel, gameOverContainer, onComplete);
     }
     private void BuildUIHand(Transform container, List<List<int>> hand)
     {
@@ -1208,35 +1149,18 @@ public class GameUIController : MonoBehaviour
     {
         if (poolViewerRoot == null || poolViewerContainer == null) return;
 
-        // 1. 设置根节点可见
-        poolViewerRoot.SetActive(true);
-
-        // 2. 清理并刷新显示内容
         RefreshPoolDisplay();
 
-        // 3. 动画：从下方滑入
-        poolViewerTween.Kill(true);
-        // 确保弹窗在屏幕外开始动画
-        poolViewerContainer.anchoredPosition = new Vector2(0, POPUP_HIDDEN_Y);
-        poolViewerTween = poolViewerContainer.DOAnchorPosY(POPUP_SHOWN_Y, POPUP_SLIDE_DURATION)
-            .SetEase(Ease.OutBack)
-            .SetUpdate(true); // 保证暂停时也能动
+        // 【使用通用方法替换】
+        PlayPopupShow(poolViewerRoot, poolViewerContainer);
     }
     public void HidePoolViewer()
     {
-        if (poolViewerRoot == null || poolViewerContainer == null) return;
-
-        // 1. 动画：滑出
-        poolViewerTween.Kill(true);
-        poolViewerTween = poolViewerContainer.DOAnchorPosY(POPUP_HIDDEN_Y, POPUP_SLIDE_DURATION)
-            .SetEase(Ease.InBack)
-            .SetUpdate(true)
-            .OnComplete(() =>
-            {
-                // 动画完成后隐藏根节点
-                poolViewerRoot.SetActive(false);
-                ClearActiveTileUIs(); // 清理UI元素
-            });
+        // 【使用通用方法替换】
+        PlayPopupHide(poolViewerRoot, poolViewerContainer, () =>
+        {
+            ClearActiveTileUIs();
+        });
     }
     private void ClearActiveTileUIs()
     {
@@ -1309,33 +1233,12 @@ public class GameUIController : MonoBehaviour
     public void ShowPatternViewer()
     {
         if (patternViewerRoot == null || patternViewerContainer == null) return;
-
-        // 1. 如果牌库预览开着，先关掉它，避免叠在一起
         if (IsPoolViewerActive()) HidePoolViewer();
-
-        // 2. 激活根节点
-        patternViewerRoot.SetActive(true);
-
-        // 3. 动画：从下方滑入 (复用之前的动画参数)
-        patternViewerTween.Kill(true);
-        patternViewerContainer.anchoredPosition = new Vector2(0, POPUP_HIDDEN_Y); // -1000
-        patternViewerTween = patternViewerContainer.DOAnchorPosY(POPUP_SHOWN_Y, POPUP_SLIDE_DURATION)
-            .SetEase(Ease.OutBack)
-            .SetUpdate(true); // 暂停时也能动
+        PlayPopupShow(patternViewerRoot, patternViewerContainer);
     }
     public void HidePatternViewer()
     {
-        if (patternViewerRoot == null || patternViewerContainer == null) return;
-
-        // 动画：滑出
-        patternViewerTween.Kill(true);
-        patternViewerTween = patternViewerContainer.DOAnchorPosY(POPUP_HIDDEN_Y, POPUP_SLIDE_DURATION)
-            .SetEase(Ease.InBack)
-            .SetUpdate(true)
-            .OnComplete(() =>
-            {
-                patternViewerRoot.SetActive(false);
-            });
+        PlayPopupHide(patternViewerRoot, patternViewerContainer);
     }
     public void SetMistActive(bool isActive)
     {
@@ -1429,53 +1332,60 @@ public class GameUIController : MonoBehaviour
     }
     public void ShowTutorialPanel(bool show)
     {
-        if (tutorialRoot == null) return;
-
         if (show)
         {
-            // === 显示逻辑 ===
-            tutorialRoot.SetActive(true);
-
-            if (tutorialContainer != null)
-            {
-                // 1. 杀掉旧动画
-                tutorialTween.Kill(true);
-
-                // 2. 初始位置：屏幕下方
-                tutorialContainer.anchoredPosition = new Vector2(0, POPUP_HIDDEN_Y);
-
-                // 3. 执行滑入动画 (使用 OutBack 弹性效果)
-                tutorialTween = tutorialContainer.DOAnchorPosY(POPUP_SHOWN_Y, POPUP_SLIDE_DURATION)
-                    .SetEase(Ease.OutBack)
-                    .SetUpdate(true); // 【关键】忽略 Time.timeScale = 0
-            }
+            PlayPopupShow(tutorialRoot, tutorialContainer);
         }
         else
         {
-            // === 隐藏逻辑 ===
-            if (tutorialContainer != null)
-            {
-                // 1. 杀掉旧动画
-                tutorialTween.Kill(true);
-
-                // 2. 执行滑出动画 (使用 InBack)
-                tutorialTween = tutorialContainer.DOAnchorPosY(POPUP_HIDDEN_Y, POPUP_SLIDE_DURATION)
-                    .SetEase(Ease.InBack)
-                    .SetUpdate(true) // 【关键】忽略 Time.timeScale = 0
-                    .OnComplete(() =>
-                    {
-                        // 3. 动画结束后，关闭父节点遮罩
-                        tutorialRoot.SetActive(false);
-                    });
-            }
-            else
-            {
-                // 如果没有配置容器，直接关闭
-                tutorialRoot.SetActive(false);
-            }
+            PlayPopupHide(tutorialRoot, tutorialContainer);
         }
     }
+    private void PlayPopupShow(GameObject root, RectTransform container)
+    {
+        if (root == null) return;
 
+        // 1. 激活根节点 (遮罩)
+        root.SetActive(true);
+
+        if (container != null)
+        {
+            // 2. 杀掉该容器上正在运行的所有动画 (防止快速开关导致冲突)
+            container.DOKill();
+
+            // 3. 重置位置到屏幕下方
+            container.anchoredPosition = new Vector2(0, POPUP_HIDDEN_Y);
+
+            // 4. 执行动画
+            container.DOAnchorPosY(POPUP_SHOWN_Y, POPUP_SLIDE_DURATION)
+                .SetEase(Ease.OutBack) // 您的最爱：弹性进入
+                .SetUpdate(true);      // 忽略 Time.timeScale (暂停时也能播)
+        }
+    }
+    private void PlayPopupHide(GameObject root, RectTransform container, Action onComplete = null)
+    {
+        // 如果容器存在，且根节点是开着的，才播放动画
+        if (container != null && root != null && root.activeSelf)
+        {
+            container.DOKill();
+
+            // 退出动画稍微快一点点 (0.5s)，使用 InBack (先回缩再飞走)
+            container.DOAnchorPosY(POPUP_HIDDEN_Y, 0.5f)
+                .SetEase(Ease.InBack)
+                .SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    root.SetActive(false);
+                    onComplete?.Invoke();
+                });
+        }
+        else
+        {
+            // 如果面板本来就没开，直接执行关闭逻辑
+            if (root) root.SetActive(false);
+            onComplete?.Invoke();
+        }
+    }
     public bool IsTutorialActive()
     {
         return tutorialRoot != null && tutorialRoot.activeSelf;
