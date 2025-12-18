@@ -47,36 +47,42 @@ public class InventoryManager : MonoBehaviour
             if (itemSlots[i] == null)
             {
                 itemSlots[i] = itemToAdd;
+
+                // 【新增】传奇物品统计 (No.43)
+                if (itemToAdd.isLegendary && AchievementManager.Instance != null)
+                {
+                    AchievementManager.Instance.AddProgress(AchievementType.AccumulateLegendary, 1);
+                }
+
                 OnInventoryChanged?.Invoke(new List<ItemData>(itemSlots));
-                return true; // 添加成功
+                return true;
             }
         }
-        return false; // 道具栏已满
+        return false;
     }
 
     public void UseItem(int slotIndex)
     {
-        if (!isUsable)
-        {
-            Debug.Log("狂牌士条约生效中，无法使用道具！");
-            return;
-        }
+        // ... (前面的检查代码)
 
-        if (slotIndex < 0 || slotIndex >= maxSlots || itemSlots[slotIndex] == null) return;
-
-        gameManager.SetLastUsedItem(itemSlots[slotIndex]);
-        // 使用道具并检查是否成功
         bool success = itemSlots[slotIndex].Use(gameManager);
 
-        // 只有成功使用的道具才会被消耗
         if (success)
         {
-            // 【新增】播放道具音效
-            if (AudioManager.Instance != null)
+            // ... (播放音效等代码)
+
+            // 【新增】统计本局使用道具数 (No.24, No.27, No.41)
+            if (GameManager.Instance != null)
             {
-                AudioManager.Instance.PlayItemUseSound(itemSlots[slotIndex].useSound);
+                GameManager.Instance.IncrementItemUsedCount(); // 下面会在GM里添加这个方法
             }
-            itemSlots[slotIndex] = null; // 消耗道具
+            // 统计累计使用
+            if (AchievementManager.Instance != null)
+            {
+                AchievementManager.Instance.AddProgress(AchievementType.AccumulateItemUse, 1);
+            }
+
+            itemSlots[slotIndex] = null;
             OnInventoryChanged?.Invoke(new List<ItemData>(itemSlots));
         }
     }

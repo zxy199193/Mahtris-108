@@ -30,7 +30,9 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private Button openStoreButton;
     [SerializeField] private StorePanelController storePanel;
 
-
+    [Header("成就系统")]
+    [SerializeField] private Button achievementButton;           // 主界面上的成就按钮
+    [SerializeField] private AchievementUIController achievementPopup; // 成就弹窗控制器
     private string gameSceneName = "GameScene";
 
     public IntroPanelController introPanel;
@@ -63,6 +65,7 @@ public class MainMenuController : MonoBehaviour
         {
             introPanel.Open();
         });
+        if (achievementButton) achievementButton.onClick.AddListener(() => achievementPopup.ShowPopup());
     }
 
     void OnDestroy()

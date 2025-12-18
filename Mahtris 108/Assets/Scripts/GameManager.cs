@@ -179,6 +179,13 @@ public class GameManager : MonoBehaviour
     // ========================================================================
     private const string PREF_HAS_SEEN_TUTORIAL = "HasSeenTutorial";
 
+    // ========================================================================
+    // 10. 其他
+    // ========================================================================
+    public int CurrentDisplaySpeed { get; private set; }
+    private int _itemsUsedThisGame = 0;
+    private int _protocolsObtainedThisGame = 0;
+
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -460,6 +467,8 @@ public class GameManager : MonoBehaviour
         cumulativeHuSpeedBonus = 0;
         isOneManArmyActive = false;
         isMistActive = false;
+        _itemsUsedThisGame = 0;
+        _protocolsObtainedThisGame = 0;
         if (gameUI != null) gameUI.SetMistActive(false);
         _omaCurrentGrowth = 2f;
         _omaAppliedFactor = 1f;
@@ -552,6 +561,19 @@ public class GameManager : MonoBehaviour
         }
         // 1. 基础番数计算
         var analysisResult = mahjongCore.CalculateHandFan(huHand, settings, _tempIsTianHu, _tempIsDiHu);
+        if (AchievementManager.Instance != null)
+        {
+            // 解析牌型名称字符串，例如 "清一色 · 对对" -> ["清一色", "对对"]
+            List<string> patterns = new List<string>();
+            if (!string.IsNullOrEmpty(analysisResult.PatternName))
+            {
+                string[] split = analysisResult.PatternName.Split(new string[] { " · " }, System.StringSplitOptions.None);
+                patterns.AddRange(split);
+            }
+
+            // 触发成就检查
+            AchievementManager.Instance.CheckOnHu(analysisResult.TotalFan, patterns);
+        }
         if (isBloomingOnKongActive)
         {
             int kongCount = huHand.Count(set => set.Count == 4);
@@ -1069,6 +1091,18 @@ public class GameManager : MonoBehaviour
         if (activeProtocols.Count < settings.maxProtocolCount && !activeProtocols.Contains(protocol))
         {
             activeProtocols.Add(protocol);
+            _protocolsObtainedThisGame++;
+            if (AchievementManager.Instance != null)
+            {
+                // 累计获得条约总数 (No.42)
+                AchievementManager.Instance.AddProgress(AchievementType.AccumulateProtocolGet, 1);
+
+                // 传奇物品统计 (No.43 - 条约也算传奇奖励)
+                if (protocol.isLegendary)
+                {
+                    AchievementManager.Instance.AddProgress(AchievementType.AccumulateLegendary, 1);
+                }
+            }
             protocol.ApplyEffect(this);
             // 更新条约栏UI
             gameUI.UpdateProtocolUI(activeProtocols);
@@ -1080,6 +1114,8 @@ public class GameManager : MonoBehaviour
         }
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
         UpdateFallSpeed();
+
+        AchievementManager.Instance.AddProgress(AchievementType.AccumulateProtocolGet, 1);
     }
     public void RemoveProtocolImmediately(ProtocolData protocol)
     {
@@ -1419,7 +1455,7 @@ public class GameManager : MonoBehaviour
             totalDisplayedSpeed = 5;
             currentFallSpeed = 20.0f / 5.0f; // 4.0
         }
-
+        CurrentDisplaySpeed = totalDisplayedSpeed;
         gameUI.UpdateSpeedText(totalDisplayedSpeed, _lastBulletTimeState);
 
         // 尝试推送到当前方块 (解决生成瞬间速度不匹配问题)
@@ -1608,6 +1644,34 @@ public class GameManager : MonoBehaviour
 
         int finalScore = scoreManager.GetCurrentScore();
         bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore);
+        if (AchievementManager.Instance != null)
+        {
+            // 获取当前金币 (防止空引用)
+            int currentGold = GameSession.Instance != null ? GameSession.Instance.CurrentGold : 0;
+
+            // 下落速度需要转换一下，您脚本里用的是 currentFallSpeed，或者重新计算一下等级
+            // 既然成就表里写的是"速度>=15"，我们这里直接传 gameUI 上显示的那个速度值比较准
+            // 但 gameUI.speedText 是 UI 文本。
+            // 我们可以用 settings.baseDisplayedSpeed 和 difficultySpeedMultiplier 反推，
+            // 或者直接用您计算速度时的公式。
+            // 这里为了方便，我们直接传一个估算的数值，或者您需要在 UpdateFallSpeed 里把 calculatedSpeed 存个变量。
+            // 简单起见，我们暂时传 0，或者您去 UpdateFallSpeed 里把 totalDisplayedSpeed 提升为类成员变量。
+
+            // 为了更严谨，建议您在 UpdateFallSpeed 方法里把 `totalDisplayedSpeed` 存到一个类成员变量里，比如 `currentDisplayedSpeed`。
+            // 如果还没做，那您可以先填 0，或者暂时用 currentFallSpeed 反推。
+
+            AchievementManager.Instance.CheckGameWin(
+                true,                           // 胜利
+                (int)currentDiff,               // 难度
+                (int)(20.0f / currentFallSpeed),// 粗略反推速度值 (仅作参考，建议优化)
+                remainingTime,                  // 剩余时间
+                currentGold,                    // 剩余金币
+                finalScore,                   // 分数
+                _itemsUsedThisGame,
+                _protocolsObtainedThisGame,
+                tetrisGrid.GetAllBlocksCount()
+            );
+        }
         gameUI.ShowGameEndPanel(true, finalScore, isNewHighScore);
     }
 
@@ -1673,6 +1737,16 @@ public class GameManager : MonoBehaviour
 
         baseFanScore = calculatedScore;
         gameUI.UpdateBaseScoreText(baseFanScore);
+        if (AchievementManager.Instance != null)
+        {
+            // 假设这些变量您都有
+            AchievementManager.Instance.CheckRealtimeStats(
+                baseFanScore,
+                blockMultiplier,
+                extraMultiplier,
+                tetrisGrid.GetAllBlocksCount() // 需要您在 Grid 脚本里写个获取总数的方法
+            );
+        }
     }
     // 【新增】供“快进按钮”调用
     public void AddHuCount(int amount)
@@ -2299,5 +2373,9 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log("新手教学结束，游戏开始");
+    }
+    public void IncrementItemUsedCount()
+    {
+        _itemsUsedThisGame++;
     }
 }

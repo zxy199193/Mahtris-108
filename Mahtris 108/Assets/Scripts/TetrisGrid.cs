@@ -317,4 +317,12 @@ public class TetrisGrid : MonoBehaviour
             allUnits[i].Initialize(shuffledIds[i], pool);
         }
     }
+    public int GetAllBlocksCount()
+    {
+        // 方法 A: 如果所有的方块都是 TetrisGrid 物体的子物体
+        // return transform.childCount; 
+
+        // 方法 B (推荐): 统计所有挂载了 BlockUnit 的子物体 (更准确)
+        return GetComponentsInChildren<BlockUnit>().Length;
+    }
 }
