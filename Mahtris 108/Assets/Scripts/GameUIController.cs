@@ -127,8 +127,19 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Transform advancedRewardItemArea;
     [SerializeField] private Transform advancedRewardProtocolArea;
 
+    [Header("奖励刷新")]
     [SerializeField] private GameObject rewardOptionPrefab; // 奖励按钮预制件
-
+    [SerializeField] private GameObject refreshRoot;
+    [SerializeField] private Button refreshButton;
+    [SerializeField] private Text refreshCostText;
+    private HuRewardPackage _currentRewardPackage;
+    private bool _isLastHuAdvanced;
+    private int _selectedBlockIndex = -1;
+    private int _selectedItemIndex = -1;
+    private int _selectedProtocolIndex = -1;
+    private Transform currentBlockContainer;
+    private Transform currentItemContainer;
+    private Transform currentProtocolContainer;
     // ========================================================================
     // 6. 游戏结束弹窗 (Game Over)
     // ========================================================================
@@ -179,6 +190,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Transform dotsContainer;  // 筒子 (Dots) 牌面 1-9
     [SerializeField] private Transform bamboosContainer; // 索子 (Bamboos) 牌面 1-9
     [SerializeField] private Transform charactersContainer; // 万子 (Characters) 牌面 1-9
+
 
     // ========================================================================
     // 9. 牌型图鉴弹窗 (Pattern Viewer) - NEW
@@ -263,6 +275,10 @@ public class GameUIController : MonoBehaviour
             {
                 if (GameManager.Instance) GameManager.Instance.CloseTutorial();
             });
+        }
+        if (refreshButton)
+        {
+            refreshButton.onClick.AddListener(OnRefreshClicked);
         }
     }
     void Start()
@@ -365,12 +381,11 @@ public class GameUIController : MonoBehaviour
     {
         if (continueButton)
         {
-            continueButton.onClick.RemoveAllListeners(); //以此防重复添加
+            continueButton.onClick.RemoveAllListeners();
             continueButton.onClick.AddListener(() =>
             {
-                // 【新增】满足需求3：点击继续游戏时，立即隐藏所有删除按钮
+                DistributeSelectedRewards();
                 HideAllDeleteButtons();
-
                 GameManager.Instance.ContinueAfterHu();
             });
         }
@@ -567,6 +582,34 @@ public class GameUIController : MonoBehaviour
                             float addedTime, int speedIncrease,
                             int autoBlockIdx = -1, int autoItemIdx = -1, int autoProtocolIdx = -1)
     {
+        _currentRewardPackage = rewards;
+        _isLastHuAdvanced = isAdvanced;
+        _selectedBlockIndex = -1;
+        _selectedItemIndex = -1;
+        _selectedProtocolIndex = -1;
+
+        if (isAdvanced)
+        {
+            currentBlockContainer = advancedRewardBlockArea;
+            currentItemContainer = advancedRewardItemArea;
+            currentProtocolContainer = advancedRewardProtocolArea;
+        }
+        else
+        {
+            currentBlockContainer = commonRewardBlockArea;
+            currentItemContainer = commonRewardItemArea;
+            currentProtocolContainer = null; // 普通模式没有条约栏
+        }
+
+        if (refreshRoot)
+        {
+            bool showRefresh = GameManager.Instance.IsAllContentUnlocked();
+            refreshRoot.SetActive(showRefresh);
+            if (showRefresh) UpdateRefreshCostUI();
+        }
+
+        PopulateRewardSlots(_currentRewardPackage);
+
         selectionCounts.Clear();
         _currentDisplayScoreTarget = finalScore;
         PlayPopupShow(huPopupRoot, huPopupContainer);
@@ -1389,5 +1432,195 @@ public class GameUIController : MonoBehaviour
     public bool IsTutorialActive()
     {
         return tutorialRoot != null && tutorialRoot.activeSelf;
+    }
+    private void OnRefreshClicked()
+    {
+        if (GameManager.Instance.TrySpendRefreshCost())
+        {
+            // 锁定逻辑
+            bool keepBlocks = _selectedBlockIndex != -1;
+            bool keepItems = _selectedItemIndex != -1;
+            bool keepProtocols = _selectedProtocolIndex != -1;
+
+            // 此时 _isLastHuAdvanced 已经是正确的值了，刷新不会降级
+            _currentRewardPackage = GameManager.Instance.RefreshRewardPackage(
+                _currentRewardPackage,
+                keepBlocks,
+                keepItems,
+                keepProtocols,
+                _isLastHuAdvanced
+            );
+
+            // 重新生成并高亮
+            PopulateRewardSlots(_currentRewardPackage);
+            RestoreSelections();
+            UpdateRefreshCostUI();
+
+            if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
+        }
+        else
+        {
+            // 修复音效报错
+            if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+            ShowToast("金币不足！");
+        }
+    }
+    // 【新增】更新刷新按钮状态 (价格、颜色)
+    private void UpdateRefreshUI()
+    {
+        if (refreshRoot == null || !refreshRoot.activeSelf) return;
+
+        int cost = GameManager.Instance.GetCurrentRefreshCost();
+        int playerGold = GameSession.Instance.CurrentGold;
+
+        if (refreshCostText)
+        {
+            refreshCostText.text = $"{cost} G";
+            // 金币不足变红
+            refreshCostText.color = (playerGold >= cost) ? Color.white : Color.red;
+        }
+
+        // 如果金币不足，也可以选择让按钮不可点击 interactable = false
+        // refreshButton.interactable = (playerGold >= cost);
+    }
+    private void UpdateRefreshCostUI()
+    {
+        if (!refreshCostText) return;
+
+        int cost = GameManager.Instance.GetCurrentRefreshCost();
+        // 获取当前持有金币 (增加空值检查防止报错)
+        int playerGold = GameSession.Instance != null ? GameSession.Instance.CurrentGold : 0;
+
+        // 【修改】格式改为： 消耗 / 持有 (例如 "100 / 5000")
+        refreshCostText.text = $"{cost} / {playerGold}";
+
+        // 颜色逻辑保持不变：钱不够变红
+        refreshCostText.color = (playerGold >= cost) ? Color.white : Color.red;
+    }
+    private void PopulateRewardSlots(HuRewardPackage rewards)
+    {
+        // 1. 生成方块栏
+        if (currentBlockContainer != null)
+        {
+            GenerateColumn(currentBlockContainer, rewards.BlockChoices.Count, (obj, i) => {
+                var ui = obj.GetComponent<RewardOptionUI>();
+                if (ui) ui.Setup(rewards.BlockChoices[i], (clicked) => HandleRewardClick(0, i));
+
+                // 覆盖点击事件用于"选中"逻辑
+                SetupSelectionClick(obj, i, 0);
+            });
+        }
+
+        // 2. 生成道具栏
+        if (currentItemContainer != null)
+        {
+            GenerateColumn(currentItemContainer, rewards.ItemChoices.Count, (obj, i) => {
+                var ui = obj.GetComponent<RewardOptionUI>();
+                if (ui) ui.Setup(rewards.ItemChoices[i], (clicked) => HandleRewardClick(1, i));
+
+                SetupSelectionClick(obj, i, 1);
+            });
+        }
+
+        // 3. 生成条约栏
+        if (currentProtocolContainer != null)
+        {
+            GenerateColumn(currentProtocolContainer, rewards.ProtocolChoices.Count, (obj, i) => {
+                var ui = obj.GetComponent<RewardOptionUI>();
+                if (ui) ui.Setup(rewards.ProtocolChoices[i], (clicked) => HandleRewardClick(2, i));
+
+                SetupSelectionClick(obj, i, 2);
+            });
+        }
+
+        // 刷新高亮状态
+        RestoreSelections();
+    }
+
+    private void RestoreSelections()
+    {
+        HighlightContainer(currentBlockContainer, _selectedBlockIndex);
+        HighlightContainer(currentItemContainer, _selectedItemIndex);
+        HighlightContainer(currentProtocolContainer, _selectedProtocolIndex);
+    }
+    private void HandleRewardClick(int type, int index)
+    {
+        // 原有的点击领取逻辑：如果启用了刷新功能，这里可能需要改为"仅选中"。
+        // 但为了兼容，我们可以让 RewardOptionUI 的点击事件既负责选中，也负责原本的交互。
+        // 目前 SetupClick 已经覆盖了 onClick，所以这个回调可能不会被触发，或者被覆盖。
+        // 建议：如果启用了刷新功能，RewardOptionUI 内部的 Button.onClick 最好被 SetupClick 接管。
+    }
+    private void GenerateColumn(Transform parent, int count, Action<GameObject, int> onInit)
+    {
+        if (!parent || !rewardOptionPrefab) return;
+
+        // 清理旧物体
+        foreach (Transform child in parent) Destroy(child.gameObject);
+
+        // 生成新物体
+        for (int i = 0; i < count; i++)
+        {
+            GameObject go = Instantiate(rewardOptionPrefab, parent);
+            onInit(go, i);
+        }
+    }
+
+    private void SetupSelectionClick(GameObject obj, int index, int typeId)
+    {
+        Button btn = obj.GetComponent<Button>();
+        if (!btn) return;
+
+        // 移除 RewardOptionUI 原本可能添加的监听，改由我们要实现的"选中"逻辑接管
+        btn.onClick.RemoveAllListeners();
+
+        btn.onClick.AddListener(() => {
+            // 切换选中索引
+            if (typeId == 0) _selectedBlockIndex = (_selectedBlockIndex == index) ? -1 : index;
+            if (typeId == 1) _selectedItemIndex = (_selectedItemIndex == index) ? -1 : index;
+            if (typeId == 2) _selectedProtocolIndex = (_selectedProtocolIndex == index) ? -1 : index;
+
+            // 刷新视觉
+            RestoreSelections();
+        });
+    }
+    private void DistributeSelectedRewards()
+    {
+        // 1. 发放方块
+        if (_selectedBlockIndex != -1 && _currentRewardPackage.BlockChoices.Count > _selectedBlockIndex)
+        {
+            var block = _currentRewardPackage.BlockChoices[_selectedBlockIndex];
+            // 注意：这里需要 Spawner 的引用，可以通过 FindObjectOfType 或 GameManager 获取
+            GameManager.Instance.Spawner.AddTetrominoToPool(block);
+        }
+
+        // 2. 发放道具
+        if (_selectedItemIndex != -1 && _currentRewardPackage.ItemChoices.Count > _selectedItemIndex)
+        {
+            var item = _currentRewardPackage.ItemChoices[_selectedItemIndex];
+            GameManager.Instance.Inventory.AddItem(item);
+        }
+
+        // 3. 发放条约
+        if (_selectedProtocolIndex != -1 && _currentRewardPackage.ProtocolChoices.Count > _selectedProtocolIndex)
+        {
+            var proto = _currentRewardPackage.ProtocolChoices[_selectedProtocolIndex];
+            GameManager.Instance.AddProtocol(proto);
+        }
+    }
+    private void HighlightContainer(Transform container, int selectedIndex)
+    {
+        if (container == null) return;
+
+        for (int i = 0; i < container.childCount; i++)
+        {
+            var ui = container.GetChild(i).GetComponent<RewardOptionUI>();
+            if (ui)
+            {
+                // 使用 RewardOptionUI 自带的选中状态
+                ui.SetSelected(i == selectedIndex);
+                // 确保按钮是可点击的
+                ui.SetInteractable(true);
+            }
+        }
     }
 }

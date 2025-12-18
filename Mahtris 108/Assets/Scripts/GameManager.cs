@@ -185,7 +185,7 @@ public class GameManager : MonoBehaviour
     public int CurrentDisplaySpeed { get; private set; }
     private int _itemsUsedThisGame = 0;
     private int _protocolsObtainedThisGame = 0;
-
+    private int _currentRefreshCost;
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -472,6 +472,7 @@ public class GameManager : MonoBehaviour
         if (gameUI != null) gameUI.SetMistActive(false);
         _omaCurrentGrowth = 2f;
         _omaAppliedFactor = 1f;
+        _currentRefreshCost = settings.refreshBaseCost;
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
 
         remainingPauses = maxPauses;
@@ -666,6 +667,7 @@ public class GameManager : MonoBehaviour
             if (autoItemIndex != -1) inventoryManager.AddItem(rewards.ItemChoices[autoItemIndex]);
             if (autoProtocolIndex != -1) AddProtocol(rewards.ProtocolChoices[autoProtocolIndex]);
         }
+        _currentRefreshCost = settings.refreshBaseCost;
         gameUI.ShowHuPopup(
             huHand,
             analysisResult,
@@ -1320,56 +1322,39 @@ public class GameManager : MonoBehaviour
 
     private IEnumerable<GameObject> GetWeightedRandomBlocks(int count, BlockRewardWeights weights)
     {
-        // 【新增】“超算力”逻辑
-        BlockRewardWeights adjustedWeights = new BlockRewardWeights
-        {
-            level1Weight = weights.level1Weight,
-            level2Weight = weights.level2Weight,
-            level3Weight = weights.level3Weight
-        };
-
-        if (isChaoSuanLiActive)
-        {
-            // 检查玩家是否已有 L3 方块
-            bool hasLevel3 = spawner.GetActivePrefabs().Any(p => IsInLevel(p, 2));
-            if (hasLevel3)
-            {
-                // 权重提高200%（即变为原来的3倍）
-                adjustedWeights.level3Weight *= 3f;
-                // （可选：重新归一化权重，使总和为1）
-                float total = adjustedWeights.level1Weight + adjustedWeights.level2Weight + adjustedWeights.level3Weight;
-                adjustedWeights.level1Weight /= total;
-                adjustedWeights.level2Weight /= total;
-                adjustedWeights.level3Weight /= total;
-            }
-        }
-        // --- 超算力逻辑结束 ---
         var source = spawner.GetMasterList();
         var level1 = source.Where(p => IsInLevel(p, 0)).ToList();
         var level2 = source.Where(p => IsInLevel(p, 1)).ToList();
         var level3 = source.Where(p => IsInLevel(p, 2)).ToList();
         var result = new List<GameObject>();
-        for (int i = 0; i < count; i++)
+        int safeCounter = 0;
+        while (result.Count < count && safeCounter < 50)
         {
+            safeCounter++;
+
             GameObject chosenBlock = null;
             float roll = Random.value;
-            if (roll < adjustedWeights.level1Weight && level1.Count > 0)
-                chosenBlock = level1[Random.Range(0, level1.Count)];
-            else if (roll < adjustedWeights.level1Weight + adjustedWeights.level2Weight && level2.Count > 0)
-                chosenBlock = level2[Random.Range(0, level2.Count)];
 
+            // 【修改】直接使用传入的参数 weights，不再使用 currentWeights 或 adjustedWeights
             if (roll < weights.level1Weight && level1.Count > 0)
                 chosenBlock = level1[Random.Range(0, level1.Count)];
             else if (roll < weights.level1Weight + weights.level2Weight && level2.Count > 0)
                 chosenBlock = level2[Random.Range(0, level2.Count)];
             else if (level3.Count > 0)
                 chosenBlock = level3[Random.Range(0, level3.Count)];
-            else if (level2.Count > 0)
-                chosenBlock = level2[Random.Range(0, level2.Count)];
-            else if (level1.Count > 0)
-                chosenBlock = level1[Random.Range(0, level1.Count)];
+
+            // 保底逻辑：如果随机到的等级没方块，降级查找
+            if (chosenBlock == null)
+            {
+                if (level2.Count > 0) chosenBlock = level2[Random.Range(0, level2.Count)];
+                else if (level1.Count > 0) chosenBlock = level1[Random.Range(0, level1.Count)];
+            }
+
+            // 去重添加
             if (chosenBlock != null && !result.Contains(chosenBlock))
+            {
                 result.Add(chosenBlock);
+            }
         }
         return result;
     }
@@ -2377,5 +2362,55 @@ public class GameManager : MonoBehaviour
     public void IncrementItemUsedCount()
     {
         _itemsUsedThisGame++;
+    }
+    // 1. 检查是否所有内容已解锁 (开启功能的条件)
+    public bool IsAllContentUnlocked()
+    {
+        // 检查普通道具
+        foreach (var item in settings.commonItemPool)
+            if (!SaveManager.IsItemUnlocked(item.itemName, item.isInitial)) return false;
+
+        // 检查高级道具
+        foreach (var item in settings.advancedItemPool)
+            if (!SaveManager.IsItemUnlocked(item.itemName, item.isInitial)) return false;
+
+        // 检查条约
+        foreach (var proto in settings.protocolPool)
+            if (!SaveManager.IsProtocolUnlocked(proto.protocolName, proto.isInitial)) return false;
+
+        return true;
+    }
+
+    // 2. 获取当前刷新价格
+    public int GetCurrentRefreshCost()
+    {
+        return _currentRefreshCost;
+    }
+
+    // 3. 尝试消费金币进行刷新
+    public bool TrySpendRefreshCost()
+    {
+        int currentGold = GameSession.Instance.CurrentGold;
+        if (currentGold >= _currentRefreshCost)
+        {
+            GameSession.Instance.AddGold(-_currentRefreshCost); // 扣钱
+            _currentRefreshCost *= 2; // 价格翻倍
+            return true;
+        }
+        return false;
+    }
+
+    // 4. 执行刷新 (保留被锁定的类别)
+    public HuRewardPackage RefreshRewardPackage(HuRewardPackage currentPackage, bool keepBlocks, bool keepItems, bool keepProtocols, bool isAdvanced)
+    {
+        // 生成一套全新的奖励
+        HuRewardPackage newPackage = GenerateHuRewards(isAdvanced);
+
+        // 如果某一项被锁定了(keep=true)，则把旧数据覆盖回去 (保留旧的)
+        if (keepBlocks) newPackage.BlockChoices = currentPackage.BlockChoices;
+        if (keepItems) newPackage.ItemChoices = currentPackage.ItemChoices;
+        if (keepProtocols) newPackage.ProtocolChoices = currentPackage.ProtocolChoices;
+
+        return newPackage;
     }
 }

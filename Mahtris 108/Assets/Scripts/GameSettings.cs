@@ -136,6 +136,9 @@ public class GameSettings : ScriptableObject
     public int maxProtocolCount = 5;
     public List<ProtocolData> protocolPool;
 
+    [Header("奖励刷新功能")]
+    [Tooltip("每次胡牌初始的刷新价格")]
+    public int refreshBaseCost = 100;
     // ========================================================================
     // 6. UI 视觉配置
     // ========================================================================
