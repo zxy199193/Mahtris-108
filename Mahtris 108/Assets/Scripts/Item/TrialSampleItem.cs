@@ -9,10 +9,10 @@ public class TrialSampleItem : ItemData
 
     [Tooltip("要奖励的方块的预制件名称")]
     public string blockPrefabName = "T1-Dot";
-
     public override bool Use(GameManager gameManager)
     {
-        gameManager.ActivateBonusBlocksOnHu(blockPrefabName, bonusBlockCount);
+        // 【修改】调用立即生效的方法
+        gameManager.ActivateBonusBlocksImmediately(blockPrefabName, bonusBlockCount);
         return true;
     }
 }

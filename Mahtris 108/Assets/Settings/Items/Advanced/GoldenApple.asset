@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: "\u91D1\u82F9\u679C"
   itemIcon: {fileID: 21300000, guid: 5ec9fe99b7c4d084e94dc47bf2206f5d, type: 3}
-  itemDescription: "\u65B9\u5757\u5217\u8868\u4E2D\u6BCF\u6709\u4E00\u79CD\u65B9\u5757\uFF0C\u6574\u5C40\u6E38\u620F\u57FA\u7840\u5206+3"
+  itemDescription: "\u65B9\u5757\u5217\u8868\u4E2D\u6BCF\u6709\u4E00\u79CD\u65B9\u5757\uFF0C\u6574\u5C40\u6E38\u620F<color=#3296DC>\u57FA\u7840\u5206+3</color>\r\n"
   isAdvanced: 1
   isLegendary: 1
   useSound: {fileID: 0}

@@ -156,8 +156,6 @@ public class GameManager : MonoBehaviour
     private int wantedPosterGoldMult = 1;
     private bool isBountyActive = false;
     private int ignoreMahjongCheckCount = 0;
-    private int bonusBlocksOnHuCount = 0;
-    private string bonusBlockPrefabName = "";
 
     private bool isChampagneActive = false;
     private int champagneSpawnCount = 0;
@@ -413,7 +411,6 @@ public class GameManager : MonoBehaviour
         isSteroidActive = false;
         isSteroidReversalActive = false;
         ignoreMahjongCheckCount = 0;
-        bonusBlocksOnHuCount = 0;
         useDuanYaoJiuFilter = false;
         useQueYiMenFilter = false;
         queYiMenSuitToRemove = -1;
@@ -489,7 +486,7 @@ public class GameManager : MonoBehaviour
         inventoryManager.ClearInventory();
         protocolsMarkedForRemoval.Clear();
         GrantStartingRewards(DifficultyManager.Instance.CurrentDifficulty);
-        if (isAdventFoodActive) { adventFoodBonus = 90; adventFoodTimer = 1f; }
+        if (isAdventFoodActive) { adventFoodBonus = 70; adventFoodTimer = 1f; }
         else { adventFoodBonus = 0; }
 
         // 2. 例行公事：如果有条约，锁定时间
@@ -823,14 +820,6 @@ public class GameManager : MonoBehaviour
             UpdateFallSpeed();
             spawner.StartNextRound();
             gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
-
-            // 处理试用小样
-            if (bonusBlocksOnHuCount > 0 && !string.IsNullOrEmpty(bonusBlockPrefabName))
-            {
-                var prefab = spawner.GetMasterList().FirstOrDefault(p => p.name == bonusBlockPrefabName);
-                if (prefab != null) { for (int i = 0; i < bonusBlocksOnHuCount; i++) spawner.AddTetrominoToPool(prefab); }
-                bonusBlocksOnHuCount = 0; bonusBlockPrefabName = "";
-            }
             isProcessingRows = false;
         });
     }
@@ -1747,13 +1736,6 @@ public class GameManager : MonoBehaviour
     {
         ignoreMahjongCheckCount = count;
     }
-
-    // 【新增】供“试用小样”调用
-    public void ActivateBonusBlocksOnHu(string prefabName, int count)
-    {
-        bonusBlockPrefabName = prefabName;
-        bonusBlocksOnHuCount = count;
-    }
     public bool TryFindAndAddRandomSetFromPool()
     {
         // 1. 检查胡牌区是否已满
@@ -2412,5 +2394,25 @@ public class GameManager : MonoBehaviour
         if (keepProtocols) newPackage.ProtocolChoices = currentPackage.ProtocolChoices;
 
         return newPackage;
+    }
+    public void ActivateBonusBlocksImmediately(string prefabName, int count)
+    {
+        // 从 Spawner 的总表 (Master List) 中找到对应的方块预制体
+        var prefab = spawner.GetMasterList().FirstOrDefault(p => p.name == prefabName);
+
+        if (prefab != null)
+        {
+            // 循环添加指定数量到活跃池
+            for (int i = 0; i < count; i++)
+            {
+                spawner.AddTetrominoToPool(prefab);
+            }
+
+            Debug.Log($"试用小样生效：立即添加了 {count} 个 {prefabName}");
+        }
+        else
+        {
+            Debug.LogError($"无法找到名为 {prefabName} 的方块预制体！请检查 TrialSampleItem 配置的名字是否正确。");
+        }
     }
 }
