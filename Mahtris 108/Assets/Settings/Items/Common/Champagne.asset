@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Champagne
   m_EditorClassIdentifier: 
   itemName: "\u9999\u69DF"
-  itemIcon: {fileID: 21300000, guid: 9f207dec3bf4b8c4b82912cc9c0bde15, type: 3}
+  itemIcon: {fileID: 21300000, guid: b34a5f1a4a05e984d97626495578a4b4, type: 3}
   itemDescription: "\u5982\u679C\u4E0B\u4E0B\u4E2A\u65B9\u5757\u964D\u843D\u540E\u80E1\u724C\uFF0C\u672C\u8F6E\u6E38\u620F\u57FA\u7840\u5206+10"
   isAdvanced: 0
   isLegendary: 0

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Passport_Tong
   m_EditorClassIdentifier: 
   itemName: "\u62A4\u7167-\u7B52\u5B50"
-  itemIcon: {fileID: 21300000, guid: 9f207dec3bf4b8c4b82912cc9c0bde15, type: 3}
+  itemIcon: {fileID: 21300000, guid: 5bb81c1785fde6948a5f3be1ba2fc825, type: 3}
   itemDescription: "\u63A5\u4E0B\u676515\u79D2\u7684\u65B9\u5757\u4F1A\u5C3D\u53EF\u80FD\u53EA\u6709\u7B52\u5B50\u724C"
   isAdvanced: 1
   isLegendary: 0

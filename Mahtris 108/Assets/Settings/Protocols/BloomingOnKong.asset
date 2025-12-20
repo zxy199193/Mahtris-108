@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BloomingOnKong
   m_EditorClassIdentifier: 
   protocolName: "\u6760\u4E0A\u5F00\u82B1"
-  protocolIcon: {fileID: 21300000, guid: 9f207dec3bf4b8c4b82912cc9c0bde15, type: 3}
+  protocolIcon: {fileID: 21300000, guid: 4d4594b51c33f3a4c82e3f03e4c5b8b4, type: 3}
   protocolDescription: "\u65B9\u5757\u500D\u7387-20\uFF0C\u6BCF\u7EC4\u6760\u724C\u63D0\u4F9B\u7684\u756A\u6570+1"
   isLegendary: 0
   price: 5000
