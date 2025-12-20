@@ -15,9 +15,10 @@ MonoBehaviour:
   itemName: "\u6F0F\u6597"
   itemIcon: {fileID: 21300000, guid: 622cc8606e2c05e4a9d654f582e9c6d5, type: 3}
   itemDescription: "40\u79D2\u5185\u4E0D\u4F1A\u51FA\u73B05\u683C\u65B9\u5757\uFF0C\u671F\u95F4\u80E1\u724C\u6548\u679C\u4E2D\u6B62\r"
+  isAdvanced: 0
   isLegendary: 0
   useSound: {fileID: 0}
   price: 500
-  isInitial: 0
+  isInitial: 1
   unlockConditionCount: 0
   duration: 40

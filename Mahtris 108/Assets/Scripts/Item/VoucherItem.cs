@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Voucher", menuName = "Items/Common/Voucher")]
 public class VoucherItem : ItemData
 {
-    public int goldAmount = 50;
+    public int goldAmount = 300;
 
     public override bool Use(GameManager gameManager)
     {

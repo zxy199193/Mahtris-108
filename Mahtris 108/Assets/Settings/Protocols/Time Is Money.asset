@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   protocolName: "\u65F6\u95F4\u5C31\u662F\u91D1\u94B1"
   protocolIcon: {fileID: 21300000, guid: 5a1f6a42dd8741d48af9e7fa902b6bd8, type: 3}
-  protocolDescription: "\u80E1\u724C\u65F6\u4E0D\u518D\u589E\u52A0\u6E38\u620F\u65F6\u95F4\uFF0C\u76EE\u6807\u91D1\u5E01\u5956\u52B1x2\r"
+  protocolDescription: "\u80E1\u724C\u65F6\u4E0D\u518D\u5956\u52B1\u6E38\u620F\u65F6\u95F4\uFF0C\u76EE\u6807\u91D1\u5E01\u5956\u52B1x2\r"
   isLegendary: 0
   price: 0
   isInitial: 1

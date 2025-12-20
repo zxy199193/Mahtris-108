@@ -622,19 +622,27 @@ public class GameManager : MonoBehaviour
         // 只有在未激活该条约时，才奖励时间
         if (!isTimeIsMoneyActive)
         {
-            addedTime += settings.huTimeBonus;
-            // 处理新能源 (RenewableEnergy) 的额外加时
-            if (isRenewableEnergyActive)
+            // 2. 检查 "朝九晚五"
+            if (isRoutineWorkActive)
             {
-                addedTime += 20f;
+                // 效果：将时间强制重置为 95秒
+                remainingTime = 95f;
+
+                // 3. 处理 "朝九晚五" 与 "新能源" 的兼容性
+                // 因为上面的 = 95f 会覆盖掉 HandleHuDeclared 中加的 20秒
+                // 所以在这里需要把 "新能源" 的 20秒 补回来
+                if (isRenewableEnergyActive)
+                {
+                    remainingTime += 20f;
+                }
             }
-
-            // 实际应用时间奖励
-            remainingTime += addedTime;
-
-            gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+            else
+            {
+                // 如果没有 "朝九晚五"，则不需要做任何事
+                // 因为普通的时间奖励（包括新能源的+20s）已经在 HandleHuDeclared 中正确加上了
+                // 这里千万不要再写 remainingTime += 20f，否则就是双重加分
+            }
         }
-
         // 计算下一轮速度增加值 (仅用于显示)
         // 这里的逻辑是：每一轮胡牌，速度等级增加 settings.speedIncreasePerHu_Int
         int perHuSpeed = settings.speedIncreasePerHu_Int;
@@ -715,7 +723,6 @@ public class GameManager : MonoBehaviour
         UpdateCurrentBaseScore();
 
         if (isRoutineWorkActive) remainingTime = 95f;
-        if (isRenewableEnergyActive) remainingTime += 20f;
         if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
         isChampagneActive = false;
         champagneSpawnCount = 0;
@@ -1270,8 +1277,8 @@ public class GameManager : MonoBehaviour
         // 【新增】独木桥：每种奖励数量变为1个
         // 如果是独木桥模式，数量固定为1；否则按原有逻辑（高级5/2/2，普通3/3）
         int blockCount = isLogBridgeActive ? 1 : (isAdvanced ? 5 : 3);
-        int itemCount = isLogBridgeActive ? 1 : (isAdvanced ? 2 : 3);
-        int protocolCount = isLogBridgeActive ? 1 : 2;
+        int itemCount = isLogBridgeActive ? 1 : 3;
+        int protocolCount = isLogBridgeActive ? 1 : 3;
 
         // 生成方块奖励
         package.BlockChoices = GetWeightedRandomBlocks(blockCount, isAdvanced ? settings.advancedBlockRewardWeights : settings.commonBlockRewardWeights).ToList();

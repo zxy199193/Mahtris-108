@@ -17,6 +17,6 @@ MonoBehaviour:
   protocolDescription: "\u952E\u76D8\u4E0A\u4E0B\u3001\u5DE6\u53F3\u6309\u952E\u529F\u80FD\u8C03\u6362\uFF0C<color=#E682E6>\u989D\u5916\u500D\u7387x3</color>\r"
   isLegendary: 0
   price: 5000
-  isInitial: 0
+  isInitial: 1
   unlockConditionCount: 0
   extraMultiplier: 3

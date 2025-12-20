@@ -19,6 +19,6 @@ MonoBehaviour:
   isLegendary: 0
   useSound: {fileID: 0}
   price: 2000
-  isInitial: 0
+  isInitial: 1
   unlockConditionCount: 0
   addedTime: 30
