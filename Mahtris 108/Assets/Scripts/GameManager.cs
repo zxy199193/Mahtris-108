@@ -622,26 +622,20 @@ public class GameManager : MonoBehaviour
         // 只有在未激活该条约时，才奖励时间
         if (!isTimeIsMoneyActive)
         {
-            // 2. 检查 "朝九晚五"
-            if (isRoutineWorkActive)
-            {
-                // 效果：将时间强制重置为 95秒
-                remainingTime = 95f;
+            // 1. 加上基础时间 (通常是 60秒)
+            addedTime += settings.huTimeBonus;
 
-                // 3. 处理 "朝九晚五" 与 "新能源" 的兼容性
-                // 因为上面的 = 95f 会覆盖掉 HandleHuDeclared 中加的 20秒
-                // 所以在这里需要把 "新能源" 的 20秒 补回来
-                if (isRenewableEnergyActive)
-                {
-                    remainingTime += 20f;
-                }
-            }
-            else
+            // 2. 如果有新能源，额外 +20秒
+            if (isRenewableEnergyActive)
             {
-                // 如果没有 "朝九晚五"，则不需要做任何事
-                // 因为普通的时间奖励（包括新能源的+20s）已经在 HandleHuDeclared 中正确加上了
-                // 这里千万不要再写 remainingTime += 20f，否则就是双重加分
+                addedTime += 20f;
             }
+
+            // 3. 真正把时间加到游戏里！(之前这行代码丢了)
+            remainingTime += addedTime;
+
+            // 刷新 UI
+            gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
         }
         // 计算下一轮速度增加值 (仅用于显示)
         // 这里的逻辑是：每一轮胡牌，速度等级增加 settings.speedIncreasePerHu_Int
@@ -723,6 +717,24 @@ public class GameManager : MonoBehaviour
         UpdateCurrentBaseScore();
 
         if (isRoutineWorkActive) remainingTime = 95f;
+        if (!isTimeIsMoneyActive)
+        {
+            // 2. 只有在 "朝九晚五" 激活时，才执行强制重置
+            if (isRoutineWorkActive)
+            {
+                // 强制重置为 95s (这会覆盖掉刚才 HandleHuDeclared 里加的时间)
+                remainingTime = 95f;
+
+                // 3. 补回 "新能源" (因为被 95s 覆盖了，所以要再补一次)
+                // 最终效果：95 + 20 = 115s
+                if (isRenewableEnergyActive)
+                {
+                    remainingTime += 20f;
+                }
+            }
+            // 【注意】普通情况（无朝九晚五）不需要 else 分支！
+            // 因为时间已经在 HandleHuDeclared 里加好了，这里不要动。
+        }
         if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
         isChampagneActive = false;
         champagneSpawnCount = 0;

@@ -43,9 +43,9 @@ MonoBehaviour:
     goldReward: 1000
   - targetScore: 5000
     goldReward: 1600
-  - targetScore: 8000
+  - targetScore: 4000
     goldReward: 3000
-  husPerLoop: 2
+  husPerLoop: 1
   normalWeight: 10
   legendaryWeightBase: 5
   legendaryWeightIncreasePerLoop: 2.5
