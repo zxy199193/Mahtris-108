@@ -1191,11 +1191,8 @@ public class GameUIController : MonoBehaviour
     public void ShowPoolViewer()
     {
         if (poolViewerRoot == null || poolViewerContainer == null) return;
-
-        RefreshPoolDisplay();
-
-        // 【使用通用方法替换】
         PlayPopupShow(poolViewerRoot, poolViewerContainer);
+        RefreshPoolDisplay();
     }
     public void HidePoolViewer()
     {
@@ -1222,10 +1219,13 @@ public class GameUIController : MonoBehaviour
         bamboosContainer.DestroyChildren();
         charactersContainer.DestroyChildren();
 
-        if (GameManager.Instance == null) return;
+        // 增加对 GameManager.Instance.BlockPool 的判空，更安全
+        if (GameManager.Instance == null || GameManager.Instance.BlockPool == null) return;
 
         // 2. 获取数据
-        var allIDs = GameManager.Instance.BlockPool.GetRemainingTileIDs();
+        // 【修改】使用 GameManager 中的 BlockPool，而不是本地可能为空的变量
+        var targetPool = GameManager.Instance.BlockPool;
+        var allIDs = targetPool.GetRemainingTileIDs();
 
         // 3. 统计
         int[] tileCounts = new int[27];
@@ -1249,12 +1249,11 @@ public class GameUIController : MonoBehaviour
             {
                 GameObject go = Instantiate(uiBlockPrefab, parentTransform);
 
-                // 【修改】获取 BlockUnit 组件
                 var bu = go.GetComponent<BlockUnit>();
                 if (bu != null)
                 {
-                    // 【关键】调用新的专用初始化方法
-                    bu.InitializeForPoolViewer(i, tileCounts[i], blockPool);
+                    // 【关键修复】这里传入 targetPool (即 GameManager.Instance.BlockPool)
+                    bu.InitializeForPoolViewer(i, tileCounts[i], targetPool);
                 }
 
                 activeTileUIs.Add(go);

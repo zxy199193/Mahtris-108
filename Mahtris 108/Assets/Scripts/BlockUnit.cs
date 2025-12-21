@@ -1,7 +1,7 @@
 // FileName: BlockUnit.cs
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening; // 如果你使用了DoTween，保留引用
+using DG.Tweening;
 
 public class BlockUnit : MonoBehaviour
 {
@@ -18,16 +18,16 @@ public class BlockUnit : MonoBehaviour
     [SerializeField] private string emptyMessage = "缺";
     [SerializeField] private Color emptyColor = new Color(0.8f, 0.2f, 0.2f, 1f);
 
-    // =========================================================
-    // 【新增】牌库预览专用配置 (Pool Viewer)
-    // =========================================================
     [Header("牌库预览配置")]
-    [SerializeField] private GameObject countInfoGroup; // 数量显示的父节点/背板
-    [SerializeField] private Text countText;            // 数量文本
-    [SerializeField] private GameObject darkMask;       // 数量为0时的遮罩
-    
+    [SerializeField] private GameObject countInfoGroup;
+    [SerializeField] private Text countText;
+    [SerializeField] private GameObject darkMask;
+
     private Color _originalTextColor = Color.white;
     private BlockPool blockPool;
+
+    // 【标记】记录当前是否处于牌库模式，防止 Awake 误关
+    private bool _isPoolMode = false;
 
     void Awake()
     {
@@ -41,31 +41,31 @@ public class BlockUnit : MonoBehaviour
         {
             _originalTextColor = countText.color;
         }
-        DisablePoolUI();
+
+        // 【关键修复】只有在非牌库模式下，才强制关闭 UI
+        // 如果是从 GameUIController 初始化的，_isPoolMode 已经是 true 了，这里就不要关了
+        if (!_isPoolMode)
+        {
+            DisablePoolUI();
+        }
     }
 
     private void LateUpdate()
     {
-        // 仅在“无重力”条约*未*激活时才重置旋转
         if (spriteHolder != null && (GameManager.Instance == null || !GameManager.Instance.isNoGravityActive))
         {
             spriteHolder.rotation = Quaternion.identity;
         }
     }
 
-    // ---------------------------------------------------------
-    // 1. 原有的初始化方法 (用于游戏内方块、下一个方块预览)
-    // ---------------------------------------------------------
+    // 1. 游戏内初始化
     public void Initialize(int id, BlockPool pool)
     {
         this.blockPool = pool;
-
-        // 确保牌库UI是关闭的
-        DisablePoolUI();
+        DisablePoolUI(); // 游戏内强制关闭
 
         if (id == -1)
         {
-            // === 状态：麻将不足 ===
             blockId = -1;
             if (uiImage != null) { uiImage.sprite = emptySprite; uiImage.color = emptyColor; uiImage.enabled = true; }
             if (spriteRenderer != null) { spriteRenderer.sprite = emptySprite; spriteRenderer.color = emptyColor; }
@@ -73,7 +73,6 @@ public class BlockUnit : MonoBehaviour
         }
         else
         {
-            // === 状态：正常 ===
             if (uiImage != null) uiImage.color = Color.white;
             if (spriteRenderer != null) spriteRenderer.color = Color.white;
             if (statusText != null) statusText.gameObject.SetActive(false);
@@ -81,52 +80,57 @@ public class BlockUnit : MonoBehaviour
         }
     }
 
-    // ---------------------------------------------------------
-    // 2. 【新增】牌库预览专用初始化方法
-    // ---------------------------------------------------------
+    // 2. 牌库预览初始化
     public void InitializeForPoolViewer(int id, int count, BlockPool pool)
     {
         this.blockPool = pool;
         this.blockId = id;
+        this._isPoolMode = true; // 【标记】进入牌库模式
 
-        // 1. 设置麻将图案
         ApplyIdAndSprite(id);
 
-        // 2. 开启背板
+        // 开启背板
         if (countInfoGroup != null) countInfoGroup.SetActive(true);
 
-        // 3. 设置数量
+        // 设置文本
         if (countText != null)
         {
             countText.text = count.ToString();
-            if (count == 0)
-            {
-                countText.color = Color.red;
-            }
-            else
-            {
-                // 恢复为 Awake 时记录的颜色
-                countText.color = _originalTextColor;
-            }
+            // 确保开启
+            countText.gameObject.SetActive(true);
+            countText.color = (count == 0) ? Color.red : _originalTextColor;
         }
 
-        // 4. 设置遮罩 (没牌了就遮住)
         if (darkMask != null)
         {
             darkMask.SetActive(count <= 0);
         }
+
+        // 确保其他干扰 UI 关闭
+        if (statusText != null) statusText.gameObject.SetActive(false);
     }
 
-    // 【新增】强制关闭牌库UI (用于防止在普通方块上显示数量)
+    // 强制关闭牌库UI
     public void DisablePoolUI()
     {
+        this._isPoolMode = false; // 【标记】退出牌库模式
+
         if (countInfoGroup != null) countInfoGroup.SetActive(false);
+        if (countText != null) countText.gameObject.SetActive(false);
         if (darkMask != null) darkMask.SetActive(false);
     }
 
-    // ---------------------------------------------------------
-    // 内部逻辑
-    // ---------------------------------------------------------
+    // 3. 【双重保险】当物体被激活时，根据模式再次确认状态
+    // 这可以防止 Animator 或其他脚本在 OnEnable 时重置了显隐状态
+    void OnEnable()
+    {
+        if (_isPoolMode)
+        {
+            if (countInfoGroup != null) countInfoGroup.SetActive(true);
+            if (countText != null) countText.gameObject.SetActive(true);
+        }
+    }
+
     private void ApplyIdAndSprite(int id)
     {
         this.blockId = id;
@@ -136,7 +140,6 @@ public class BlockUnit : MonoBehaviour
             if (spriteRenderer != null) spriteRenderer.sprite = sprite;
             if (uiImage != null) uiImage.sprite = sprite;
 
-            // 无重力逻辑
             if (GameManager.Instance != null && GameManager.Instance.isNoGravityActive && spriteHolder != null)
             {
                 int[] rotations = { 0, 90, 180, 270 };
@@ -150,7 +153,6 @@ public class BlockUnit : MonoBehaviour
         }
     }
 
-    // 黑暗幻想淡出逻辑 (保持不变)
     public void StartFadeToBlack()
     {
         if (GameManager.Instance != null && GameManager.Instance.isDarkFantasyActive)
