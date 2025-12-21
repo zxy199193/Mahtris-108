@@ -6952,7 +6952,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settings: {fileID: 11400000, guid: 5a2bb427df5e60a4daeb0e68a9f2c8c0, type: 2}
-  isTestMode: 0
+  isTestMode: 1
   spawner: {fileID: 271406184}
   tetrisGrid: {fileID: 558386360}
   huPaiArea: {fileID: 2095687856}

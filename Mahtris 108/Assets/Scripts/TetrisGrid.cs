@@ -1,7 +1,9 @@
 // FileName: TetrisGrid.cs
-using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
+using UnityEngine;
 
 public class TetrisGrid : MonoBehaviour
 {
@@ -324,5 +326,76 @@ public class TetrisGrid : MonoBehaviour
 
         // 方法 B (推荐): 统计所有挂载了 BlockUnit 的子物体 (更准确)
         return GetComponentsInChildren<BlockUnit>().Length;
+    }
+
+    public IEnumerator AnimateRowsClear(List<Transform> transformsToAnimate, HashSet<Transform> specialTransforms, float duration)
+    {
+        // 1. 参数计算
+        float delayPerStep = (duration * 0.8f) / width;
+        float animationStepDuration = duration * 0.3f;
+
+        List<Sequence> runningSequences = new List<Sequence>();
+
+        foreach (Transform t in transformsToAnimate)
+        {
+            if (t == null) continue;
+
+            int x = Mathf.RoundToInt(t.position.x);
+            if (x < 0) x = 0;
+            if (x >= width) x = width - 1;
+
+            bool isSpecial = specialTransforms.Contains(t);
+
+            Sequence seq = DOTween.Sequence();
+            float myDelay = x * delayPerStep;
+            seq.PrependInterval(myDelay);
+
+            if (isSpecial)
+            {
+                // === 【修正】特殊效果：使用 SpriteRenderer 实现遮罩 ===
+
+                // 1. 获取原方块的 SpriteRenderer (用于复制图片形状)
+                var parentSr = t.GetComponent<SpriteRenderer>();
+                // 如果当前物体没有，尝试找子物体
+                if (parentSr == null) parentSr = t.GetComponentInChildren<SpriteRenderer>();
+
+                if (parentSr != null)
+                {
+                    // 2. 创建遮罩物体
+                    GameObject overlay = new GameObject("HighlightMask");
+                    overlay.transform.SetParent(t, false);
+                    overlay.transform.localPosition = Vector3.zero;
+
+                    // 3. 添加 SpriteRenderer 并复制属性
+                    SpriteRenderer overlaySr = overlay.AddComponent<SpriteRenderer>();
+                    overlaySr.sprite = parentSr.sprite; // 复制形状
+                    overlaySr.color = new Color(0f, 1f, 0f, 0f); // 初始全透明绿色
+
+                    // 【关键】设置层级，确保遮罩盖在方块上面
+                    // 这里的 100 是一个经验值，只要比原方块大即可；或者简单地 +1
+                    overlaySr.sortingOrder = parentSr.sortingOrder + 1;
+                    overlaySr.sortingLayerID = parentSr.sortingLayerID;
+
+                    // 4. 播放淡入动画 (Alpha 0 -> 0.6)
+                    seq.Append(overlaySr.DOFade(0.8f, animationStepDuration));
+                }
+                else
+                {
+                    // 防御性代码：如果没有找到 SpriteRenderer，回退到原来的缩放效果，防止没有任何反应
+                    seq.Append(t.DOScale(1.2f, animationStepDuration));
+                }
+            }
+            else
+            {
+                // === 普通效果：缩小消失 ===
+                seq.Append(t.DOScale(0f, animationStepDuration).SetEase(Ease.InBack));
+            }
+
+            runningSequences.Add(seq);
+        }
+
+        yield return new WaitForSeconds(duration);
+
+        foreach (var seq in runningSequences) seq.Kill();
     }
 }

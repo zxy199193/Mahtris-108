@@ -161,3 +161,4 @@ MonoBehaviour:
   labelColorCommon: {r: 0.34901962, g: 0.8078432, b: 1, a: 1}
   labelColorAdvanced: {r: 0.9725491, g: 0.5882353, b: 0.11764707, a: 1}
   labelColorProtocol: {r: 0.43529415, g: 0.43529415, b: 0.43529415, a: 1}
+  rowClearAnimationDuration: 0.5

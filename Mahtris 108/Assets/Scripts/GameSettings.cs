@@ -156,4 +156,7 @@ public class GameSettings : ScriptableObject
     public Color labelColorCommon = new Color(0.2f, 0.6f, 1f);
     public Color labelColorAdvanced = new Color(1f, 0.5f, 0f);
     public Color labelColorProtocol = new Color(0.5f, 0.5f, 0.5f);
+
+    [Tooltip("消除行时的动画持续时间 (秒)")]
+    public float rowClearAnimationDuration = 0.5f;
 }
