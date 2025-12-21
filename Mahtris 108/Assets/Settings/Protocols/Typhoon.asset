@@ -19,4 +19,4 @@ MonoBehaviour:
   price: 5000
   isInitial: 1
   unlockConditionCount: 0
-  extraMultiplier: 2
+  extraMultiplier: 3

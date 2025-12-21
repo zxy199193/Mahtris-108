@@ -329,7 +329,7 @@ public class TetrisGrid : MonoBehaviour
         return GetComponentsInChildren<BlockUnit>().Length;
     }
 
-    public IEnumerator AnimateRowsClear(List<Transform> transformsToAnimate, HashSet<Transform> specialTransforms, float duration)
+    public IEnumerator AnimateRowsClear(List<Transform> transformsToAnimate, HashSet<Transform> specialTransforms, HashSet<Transform> pairTransforms, float duration)
     {
         // 1. 参数计算
         float delayPerStep = (duration * 0.8f) / width;
@@ -345,19 +345,20 @@ public class TetrisGrid : MonoBehaviour
             if (x < 0) x = 0;
             if (x >= width) x = width - 1;
 
-            bool isSpecial = specialTransforms.Contains(t);
+            // 判断当前方块的身份
+            bool isPair = pairTransforms != null && pairTransforms.Contains(t);
+            bool isSpecial = specialTransforms != null && specialTransforms.Contains(t);
 
             Sequence seq = DOTween.Sequence();
             float myDelay = x * delayPerStep;
             seq.PrependInterval(myDelay);
 
-            if (isSpecial)
+            if (isPair || isSpecial)
             {
-                // === 【修正】特殊效果：使用 SpriteRenderer 实现遮罩 ===
+                // === 特殊效果：使用 SpriteRenderer 实现遮罩 ===
 
-                // 1. 获取原方块的 SpriteRenderer (用于复制图片形状)
+                // 1. 获取原方块的 SpriteRenderer
                 var parentSr = t.GetComponent<SpriteRenderer>();
-                // 如果当前物体没有，尝试找子物体
                 if (parentSr == null) parentSr = t.GetComponentInChildren<SpriteRenderer>();
 
                 if (parentSr != null)
@@ -370,19 +371,27 @@ public class TetrisGrid : MonoBehaviour
                     // 3. 添加 SpriteRenderer 并复制属性
                     SpriteRenderer overlaySr = overlay.AddComponent<SpriteRenderer>();
                     overlaySr.sprite = parentSr.sprite; // 复制形状
-                    overlaySr.color = new Color(0f, 1f, 0f, 0f); // 初始全透明绿色
 
-                    // 【关键】设置层级，确保遮罩盖在方块上面
-                    // 这里的 100 是一个经验值，只要比原方块大即可；或者简单地 +1
+                    // 【差异化颜色】将牌用橙色，普通牌组用绿色
+                    if (isPair)
+                    {
+                        overlaySr.color = new Color(1f, 0.5f, 0f, 0f); // 初始全透明橙色
+                    }
+                    else
+                    {
+                        overlaySr.color = new Color(0f, 1f, 0f, 0f); // 初始全透明绿色
+                    }
+
+                    // 设置层级，确保遮罩盖在方块上面
                     overlaySr.sortingOrder = parentSr.sortingOrder + 1;
                     overlaySr.sortingLayerID = parentSr.sortingLayerID;
 
-                    // 4. 播放淡入动画 (Alpha 0 -> 0.6)
+                    // 4. 播放淡入动画 (Alpha 0 -> 0.8)
                     seq.Append(overlaySr.DOFade(0.8f, animationStepDuration));
                 }
                 else
                 {
-                    // 防御性代码：如果没有找到 SpriteRenderer，回退到原来的缩放效果，防止没有任何反应
+                    // 防御性回退
                     seq.Append(t.DOScale(1.2f, animationStepDuration));
                 }
             }
