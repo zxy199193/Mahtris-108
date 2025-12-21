@@ -482,7 +482,6 @@ public class GameManager : MonoBehaviour
         currentScoreLevelIndex = 0;
         isEndlessMode = false;
 
-        blockPool.ResetFullDeck();
         tetrisGrid.ClearAllBlocks();
         huPaiArea.ClearAll();
         scoreManager.ResetScore();
@@ -502,6 +501,7 @@ public class GameManager : MonoBehaviour
         if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
         UpdateCurrentBaseScore();
         // 【修复】必须先计算速度，再生成方块
+        blockPool.ResetFullDeck();
         UpdateFallSpeed();
 
         // 使用会话配置中的数据来初始化
