@@ -185,6 +185,7 @@ public class GameManager : MonoBehaviour
     private int _itemsUsedThisGame = 0;
     private int _protocolsObtainedThisGame = 0;
     private int _currentRefreshCost;
+    private int _gameExecutionId = 0;
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -318,6 +319,7 @@ public class GameManager : MonoBehaviour
 
     public void StartNewGame()
     {
+        _gameExecutionId++;
         // === 第1部分: 创建并填充当前游戏会话的配置 ===
         currentSessionConfig = new GameSessionConfig();
         Difficulty difficulty = DifficultyManager.Instance.CurrentDifficulty;
@@ -758,7 +760,7 @@ public class GameManager : MonoBehaviour
             // ==========================================
             // 【核心修复】逻辑顺序调整
             // ==========================================
-
+            _gameExecutionId++;
             // 1. 【第一优先】检查是否达成胜利 (且非无尽模式)
             // 如果赢了，直接阻断后续的"恢复游戏"逻辑，保持时间静止，弹出胜利窗口
             if (!isEndlessMode && _pendingGameWin)
@@ -806,7 +808,7 @@ public class GameManager : MonoBehaviour
             if (isRoutineWorkActive) remainingTime = 95f;
             if (isRenewableEnergyActive) remainingTime += 20f;
             if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
-
+            _isBombOrSpecialClear = false;
             _lastBulletTimeState = false;
             _hasDeclaredHuThisFrame = false;
 
@@ -849,174 +851,167 @@ public class GameManager : MonoBehaviour
         if (isProcessingRows) return;
 
         // 开启协程处理动画和逻辑
-        StartCoroutine(ProcessRowsClearedRoutine(rowIndices));
+        StartCoroutine(ProcessRowsClearedRoutine(rowIndices, _gameExecutionId));
     }
 
     // 【新增】协程处理消行逻辑
-    private IEnumerator ProcessRowsClearedRoutine(List<int> rowIndices)
+    // 【核心修复】拆分逻辑为三阶段，绕过 C# yield 限制，并确保 Finally 必执行
+    // 【核心修复】拆分逻辑为三阶段，绕过 C# yield 限制，并确保 Finally 必执行
+    private IEnumerator ProcessRowsClearedRoutine(List<int> rowIndices, int capturedExecutionId)
     {
         isProcessingRows = true;
         _hasDeclaredHuThisFrame = false;
         rowIndices.Sort();
 
-        // ==========================================================
-        // 第一阶段：逻辑预计算 (不销毁物体，只标记)
-        // ==========================================================
-
+        // 跨阶段共享变量
         List<Transform> allClearedTransforms = new List<Transform>();
-        List<List<int>> rowsBlockIds = new List<List<int>>();
-
-        // 1. 获取数据 (注意：此时不要让 Grid 销毁物体，只获取引用)
-        // 您需要确保 TetrisGrid.GetRowDataAndClear 在此时 *逻辑上* 移除了引用，但 *没有 Destroy* 物体
-        // 建议修改 TetrisGrid, 或者在这里我们假设 GetRowDataAndClear 已经改为 "GetRowDataAndDetach"
-        foreach (var y in rowIndices)
-        {
-            var rowData = tetrisGrid.GetRowDataAndClear(y); // 假设此方法现在只清空数组引用，不Destroy
-            allClearedTransforms.AddRange(rowData.transforms);
-            rowsBlockIds.Add(rowData.blockIds);
-            ApplyRowClearRewards(); // 加分逻辑
-        }
-
-        bool wasCleanRound = !hasClearedRowsInThisRound;
-        hasClearedRowsInThisRound = true;
-
         List<int> finalIdsToReturn = new List<int>();
-        HashSet<Transform> specialTransforms = new HashSet<Transform>(); // 用于存特殊方块
-
-        // 2. 执行麻将判定 (纯数据层)
-        // 我们需要修改 ProcessMahjongDetection 让它返回“被选中的方块Transform”
-        // 由于原逻辑比较深，我们这里用一种简化的“反向查找”策略：
-
-        // 先暂存当前的胡牌区数量
-        int initialSetCount = huPaiArea.GetSetCount();
-
-        // 执行原有的判定逻辑 (会把 ID 加入 finalIdsToReturn，把 Set 加入 HuPaiArea)
-        // 注意：这里我们无法直接获得 "哪些 Transform 组成了 Set"，因为逻辑层只处理了 int ID。
-        // 为了实现高亮效果，我们需要在这里做一个极其关键的映射：
-
-        // --- 临时映射逻辑 ---
-        // 把 allClearedTransforms 和 rowsBlockIds 扁平化对应起来
-        // 假设顺序是一致的 (通常都是从左到右)
-        List<BlockUnit> allUnits = new List<BlockUnit>();
-        foreach (var t in allClearedTransforms)
-            if (t) allUnits.Add(t.GetComponent<BlockUnit>());
-
-        // 执行判定 (这里复用您原有的逻辑结构)
-        if (ignoreMahjongCheckCount > 0)
-        {
-            // ... (垃圾筒逻辑，省略细节，保持原样) ...
-            // 在这里调用 ProcessMahjongDetection
-            // 关键点：我们需要知道 ProcessMahjongDetection 到底消耗了哪些 ID
-            // 这部分的精确映射比较复杂，为简化，我们假设：
-            // "如果触发了胡牌或者组成了牌组，我们就高亮整行的关键牌"
-
-            // 为了不重写整个 MahjongCore，我们采用动画策略：
-            // 只要不是被 "finalIdsToReturn" (垃圾) 回收的牌，都算作特殊牌！
-
-            int rowsTotal = rowsBlockIds.Count;
-            int rowsToRemove = Mathf.Min(rowsTotal, ignoreMahjongCheckCount);
-            ignoreMahjongCheckCount -= rowsToRemove;
-            // 处理被垃圾筒移除的行 -> 都是垃圾
-            for (int i = 0; i < rowsToRemove; i++) { /* 这些行的ID都进 finalIdsToReturn */ }
-            // 处理剩下的行 -> 调用 ProcessMahjongDetection
-            List<List<int>> remaining = new List<List<int>>();
-            for (int i = rowsToRemove; i < rowsTotal; i++) remaining.Add(rowsBlockIds[i]);
-
-            foreach (var list in remaining)
-            {
-                if (_hasDeclaredHuThisFrame) break;
-                ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms, wasCleanRound);
-            }
-        }
-        else
-        {
-            // 正常逻辑
-            foreach (var list in rowsBlockIds)
-            {
-                if (_hasDeclaredHuThisFrame) break;
-                ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms, wasCleanRound);
-            }
-        }
+        HashSet<Transform> specialTransforms = new HashSet<Transform>();
+        bool logicSuccess = false;
 
         // ==========================================================
-        // 3. 确定哪些 Transform 是“特殊的” (即：没被判定为垃圾的)
+        // 1. 逻辑阶段 (计算数据)
         // ==========================================================
-        // 原理：ProcessMahjongDetection 会把没用的 ID 加此时 finalIdsToReturn。
-        // 剩下的就是有用的 (组成了刻子/顺子/将牌)。
-        // 但是 finalIdsToReturn 只是 int 列表，可能有重复 ID (比如两个一万)。
-        // 我们需要小心地匹配 Transform。
-
-        List<int> trashIdsCopy = new List<int>(finalIdsToReturn);
-
-        foreach (var unit in allUnits)
+        try
         {
-            if (unit == null) continue;
-            int id = unit.blockId;
+            // ID检查：防止极速重开导致的逻辑冲突
+            if (_gameExecutionId != capturedExecutionId) yield break;
 
-            if (trashIdsCopy.Contains(id))
+            List<List<int>> rowsBlockIds = new List<List<int>>();
+
+            // 获取数据
+            foreach (var y in rowIndices)
             {
-                // 这是垃圾，把它从垃圾清单里划掉一个，标记为普通
-                trashIdsCopy.Remove(id);
-                // 不是特殊方块
+                if (tetrisGrid == null) break;
+                var rowData = tetrisGrid.GetRowDataAndClear(y);
+                allClearedTransforms.AddRange(rowData.transforms);
+                rowsBlockIds.Add(rowData.blockIds);
+                ApplyRowClearRewards();
+            }
+
+            bool wasCleanRound = !hasClearedRowsInThisRound;
+            hasClearedRowsInThisRound = true;
+
+            // --- 麻将判定逻辑 ---
+            if (ignoreMahjongCheckCount > 0)
+            {
+                int rowsTotal = rowsBlockIds.Count;
+                int rowsToRemove = Mathf.Min(rowsTotal, ignoreMahjongCheckCount);
+                ignoreMahjongCheckCount -= rowsToRemove;
+
+                // 忽略行：直接回收
+                for (int i = 0; i < rowsToRemove; i++)
+                {
+                    foreach (var id in rowsBlockIds[i]) finalIdsToReturn.Add(id);
+                }
+
+                // 剩余行：进行判定
+                for (int i = rowsToRemove; i < rowsTotal; i++)
+                {
+                    if (_hasDeclaredHuThisFrame) break;
+                    ProcessMahjongDetection(rowsBlockIds[i], ref finalIdsToReturn, allClearedTransforms, wasCleanRound);
+                }
             }
             else
             {
-                // 垃圾清单里没它 -> 它是被 MahjongCore 消耗掉的 -> 特殊方块！
-                specialTransforms.Add(unit.transform);
+                foreach (var list in rowsBlockIds)
+                {
+                    if (_hasDeclaredHuThisFrame) break;
+                    ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms, wasCleanRound);
+                }
             }
-        }
 
-        // ==========================================================
-        // 第二阶段：播放动画 (等待)
-        // ==========================================================
-
-        // 调用 Grid 的动画方法
-        float animDuration = settings.rowClearAnimationDuration;
-        yield return StartCoroutine(tetrisGrid.AnimateRowsClear(allClearedTransforms, specialTransforms, animDuration));
-
-        // ==========================================================
-        // 第三阶段：物理清理与结算
-        // ==========================================================
-
-        if (!_hasDeclaredHuThisFrame)
-        {
-            // 1. 处理背水一战
-            if (!isLastStandActive)
+            // --- 筛选特殊方块 (用于高亮) ---
+            List<int> trashIdsCopy = new List<int>(finalIdsToReturn);
+            foreach (var t in allClearedTransforms)
             {
-                blockPool.ReturnBlockIds(finalIdsToReturn);
+                if (t == null) continue;
+                var unit = t.GetComponent<BlockUnit>();
+                if (unit == null) continue;
+
+                if (trashIdsCopy.Contains(unit.blockId))
+                {
+                    trashIdsCopy.Remove(unit.blockId); // 归类为垃圾
+                }
+                else
+                {
+                    specialTransforms.Add(t); // 归类为特殊牌
+                }
             }
 
-            // 2. 销毁垃圾方块 (特殊方块已经在 MahjongCore 逻辑中被移入 HuPaiArea 或者即将在下面处理)
-            // 注意：ProcessMahjongDetection 里调用了 huPaiArea.AddSets，那只是数据层。
-            // 我们需要把 specialTransforms 里的物体真正移动过去，或者销毁它们让 HuPaiArea 生成新的 UI。
-            // 按照您现有的逻辑 (BuildUIHand)，HuPaiArea 是根据数据重新生成 UI 的。
-            // 所以这里我们可以销毁 ALL transforms。
-            // 之前的动画只是视觉上的 "高亮然后消失"。
-
-            tetrisGrid.DestroyTransforms(allClearedTransforms);
+            logicSuccess = true;
         }
-        else
+        catch (System.Exception e)
         {
-            // 如果胡牌了，DestroyTransforms 会在 TriggerHuDeclared 之后处理
-            // 这里只需要确保动画播完了
+            Debug.LogError($"[ProcessRowsClearedRoutine] Logic Error: {e.Message}\n{e.StackTrace}");
         }
 
-        // 3. 整理网格
-        tetrisGrid.CompactAllColumns(rowIndices);
-
-        if (!_hasDeclaredHuThisFrame)
+        // ==========================================================
+        // 2. 动画阶段 (Yield等待)
+        // ==========================================================
+        if (logicSuccess)
         {
-            spawner.RefreshPreviewUI();
-            CheckAndApplyBulletTime(); // 更新速度
+            // ID检查：动画前确认
+            if (_gameExecutionId != capturedExecutionId) yield break;
+
+            if (tetrisGrid != null)
+            {
+                yield return StartCoroutine(tetrisGrid.AnimateRowsClear(allClearedTransforms, specialTransforms, settings.rowClearAnimationDuration));
+            }
         }
 
-        if (!_isBombOrSpecialClear && !_hasDeclaredHuThisFrame)
+        // ==========================================================
+        // 3. 清理与收尾 (Finally兜底)
+        // ==========================================================
+        try
         {
-            spawner.SpawnBlock();
-        }
+            // ID检查：动画后确认 (关键防止瞬移)
+            if (_gameExecutionId != capturedExecutionId) yield break;
 
-        _isBombOrSpecialClear = false;
-        if (!_hasDeclaredHuThisFrame) isProcessingRows = false;
+            if (logicSuccess)
+            {
+                if (!_hasDeclaredHuThisFrame)
+                {
+                    // 物理销毁
+                    if (!isLastStandActive && blockPool != null) blockPool.ReturnBlockIds(finalIdsToReturn);
+                    if (tetrisGrid != null) tetrisGrid.DestroyTransforms(allClearedTransforms);
+                }
+
+                // 方块下落
+                if (tetrisGrid != null) tetrisGrid.CompactAllColumns(rowIndices);
+
+                if (!_hasDeclaredHuThisFrame)
+                {
+                    if (spawner != null) spawner.RefreshPreviewUI();
+                    CheckAndApplyBulletTime();
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[ProcessRowsClearedRoutine] Cleanup Error: {e.Message}\n{e.StackTrace}");
+        }
+        finally
+        {
+            // ==========================================================
+            // 【安全气囊】
+            // 只有当 ID 匹配时，才允许操作状态，防止影响新一局游戏
+            // ==========================================================
+            if (_gameExecutionId == capturedExecutionId)
+            {
+                // 生成新方块 (除非胡牌或炸弹)
+                if (!_isBombOrSpecialClear && !_hasDeclaredHuThisFrame)
+                {
+                    if (spawner != null) spawner.SpawnBlock();
+                }
+
+                // 重置标记
+                _isBombOrSpecialClear = false;
+
+                // 解锁输入
+                if (!_hasDeclaredHuThisFrame) isProcessingRows = false;
+            }
+        }
     }
 
     // 【辅助方法】封装麻将判定

@@ -158,6 +158,7 @@ public class TetrisGrid : MonoBehaviour
 
     public void ClearAllBlocks()
     {
+        transform.DOKill(true);
         // 【新增】在清除数组前，主动查找并销毁所有带Tag的方块
         // 这可以清除上一局残留的，或者编辑器内误操作的方块
         GameObject[] blocks = GameObject.FindGameObjectsWithTag("PlayerBlock");

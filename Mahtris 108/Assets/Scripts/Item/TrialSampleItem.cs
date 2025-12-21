@@ -4,14 +4,14 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "TrialSample", menuName = "Items/Common/TrialSample")]
 public class TrialSampleItem : ItemData
 {
-    [Tooltip("下次胡牌时额外获得的T1-Dot方块数量")]
+    [Tooltip("使用后立即获得的T1-Dot方块数量")]
     public int bonusBlockCount = 2;
 
     [Tooltip("要奖励的方块的预制件名称")]
     public string blockPrefabName = "T1-Dot";
+
     public override bool Use(GameManager gameManager)
     {
-        // 【修改】调用立即生效的方法
         gameManager.ActivateBonusBlocksImmediately(blockPrefabName, bonusBlockCount);
         return true;
     }
