@@ -3,6 +3,10 @@ using UnityEngine;
 
 public abstract class ItemData : ScriptableObject
 {
+    [Header("多语言配置")]
+    public string nameKey;
+    public string descKey;
+
     public string itemName;
     public Sprite itemIcon;
     [TextArea(3, 5)]
@@ -18,5 +22,20 @@ public abstract class ItemData : ScriptableObject
 
     [Tooltip("仅传奇道具有效：显示该道具需要已解锁多少个普通道具才能看见")]
     public int unlockConditionCount = 0;
+    public string GetName()
+    {
+        if (LocalizationManager.Instance != null && !string.IsNullOrEmpty(nameKey))
+            return LocalizationManager.Instance.GetText(nameKey, itemName);
+        return itemName;
+    }
+
+    // 【新增】智能获取描述
+    public string GetDescription()
+    {
+        if (LocalizationManager.Instance != null && !string.IsNullOrEmpty(descKey))
+            return LocalizationManager.Instance.GetText(descKey, itemDescription);
+        return itemDescription;
+    }
+
     public abstract bool Use(GameManager gameManager);
 }

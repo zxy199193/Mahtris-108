@@ -8,7 +8,8 @@ public class SettingsPanelController : MonoBehaviour
     [SerializeField] private Toggle sfxToggle;
     [SerializeField] private Toggle fullscreenToggle; 
     [SerializeField] private Button closeButton;
-
+    [Header("多语言")]
+    [SerializeField] private Dropdown languageDropdown;
     void Start()
     {
         // 1. 初始化 Toggle 的显示状态 (勾选 or 不勾选)
@@ -42,6 +43,7 @@ public class SettingsPanelController : MonoBehaviour
         {
             closeButton.onClick.AddListener(ClosePanel);
         }
+        InitLanguageDropdown();
     }
 
     // 当 BGM 开关被点击时
@@ -82,5 +84,32 @@ public class SettingsPanelController : MonoBehaviour
     {
         // 隐藏自己
         gameObject.SetActive(false);
+    }
+    private void InitLanguageDropdown()
+    {
+        if (languageDropdown == null || LocalizationManager.Instance == null) return;
+
+        languageDropdown.ClearOptions();
+        // 按 Enum 顺序添加选项
+        languageDropdown.AddOptions(new System.Collections.Generic.List<string> {
+            "简体中文", "繁體中文", "English", "日本語"
+        });
+
+        // 设置当前选中的值
+        languageDropdown.value = (int)LocalizationManager.Instance.CurrentLanguage;
+
+        // 绑定事件
+        languageDropdown.onValueChanged.AddListener(OnLanguageChanged);
+    }
+
+    private void OnLanguageChanged(int index)
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.ChangeLanguage((Language)index);
+
+            // 播放音效
+            if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
+        }
     }
 }

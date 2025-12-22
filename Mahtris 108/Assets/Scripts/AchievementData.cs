@@ -44,6 +44,10 @@ public enum AchievementType
 [CreateAssetMenu(fileName = "New Achievement", menuName = "Mahjong/Achievement Data")]
 public class AchievementData : ScriptableObject
 {
+    [Header("∂‡”Ô—‘≈‰÷√")]
+    public string nameKey;
+    public string descKey;
+
     public string id;
     public string title;
     [TextArea] public string description;
@@ -54,4 +58,18 @@ public class AchievementData : ScriptableObject
     public AchievementType type;
     public int targetValue;
     public string targetString;
+
+    public string GetName()
+    {
+        if (LocalizationManager.Instance != null && !string.IsNullOrEmpty(nameKey))
+            return LocalizationManager.Instance.GetText(nameKey, title);
+        return title;
+    }
+
+    public string GetDescription()
+    {
+        if (LocalizationManager.Instance != null && !string.IsNullOrEmpty(descKey))
+            return LocalizationManager.Instance.GetText(descKey, description);
+        return description;
+    }
 }

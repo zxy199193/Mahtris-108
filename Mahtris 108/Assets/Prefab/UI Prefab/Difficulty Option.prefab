@@ -563,6 +563,7 @@ GameObject:
   - component: {fileID: 1918321845629337656}
   - component: {fileID: 7795328879274553102}
   - component: {fileID: 1657550471923582343}
+  - component: {fileID: 1205382547402927426}
   - component: {fileID: 6696258137322065728}
   m_Layer: 5
   m_Name: Text Difficulty
@@ -632,6 +633,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u65B0\u624B"
+--- !u!114 &1205382547402927426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1364141382675344925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: 
 --- !u!114 &6696258137322065728
 MonoBehaviour:
   m_ObjectHideFlags: 0

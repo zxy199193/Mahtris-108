@@ -14,7 +14,7 @@ public static class SaveManager
     private const string FullscreenKey = "Setting_IsFullscreen";
     private const string SelectedDiffKey = "Meta_SelectedDifficulty";
     private const string UnlockedDiffKey = "Meta_UnlockedDifficultyLevel";
-
+    private const string LanguageKey = "Setting_Language";
     // --- 金币存档 ---
     public static void SaveGold(int goldAmount)
     {
@@ -132,6 +132,17 @@ public static class SaveManager
     {
         PlayerPrefs.DeleteAll();
         Debug.Log("玩家存档已被清除！");
+    }
+    public static string LoadLanguage()
+    {
+        // 默认返回空，交由 LocalizationManager 判断系统语言
+        return PlayerPrefs.GetString(LanguageKey, "");
+    }
+
+    public static void SaveLanguage(string langCode)
+    {
+        PlayerPrefs.SetString(LanguageKey, langCode);
+        PlayerPrefs.Save();
     }
 #endif
 }

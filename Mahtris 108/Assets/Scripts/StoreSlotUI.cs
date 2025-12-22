@@ -72,8 +72,9 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
         if (TooltipController.Instance != null)
         {
-            string title = isItem ? itemData.itemName : protocolData.protocolName;
-            string desc = isItem ? itemData.itemDescription : protocolData.protocolDescription;
+
+            string title = isItem ? itemData.GetName() : protocolData.GetName();
+            string desc = isItem ? itemData.GetDescription() : protocolData.GetDescription();
             Sprite icon = isItem ? itemData.itemIcon : protocolData.protocolIcon;
             bool legendary = isItem ? itemData.isLegendary : protocolData.isLegendary;
 

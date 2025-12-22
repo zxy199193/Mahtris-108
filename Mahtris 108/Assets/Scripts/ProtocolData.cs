@@ -3,6 +3,10 @@ using UnityEngine;
 
 public abstract class ProtocolData : ScriptableObject
 {
+    [Header("∂‡”Ô—‘≈‰÷√")]
+    public string nameKey;
+    public string descKey;
+
     public string protocolName;
     public Sprite protocolIcon;
     [TextArea(3, 5)]
@@ -18,4 +22,17 @@ public abstract class ProtocolData : ScriptableObject
     public int unlockConditionCount = 0;
     public abstract void ApplyEffect(GameManager gameManager);
     public abstract void RemoveEffect(GameManager gameManager);
+    public string GetName()
+    {
+        if (LocalizationManager.Instance != null && !string.IsNullOrEmpty(nameKey))
+            return LocalizationManager.Instance.GetText(nameKey, protocolName);
+        return protocolName;
+    }
+
+    public string GetDescription()
+    {
+        if (LocalizationManager.Instance != null && !string.IsNullOrEmpty(descKey))
+            return LocalizationManager.Instance.GetText(descKey, protocolDescription);
+        return protocolDescription;
+    }
 }
