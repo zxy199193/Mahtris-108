@@ -197,6 +197,7 @@ GameObject:
   - component: {fileID: 3476687676823349690}
   - component: {fileID: 96423448517588305}
   - component: {fileID: 6481371783158452913}
+  - component: {fileID: 3344796444745467333}
   m_Layer: 5
   m_Name: Button Delete
   m_TagString: Untagged
@@ -305,6 +306,25 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3344796444745467333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4578772686840187321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff6616f02dcdee44c8365f5d590713ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleFactor: 0.95
+  scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
+  enableParticleEffect: 0
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!1 &4736812925109123235
 GameObject:
   m_ObjectHideFlags: 0

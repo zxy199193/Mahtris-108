@@ -72,8 +72,6 @@ public class StorePanelController : MonoBehaviour
 
     public void CloseStore()
     {
-        if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
-
         if (popupWindow != null)
         {
             // 1. ÷ª»√µØ¥∞ª¨œ¬»•
@@ -97,7 +95,6 @@ public class StorePanelController : MonoBehaviour
         showingItems = true;
         UpdateButtonStates();
         RefreshGrid();
-        if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
     }
 
     private void ShowProtocolsTab()
@@ -105,7 +102,6 @@ public class StorePanelController : MonoBehaviour
         showingItems = false;
         UpdateButtonStates();
         RefreshGrid();
-        if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
     }
 
     private void UpdateButtonStates()

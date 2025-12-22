@@ -1,6 +1,8 @@
 using UnityEngine;
+using System.Collections.Generic;
+using DG.Tweening; // 【新增】引入 DOTween 用于音乐渐变
 
-// 【保留】这个类必须存在，它是用来在 Inspector 中配置音效的容器
+// 【保留】配置容器
 [System.Serializable]
 public class SoundLibrary
 {
@@ -16,19 +18,27 @@ public class SoundLibrary
     [Header("商店音效")]
     public AudioClip buySuccess;
     public AudioClip buyFail;
-
 }
 
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
+
+    // 状态
     public bool IsBgmOn { get; private set; } = true;
     public bool IsSfxOn { get; private set; } = true;
 
-    [Header("音源")]
+    [Header("核心音源")]
     [SerializeField] private AudioSource bgmSource;
-    [SerializeField] private AudioSource sfxSource;
-    [SerializeField] private AudioSource loopSfxSource;
+    [SerializeField] private AudioSource loopSfxSource; // 用于倒计时等循环音效
+
+    [Header("音效对象池设置")]
+    [SerializeField] private int initialPoolSize = 10;
+    [SerializeField] private GameObject sfxSourcePrefab; // 可选：如果没有预制体，代码会自动生成
+
+    // 【新增】音效池：解决 PlayOneShot 共用 Pitch 导致的变调冲突
+    private List<AudioSource> sfxPool = new List<AudioSource>();
+    private GameObject poolRoot;
 
     [Header("音量控制")]
     [Range(0f, 1f)][SerializeField] private float _bgmVolume = 0.5f;
@@ -43,17 +53,16 @@ public class AudioManager : MonoBehaviour
     [Header("Audio Clips")]
     [SerializeField] private AudioClip countdownClip;
 
-    // 公开访问器
     public SoundLibrary SoundLibrary => soundLibrary;
 
-    // 【优化】使用属性来控制音量，只在数值变化时修改 AudioSource，替代 Update 轮询
+    // 属性访问器
     public float BgmVolume
     {
         get => _bgmVolume;
         set
         {
             _bgmVolume = value;
-            if (bgmSource) bgmSource.volume = _bgmVolume;
+            if (bgmSource) bgmSource.volume = IsBgmOn ? _bgmVolume : 0;
         }
     }
 
@@ -63,7 +72,11 @@ public class AudioManager : MonoBehaviour
         set
         {
             _sfxVolume = value;
-            if (sfxSource) sfxSource.volume = _sfxVolume;
+            // 更新池中所有空闲或正在播放的音源音量
+            foreach (var source in sfxPool)
+            {
+                source.volume = _sfxVolume;
+            }
         }
     }
 
@@ -73,6 +86,7 @@ public class AudioManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            InitializePool(); // 初始化对象池
         }
         else
         {
@@ -82,164 +96,229 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
-        // 初始化音量
-        if (bgmSource) bgmSource.volume = _bgmVolume;
-        if (sfxSource) sfxSource.volume = _sfxVolume;
+        // 初始化设置
+        InitAudioSettings();
 
         PlayBGM();
 
-        // 【优化】订阅事件，并添加动态音效逻辑
-        // 消除行越多，音调稍微高一点点，给予更强的反馈
-        GameEvents.OnRowsCleared += (rows) =>
-        {
-            // 基础音调 1.0，每多消一行增加 0.05，最高不超过 1.2
-            float pitch = Mathf.Clamp(1.0f + (rows.Count - 1) * 0.05f, 1.0f, 1.2f);
-            PlaySFX(soundLibrary.clearRow, pitch);
-        };
-
-        GameEvents.OnHuDeclared += (hand) => PlaySFX(soundLibrary.huSuccess);
-        InitAudioSettings();
+        // 注册事件
+        GameEvents.OnRowsCleared += OnRowsClearedHandler;
+        GameEvents.OnHuDeclared += OnHuDeclaredHandler;
     }
 
-    // 已移除 Update() 方法，节省性能
-
-    public void ApplyVolume()
+    void OnDestroy()
     {
-        if (bgmSource) bgmSource.volume = _bgmVolume;
-        if (sfxSource) sfxSource.volume = _sfxVolume;
+        // 【优化】注销事件，防止内存泄漏或报错
+        GameEvents.OnRowsCleared -= OnRowsClearedHandler;
+        GameEvents.OnHuDeclared -= OnHuDeclaredHandler;
+    }
+
+    // --- 事件处理 ---
+
+    private void OnRowsClearedHandler(List<int> rows)
+    {
+        // 动态音调：每多消一行增加 0.05
+        float pitch = Mathf.Clamp(1.0f + (rows.Count - 1) * 0.05f, 1.0f, 1.2f);
+        PlaySFX(soundLibrary.clearRow, pitch);
+    }
+
+    private void OnHuDeclaredHandler(List<List<int>> hand)
+    {
+        PlaySFX(soundLibrary.huSuccess);
+    }
+
+    // --- 对象池系统 (核心优化) ---
+
+    private void InitializePool()
+    {
+        poolRoot = new GameObject("SFX_Pool");
+        poolRoot.transform.SetParent(this.transform);
+
+        for (int i = 0; i < initialPoolSize; i++)
+        {
+            CreateNewSource();
+        }
+    }
+
+    private AudioSource CreateNewSource()
+    {
+        GameObject go = new GameObject($"SFX_Source_{sfxPool.Count}");
+        go.transform.SetParent(poolRoot.transform);
+        AudioSource source = go.AddComponent<AudioSource>();
+        source.playOnAwake = false;
+        source.spatialBlend = 0f; // 2D 声音
+        sfxPool.Add(source);
+        return source;
+    }
+
+    private AudioSource GetAvailableSource()
+    {
+        // 1. 查找空闲的 Source
+        foreach (var source in sfxPool)
+        {
+            if (!source.isPlaying) return source;
+        }
+
+        // 2. 如果没有空闲的，创建一个新的 (动态扩容)
+        return CreateNewSource();
+    }
+
+    // --- 播放控制 ---
+
+    // 【核心修改】支持独立 Pitch 的播放方法
+    public void PlaySFX(AudioClip clip, float pitch = 1.0f, float volumeScale = 1.0f)
+    {
+        if (clip == null || !IsSfxOn) return;
+
+        AudioSource source = GetAvailableSource();
+
+        source.clip = clip;
+        source.pitch = pitch;
+        source.volume = _sfxVolume * volumeScale; // 使用当前全局音效音量 * 缩放
+        source.mute = !IsSfxOn;
+        source.loop = false;
+
+        source.Play();
     }
 
     public void PlayBGM()
     {
         if (bgmSource && backgroundMusic)
         {
-            // 如果已经在播放同一首音乐，则不打断
             if (bgmSource.clip == backgroundMusic && bgmSource.isPlaying) return;
 
-            bgmSource.clip = backgroundMusic;
-            bgmSource.loop = true;
-            bgmSource.Play();
+            // 【优化】使用 DOTween 做淡入淡出
+            if (bgmSource.isPlaying)
+            {
+                // 先淡出旧音乐
+                bgmSource.DOFade(0, 0.5f).OnComplete(() => {
+                    bgmSource.clip = backgroundMusic;
+                    bgmSource.loop = true;
+                    bgmSource.Play();
+                    bgmSource.DOFade(_bgmVolume, 0.5f);
+                });
+            }
+            else
+            {
+                // 直接播放并淡入
+                bgmSource.clip = backgroundMusic;
+                bgmSource.loop = true;
+                bgmSource.volume = 0;
+                bgmSource.Play();
+                bgmSource.DOFade(_bgmVolume, 0.8f);
+            }
         }
     }
 
-    // 【新增】核心通用方法：支持指定音调 (pitch) 和音量缩放
-    public void PlaySFX(AudioClip clip, float pitch = 1.0f, float volumeScale = 1.0f)
-    {
-        if (sfxSource && clip)
-        {
-            // 临时改变音源的音调
-            sfxSource.pitch = pitch;
-            // 播放一次
-            sfxSource.PlayOneShot(clip, volumeScale);
-            // 注意：对于 PlayOneShot，音调改变会立即生效。
-            // 由于 sfxSource 是单通道共享的，为了不影响后续音效，
-            // 理想情况下最好在下一帧重置 pitch，或者我们默认所有 PlaySFX 调用者都会设置 pitch。
-            // 简单处理：如果你大部分音效都需要随机感，保持 pitch 变化其实问题不大。
-            // 为了安全起见，你也可以在这里开启一个协程在 0.1秒后把 pitch 重置回 1.0，但对该类游戏通常不需要这么严格。
-        }
-    }
+    // --- 设置与状态 ---
 
-    // --- 便捷方法 ---
-
-    public void PlayButtonClickSound() => PlaySFX(soundLibrary.buttonClick);
-
-    // 【优化】旋转音效增加随机音调，防止听觉疲劳
-    public void PlayRotateSound()
-    {
-        // 音调在 0.9 到 1.1 之间浮动
-        float randomPitch = Random.Range(0.9f, 1.1f);
-        PlaySFX(soundLibrary.tetrominoRotate, randomPitch);
-    }
-
-    // 【新增】供道具系统调用的接口
-    public void PlayItemUseSound(AudioClip specificClip)
-    {
-        // 1. 优先检查是否有特定的音效 (来自 ItemData)
-        if (specificClip != null)
-        {
-            PlaySFX(specificClip);
-        }
-        // 2. 如果特定音效为空，则检查 SoundLibrary 里有没有配置通用音效
-        else if (soundLibrary.defaultItemUse != null)
-        {
-            // 为了防止通用音效听起来太单调，我们可以加一点点音调随机 (0.95 - 1.05)
-            float randomPitch = Random.Range(0.95f, 1.05f);
-            PlaySFX(soundLibrary.defaultItemUse, randomPitch);
-        }
-        // 3. 都没有配置，则不播放，或者你可以选择播放 buttonClick 作为最后的兜底
-        else
-        {
-            // PlayButtonClickSound(); // 可选
-        }
-    }
     private void InitAudioSettings()
     {
         IsBgmOn = SaveManager.LoadBgmState();
         IsSfxOn = SaveManager.LoadSfxState();
 
-        ApplyMuteState();
+        // 应用初始状态
+        if (bgmSource) bgmSource.mute = !IsBgmOn;
+        // 池子里的音源会在播放时检查 IsSfxOn，不需要在这里逐个设置
     }
-    private void ApplyMuteState()
-    {
-        if (bgmSource) bgmSource.mute = !IsBgmOn; // 如果开启，则 mute = false
-        if (sfxSource) sfxSource.mute = !IsSfxOn;
-    }
+
     public void SetBgmOn(bool isOn)
     {
         IsBgmOn = isOn;
-        if (bgmSource) bgmSource.mute = !isOn;
+        if (bgmSource)
+        {
+            bgmSource.mute = !isOn;
+            // 如果开启，确保音量正确
+            if (isOn) bgmSource.DOFade(_bgmVolume, 0.3f);
+        }
         SaveManager.SaveBgmState(isOn);
     }
 
     public void SetSfxOn(bool isOn)
     {
         IsSfxOn = isOn;
-        if (sfxSource) sfxSource.mute = !isOn;
+        // 这里不需要遍历池子 mute，因为 PlaySFX 时会检查这个布尔值
+        // 如果想立即停止所有正在播放的音效：
+        if (!isOn)
+        {
+            foreach (var source in sfxPool) source.Stop();
+        }
+
+        if (loopSfxSource) loopSfxSource.mute = !isOn;
+
         SaveManager.SaveSfxState(isOn);
     }
+
+    // --- 便捷方法 (保持原有接口不变，方便兼容) ---
+
+    public void PlayButtonClickSound() => PlaySFX(soundLibrary.buttonClick);
     public void PlayBuySuccessSound() => PlaySFX(soundLibrary.buySuccess);
     public void PlayBuyFailSound() => PlaySFX(soundLibrary.buyFail);
 
+    public void PlayRotateSound()
+    {
+        // 旋转音效带一点随机 Pitch，增加动感
+        float randomPitch = Random.Range(0.92f, 1.08f);
+        PlaySFX(soundLibrary.tetrominoRotate, randomPitch);
+    }
+
+    public void PlayItemUseSound(AudioClip specificClip)
+    {
+        if (specificClip != null)
+        {
+            PlaySFX(specificClip);
+        }
+        else if (soundLibrary.defaultItemUse != null)
+        {
+            float randomPitch = Random.Range(0.95f, 1.05f);
+            PlaySFX(soundLibrary.defaultItemUse, randomPitch);
+        }
+    }
+
+    // --- 倒计时循环音效控制 ---
+
     public void PlayCountdownSound()
     {
+        if (!IsSfxOn) return; // 检查开关
+
         if (loopSfxSource != null && countdownClip != null)
         {
-            // 如果已经在播放了，就不要重新开始 (防止鬼畜)
-            if (loopSfxSource.isPlaying && loopSfxSource.clip == countdownClip)
-                return;
+            if (loopSfxSource.isPlaying && loopSfxSource.clip == countdownClip) return;
 
             loopSfxSource.clip = countdownClip;
-            loopSfxSource.loop = true; // 设置为循环
+            loopSfxSource.loop = true;
+            loopSfxSource.volume = _sfxVolume;
             loopSfxSource.Play();
+
+            // 淡入效果
+            loopSfxSource.volume = 0;
+            loopSfxSource.DOFade(_sfxVolume, 0.5f);
         }
     }
 
-    // 【新增】停止倒计时音效
     public void StopCountdownSound()
     {
-        if (loopSfxSource != null && loopSfxSource.isPlaying)
+        if (loopSfxSource != null && loopSfxSource.isPlaying && loopSfxSource.clip == countdownClip)
         {
-            // 只有当前播放的是倒计时音效才停止 (防止误停其他循环音效)
-            if (loopSfxSource.clip == countdownClip)
-            {
+            // 淡出后停止
+            loopSfxSource.DOFade(0, 0.3f).OnComplete(() => {
                 loopSfxSource.Stop();
-                loopSfxSource.clip = null; // 清空引用
-            }
+                loopSfxSource.clip = null;
+            });
         }
     }
-    // 【新增】暂停倒计时音效
+
     public void PauseCountdownSound()
     {
-        if (loopSfxSource != null && loopSfxSource.isPlaying && loopSfxSource.clip == countdownClip)
+        if (loopSfxSource != null && loopSfxSource.isPlaying)
         {
             loopSfxSource.Pause();
         }
     }
 
-    // 【新增】恢复倒计时音效
     public void ResumeCountdownSound()
     {
-        if (loopSfxSource != null && loopSfxSource.clip == countdownClip)
+        if (loopSfxSource != null && !loopSfxSource.isPlaying && loopSfxSource.clip == countdownClip)
         {
             loopSfxSource.UnPause();
         }

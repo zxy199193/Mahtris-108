@@ -119,8 +119,6 @@ public class MainMenuController : MonoBehaviour
     // 【新增方法】
     public void QuitGame()
     {
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayButtonClickSound();
-
         Application.Quit();
 
         // 这行代码仅在Unity编辑器中运行时有效，用于方便测试
@@ -201,8 +199,6 @@ public class MainMenuController : MonoBehaviour
     // 【新增】用于关闭弹窗
     public void CloseDifficultyPopup()
     {
-        if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
-
         if (difficultyPopupWindow != null)
         {
             // 1. 动画：滑到屏幕下方

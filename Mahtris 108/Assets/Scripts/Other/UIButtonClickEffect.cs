@@ -30,7 +30,7 @@ public class UIButtonClickEffect : MonoBehaviour, IPointerDownHandler, IPointerU
     void Update()
     {
         // Æ½»¬Ëõ·Å
-        transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * scaleSpeed);
+        transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.unscaledDeltaTime * scaleSpeed);
     }
 
     public void OnPointerDown(PointerEventData eventData)

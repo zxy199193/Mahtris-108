@@ -1454,8 +1454,6 @@ public class GameUIController : MonoBehaviour
             PopulateRewardSlots(_currentRewardPackage);
             RestoreSelections();
             UpdateRefreshCostUI();
-
-            if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
         }
         else
         {

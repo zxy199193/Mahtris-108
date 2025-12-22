@@ -234,6 +234,7 @@ GameObject:
   - component: {fileID: 6313394642781307396}
   - component: {fileID: 1234009786254354647}
   - component: {fileID: 8456464542785014975}
+  - component: {fileID: 5998507135802028562}
   m_Layer: 5
   m_Name: Button Unlock
   m_TagString: Untagged
@@ -343,6 +344,25 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5998507135802028562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1415092086902702181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff6616f02dcdee44c8365f5d590713ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleFactor: 0.95
+  scaleSpeed: 20
+  enableSound: 1
+  customSound: {fileID: 8300000, guid: 0616fa99755b5d749a3c02933e55f9d5, type: 3}
+  enableParticleEffect: 0
+  particlePrefab: {fileID: 0}
+  parentCanvas: {fileID: 0}
 --- !u!1 &1871353509134560418
 GameObject:
   m_ObjectHideFlags: 0
