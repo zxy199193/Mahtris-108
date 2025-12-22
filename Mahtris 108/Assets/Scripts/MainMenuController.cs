@@ -8,6 +8,7 @@ public class MainMenuController : MonoBehaviour
 {
     [Header("UI引用")]
     [SerializeField] private Text goldText;
+    [SerializeField] private GameObject goldBarPanel;
     [SerializeField] private Text highScoreText; // 新增
     [SerializeField] private GameObject difficultyPopupPanel; // 【新增】拖入你的难度选择弹窗面板
     [SerializeField] private RectTransform difficultyPopupWindow;
@@ -57,9 +58,15 @@ public class MainMenuController : MonoBehaviour
         {
             openStoreButton.onClick.AddListener(() =>
             {
+                HighlightTarget(goldBarPanel, true);
                 // 如果你有点击音效，可以在这里播，或者让 UIButtonClickEffect 处理
                 storePanel.OpenStore();
             });
+            storePanel.OnStoreClosed += () =>
+            {
+                // 商店关完后，把金币栏放回去
+                HighlightTarget(goldBarPanel, false);
+            };
         }
         openIntroButton.onClick.AddListener(() =>
         {
@@ -264,6 +271,33 @@ public class MainMenuController : MonoBehaviour
                 // 可选：你甚至可以改变文字颜色来增加对比度
                 // btnText.color = isSelected ? Color.white : Color.black; 
             }
+        }
+    }
+    private void HighlightTarget(GameObject target, bool highlight)
+    {
+        if (target == null) return;
+
+        if (highlight)
+        {
+            // 动态添加 Canvas
+            Canvas canvas = target.GetComponent<Canvas>();
+            if (canvas == null) canvas = target.AddComponent<Canvas>();
+
+            canvas.overrideSorting = true;
+            // 设置一个很高的层级，确保在商店遮罩之上 (商店遮罩通常在默认层级)
+            canvas.sortingOrder = 3000;
+
+            // 需要 Raycaster 才能响应点击（虽然金币栏通常不需要点击，但加上比较保险）
+            if (target.GetComponent<GraphicRaycaster>() == null) target.AddComponent<GraphicRaycaster>();
+        }
+        else
+        {
+            // 移除组件，恢复原状
+            GraphicRaycaster gr = target.GetComponent<GraphicRaycaster>();
+            if (gr != null) Destroy(gr);
+
+            Canvas canvas = target.GetComponent<Canvas>();
+            if (canvas != null) Destroy(canvas);
         }
     }
 }

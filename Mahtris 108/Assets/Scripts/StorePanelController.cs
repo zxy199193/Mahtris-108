@@ -25,7 +25,6 @@ public class StorePanelController : MonoBehaviour
 
     [Header("通用")]
     [SerializeField] private Button closeButton;
-    [SerializeField] private Text currentGoldText;
 
     [Header("动画对象")]
     [SerializeField] private RectTransform popupWindow;
@@ -33,6 +32,7 @@ public class StorePanelController : MonoBehaviour
     [Header("核心配置 (必须拖入)")]
     [SerializeField] private GameSettings settings;
     private bool showingItems = true; // 当前是否显示道具页签
+    public System.Action OnStoreClosed;
 
     void Start()
     {
@@ -67,8 +67,6 @@ public class StorePanelController : MonoBehaviour
             // 3. 只对弹窗执行滑入动画
             popupWindow.DOLocalMove(Vector2.zero, 0.4f).SetEase(Ease.OutBack).SetUpdate(true);
         }
-
-        UpdateGoldDisplay();
         ShowItemsTab();
     }
 
@@ -83,20 +81,14 @@ public class StorePanelController : MonoBehaviour
             {
                 // 2. 动画结束后，再把整个根节点（包括遮罩）关掉
                 gameObject.SetActive(false);
+                OnStoreClosed?.Invoke();
             });
         }
         else
         {
             // 如果忘了拖引用，直接关闭
             gameObject.SetActive(false);
-        }
-    }
-
-    private void UpdateGoldDisplay()
-    {
-        if (currentGoldText && GameSession.Instance)
-        {
-            currentGoldText.text = GameSession.Instance.CurrentGold.ToString();
+            OnStoreClosed?.Invoke();
         }
     }
 
@@ -213,7 +205,6 @@ public class StorePanelController : MonoBehaviour
         {
             // 购买成功
             GameSession.Instance.AddGold(-price); // 扣钱
-            UpdateGoldDisplay();
 
             if (slot.IsItem())
             {
