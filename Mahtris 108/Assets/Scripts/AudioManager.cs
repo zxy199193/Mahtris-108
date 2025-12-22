@@ -1,6 +1,7 @@
-using UnityEngine;
 using System.Collections.Generic;
 using DG.Tweening; // 【新增】引入 DOTween 用于音乐渐变
+using UnityEngine;
+using System.Collections;
 
 // 【保留】配置容器
 [System.Serializable]
@@ -45,7 +46,12 @@ public class AudioManager : MonoBehaviour
     [Range(0f, 1f)][SerializeField] private float _sfxVolume = 1.0f;
 
     [Header("背景音乐")]
-    [SerializeField] private AudioClip backgroundMusic;
+    [Header("背景音乐配置 (BGM)")]
+    [SerializeField] private AudioClip mainMenuBgm;   // 主菜单音乐
+    [SerializeField] private AudioClip easyGameBgm;   // 游戏音乐 - 新手
+    [SerializeField] private AudioClip normalGameBgm; // 游戏音乐 - 专家
+    [SerializeField] private AudioClip hardGameBgm;   // 游戏音乐 - 大师
+    [SerializeField] private float bgmRestDuration = 20f;
 
     [Header("音效库")]
     [SerializeField] private SoundLibrary soundLibrary;
@@ -54,6 +60,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip countdownClip;
 
     public SoundLibrary SoundLibrary => soundLibrary;
+    private Coroutine bgmCoroutine;
 
     // 属性访问器
     public float BgmVolume
@@ -99,7 +106,10 @@ public class AudioManager : MonoBehaviour
         // 初始化设置
         InitAudioSettings();
 
-        PlayBGM();
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayMainMenuBGM();
+        }
 
         // 注册事件
         GameEvents.OnRowsCleared += OnRowsClearedHandler;
@@ -181,35 +191,107 @@ public class AudioManager : MonoBehaviour
         source.Play();
     }
 
-    public void PlayBGM()
+    // 1. 播放主菜单音乐
+    public void PlayMainMenuBGM()
     {
-        if (bgmSource && backgroundMusic)
-        {
-            if (bgmSource.clip == backgroundMusic && bgmSource.isPlaying) return;
-
-            // 【优化】使用 DOTween 做淡入淡出
-            if (bgmSource.isPlaying)
-            {
-                // 先淡出旧音乐
-                bgmSource.DOFade(0, 0.5f).OnComplete(() => {
-                    bgmSource.clip = backgroundMusic;
-                    bgmSource.loop = true;
-                    bgmSource.Play();
-                    bgmSource.DOFade(_bgmVolume, 0.5f);
-                });
-            }
-            else
-            {
-                // 直接播放并淡入
-                bgmSource.clip = backgroundMusic;
-                bgmSource.loop = true;
-                bgmSource.volume = 0;
-                bgmSource.Play();
-                bgmSource.DOFade(_bgmVolume, 0.8f);
-            }
-        }
+        PlayBGM(mainMenuBgm);
     }
 
+    // 2. 根据难度播放游戏内音乐
+    public void PlayGameBGM(Difficulty difficulty)
+    {
+        AudioClip clipToPlay = null;
+
+        switch (difficulty)
+        {
+            case Difficulty.Easy:
+                clipToPlay = easyGameBgm;
+                break;
+            case Difficulty.Normal:
+                clipToPlay = normalGameBgm;
+                break;
+            case Difficulty.Hard:
+                clipToPlay = hardGameBgm;
+                break;
+            default:
+                clipToPlay = normalGameBgm; // 默认
+                break;
+        }
+
+        PlayBGM(clipToPlay);
+    }
+
+    // =========================================================
+    // 核心 BGM 播放逻辑 (保持你现有的淡入淡出逻辑)
+    // =========================================================
+    private void PlayBGM(AudioClip clip)
+    {
+        if (bgmSource == null || clip == null) return;
+
+        // 特殊情况：如果请求播放的是当前这首，且正在播放中，则忽略
+        // (如果当前是在休息期，isPlaying为false，则会继续执行下面逻辑，重新唤醒音乐，符合预期)
+        if (bgmSource.clip == clip && bgmSource.isPlaying) return;
+
+        // 1. 停止上一次的循环协程 (防止多重循环)
+        if (bgmCoroutine != null) StopCoroutine(bgmCoroutine);
+
+        // 2. 关闭 AudioSource 自带的循环 (我们要手动控制)
+        bgmSource.loop = false;
+
+        // 3. 杀掉旧的淡入淡出动画
+        bgmSource.DOKill();
+
+        // 定义播放开始的逻辑 (封装成 Action 方便复用)
+        System.Action onPlayStart = () =>
+        {
+            bgmSource.clip = clip;
+            bgmSource.Play();
+
+            // 启动新的循环管理协程
+            bgmCoroutine = StartCoroutine(BgmLoopRoutine(clip));
+        };
+
+        // 4. 执行切换逻辑 (淡出旧的 -> 播放新的)
+        if (bgmSource.isPlaying)
+        {
+            bgmSource.DOFade(0, 0.5f).OnComplete(() => {
+                onPlayStart();
+                if (IsBgmOn) bgmSource.DOFade(_bgmVolume, 0.5f);
+            });
+        }
+        else
+        {
+            // 如果本来就是静音或没在播，直接开始
+            bgmSource.volume = 0;
+            onPlayStart();
+            if (IsBgmOn) bgmSource.DOFade(_bgmVolume, 0.8f);
+        }
+    }
+    private IEnumerator BgmLoopRoutine(AudioClip clip)
+    {
+        // 1. 等待第一遍播放结束
+        // 使用 WaitForSecondsRealtime 确保不受 Time.timeScale 影响 (暂停时音乐时间依然在流逝)
+        // 如果你希望游戏暂停时音乐倒计时也暂停，请改用 WaitForSeconds
+        yield return new WaitForSecondsRealtime(clip.length);
+
+        while (true)
+        {
+            // 2. 进入休息期 (Rest)
+            // 在这段时间内，bgmSource.isPlaying 会自然变为 false
+            yield return new WaitForSecondsRealtime(bgmRestDuration);
+
+            // 3. 检查开关 (防止休息期间玩家关了音乐，结果突然响了)
+            if (IsBgmOn)
+            {
+                bgmSource.Play();
+                // 确保音量正确 (防止意外变动)
+                bgmSource.volume = _bgmVolume;
+            }
+
+            // 4. 等待这一遍播放结束
+            yield return new WaitForSecondsRealtime(clip.length);
+        }
+    }
     // --- 设置与状态 ---
 
     private void InitAudioSettings()
@@ -225,13 +307,27 @@ public class AudioManager : MonoBehaviour
     public void SetBgmOn(bool isOn)
     {
         IsBgmOn = isOn;
-        if (bgmSource)
-        {
-            bgmSource.mute = !isOn;
-            // 如果开启，确保音量正确
-            if (isOn) bgmSource.DOFade(_bgmVolume, 0.3f);
-        }
         SaveManager.SaveBgmState(isOn);
+
+        if (isOn)
+        {
+            // 开启：取消静音，并淡入
+            bgmSource.mute = false;
+            bgmSource.DOFade(_bgmVolume, 0.3f);
+
+            // 如果当前处于“休息期”(没在播)，且协程还在运行，我们不需要强制 Play，
+            // 让它等到休息结束自然播放即可。
+            // 但如果协程没了(比如刚启动)，可能需要重启 PlayBGM。
+            // 这里通常不需要大改，因为 PlayBGM 里的协程在一直在跑。
+
+            // 唯一的边缘情况：如果玩家在休息期关了BGM又开了BGM，
+            // 协程会继续跑，等时间到了自然会响，符合预期。
+        }
+        else
+        {
+            // 关闭：静音 (不停止协程，保持节奏，只是听不见了)
+            bgmSource.mute = true;
+        }
     }
 
     public void SetSfxOn(bool isOn)

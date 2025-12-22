@@ -42,6 +42,10 @@ public class MainMenuController : MonoBehaviour
     void Start()
     {
         // 游戏开始时，尝试找到GameSession并更新金币显示
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayMainMenuBGM();
+        }
         UpdateGoldText();
         // 同时读取并显示最高分
         UpdateHighScoreText();

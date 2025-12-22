@@ -200,7 +200,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Start() { StartNewGame(); }
+    void Start()
+    {
+        // 【新增】根据当前难度播放对应的游戏 BGM
+        if (AudioManager.Instance != null && DifficultyManager.Instance != null)
+        {
+            AudioManager.Instance.PlayGameBGM(DifficultyManager.Instance.CurrentDifficulty);
+        }
+
+        StartNewGame();
+    }
 
     void Update()
     {
