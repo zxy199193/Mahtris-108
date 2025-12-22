@@ -1246,7 +1246,11 @@ MonoBehaviour:
   sfxSourcePrefab: {fileID: 0}
   _bgmVolume: 0.5
   _sfxVolume: 1
-  backgroundMusic: {fileID: 8300000, guid: f95963f5381e91849a80107edf412d8e, type: 3}
+  mainMenuBgm: {fileID: 0}
+  easyGameBgm: {fileID: 0}
+  normalGameBgm: {fileID: 0}
+  hardGameBgm: {fileID: 0}
+  bgmRestDuration: 20
   soundLibrary:
     buttonClick: {fileID: 8300000, guid: 8e96702acb242fb4ca103f93b6132044, type: 3}
     tetrominoRotate: {fileID: 8300000, guid: 3c8365741b85d4240814673ecb93d452, type: 3}
