@@ -49,6 +49,7 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         switch (status)
         {
             case SlotStatus.Unlocked:
+                if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(priceText);
                 break;
 
             case SlotStatus.Locked:
@@ -56,11 +57,13 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
                 if (buyButton != null) buyButton.gameObject.SetActive(true);
                 priceText.text = price.ToString();
                 buyButton.onClick.AddListener(() => controller.TryBuy(this));
+                if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(priceText);
                 break;
 
             case SlotStatus.Hidden:
                 hiddenOverlay.SetActive(true);
                 unlockConditionText.text = $"解锁 {conditionCount} 个{typeName}后显示";
+                if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(unlockConditionText);
                 break;
         }
     }

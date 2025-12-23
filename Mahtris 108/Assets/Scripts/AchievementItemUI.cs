@@ -13,12 +13,24 @@ public class AchievementItemUI : MonoBehaviour
     public void Setup(AchievementData data, bool isUnlocked)
     {
         if (iconImage) iconImage.sprite = data.icon;
-        if (titleText) titleText.text = data.title;
-        if (descText) descText.text = data.description;
-        if (rewardText) rewardText.text = $"½±Àø: {data.rewardGold}";
+        if (titleText)
+        {
+            titleText.text = data.title;
+            if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(titleText);
+        }
+        if (descText)
+        {
+            descText.text = data.description;
+            if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(descText);
+        }
+        if (rewardText)
+        {
+            rewardText.text = $"½±Àø: {data.rewardGold}";
+            if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(rewardText);
+        }
 
-        // ×´Ì¬ÏÔÊ¾
-        if (unlockedBadge) unlockedBadge.SetActive(isUnlocked);
+            // ×´Ì¬ÏÔÊ¾
+            if (unlockedBadge) unlockedBadge.SetActive(isUnlocked);
         if (lockedOverlay) lockedOverlay.SetActive(!isUnlocked);
     }
 }

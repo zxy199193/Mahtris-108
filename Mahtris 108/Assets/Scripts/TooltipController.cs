@@ -40,7 +40,12 @@ public class TooltipController : MonoBehaviour
         if (iconImage) iconImage.sprite = icon;
         if (backgroundImage && bgSprite) backgroundImage.sprite = bgSprite;
         if (legendaryIcon) legendaryIcon.SetActive(isLegendary);
-
+        if (LocalizationManager.Instance)
+        {
+            LocalizationManager.Instance.UpdateFont(titleText);
+            LocalizationManager.Instance.UpdateFont(descriptionText);
+            LocalizationManager.Instance.UpdateFont(typeLabelText);
+        }
         // ¸üÐÂ±êÇ©
         UpdateTypeLabel(type);
 
