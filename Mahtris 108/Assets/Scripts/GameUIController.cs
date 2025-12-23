@@ -633,7 +633,39 @@ public class GameUIController : MonoBehaviour
         int patternFanOnly = analysis.TotalFan - kongFanTotal; // 牌型番 = 总番 - 杠番
 
         // 4. 更新 UI 文本
-        if (patternNameText) patternNameText.text = analysis.PatternName; // 只显示名字
+        if (patternNameText)
+        {
+            // 【修改】解析并翻译牌型名称
+            if (!string.IsNullOrEmpty(analysis.PatternName))
+            {
+                // 1. 拆分 Key (MahjongCore 里用 " · " 连接)
+                string[] keys = analysis.PatternName.Split(new string[] { " · " }, System.StringSplitOptions.RemoveEmptyEntries);
+
+                // 2. 逐个翻译
+                List<string> translatedNames = new List<string>();
+                foreach (var key in keys)
+                {
+                    if (LocalizationManager.Instance)
+                    {
+                        translatedNames.Add(LocalizationManager.Instance.GetText(key));
+                    }
+                    else
+                    {
+                        translatedNames.Add(key); // 兜底
+                    }
+                }
+
+                // 3. 重新拼接 (这里用空格分隔，或者你可以用 "+" 号)
+                patternNameText.text = string.Join("  ", translatedNames);
+
+                // 4. 【重要】刷新字体
+                if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(patternNameText);
+            }
+            else
+            {
+                patternNameText.text = "";
+            }
+        }
         if (patternFanText) patternFanText.text = patternFanOnly.ToString(); // 只显示数字
 
         if (kongInfoGroup != null)

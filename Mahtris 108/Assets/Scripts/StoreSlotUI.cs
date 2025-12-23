@@ -26,7 +26,15 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         isItem = true;
         controller = ctrl;
         iconImage.sprite = data.itemIcon;
-        SetupStatus(status, data.price, data.isLegendary, data.unlockConditionCount, "道具");
+
+        // 【修改】获取 "道具" 的多语言文本 (Key: ITEM_PROTOCOL_ITEM)
+        string typeName = "道具";
+        if (LocalizationManager.Instance)
+        {
+            typeName = LocalizationManager.Instance.GetText("ITEM_PROTOCOL_ITEM");
+        }
+
+        SetupStatus(status, data.price, data.isLegendary, data.unlockConditionCount, typeName);
     }
 
     public void SetupProtocol(ProtocolData data, SlotStatus status, StorePanelController ctrl)
@@ -35,35 +43,68 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         isItem = false;
         controller = ctrl;
         iconImage.sprite = data.protocolIcon;
-        SetupStatus(status, data.price, data.isLegendary, data.unlockConditionCount, "条约");
+
+        // 【修改】获取 "条约" 的多语言文本 (Key: ITEM_PROTOCOL_PROTOCOL)
+        string typeName = "条约";
+        if (LocalizationManager.Instance)
+        {
+            typeName = LocalizationManager.Instance.GetText("ITEM_PROTOCOL_PROTOCOL");
+        }
+
+        SetupStatus(status, data.price, data.isLegendary, data.unlockConditionCount, typeName);
     }
 
     private void SetupStatus(SlotStatus status, int price, bool isLegendary, int conditionCount, string typeName)
     {
-        lockedOverlay.SetActive(false);
-        hiddenOverlay.SetActive(false);
+        // 1. 初始化通用状态 (保持你的原始逻辑)
+        if (lockedOverlay) lockedOverlay.SetActive(false);
+        if (hiddenOverlay) hiddenOverlay.SetActive(false);
 
         if (buyButton != null) buyButton.gameObject.SetActive(false);
-        buyButton.onClick.RemoveAllListeners();
+        if (buyButton) buyButton.onClick.RemoveAllListeners();
 
         switch (status)
         {
             case SlotStatus.Unlocked:
-                if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(priceText);
+                // 你的逻辑：解锁状态只刷新字体（可能显示的是"已拥有"或者不显示价格）
+                if (priceText && LocalizationManager.Instance)
+                    LocalizationManager.Instance.UpdateFont(priceText);
                 break;
 
             case SlotStatus.Locked:
-                lockedOverlay.SetActive(true);
+                // 你的逻辑：锁定状态显示遮罩和购买按钮
+                if (lockedOverlay) lockedOverlay.SetActive(true);
                 if (buyButton != null) buyButton.gameObject.SetActive(true);
-                priceText.text = price.ToString();
-                buyButton.onClick.AddListener(() => controller.TryBuy(this));
-                if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(priceText);
+
+                if (priceText)
+                {
+                    priceText.text = price.ToString();
+                    // 【新增】刷新字体
+                    if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(priceText);
+                }
+
+                // 重新绑定购买事件
+                if (buyButton) buyButton.onClick.AddListener(() => controller.TryBuy(this));
                 break;
 
             case SlotStatus.Hidden:
-                hiddenOverlay.SetActive(true);
-                unlockConditionText.text = $"解锁 {conditionCount} 个{typeName}后显示";
-                if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(unlockConditionText);
+                if (hiddenOverlay) hiddenOverlay.SetActive(true);
+
+                if (unlockConditionText)
+                {
+                    // 【修改】使用多语言格式化
+                    // 原始: $"解锁 {conditionCount} 个{typeName}后显示";
+                    string format = "解锁 {0} 个{1}后显示";
+                    if (LocalizationManager.Instance)
+                    {
+                        format = LocalizationManager.Instance.GetText("ITEM_PROTOCOL_UNLOCK_CONDITION");
+                    }
+
+                    unlockConditionText.text = string.Format(format, conditionCount, typeName);
+
+                    // 【新增】刷新字体
+                    if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(unlockConditionText);
+                }
                 break;
         }
     }

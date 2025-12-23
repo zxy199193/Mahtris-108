@@ -3,6 +3,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections;
 
 public class MainMenuController : MonoBehaviour
 {
@@ -47,7 +48,10 @@ public class MainMenuController : MonoBehaviour
             AudioManager.Instance.PlayMainMenuBGM();
         }
         UpdateGoldText();
-        // 同时读取并显示最高分
+        if (DifficultyManager.Instance != null)
+        {
+            InitDifficultyUI();
+        }
         UpdateHighScoreText();
         bool savedFullscreenState = SaveManager.LoadFullscreenState();
         if (Screen.fullScreen != savedFullscreenState)
@@ -77,12 +81,20 @@ public class MainMenuController : MonoBehaviour
             introPanel.Open();
         });
         if (achievementButton) achievementButton.onClick.AddListener(() => achievementPopup.ShowPopup());
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.OnLanguageChanged += OnLanguageChanged;
+        }
     }
 
     void OnDestroy()
     {
         // 场景销毁时取消订阅，防止内存泄漏
         GameSession.OnGoldChanged -= UpdateGoldText;
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.OnLanguageChanged -= OnLanguageChanged;
+        }
     }
 
     private void UpdateGoldText(int newGoldAmount)
@@ -226,20 +238,27 @@ public class MainMenuController : MonoBehaviour
     {
         if (currentDifficultyText != null)
         {
+            string key = "";
             switch (difficulty)
             {
                 case Difficulty.Easy:
-                    currentDifficultyText.text = "新手";
+                    key = "DIFFICULTY_EASY";
                     break;
                 case Difficulty.Hard:
-                    currentDifficultyText.text = "大师";
+                    key = "DIFFICULTY_HARD";
                     break;
                 case Difficulty.Normal:
                 default:
-                    currentDifficultyText.text = "专家";
+                    key = "DIFFICULTY_NORMAL";
                     break;
             }
+            if (LocalizationManager.Instance)
+            {
+                currentDifficultyText.text = LocalizationManager.Instance.GetText(key);
+                LocalizationManager.Instance.UpdateFont(currentDifficultyText);
+            }
         }
+        
     }
     private void UpdateButtonVisuals(Difficulty selected)
     {
@@ -261,15 +280,32 @@ public class MainMenuController : MonoBehaviour
                 img.color = isSelected ? selectedColor : unselectedColor;
             }
 
-            // 2. 修改按钮文本
-            // GetComponentInChildren 会自动找到按钮子物体下的 Text 组件
+            // 2. 修改按钮文本 (修复冲突)
             Text btnText = btn.GetComponentInChildren<Text>();
             if (btnText != null)
             {
-                btnText.text = isSelected ? "已选择" : "选择";
+                // 尝试获取挂在上面的自动多语言组件
+                LocalizedText locText = btnText.GetComponent<LocalizedText>();
 
-                // 可选：你甚至可以改变文字颜色来增加对比度
-                // btnText.color = isSelected ? Color.white : Color.black; 
+                // 决定要用的 Key
+                string targetKey = isSelected ? "DIFFICULTY_SELECTED" : "DIFFICULTY_SELECT";
+
+                if (locText != null)
+                {
+                    // 【关键】必须用 SetKey！
+                    // 这样 LocalizedText 就会记住这个 Key，
+                    // 下次切语言时，它会自动用这个 Key 去翻译，而不是用 Inspector 里的默认值。
+                    locText.SetKey(targetKey);
+                }
+                else
+                {
+                    // 没挂组件的兜底逻辑
+                    if (LocalizationManager.Instance)
+                    {
+                        btnText.text = LocalizationManager.Instance.GetText(targetKey);
+                        LocalizationManager.Instance.UpdateFont(btnText);
+                    }
+                }
             }
         }
     }
@@ -299,5 +335,36 @@ public class MainMenuController : MonoBehaviour
             Canvas canvas = target.GetComponent<Canvas>();
             if (canvas != null) Destroy(canvas);
         }
+    }
+    private void OnLanguageChanged()
+    {
+        // 重新刷新一下难度按钮的显示状态（为了更新 选择/已选择 的文本）
+        if (DifficultyManager.Instance != null)
+        {
+            UpdateButtonVisuals(DifficultyManager.Instance.CurrentDifficulty);
+            UpdateDifficultyText(DifficultyManager.Instance.CurrentDifficulty);
+        }
+
+        // 强制刷新整个界面的布局（解决重叠问题）
+        StartCoroutine(ForceRefreshAllLayouts());
+    }
+    private IEnumerator ForceRefreshAllLayouts()
+    {
+        // 等待一帧，让文字先更新完
+        yield return null;
+
+        // 刷新难度弹窗的布局
+        if (difficultyPopupPanel != null)
+        {
+            // 递归刷新弹窗下的所有 LayoutGroup
+            LayoutGroup[] groups = difficultyPopupPanel.GetComponentsInChildren<LayoutGroup>(true);
+            foreach (var group in groups)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(group.GetComponent<RectTransform>());
+            }
+        }
+
+        // 如果还有其他这就重叠的地方，也可以在这里加
+        // LayoutRebuilder.ForceRebuildLayoutImmediate(someOtherRect);
     }
 }

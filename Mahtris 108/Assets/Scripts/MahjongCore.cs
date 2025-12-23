@@ -13,7 +13,7 @@ public class DetectionResult
 
 public class HandAnalysisResult
 {
-    public string PatternName { get; set; } = "未知牌型";
+    public string PatternName { get; set; } = "HU_TYPE_UNKNOWN";
     public int TotalFan { get; set; } = 0;
     public float BaseMultiplier { get; set; } = 2f;
     public float FanMultiplier => Mathf.Pow(BaseMultiplier, TotalFan);
@@ -226,26 +226,26 @@ public class MahjongCore
         if (isTianHu)
         {
             totalFan += 6;
-            activePatterns.Add("天胡");
+            activePatterns.Add("HU_TYPE_TIAN");
         }
         else if (isDiHu)
         {
             totalFan += 4;
-            activePatterns.Add("地胡");
+            activePatterns.Add("HU_TYPE_DI");
         }
 
         // (2) 清一色 (5番)
         if (isQingYiSe)
         {
             totalFan += 5;
-            activePatterns.Add("清一色");
+            activePatterns.Add("HU_TYPE_QINGYISE");
         }
 
         // (3) 对对 (3番)
         if (isDuiDuiHu)
         {
             totalFan += 3;
-            activePatterns.Add("对对");
+            activePatterns.Add("HU_TYPE_DUIDUI");
         }
 
         // (4) 老头 (3番)
@@ -253,21 +253,21 @@ public class MahjongCore
         if (isLaoTou)
         {
             totalFan += 3;
-            activePatterns.Add("老头");
+            activePatterns.Add("HU_TYPE_LAOTOU");
         }
 
         // (5) 一气通贯 (4番)
         if (isIttsu)
         {
             totalFan += 4;
-            activePatterns.Add("一气通贯");
+            activePatterns.Add("HU_TYPE_YIQITONGGUAN");
         }
 
         // (6) 三色同顺 (4番)
         if (isSanSe)
         {
             totalFan += 4;
-            activePatterns.Add("三色同顺");
+            activePatterns.Add("HU_TYPE_SANSETONGSHUN");
         }
 
         // (7) 平胡 (1番)
@@ -275,7 +275,7 @@ public class MahjongCore
         if (totalFan == 0)
         {
             totalFan = 1;
-            activePatterns.Add("平胡");
+            activePatterns.Add("HU_TYPE_PING");
         }
 
         // ----------------------------------------------------

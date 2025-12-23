@@ -219,9 +219,12 @@ public class StorePanelController : MonoBehaviour
         }
         else
         {
-            // 余额不足
             if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
-            ShowToast("金币不足！");
+
+            if (LocalizationManager.Instance)
+            {
+                ShowToast(LocalizationManager.Instance.GetText("ITEM_PROTOCOL_LACK_GOLD"));
+            }
         }
     }
 
@@ -231,6 +234,10 @@ public class StorePanelController : MonoBehaviour
 
         toastCanvasGroup.DOKill();
         toastText.text = message;
+        if (LocalizationManager.Instance)
+        {
+            LocalizationManager.Instance.UpdateFont(toastText);
+        }
         toastCanvasGroup.alpha = 1;
 
         // 显示 0.8s 后，用 0.4s 淡出

@@ -25,6 +25,8 @@ DIFFICULTY_HARD_CONDITION,通关一局【专家】难度游戏即可解锁,通�
 ITEM_PROTOCOL_TITLE,道具 · 条约,道具 · 條約,ITEM & PROTOCOL,アイテム・条約
 ITEM_PROTOCOL_ITEM,道具,道具,ITEM,アイテム
 ITEM_PROTOCOL_PROTOCOL,条约,條約,PROTOCOL,条約
+ITEM_PROTOCOL_LACK_GOLD,金币不足,金幣不足,Not enough coins,コイン不足
+ITEM_PROTOCOL_UNLOCK_CONDITION,解锁{0}个{1}后显示,解鎖 {0} 個 {1} 後顯示,Revealed when {0} {1} unlocked,{0}個の{1}をアンロックで表示
 ACHIEVEMENT_ACHIEVEMENT,成就,成就,ACHIEVEMENT,実績
 INTRODUCTION_TITLE,说明,說明,GUIDE,ヘルプ
 INTRODUCTION_INTRODUCTION,游戏说明,遊戲說明,HOW TO PLAY,遊び方
@@ -71,3 +73,12 @@ TIP_ADVANCED_ITEM,高级道具,高級道具,ADVANCED ITEM,高級アイテム
 TIP_PROTOCOL,条约,條約,PROTOCOL,条約
 ITEM_BOMB_NAME,炸弹,炸彈,BOMB,爆弾
 ITEM_BOMB_DES,强行消除底下2行方块,強行消除底下2行方塊,Force clear bottom 2 lines,最下段の2列を強制消去する
+HU_TYPE_TIAN,天胡,天胡,Heavenly Hand,天和
+HU_TYPE_DI,地胡,地胡,Earthly Hand,地和
+HU_TYPE_QINGYISE,清一色,清一色,Full Flush,清一色
+HU_TYPE_DUIDUI,对对,對對,All Triplets,対々
+HU_TYPE_LAOTOU,老头,老頭,All Terminals,老頭
+HU_TYPE_YIQITONGGUAN,一气通贯,一氣通貫,Pure Straight,一気通貫
+HU_TYPE_SANSETONGSHUN,三色同顺,三色同順,Three Color Straight,三色同順
+HU_TYPE_PING,平胡,平胡,Basic Hand,基本形
+HU_TYPE_UNKNOWN,未知牌型,未知牌型,Unknown Hand,未知の役
