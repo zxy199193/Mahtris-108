@@ -61,7 +61,16 @@ public class ScoreManager : MonoBehaviour
     public string GetLoopProgressString()
     {
         int target = GetCurrentLoopTarget();
-        return $"第{currentLoop}圈 {huCountInCurrentLoop + 1}/{target}";
+        string format = "第{0}圈 {1}/{2}";
+
+        // 获取多语言格式字符串
+        if (LocalizationManager.Instance)
+        {
+            format = LocalizationManager.Instance.GetText("GAME_LOOP");
+        }
+
+        // 格式化输出：参数0=当前圈数，参数1=当前进度，参数2=总目标
+        return string.Format(format, currentLoop, huCountInCurrentLoop + 1, target);
     }
 
     // 【修复】快进按钮逻辑

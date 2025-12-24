@@ -666,28 +666,33 @@ public class GameUIController : MonoBehaviour
                 patternNameText.text = "";
             }
         }
-        if (patternFanText) patternFanText.text = patternFanOnly.ToString(); // 只显示数字
+        if (patternFanText)
+        {
+            patternFanText.text = patternFanOnly.ToString();
+            // 【新增】刷新数字字体
+            if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(patternFanText);
+        }
 
         if (kongInfoGroup != null)
         {
             if (kongCount > 0)
             {
-                // 有杠：显示组，并更新文本
                 kongInfoGroup.SetActive(true);
-                if (kongCountText) kongCountText.text = kongCount.ToString();
-                if (kongFanText) kongFanText.text = kongFanTotal.ToString();
+                if (kongCountText)
+                {
+                    kongCountText.text = kongCount.ToString();
+                    if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(kongCountText); // 刷新
+                }
+                if (kongFanText)
+                {
+                    kongFanText.text = kongFanTotal.ToString();
+                    if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(kongFanText); // 刷新
+                }
             }
             else
             {
-                // 无杠：直接隐藏整个组
                 kongInfoGroup.SetActive(false);
             }
-        }
-        else
-        {
-            // (保底逻辑) 如果没绑定父节点但绑定了文本，还是尝试更新一下
-            if (kongCountText) kongCountText.text = kongCount.ToString();
-            if (kongFanText) kongFanText.text = kongFanTotal.ToString();
         }
 
         // =========================================================
@@ -783,9 +788,13 @@ public class GameUIController : MonoBehaviour
                 rewardUI.Setup(itemData, (clickedUI) => {
                     if (inventoryManager != null && inventoryManager.IsFull())
                     {
-                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound(); // 播放失败音效
-                        ShowToast("道具栏已满！");
-                        return; // <--- 拦截操作，不执行后面的 DisableOtherOptions
+                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+
+                        // 【修改】使用多语言 Key
+                        string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_FULL_ITEM") : "道具栏已满！";
+                        ShowToast(msg);
+
+                        return;
                     }
                     FindObjectOfType<InventoryManager>().AddItem(itemData);
                     DisableOtherOptions(container, clickedUI);
@@ -796,9 +805,13 @@ public class GameUIController : MonoBehaviour
                 rewardUI.Setup(protocolData, (clickedUI) => {
                     if (GameManager.Instance.IsProtocolListFull())
                     {
-                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound(); // 播放失败音效
-                        ShowToast("条约栏已满！");
-                        return; // <--- 拦截操作
+                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+
+                        // 【修改】使用多语言 Key
+                        string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_FULL_PROTOCOL") : "条约栏已满！";
+                        ShowToast(msg);
+
+                        return;
                     }
                     GameManager.Instance.AddProtocol(protocolData);
                     DisableOtherOptions(container, clickedUI);
@@ -886,8 +899,24 @@ public class GameUIController : MonoBehaviour
             gameOverContainer.pivot = new Vector2(0.5f, 0.5f);
         }
         PlayPopupShow(gameOverPanel, gameOverContainer);
-        if (gameOverTitleText) gameOverTitleText.text = isWin ? "恭喜过关！" : "游戏结束";
-        if (finalScoreText) finalScoreText.text = $"{finalScore}";
+        if (gameOverTitleText)
+        {
+            string key = isWin ? "GAME_OVER_CLEAR" : "GAME_OVER_LOSE"; // 确保 CSV 里有这两个 Key
+            if (LocalizationManager.Instance)
+            {
+                gameOverTitleText.text = LocalizationManager.Instance.GetText(key);
+                LocalizationManager.Instance.UpdateFont(gameOverTitleText);
+            }
+            else
+            {
+                gameOverTitleText.text = isWin ? "恭喜过关！" : "游戏结束"; // 兜底
+            }
+        }
+        if (finalScoreText)
+        {
+            finalScoreText.text = $"{finalScore}";
+            if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(finalScoreText);
+        }
         if (newHighScoreIndicator) newHighScoreIndicator.SetActive(isNewHighScore);
         if (endlessModeButton) endlessModeButton.gameObject.SetActive(isWin);
     }
@@ -1153,6 +1182,10 @@ public class GameUIController : MonoBehaviour
         toastCanvasGroup.DOKill();
 
         toastText.text = message;
+        if (LocalizationManager.Instance)
+        {
+            LocalizationManager.Instance.UpdateFont(toastText);
+        }
         toastCanvasGroup.alpha = 1; // 立刻显示
 
         // 持续 0.8s 后，用 0.4s 淡出
@@ -1491,6 +1524,7 @@ public class GameUIController : MonoBehaviour
         {
             // 修复音效报错
             if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+            string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_LACK_GOLD") : "金币不足！";
             ShowToast("金币不足！");
         }
     }

@@ -46,28 +46,37 @@ GAME_BASE_SCORE,基础分,基礎分,BASE SCORE,基礎点
 GAME_BLOCK_MULTI,方块倍率,方塊倍率,BLOCK MULT.,ブロック倍率
 GAME_EXTRA_MULTI,额外倍率,額外倍率,EXTRA MULT.,追加倍率
 GAME_BLOCK_LIST,方块列表,方塊列表,BLOCK LIST,ブロックリスト
+GAME_LOOP,第{0}圈 {1}/{2}轮,第{0}圈 {1}/{2}輪,Streak {0} Round {1}/{2},{0}周目 {1}/{2}局
 GAME_NEXT,下一个,下一個,NEXT,NEXT
 GAME_DECK,牌库,牌庫,DECK,山牌
 GAME_HU_ZONE,胡牌区,胡牌區,HU ZONE,アガリ牌
 GAME_PROTOCOL,条约,條約,PROTOCOL,条約
 GAME_ITEM,道具,道具,ITEM,アイテム
 GAME_PAUSED,已暂停,已暫停,PAUSED,一時停止
+GAME_LACK,缺牌,缺牌,LACK,不足
 DECK_TITLE,牌库,牌庫,DECK,山牌
 DECK_TONG,筒,筒,BOT,筒子
 DECK_WAN,万,萬,CHARACTER,萬子
 DECK_TIAO,条,索,BAMBOO,索子
 TYPE_TITLE,牌型列表,牌型列表,HAND TYPE,役一覧
-GAME_OVER_TITLE,游戏结束,遊戲結束,GAME OVER,ゲームオーバー
+GAME_OVER_LOSE,游戏结束,遊戲結束,GAME OVER,ゲームオーバー
+GAME_OVER_CLEAR,恭喜过关！,恭喜過關！,STAGE CLEAR!!,ステージクリア
+GAME_OVER_SCORE,得分,得分,SCORE,スコア
 GAME_OVER_NEW_RECORD,最高分,最高分,NEW RECORD,新記録
 GAME_OVER_BACK_TO_MENU,返回主菜单,返回主菜單,MAIN MENU,メニューへ
 GAME_OVER_ENDLESS,无尽模式,無盡模式,ENDLESS MODE,エンドレス
 HU_CONTINUE,继续,繼續,CONTINUE,次へ
 HU_TITLE,请选择奖励,請選擇獎勵,SELECT REWARDS,報酬選択
+HU_FAN,番,番,  Fan,翻
+HU_KONG,杠 x,槓 x,Kong x,カン x
 HU_BLOCK,方块,方塊,BLOCK,ブロック
 HU_ITEM,道具,道具,ITEM,アイテム
 HU_ADVANCED_ITEM,高级道具,高級道具,ADVANCED ITEM,レアアイテム
 HU_PROTOCOL,条约,條約,PROTOCOL,条約
 HU_NEXT_ROUND,开始下一轮,開始下一輪,NEXT ROUND,次のラウンドへ
+HU_FULL_ITEM,道具栏已满,道具欄已滿,Item Slots Full,アイテム枠が満
+HU_FULL_PROTOCOL,条约栏已满,條約欄已滿,Protocol Slots Full,条約枠が満杯
+HU_LACK_GOLD,金币不足,金幣不足,Not enough coins,コイン不足
 TIP_ITEM,道具,道具,ITEM,アイテム
 TIP_ADVANCED_ITEM,高级道具,高級道具,ADVANCED ITEM,高級アイテム
 TIP_PROTOCOL,条约,條約,PROTOCOL,条約

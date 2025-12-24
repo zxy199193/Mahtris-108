@@ -203,6 +203,7 @@ GameObject:
   - component: {fileID: 1005696953830631426}
   - component: {fileID: 8661673376056498033}
   - component: {fileID: 7976041420941391557}
+  - component: {fileID: 7482309402474378158}
   - component: {fileID: 4671595584138488402}
   m_Layer: 5
   m_Name: Text Lack
@@ -272,6 +273,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u7F3A \u724C"
+--- !u!114 &7482309402474378158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1007728885517184016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: GAME_LACK
 --- !u!114 &4671595584138488402
 MonoBehaviour:
   m_ObjectHideFlags: 0
