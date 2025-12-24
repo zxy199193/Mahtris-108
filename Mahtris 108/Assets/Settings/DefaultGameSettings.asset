@@ -69,32 +69,25 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 5
   commonItemPool:
-  - {fileID: 11400000, guid: 5b40825730be1644ca7a88ab44fe1c27, type: 2}
+  - {fileID: 11400000, guid: 1fb733d140bb12e4a81824d4e18f236d, type: 2}
+  - {fileID: 11400000, guid: ffc57473305f5944491607a4d2593e62, type: 2}
+  - {fileID: 11400000, guid: 2616de08032776d4ca2fd12e01662f93, type: 2}
+  - {fileID: 11400000, guid: 23b6f079f3790704a98216b50a373c93, type: 2}
+  - {fileID: 11400000, guid: c3ade023d44989d4ca30cfcae1d8ed79, type: 2}
+  - {fileID: 11400000, guid: 92b90391a006cac489e8f1728cce7ff0, type: 2}
+  - {fileID: 11400000, guid: 09a40bce8a17bfa4689ace9c1173fa3e, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}
   - {fileID: 11400000, guid: 640357944c5db1c46be5ce054a1ff85f, type: 2}
-  - {fileID: 11400000, guid: 5f24d3ea78bdfea40a255df77ca6636d, type: 2}
   - {fileID: 11400000, guid: d51932ccf95c4a24293ed3ca50184169, type: 2}
-  - {fileID: 11400000, guid: b30c70e02ca74cd40a7bab8c16f5ac8d, type: 2}
-  - {fileID: 11400000, guid: 176ea642ebae7c24eba9c060508b4bb5, type: 2}
-  - {fileID: 11400000, guid: 1ad3d39db778d4e45883ef01fa2a1999, type: 2}
-  - {fileID: 11400000, guid: 9e89b73ed08866746943c1cd57415515, type: 2}
-  - {fileID: 11400000, guid: ddf2493694ab78642a1a78fef46f9ca9, type: 2}
-  - {fileID: 11400000, guid: 020de3e37fd3ac7459da4c234cd169ca, type: 2}
-  - {fileID: 11400000, guid: 79a2bab4e6f48a4458e95f15ea2fd940, type: 2}
-  - {fileID: 11400000, guid: b10149d81e5881d4cb485f78a59bfab0, type: 2}
-  - {fileID: 11400000, guid: 8fac18ac5ccff8b479496f3c47bf64d2, type: 2}
-  - {fileID: 11400000, guid: 36103f95fe5f7f34a8019a28742705dd, type: 2}
-  - {fileID: 11400000, guid: 81c37f71ba9d54f4897fa6de64d32181, type: 2}
   maxProtocolCount: 5
   protocolPool:
-  - {fileID: 11400000, guid: c7e790c46601bdb438475c53926486c9, type: 2}
-  - {fileID: 11400000, guid: 0427b0eee4d02204e8641a4a96dc441f, type: 2}
   - {fileID: 11400000, guid: 6acbde308fb3f2241828efc56aa7549c, type: 2}
   - {fileID: 11400000, guid: 1287da6a4cbe0764a87ff7951bc9dffb, type: 2}
-  - {fileID: 11400000, guid: e2fa7fc9676cd0947a1e6e79eeabb6e6, type: 2}
-  - {fileID: 11400000, guid: 59c4f171aab6301459fadb14ef791df1, type: 2}
+  - {fileID: 11400000, guid: fdb8f78abf84b6346a11c54ddc00ec2d, type: 2}
+  - {fileID: 11400000, guid: 9c2ae5f0bdad7354d830dab198bea85b, type: 2}
+  - {fileID: 11400000, guid: 3ccccf99c82680045824653894a034fd, type: 2}
   refreshBaseCost: 100
   legendaryIcon: {fileID: 21300000, guid: 71b55c0a7c1906e48bd3b525833135cf, type: 3}
   tooltipBgCommon: {fileID: 21300000, guid: 0a8ab05b60e1f0545b5c1135286dc257, type: 3}
