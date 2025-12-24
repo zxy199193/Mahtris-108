@@ -1555,10 +1555,10 @@ public class GameUIController : MonoBehaviour
         int playerGold = GameSession.Instance != null ? GameSession.Instance.CurrentGold : 0;
 
         // 【修改】格式改为： 消耗 / 持有 (例如 "100 / 5000")
-        refreshCostText.text = $"{cost} / {playerGold}";
+        refreshCostText.text = $"{cost}/{playerGold}";
 
         // 颜色逻辑保持不变：钱不够变红
-        refreshCostText.color = (playerGold >= cost) ? Color.white : Color.red;
+        refreshCostText.color = (playerGold >= cost) ? new Color32(0, 95, 115, 255) : Color.red;
     }
     private void PopulateRewardSlots(HuRewardPackage rewards)
     {

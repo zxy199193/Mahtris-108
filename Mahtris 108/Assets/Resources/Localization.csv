@@ -78,6 +78,7 @@ HU_NEXT_ROUND,开始下一轮,開始下一輪,NEXT ROUND,次のラウンドへ
 HU_FULL_ITEM,道具栏已满,道具欄已滿,Item Slots Full,アイテム枠が満
 HU_FULL_PROTOCOL,条约栏已满,條約欄已滿,Protocol Slots Full,条約枠が満杯
 HU_LACK_GOLD,金币不足,金幣不足,Not enough coins,コイン不足
+HU_LACK_REFRESH,刷新奖励,刷新獎勵,REROLL,報酬更新
 TIP_ITEM,道具,道具,ITEM,アイテム
 TIP_ADVANCED_ITEM,高级道具,高級道具,ADVANCED ITEM,高級アイテム
 TIP_PROTOCOL,条约,條約,PROTOCOL,条約
