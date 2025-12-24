@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35da09e80649faa4694973338d38c612, type: 3}
   m_Name: Ach_002
   m_EditorClassIdentifier: 
+  nameKey: 
+  descKey: 
   id: Ach_002
   title: No.2
   description: "\u5B8C\u6210\u4E00\u5C40\u7B80\u65B0\u624B\u96BE\u5EA6\u7684\u6E38\u620F"
-  icon: {fileID: 21300000, guid: e28a62e0317a7104c8c7251092205f04, type: 3}
-  rewardGold: 2000
+  icon: {fileID: 21300000, guid: cd3f33ceed9ebc545840b93161f9e78f, type: 3}
+  rewardGold: 500
   type: 1
   targetValue: 0
   targetString: 

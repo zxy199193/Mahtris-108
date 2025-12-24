@@ -25,7 +25,7 @@ public class AchievementItemUI : MonoBehaviour
         }
         if (rewardText)
         {
-            rewardText.text = $"½±Àø: {data.rewardGold}";
+            rewardText.text = $"{data.rewardGold}";
             if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(rewardText);
         }
 
