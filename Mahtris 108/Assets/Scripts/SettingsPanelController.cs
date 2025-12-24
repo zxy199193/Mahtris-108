@@ -1,15 +1,20 @@
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening; // 引入 DOTween
 
 public class SettingsPanelController : MonoBehaviour
 {
+    [Header("动画容器")]
+    [SerializeField] private RectTransform popupWindow; // 【新增】请拖入实际显示内容的子物体
+
     [Header("UI 组件")]
     [SerializeField] private Toggle bgmToggle;
     [SerializeField] private Toggle sfxToggle;
-    [SerializeField] private Toggle fullscreenToggle; 
+    [SerializeField] private Toggle fullscreenToggle;
     [SerializeField] private Button closeButton;
     [Header("多语言")]
     [SerializeField] private Dropdown languageDropdown;
+
     void Start()
     {
         // 1. 初始化 Toggle 的显示状态 (勾选 or 不勾选)
@@ -21,29 +26,39 @@ public class SettingsPanelController : MonoBehaviour
 
         if (fullscreenToggle)
         {
-            // 从存档读取状态并显示
             bool isFs = SaveManager.LoadFullscreenState();
             fullscreenToggle.isOn = isFs;
-
-            // 绑定事件
             fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggleChanged);
         }
+
         // 2. 绑定事件监听
-        if (bgmToggle)
-        {
-            bgmToggle.onValueChanged.AddListener(OnBgmToggleChanged);
-        }
+        if (bgmToggle) bgmToggle.onValueChanged.AddListener(OnBgmToggleChanged);
+        if (sfxToggle) sfxToggle.onValueChanged.AddListener(OnSfxToggleChanged);
 
-        if (sfxToggle)
-        {
-            sfxToggle.onValueChanged.AddListener(OnSfxToggleChanged);
-        }
+        // 注意：这里改成了调用 ClosePanel，里面包含了动画逻辑
+        if (closeButton) closeButton.onClick.AddListener(ClosePanel);
 
-        if (closeButton)
-        {
-            closeButton.onClick.AddListener(ClosePanel);
-        }
         InitLanguageDropdown();
+    }
+
+    // 【新增】打开面板的方法 (请确保按钮点击时调用的是这个方法，而不是直接 SetActive)
+
+    private void OnEnable()
+    {
+        if (popupWindow != null)
+        {
+            popupWindow.DOKill(); // 杀掉之前的动画
+            popupWindow.anchoredPosition = new Vector2(0, -1200); // 1. 先把位置重置到屏幕外
+
+            // 2. 再滑进来
+            popupWindow.DOLocalMove(Vector2.zero, 0.4f)
+                .SetEase(Ease.OutBack)
+                .SetUpdate(true);
+        }
+    }
+    public void Open()
+    {
+        gameObject.SetActive(true);
     }
 
     // 当 BGM 开关被点击时
@@ -52,8 +67,6 @@ public class SettingsPanelController : MonoBehaviour
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.SetBgmOn(isOn);
-
-            // 可选：播放点击音效
             if (isOn) AudioManager.Instance.PlayButtonClickSound();
         }
     }
@@ -64,41 +77,45 @@ public class SettingsPanelController : MonoBehaviour
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.SetSfxOn(isOn);
-
-            // 可选：播放点击音效 (只有开启时才听得到反馈，这正好是测试)
             if (isOn) AudioManager.Instance.PlayButtonClickSound();
         }
     }
+
     private void OnFullscreenToggleChanged(bool isOn)
     {
-        // 设置屏幕状态
         Screen.fullScreen = isOn;
-
-        // 保存设置
         SaveManager.SaveFullscreenState(isOn);
-
-        // 可选：如果不希望点击Toggle时有缩放声，这里不要手动播声音
-        // 如果你的 Toggle 上挂了 UIButtonClickEffect，它会自动处理声音
     }
+
     public void ClosePanel()
     {
-        // 隐藏自己
-        gameObject.SetActive(false);
+        if (popupWindow != null)
+        {
+            popupWindow.DOKill();
+            popupWindow.DOLocalMove(new Vector2(0, -1200), 0.4f)
+                .SetEase(Ease.InBack)
+                .SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    gameObject.SetActive(false);
+                });
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
+
     private void InitLanguageDropdown()
     {
         if (languageDropdown == null || LocalizationManager.Instance == null) return;
 
         languageDropdown.ClearOptions();
-        // 按 Enum 顺序添加选项
         languageDropdown.AddOptions(new System.Collections.Generic.List<string> {
             "简体中文", "繁體中文", "English", "日本語"
         });
 
-        // 设置当前选中的值
         languageDropdown.value = (int)LocalizationManager.Instance.CurrentLanguage;
-
-        // 绑定事件
         languageDropdown.onValueChanged.AddListener(OnLanguageChanged);
     }
 
@@ -107,8 +124,6 @@ public class SettingsPanelController : MonoBehaviour
         if (LocalizationManager.Instance != null)
         {
             LocalizationManager.Instance.ChangeLanguage((Language)index);
-
-            // 播放音效
             if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
         }
     }

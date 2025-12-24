@@ -1,8 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening; // 引入 DOTween
 
 public class IntroPanelController : MonoBehaviour
 {
+    [Header("动画容器")]
+    [SerializeField] private RectTransform popupWindow; // 【新增】请拖入实际显示内容的子物体 (Container)
+
     [Header("Panels")]
     public GameObject tutorialPanel;   // 教学界面
     public GameObject huTypePanel;      // 其他界面
@@ -19,14 +23,24 @@ public class IntroPanelController : MonoBehaviour
     private void Start()
     {
         // 绑定按钮事件
-        tabTutorialButton.onClick.AddListener(ShowTeachingPanel);
-        tabhuTypeButton.onClick.AddListener(ShowOtherPanel);
-        closeButton.onClick.AddListener(Close);
+        if (tabTutorialButton) tabTutorialButton.onClick.AddListener(ShowTeachingPanel);
+        if (tabhuTypeButton) tabhuTypeButton.onClick.AddListener(ShowOtherPanel);
+        if (closeButton) closeButton.onClick.AddListener(Close);
 
         // 默认显示教学界面
         ShowTeachingPanel();
     }
-
+    private void OnEnable()
+    {
+        if (popupWindow != null)
+        {
+            popupWindow.DOKill();
+            popupWindow.anchoredPosition = new Vector2(0, -1200); // 重置位置
+            popupWindow.DOLocalMove(Vector2.zero, 0.5f) // 播放动画
+                .SetEase(Ease.OutBack)
+                .SetUpdate(true);
+        }
+    }
     public void Open()
     {
         gameObject.SetActive(true);
@@ -34,20 +48,33 @@ public class IntroPanelController : MonoBehaviour
 
     public void Close()
     {
-        gameObject.SetActive(false);
+        if (popupWindow != null)
+        {
+            popupWindow.DOKill();
+            // 3. 播放滑出动画
+            popupWindow.DOLocalMove(new Vector2(0, -1200), 0.5f)
+                .SetEase(Ease.InBack)
+                .SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    gameObject.SetActive(false); // 动画结束后禁用
+                });
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     public void ShowTeachingPanel()
     {
-        tutorialPanel.SetActive(true);
-        huTypePanel.SetActive(false);
-
-        // 高亮选中状态（可根据需要添加样式）
+        if (tutorialPanel) tutorialPanel.SetActive(true);
+        if (huTypePanel) huTypePanel.SetActive(false);
     }
 
     public void ShowOtherPanel()
     {
-        tutorialPanel.SetActive(false);
-        huTypePanel.SetActive(true);
+        if (tutorialPanel) tutorialPanel.SetActive(false);
+        if (huTypePanel) huTypePanel.SetActive(true);
     }
 }

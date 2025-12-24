@@ -65,7 +65,7 @@ public class StorePanelController : MonoBehaviour
             popupWindow.anchoredPosition = new Vector2(0, -1200);
 
             // 3. 只对弹窗执行滑入动画
-            popupWindow.DOLocalMove(Vector2.zero, 0.4f).SetEase(Ease.OutBack).SetUpdate(true);
+            popupWindow.DOLocalMove(Vector2.zero, 0.5f).SetEase(Ease.OutBack).SetUpdate(true);
         }
         ShowItemsTab();
     }
@@ -75,7 +75,7 @@ public class StorePanelController : MonoBehaviour
         if (popupWindow != null)
         {
             // 1. 只让弹窗滑下去
-            popupWindow.DOLocalMove(new Vector2(0, -1200), 0.3f).SetEase(Ease.InBack).SetUpdate(true).OnComplete(() =>
+            popupWindow.DOLocalMove(new Vector2(0, -1200), 0.5f).SetEase(Ease.InBack).SetUpdate(true).OnComplete(() =>
             {
                 // 2. 动画结束后，再把整个根节点（包括遮罩）关掉
                 gameObject.SetActive(false);
