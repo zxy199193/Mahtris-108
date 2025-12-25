@@ -1,4 +1,3 @@
-// FileName: HuPaiArea.cs
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -17,31 +16,52 @@ public class HuPaiArea : MonoBehaviour
     [SerializeField] private float tileSpacing = 1.1f;
     [SerializeField] private float kongOffsetY = 0.3f;
 
+    // 正式显示的牌组列表
     private List<List<int>> huPaiSets = new List<List<int>>();
+
+    // 【新增】暂存数据列表：存储那些“正在路上”还未正式显示的牌组
+    // 用于确保 GetAllSets() 能立即获取到完整数据，而不用等动画结束
+    private List<List<int>> _pendingSetsData = new List<List<int>>();
+
+    // 挂起计数
+    private int _pendingSetCount = 0;
 
     public void AddSets(List<List<int>> sets, float delay = 0f)
     {
         if (sets == null || sets.Count == 0) return;
 
-        // 定义核心执行逻辑 (闭包)
+        // 1. 立刻占位计数
+        _pendingSetCount += sets.Count;
+
+        // 2. 【关键】立刻保存数据到暂存列表
+        // 这样即使视觉上还没显示，数据逻辑（如胡牌检测）也能立刻读到它
+        _pendingSetsData.AddRange(sets);
+
+        // 定义核心执行逻辑
         System.Action executeLogic = () =>
         {
-            // 安全检查：防止延迟期间场景切换或物体被销毁导致报错
             if (this == null || gameObject == null) return;
 
-            // 1. 更新数据
-            huPaiSets.AddRange(sets);
+            // 3. 延迟结束后：从暂存区移除，加入正式区
+            // 注意：这里需要移除对应的引用
+            foreach (var set in sets)
+            {
+                _pendingSetsData.Remove(set);
+            }
 
-            // 2. 刷新画面 (此时才会显示牌)
+            // 还原计数
+            _pendingSetCount -= sets.Count;
+
+            // 加入正式列表并刷新 UI
+            huPaiSets.AddRange(sets);
             RefreshDisplay();
 
-            // 3. 播放音效 (逻辑已经延迟了，所以这里立即播放即可)
+            // 播放音效
             if (AudioManager.Instance != null && AudioManager.Instance.SoundLibrary != null)
             {
                 AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibrary.addSetToHuArea);
             }
 
-            // 4. 通知 GameManager (应用被动效果，如加分)
             if (GameManager.Instance != null)
             {
                 foreach (var set in sets)
@@ -54,22 +74,19 @@ public class HuPaiArea : MonoBehaviour
             }
         };
 
-        // 根据 delay 参数决定执行时机
         if (delay > 0f)
         {
-            // 使用 DOTween 进行延迟调用
-            // 注意：这里不需要再对音效单独做 Delay 了，因为整个 executeLogic 都会被推迟
-            DOVirtual.DelayedCall(delay, () => executeLogic());
+            DOVirtual.DelayedCall(delay, () => executeLogic()).SetTarget(this);
         }
         else
         {
-            // 立即执行 (用于道具直接添加等情况)
             executeLogic();
         }
     }
 
     public bool RemoveLastSet()
     {
+        // 移除逻辑通常只针对已显示的牌
         if (huPaiSets.Count > 0)
         {
             var lastSet = huPaiSets.Last();
@@ -81,13 +98,30 @@ public class HuPaiArea : MonoBehaviour
         return false;
     }
 
-    public int GetSetCount() => huPaiSets.Count;
+    public int GetSetCount() => huPaiSets.Count + _pendingSetCount;
 
-    public List<List<int>> GetAllSets() => new List<List<int>>(huPaiSets);
+    // 【核心修复】获取所有牌组时，合并“正式列表”和“暂存列表”
+    // 这样 GameManager 在胡牌弹窗读取数据时，即使牌还在飞，也能拿到完整的数据！
+    public List<List<int>> GetAllSets()
+    {
+        var allSets = new List<List<int>>(huPaiSets);
+        if (_pendingSetsData.Count > 0)
+        {
+            allSets.AddRange(_pendingSetsData);
+        }
+        return allSets;
+    }
 
     public void ClearAll()
     {
+        // 1. 杀掉延迟动画
+        DOTween.Kill(this);
+
+        // 2. 清理所有数据
+        _pendingSetCount = 0;
+        _pendingSetsData.Clear(); // 清空暂存区
         huPaiSets.Clear();
+
         if (displayParent != null)
         {
             foreach (Transform child in displayParent) Destroy(child.gameObject);
@@ -116,40 +150,28 @@ public class HuPaiArea : MonoBehaviour
         {
             var set = huPaiSets[i];
 
-            // 计算当前面子在哪一列 (0 or 1) 和哪一行 (0, 1, 2...)
             int columnIndex = i % 2;
             int rowIndex = i / 2;
 
-            // 根据行列计算出这一组牌的起始位置
             float startX = columnIndex * columnSpacing;
             float yPos = -rowIndex * rowSpacing;
 
-            // 排列组内的每一张牌
             for (int tileIndex = 0; tileIndex < set.Count; tileIndex++)
             {
                 int blockId = set[tileIndex];
-
-                // 【核心修改】位置计算逻辑
                 float xPos;
                 float currentYPos = yPos;
 
-                // 判断是否为杠牌的第4张 (索引为3)
                 if (set.Count == 4 && tileIndex == 3)
                 {
-                    // === 放在第2张牌 (索引1) 的上方 ===
-                    // X轴：与索引1的位置相同
                     xPos = startX + (1 * tileSpacing);
-
-                    // Y轴：在当前行高基础上，向上偏移
                     currentYPos += kongOffsetY;
                 }
                 else
                 {
-                    // === 正常排列 (索引0, 1, 2) ===
                     xPos = startX + (tileIndex * tileSpacing);
                 }
 
-                // 实例化并设置位置
                 GameObject go = Instantiate(blockPrefab, displayParent);
                 RectTransform rectTransform = go.GetComponent<RectTransform>();
                 if (rectTransform != null)
@@ -168,13 +190,19 @@ public class HuPaiArea : MonoBehaviour
 
     public bool UpgradePungToKong(int pungTileValue, int fourthTileId)
     {
-        // 查找匹配的刻子
+        // 只能升级已经存在的牌，Pending 中的牌还不能被升级
         var pungSet = huPaiSets.FirstOrDefault(set => set.Count == 3 && (set[0] % 27) == (pungTileValue % 27));
 
         if (pungSet != null)
         {
             pungSet.Add(fourthTileId);
             RefreshDisplay();
+
+            if (AudioManager.Instance != null && AudioManager.Instance.SoundLibrary != null)
+            {
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibrary.addSetToHuArea);
+            }
+
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.OnHuPaiTileAdded(fourthTileId);
