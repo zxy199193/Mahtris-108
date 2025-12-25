@@ -902,21 +902,53 @@ public class GameManager : MonoBehaviour
             bool wasCleanRound = !hasClearedRowsInThisRound;
             hasClearedRowsInThisRound = true;
 
-            // 【核心修复】在开始处理这批消行前，记录手牌是否为空（用于判定天胡）
+            // 【移除】移除了之前错误的 TryFindAndAddRandomSetFromPool 调用
+
             bool isHandEmptyAtStart = huPaiArea.GetSetCount() == 0;
 
-            // --- 麻将判定 ---
-            if (ignoreMahjongCheckCount > 0)
-            {
-                int rowsTotal = rowsBlockIds.Count;
-                int rowsToRemove = Mathf.Min(rowsTotal, ignoreMahjongCheckCount);
-                ignoreMahjongCheckCount -= rowsToRemove;
+            // ==========================================================
+            // 麻将判定逻辑 (根据是否激活“合纵连横”分流)
+            // ==========================================================
 
-                for (int i = 0; i < rowsToRemove; i++)
+            // 1. 先处理“垃圾桶”道具 (忽略判定行数)
+            // 无论是否合纵连横，都要先剔除被忽略的行
+            int rowsTotal = rowsBlockIds.Count;
+            int rowsToRemove = (ignoreMahjongCheckCount > 0) ? Mathf.Min(rowsTotal, ignoreMahjongCheckCount) : 0;
+            ignoreMahjongCheckCount -= rowsToRemove;
+
+            // 将被忽略的行直接加入回收列表
+            for (int i = 0; i < rowsToRemove; i++)
+            {
+                finalIdsToReturn.AddRange(rowsBlockIds[i]);
+            }
+
+            // 2. 处理剩余的行
+            if (isRealpolitikActive)
+            {
+                // === 方案 A: 合纵连横 (合并判定) ===
+                // 将剩余所有行的方块合并到一个大池子里
+                List<int> combinedTileIds = new List<int>();
+
+                for (int i = rowsToRemove; i < rowsTotal; i++)
                 {
-                    finalIdsToReturn.AddRange(rowsBlockIds[i]);
+                    // 如果中途已经胡牌了，剩下的直接回收
+                    if (_hasDeclaredHuThisFrame)
+                    {
+                        finalIdsToReturn.AddRange(rowsBlockIds[i]);
+                        continue;
+                    }
+                    combinedTileIds.AddRange(rowsBlockIds[i]);
                 }
 
+                // 对合并后的大列表进行一次性判定
+                if (combinedTileIds.Count > 0 && !_hasDeclaredHuThisFrame)
+                {
+                    ProcessMahjongDetection(combinedTileIds, ref finalIdsToReturn, allClearedTransforms, wasCleanRound, ref pendingHuHand, ref pendingPairIds, isHandEmptyAtStart);
+                }
+            }
+            else
+            {
+                // === 方案 B: 默认逻辑 (逐行判定) ===
                 for (int i = rowsToRemove; i < rowsTotal; i++)
                 {
                     if (_hasDeclaredHuThisFrame)
@@ -925,22 +957,7 @@ public class GameManager : MonoBehaviour
                         continue;
                     }
 
-                    // 【修复】补齐参数：isHandEmptyAtStart
                     ProcessMahjongDetection(rowsBlockIds[i], ref finalIdsToReturn, allClearedTransforms, wasCleanRound, ref pendingHuHand, ref pendingPairIds, isHandEmptyAtStart);
-                }
-            }
-            else
-            {
-                foreach (var list in rowsBlockIds)
-                {
-                    if (_hasDeclaredHuThisFrame)
-                    {
-                        finalIdsToReturn.AddRange(list);
-                        continue;
-                    }
-
-                    // 【修复】补齐参数：isHandEmptyAtStart
-                    ProcessMahjongDetection(list, ref finalIdsToReturn, allClearedTransforms, wasCleanRound, ref pendingHuHand, ref pendingPairIds, isHandEmptyAtStart);
                 }
             }
 
@@ -977,6 +994,8 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError($"[Logic Error] {e.Message}\n{e.StackTrace}");
         }
+
+        // ... (后续动画和清理代码保持不变) ...
 
         // ==========================================================
         // 2. 动画阶段
