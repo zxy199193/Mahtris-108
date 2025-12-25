@@ -8756,12 +8756,14 @@ MonoBehaviour:
     buttonClick: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
     tetrominoRotate: {fileID: 8300000, guid: 3c8365741b85d4240814673ecb93d452, type: 3}
     clearRow: {fileID: 8300000, guid: fb5a50a369446e941b8c2c519563df0a, type: 3}
-    addSetToHuArea: {fileID: 8300000, guid: 978af390c05311942b0d76f476900878, type: 3}
-    huSuccess: {fileID: 8300000, guid: 2ea3246d9e4fc494db2b2784ed5c1a45, type: 3}
-    targetReached: {fileID: 8300000, guid: 0616fa99755b5d749a3c02933e55f9d5, type: 3}
+    addSetToHuArea: {fileID: 8300000, guid: 4e19984ced24af3469aa214cf3833d26, type: 3}
+    huSuccess: {fileID: 8300000, guid: a87fe18ea0a0e1e4581195261e2a26f7, type: 3}
+    targetReached: {fileID: 8300000, guid: c58dfff99ff06764eabb62fe2755e9ee, type: 3}
     defaultItemUse: {fileID: 8300000, guid: e6dd353435ef0304ba5a25cda1d59695, type: 3}
-    buySuccess: {fileID: 0}
-    buyFail: {fileID: 0}
+    buySuccess: {fileID: 8300000, guid: 0616fa99755b5d749a3c02933e55f9d5, type: 3}
+    buyFail: {fileID: 8300000, guid: 5270240d790054e458cd5d268e9c5488, type: 3}
+    gameWin: {fileID: 8300000, guid: 681bd2a381a45034e9b2a948a89ea025, type: 3}
+    gameOver: {fileID: 8300000, guid: 75982d117f591da409cc0eef4035f89b, type: 3}
   countdownClip: {fileID: 8300000, guid: ad3794aef6543364d8a6711d1bc8ddb2, type: 3}
 --- !u!4 &980194825
 Transform:

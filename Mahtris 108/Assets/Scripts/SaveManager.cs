@@ -124,15 +124,6 @@ public static class SaveManager
         PlayerPrefs.SetInt($"Unlock_Protocol_{protocolName}", 1);
         PlayerPrefs.Save();
     }
-
-    // --- 编辑器功能 ---
-#if UNITY_EDITOR
-    [MenuItem("游戏/清除玩家存档")]
-    public static void ClearSaveData()
-    {
-        PlayerPrefs.DeleteAll();
-        Debug.Log("玩家存档已被清除！");
-    }
     public static string LoadLanguage()
     {
         // 默认返回空，交由 LocalizationManager 判断系统语言
@@ -143,6 +134,14 @@ public static class SaveManager
     {
         PlayerPrefs.SetString(LanguageKey, langCode);
         PlayerPrefs.Save();
+    }
+    // --- 编辑器功能 ---
+#if UNITY_EDITOR
+    [MenuItem("游戏/清除玩家存档")]
+    public static void ClearSaveData()
+    {
+        PlayerPrefs.DeleteAll();
+        Debug.Log("玩家存档已被清除！");
     }
 #endif
 }
