@@ -10,10 +10,10 @@ public class StorePanelController : MonoBehaviour
     [Header("页签")]
     [SerializeField] private Button tabItemsButton;
     [SerializeField] private Button tabProtocolsButton;
+    [SerializeField] private GameObject tabItemsArrow;
+    [SerializeField] private GameObject tabProtocolsArrow;
     [SerializeField] private Text tabItemsCountText;
     [SerializeField] private Text tabProtocolsCountText;
-    [SerializeField] private Color activeTabColor = Color.white;
-    [SerializeField] private Color inactiveTabColor = Color.gray;
 
     [Header("列表容器")]
     [SerializeField] private Transform gridContent;
@@ -106,10 +106,11 @@ public class StorePanelController : MonoBehaviour
 
     private void UpdateButtonStates()
     {
-        tabItemsButton.image.color = showingItems ? activeTabColor : inactiveTabColor;
-        tabProtocolsButton.image.color = !showingItems ? activeTabColor : inactiveTabColor;
+        // 【修改】不再改变颜色，而是控制箭头显隐
+        if (tabItemsArrow != null) tabItemsArrow.SetActive(showingItems);
+        if (tabProtocolsArrow != null) tabProtocolsArrow.SetActive(!showingItems);
 
-        // 计算进度
+        // 原有的数量文本逻辑保持不变
         int unlockedItems = GetAllItems().Count(i => SaveManager.IsItemUnlocked(i.itemName, i.isInitial));
         int totalItems = GetAllItems().Count;
         tabItemsCountText.text = $"{unlockedItems}/{totalItems}";

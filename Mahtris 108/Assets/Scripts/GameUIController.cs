@@ -899,6 +899,26 @@ public class GameUIController : MonoBehaviour
             gameOverContainer.pivot = new Vector2(0.5f, 0.5f);
         }
         PlayPopupShow(gameOverPanel, gameOverContainer);
+        if (AudioManager.Instance != null)
+        {
+            // 1. 关闭背景音乐
+            AudioManager.Instance.StopBGM();
+
+            // 2. 播放对应的胜利/失败音效
+            if (AudioManager.Instance.SoundLibrary != null)
+            {
+                if (isWin)
+                {
+                    // 播放胜利音效
+                    AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibrary.gameWin);
+                }
+                else
+                {
+                    // 播放失败音效
+                    AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibrary.gameOver);
+                }
+            }
+        }
         if (gameOverTitleText)
         {
             string key = isWin ? "GAME_OVER_CLEAR" : "GAME_OVER_LOSE"; // 确保 CSV 里有这两个 Key

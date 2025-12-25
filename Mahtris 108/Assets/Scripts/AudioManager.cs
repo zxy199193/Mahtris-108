@@ -16,9 +16,14 @@ public class SoundLibrary
 
     [Header("通用音效")]
     public AudioClip defaultItemUse;
+
     [Header("商店音效")]
     public AudioClip buySuccess;
     public AudioClip buyFail;
+
+    [Header("游戏结果")]
+    public AudioClip gameWin;
+    public AudioClip gameOver;
 }
 
 public class AudioManager : MonoBehaviour
@@ -417,6 +422,24 @@ public class AudioManager : MonoBehaviour
         if (loopSfxSource != null && !loopSfxSource.isPlaying && loopSfxSource.clip == countdownClip)
         {
             loopSfxSource.UnPause();
+        }
+    }
+    public void StopBGM()
+    {
+        // 1. 停止负责循环的协程，防止它自动切歌或重启
+        if (bgmCoroutine != null) StopCoroutine(bgmCoroutine);
+
+        if (bgmSource != null)
+        {
+            // 2. 杀掉旧的动画 (防止正在淡入时被打断)
+            bgmSource.DOKill();
+
+            // 3. 快速淡出 (0.2秒)，然后停止
+            // 使用 SetUpdate(true) 确保即使 Time.timeScale = 0 也能执行淡出
+            bgmSource.DOFade(0f, 0.2f).SetUpdate(true).OnComplete(() =>
+            {
+                bgmSource.Stop();
+            });
         }
     }
 }

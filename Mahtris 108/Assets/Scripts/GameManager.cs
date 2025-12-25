@@ -1076,7 +1076,10 @@ public class GameManager : MonoBehaviour
             setsToAdd = chosen;
         }
 
-        if (setsToAdd.Count > 0) huPaiArea.AddSets(setsToAdd);
+        if (setsToAdd.Count > 0)
+        {
+            huPaiArea.AddSets(setsToAdd, 0.5f);
+        }
 
         // 检查是否胡牌
         if (huPaiArea.GetSetCount() >= settings.setsForHu)
@@ -1750,7 +1753,12 @@ public class GameManager : MonoBehaviour
 
             UpdateTargetScoreUI();
             gameUI.SetEndlessModeLabelActive(true);
-
+            if (AudioManager.Instance != null && DifficultyManager.Instance != null)
+            {
+                // 根据当前难度，重新播放对应的 BGM
+                // 因为之前 ShowGameEndPanel 时调用了 StopBGM()，所以这里需要重新 Play
+                AudioManager.Instance.PlayGameBGM(DifficultyManager.Instance.CurrentDifficulty);
+            }
             // 继续游戏
             ContinueAfterHu();
         });

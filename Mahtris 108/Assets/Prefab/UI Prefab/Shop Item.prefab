@@ -359,7 +359,7 @@ MonoBehaviour:
   scaleFactor: 0.95
   scaleSpeed: 20
   enableSound: 1
-  customSound: {fileID: 8300000, guid: 0616fa99755b5d749a3c02933e55f9d5, type: 3}
+  customSound: {fileID: 0}
   enableParticleEffect: 0
   particlePrefab: {fileID: 0}
   parentCanvas: {fileID: 0}
@@ -714,7 +714,7 @@ MonoBehaviour:
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
     m_FontSize: 15
-    m_FontStyle: 1
+    m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 40

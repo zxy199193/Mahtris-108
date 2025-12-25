@@ -82,6 +82,7 @@ HU_LACK_REFRESH,刷新奖励,刷新獎勵,REROLL,報酬更新
 TIP_ITEM,道具,道具,ITEM,アイテム
 TIP_ADVANCED_ITEM,高级道具,高級道具,ADVANCED ITEM,高級アイテム
 TIP_PROTOCOL,条约,條約,PROTOCOL,条約
+TIP_LEGEND,传奇,傳奇,HOLY,伝説
 ITEM_BOMB_NAME,炸弹,炸彈,BOMB,爆弾
 ITEM_BOMB_DES,强行消除底下2行方块,強行消除底下2行方塊,Force clear bottom 2 lines,最下段の2列を強制消去する
 HU_TYPE_FAN,番,番,Fan,翻

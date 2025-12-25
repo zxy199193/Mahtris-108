@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6285bad089c762e47aa611d492db343a, type: 3}
   m_Name: SSSVIP
   m_EditorClassIdentifier: 
+  nameKey: 
+  descKey: 
   protocolName: "\u8D85\u8D85\u8D85\u8D35\u5BBE"
   protocolIcon: {fileID: 21300000, guid: 26c95d70f51023b48abf2fbe916f54c1, type: 3}
   protocolDescription: "\u80E1\u724C\u65F6\u6BCF\u79CD\u5956\u52B1\u53EF\u4EE5\u9009\u62E92\u4E2A\r"
   isLegendary: 1
   price: 120000
   isInitial: 0
-  unlockConditionCount: 28
+  unlockConditionCount: 36

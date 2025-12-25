@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using DG.Tweening;
 
 public class HuPaiArea : MonoBehaviour
 {
@@ -18,19 +19,52 @@ public class HuPaiArea : MonoBehaviour
 
     private List<List<int>> huPaiSets = new List<List<int>>();
 
-    public void AddSets(List<List<int>> sets)
+    public void AddSets(List<List<int>> sets, float delay = 0f)
     {
-        huPaiSets.AddRange(sets);
-        RefreshDisplay();
-        if (GameManager.Instance != null)
+        if (sets == null || sets.Count == 0) return;
+
+        // 定义核心执行逻辑 (闭包)
+        System.Action executeLogic = () =>
         {
-            foreach (var set in sets)
+            // 安全检查：防止延迟期间场景切换或物体被销毁导致报错
+            if (this == null || gameObject == null) return;
+
+            // 1. 更新数据
+            huPaiSets.AddRange(sets);
+
+            // 2. 刷新画面 (此时才会显示牌)
+            RefreshDisplay();
+
+            // 3. 播放音效 (逻辑已经延迟了，所以这里立即播放即可)
+            if (AudioManager.Instance != null && AudioManager.Instance.SoundLibrary != null)
             {
-                foreach (var id in set)
+                AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibrary.addSetToHuArea);
+            }
+
+            // 4. 通知 GameManager (应用被动效果，如加分)
+            if (GameManager.Instance != null)
+            {
+                foreach (var set in sets)
                 {
-                    GameManager.Instance.OnHuPaiTileAdded(id);
+                    foreach (var id in set)
+                    {
+                        GameManager.Instance.OnHuPaiTileAdded(id);
+                    }
                 }
             }
+        };
+
+        // 根据 delay 参数决定执行时机
+        if (delay > 0f)
+        {
+            // 使用 DOTween 进行延迟调用
+            // 注意：这里不需要再对音效单独做 Delay 了，因为整个 executeLogic 都会被推迟
+            DOVirtual.DelayedCall(delay, () => executeLogic());
+        }
+        else
+        {
+            // 立即执行 (用于道具直接添加等情况)
+            executeLogic();
         }
     }
 

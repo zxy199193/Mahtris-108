@@ -14,8 +14,11 @@ public class IntroPanelController : MonoBehaviour
     [Header("Buttons")]
     public Button tabTutorialButton;
     public Button tabhuTypeButton;
-
     public Button closeButton;
+
+    [Header("Tab Indicators")]
+    [SerializeField] private GameObject tabTutorialArrow;
+    [SerializeField] private GameObject tabHuTypeArrow;
 
     [Header("Tutorial Controller (optional)")]
     public TutorialPanelController tutorialPanelController;
@@ -70,11 +73,17 @@ public class IntroPanelController : MonoBehaviour
     {
         if (tutorialPanel) tutorialPanel.SetActive(true);
         if (huTypePanel) huTypePanel.SetActive(false);
+
+        if (tabTutorialArrow) tabTutorialArrow.SetActive(true);
+        if (tabHuTypeArrow) tabHuTypeArrow.SetActive(false);
     }
 
     public void ShowOtherPanel()
     {
         if (tutorialPanel) tutorialPanel.SetActive(false);
         if (huTypePanel) huTypePanel.SetActive(true);
+
+        if (tabTutorialArrow) tabTutorialArrow.SetActive(false);
+        if (tabHuTypeArrow) tabHuTypeArrow.SetActive(true);
     }
 }
