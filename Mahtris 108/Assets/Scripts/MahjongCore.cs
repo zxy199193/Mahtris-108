@@ -171,7 +171,39 @@ public class MahjongCore
         }
         return false;
     }
+    // 【新增】三色同刻：三种花色都有相同的刻子 (如 222筒, 222条, 222万)
+    private bool IsSanSeTongKe(List<List<int>> sets)
+    {
+        // 字典：刻子数值(0-8) -> 拥有的花色集合
+        Dictionary<int, HashSet<int>> pungValues = new Dictionary<int, HashSet<int>>();
 
+        foreach (var set in sets)
+        {
+            // 只检查刻子或杠
+            if (!IsPungOrKong(set)) continue;
+
+            // 获取这张牌的 ID (因为是刻子，取第一个就行)
+            int id = set[0] % 27;
+            int suit = id / 9;
+            int num = id % 9;
+
+            if (!pungValues.ContainsKey(num))
+            {
+                pungValues[num] = new HashSet<int>();
+            }
+            pungValues[num].Add(suit);
+        }
+
+        // 检查是否有某个数值凑齐了 3 种花色
+        foreach (var kvp in pungValues)
+        {
+            if (kvp.Value.Contains(0) && kvp.Value.Contains(1) && kvp.Value.Contains(2))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     // 【新增】老头 (老头牌)：所有牌都是 1 或 9
     // 注：由于全是 1 和 9，必然是对对胡结构，所以会与 IsDuiDuiHu 叠加
     private bool IsLaoTou(List<int> allTiles)
@@ -215,6 +247,7 @@ public class MahjongCore
         bool isLaoTou = IsLaoTou(allTileIds);
         bool isIttsu = IsIttsu(sets);
         bool isSanSe = IsSanSeTongShun(sets);
+        bool isSanSeKe = IsSanSeTongKe(sets);
 
         // ----------------------------------------------------
         // 2. 番数叠加计算
@@ -270,7 +303,14 @@ public class MahjongCore
             activePatterns.Add("HU_TYPE_SANSETONGSHUN");
         }
 
-        // (7) 平胡 (1番)
+        // (7) 【新增】三色同刻 (4番)
+        if (isSanSeKe)
+        {
+            totalFan += 4;
+            activePatterns.Add("HU_TYPE_SANSETONGKE");
+        }
+
+        // (8) 平胡 (1番)
         // 只有当没有任何其他番数时，平胡才生效
         if (totalFan == 0)
         {
