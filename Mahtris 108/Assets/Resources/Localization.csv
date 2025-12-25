@@ -84,6 +84,7 @@ TIP_ADVANCED_ITEM,高级道具,高級道具,ADVANCED ITEM,高級アイテム
 TIP_PROTOCOL,条约,條約,PROTOCOL,条約
 ITEM_BOMB_NAME,炸弹,炸彈,BOMB,爆弾
 ITEM_BOMB_DES,强行消除底下2行方块,強行消除底下2行方塊,Force clear bottom 2 lines,最下段の2列を強制消去する
+HU_TYPE_FAN,番,番,Fan,翻
 HU_TYPE_TIAN,天胡,天胡,Heavenly Hand,天和
 HU_TYPE_DI,地胡,地胡,Earthly Hand,地和
 HU_TYPE_QINGYISE,清一色,清一色,Full Flush,清一色
@@ -91,5 +92,18 @@ HU_TYPE_DUIDUI,对对,對對,All Triplets,対々
 HU_TYPE_LAOTOU,老头,老頭,All Terminals,老頭
 HU_TYPE_YIQITONGGUAN,一气通贯,一氣通貫,Pure Straight,一気通貫
 HU_TYPE_SANSETONGSHUN,三色同顺,三色同順,Three Color Straight,三色同順
+HU_TYPE_SANSETONGKE,三色同刻,三色同刻,Three Color Triplets,三色同刻
 HU_TYPE_PING,平胡,平胡,Basic Hand,基本形
+HU_TYPE_KONG,杠,槓,Kong,カン
 HU_TYPE_UNKNOWN,未知牌型,未知牌型,Unknown Hand,未知の役
+HU_TYPE_TIAN_DES,胡牌区没有牌，且本轮还从未进行消行，连续消除多行一次性凑齐胡牌牌型时视为天胡,胡牌區無牌，且本輪尚未消行，一次性消除多行並湊齊牌型,Trigger Hu with a multi-line clear when Hu Zone is empty and no lines have been cleared yet,アガリ牌がなく、ライン消去未発生の状態で、複数列同時消去によりアガる
+HU_TYPE_DI_DES,胡牌区没有牌，连续消除多行一次性凑齐胡牌牌型时视为地胡,胡牌區無牌，一次性消除多行並湊齊牌型,Trigger Hu with a multi-line clear when Hu Zone is empty,アガリ牌がない状態で、複数列同時消去によりアガる
+HU_TYPE_QINGYISE_DES,牌组中只有1种花色的牌,牌組中只有1種花色的牌,Hand contains tiles of only one suit,一種類の数牌のみで構成される
+HU_TYPE_DUIDUI_DES,牌组中包含4组刻子,牌組中包含4組刻子,Hand contains 4 sets of Triplets,4組の刻子が含まれる
+HU_TYPE_LAOTOU_DES,牌组中只有数字为1和9的牌,牌組中只有數字為1和9的牌,Hand contains only 1 and 9 tiles,すべて1と9の牌のみで構成される
+HU_TYPE_YIQITONGGUAN_DES,"同种数牌组成123,456,789的顺子",同種數牌組成123、456、789的順子,"Contains sequences 1-2-3, 4-5-6, 7-8-9 of the same suit",同色で123、456、789の順子を作る
+HU_TYPE_SANSETONGSHUN_DES,筒、万、条都有相同数位的顺子,筒、萬、索都有相同數字的順子,"Same sequences in Dot, Character, and Bamboo suits",筒・萬・索で同じ数の順子を作る
+HU_TYPE_SANSETONGKE_DES,筒、万、条都有相同数位的刻子,筒、萬、索都有相同數字的刻子,"Same triplets in Dot, Character, and Bamboo suits",筒・萬・索で同じ数の刻子を作る
+HU_TYPE_PING_DES,基础胡牌牌型,基礎胡牌牌型,Basic winning hand,基本的なアガリ形
+HU_TYPE_KONG_DES,消除行时有4张一样的牌则形成杠牌，胡牌番数+1,消除行時有4張一樣的牌則形成槓，胡牌番數+1,Clearing a line with 4 identical tiles forms a Kong and adds 1 Fan,ライン消去時に同一牌が4枚あるとカンとなり、翻数+1
+HU_TYPE_STATE,当胡牌牌组同时包含多种多种牌型，则胡牌番数为所有牌型番数之和（不含平胡）,當胡牌牌組同時包含多種牌型，則胡牌番數為所有牌型番數之和（不含平胡）,"If multiple Hand Types apply, the Fan is the sum of all types (excluding Basic Hand)",複数の役が成立する場合、翻数はそれらの合計となります（基本形は除く）

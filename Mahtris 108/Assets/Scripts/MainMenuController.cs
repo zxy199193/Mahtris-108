@@ -319,7 +319,7 @@ public class MainMenuController : MonoBehaviour
             if (difficultyPopupWindow != null)
             {
                 difficultyPopupWindow.anchoredPosition = new Vector2(0, -1200);
-                difficultyPopupWindow.DOLocalMove(Vector2.zero, 0.5f).SetEase(Ease.OutBack).SetUpdate(true);
+                difficultyPopupWindow.DOLocalMove(Vector2.zero, 0.4f).SetEase(Ease.OutBack).SetUpdate(true);
             }
         }
     }
@@ -328,7 +328,7 @@ public class MainMenuController : MonoBehaviour
     {
         if (difficultyPopupWindow != null)
         {
-            difficultyPopupWindow.DOLocalMove(new Vector2(0, -1200), 0.5f).SetEase(Ease.InBack).SetUpdate(true)
+            difficultyPopupWindow.DOLocalMove(new Vector2(0, -1200), 0.4f).SetEase(Ease.InBack).SetUpdate(true)
                 .OnComplete(() =>
                 {
                     if (difficultyPopupPanel != null)
@@ -500,7 +500,7 @@ public class MainMenuController : MonoBehaviour
 
         // 3. 播放滑入动画 (参考了 StorePanel 的动画参数)
         refreshUnlockTipContainer.DOKill();
-        refreshUnlockTipContainer.DOLocalMove(Vector2.zero, 0.5f)
+        refreshUnlockTipContainer.DOLocalMove(Vector2.zero, 0.4f)
             .SetEase(Ease.OutBack)
             .SetUpdate(true);
     }
@@ -514,7 +514,7 @@ public class MainMenuController : MonoBehaviour
 
         // 2. 播放滑出动画
         refreshUnlockTipContainer.DOKill();
-        refreshUnlockTipContainer.DOLocalMove(new Vector2(0, -1200), 0.5f)
+        refreshUnlockTipContainer.DOLocalMove(new Vector2(0, -1200), 0.4f)
             .SetEase(Ease.InBack)
             .SetUpdate(true)
             .OnComplete(() =>

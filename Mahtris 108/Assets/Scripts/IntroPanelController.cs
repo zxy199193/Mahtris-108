@@ -36,7 +36,7 @@ public class IntroPanelController : MonoBehaviour
         {
             popupWindow.DOKill();
             popupWindow.anchoredPosition = new Vector2(0, -1200); // 重置位置
-            popupWindow.DOLocalMove(Vector2.zero, 0.5f) // 播放动画
+            popupWindow.DOLocalMove(Vector2.zero, 0.4f) // 播放动画
                 .SetEase(Ease.OutBack)
                 .SetUpdate(true);
         }
@@ -52,7 +52,7 @@ public class IntroPanelController : MonoBehaviour
         {
             popupWindow.DOKill();
             // 3. 播放滑出动画
-            popupWindow.DOLocalMove(new Vector2(0, -1200), 0.5f)
+            popupWindow.DOLocalMove(new Vector2(0, -1200), 0.4f)
                 .SetEase(Ease.InBack)
                 .SetUpdate(true)
                 .OnComplete(() =>
