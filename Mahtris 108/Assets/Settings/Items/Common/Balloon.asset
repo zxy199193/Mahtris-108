@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 770fe7b242925e44f83050dc617d62a1, type: 3}
   m_Name: Balloon
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_05
+  descKey: ITEM_DES_05
   itemName: "\u6C14\u7403"
   itemIcon: {fileID: 21300000, guid: ca7c621c0f59d9c418029afce5e8e647, type: 3}
   itemDescription: "\u6574\u5C40\u6E38\u620F\u65B9\u5757<color=#36BA98>\u4E0B\u964D\u901F\u5EA6-3</color>\r"
+  isAdvanced: 0
   isLegendary: 0
   useSound: {fileID: 0}
   price: 0

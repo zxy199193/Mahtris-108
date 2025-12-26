@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e257eb4549b52ed42b1f77879e315c0f, type: 3}
   m_Name: EnergyDrink
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_02
+  descKey: ITEM_DES_02
   itemName: "\u529F\u80FD\u996E\u6599"
   itemIcon: {fileID: 21300000, guid: 9079a057392fcd544bde742290a5aae9, type: 3}
   itemDescription: "\u672C\u8F6E\u6E38\u620F<color=#3296DC>\u57FA\u7840\u5206+8</color>\uFF0C\u80E1\u724C\u540E\u6062\u590D\r"
+  isAdvanced: 0
   isLegendary: 0
   useSound: {fileID: 0}
   price: 0

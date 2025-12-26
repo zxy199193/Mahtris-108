@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccc861540cb03934888f95c45dff8421, type: 3}
   m_Name: Obelisk
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_13
+  descKey: ITEM_DES_13
   itemName: "\u65B9\u5C16\u5854"
   itemIcon: {fileID: 21300000, guid: 9a15df2a8436e5744982009b30b06564, type: 3}
   itemDescription: "\u4E0B\u4E00\u4E2A\u5F62\u72B6\u4F1A\u53D8\u4E3A7\u683C\u957F\u6761\u65B9\u5757\r"

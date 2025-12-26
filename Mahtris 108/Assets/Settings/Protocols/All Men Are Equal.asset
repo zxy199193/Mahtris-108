@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4325e11e877e0244ab7dff7360a89415, type: 3}
   m_Name: All Men Are Equal
   m_EditorClassIdentifier: 
+  nameKey: PROTOCOL_NAME_25
+  descKey: PROTOCOL_DES_25
   protocolName: "\u4EBA\u4EBA\u5E73\u7B49"
   protocolIcon: {fileID: 21300000, guid: 1349ad018ef63914b99429693631e528, type: 3}
   protocolDescription: "\u6240\u6709\u5F62\u72B6\u7684\u65B9\u5757\u6240\u63D0\u4F9B\u7684<color=#FF595E>\u65B9\u5757\u500D\u7387\u53D8\u4E3A3</color>\r"

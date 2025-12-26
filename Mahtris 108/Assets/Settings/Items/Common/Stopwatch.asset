@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16f5afb1abc642b4497f34b2f5d57e30, type: 3}
   m_Name: Stopwatch
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_11
+  descKey: ITEM_DES_11
   itemName: "\u505C\u8868"
   itemIcon: {fileID: 21300000, guid: 9b8cd7a1a6b71aa4594d0eff5e0c3dc0, type: 3}
   itemDescription: "\u672C\u8F6E\u6E38\u620F\u589E\u52A05\u6B21\u6682\u505C\u65F6\u95F4\uFF0C\u80E1\u724C\u540E\u6062\u590D\r\r"

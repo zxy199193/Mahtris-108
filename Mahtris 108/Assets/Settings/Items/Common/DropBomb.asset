@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43915d45d68d952408aa43a57f897bbd, type: 3}
   m_Name: DropBomb
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_09
+  descKey: ITEM_DES_09
   itemName: "\u7A7A\u6295\u70B8\u5F39"
   itemIcon: {fileID: 21300000, guid: 20c27409d6fc3b2499f7596f1b4d0a6e, type: 3}
   itemDescription: "\u5F3A\u884C\u6D88\u9664\u6700\u4E0A\u65B93\u884C\u65B9\u5757"

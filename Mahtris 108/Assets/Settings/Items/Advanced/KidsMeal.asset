@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cb9b495a97ea57459472f7e40eadb46, type: 3}
   m_Name: KidsMeal
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_29
+  descKey: ITEM_DES_29
   itemName: "\u513F\u7AE5\u9910"
   itemIcon: {fileID: 21300000, guid: ffc766b8e21307c4c953c21e58b3e25d, type: 3}
   itemDescription: "60\u79D2\u5185\u53EA\u4F1A\u51FA\u73B01~3\u683C\u7684\u65B9\u5757\uFF0C\u671F\u95F4\u80E1\u724C\u5219\u6548\u679C\u505C\u6B62"

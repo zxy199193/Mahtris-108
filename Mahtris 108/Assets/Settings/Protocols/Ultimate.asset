@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31972503450f41043805ad74bee91211, type: 3}
   m_Name: Ultimate
   m_EditorClassIdentifier: 
-  nameKey: 
-  descKey: 
+  nameKey: PROTOCOL_NAME_40
+  descKey: PROTOCOL_DES_40
   protocolName: "\u5965\u4E49\u5F88\u723D"
   protocolIcon: {fileID: 21300000, guid: 24038a9f57239b34b9d37f1cef7823a4, type: 3}
   protocolDescription: "<color=#E682E6>\u989D\u5916\u500D\u7387x16</color>\r"

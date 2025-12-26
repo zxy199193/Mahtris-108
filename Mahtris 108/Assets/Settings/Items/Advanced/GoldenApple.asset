@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcc67b8ab6abecb43847be296ad11293, type: 3}
   m_Name: GoldenApple
   m_EditorClassIdentifier: 
-  nameKey: 
-  descKey: 
+  nameKey: ITEM_NAME_39
+  descKey: ITEM_DES_39
   itemName: "\u91D1\u82F9\u679C"
   itemIcon: {fileID: 21300000, guid: 5ec9fe99b7c4d084e94dc47bf2206f5d, type: 3}
   itemDescription: "\u65B9\u5757\u5217\u8868\u4E2D\u6BCF\u6709\u4E00\u79CD\u65B9\u5757\uFF0C\u6574\u5C40\u6E38\u620F<color=#3296DC>\u57FA\u7840\u5206+3</color>\r\n"

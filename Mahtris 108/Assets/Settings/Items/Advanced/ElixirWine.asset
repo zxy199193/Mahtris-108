@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e80e7a802ed0dd47b8f21e4588db72a, type: 3}
   m_Name: ElixirWine
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_25
+  descKey: ITEM_DES_25
   itemName: "\u4ED9\u9152"
   itemIcon: {fileID: 21300000, guid: 2dc1deb8ef9751a4db0bb20e060e6235, type: 3}
   itemDescription: "\u6574\u5C40\u6E38\u620F\u5F53\u524D<color=#3296DC>\u57FA\u7840\u5206x2</color>\r"

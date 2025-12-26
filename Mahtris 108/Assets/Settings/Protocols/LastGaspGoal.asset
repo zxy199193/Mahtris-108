@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 813bd4800f7e2e848897930292d37787, type: 3}
   m_Name: LastGaspGoal
   m_EditorClassIdentifier: 
+  nameKey: PROTOCOL_NAME_26
+  descKey: PROTOCOL_DES_26
   protocolName: "\u7EDD\u6740"
   protocolIcon: {fileID: 21300000, guid: 0f774c70351e4c1418b201cbcde06d20, type: 3}
   protocolDescription: "\u5269\u4F59\u65F6\u95F4\u5C0F\u4E8E3\u79D2\u65F6\uFF0C\u5F53\u524D<color=#3296DC>\u57FA\u7840\u5206+36</color>"

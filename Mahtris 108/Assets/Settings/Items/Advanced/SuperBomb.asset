@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36b0cd5582aede0459387ede15f89678, type: 3}
   m_Name: SuperBomb
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_27
+  descKey: ITEM_DES_27
   itemName: "\u8D85\u7EA7\u70B8\u5F39"
   itemIcon: {fileID: 21300000, guid: 8c52b82d11540e54192f5d14bbd941f5, type: 3}
   itemDescription: "\u5F3A\u884C\u6D88\u9664\u5E95\u4E0B5\u884C\u65B9\u5757\r\r"

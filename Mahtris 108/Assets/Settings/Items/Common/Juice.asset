@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17105b631b1503f4295e48ff634efc2f, type: 3}
   m_Name: Juice
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_01
+  descKey: ITEM_DES_01
   itemName: "\u679C\u6C41"
   itemIcon: {fileID: 21300000, guid: 82f5b5bf6df499648a839737acd846aa, type: 3}
   itemDescription: "\u6574\u5C40\u6E38\u620F<color=#3296DC>\u57FA\u7840\u5206+3</color>\r\r"
+  isAdvanced: 0
   isLegendary: 0
   useSound: {fileID: 0}
   price: 0

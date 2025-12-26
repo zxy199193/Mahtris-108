@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35da09e80649faa4694973338d38c612, type: 3}
   m_Name: Ach_041
   m_EditorClassIdentifier: 
-  nameKey: 
-  descKey: 
+  nameKey: ACHIEVEMENT_NAME_41
+  descKey: ACHIEVEMENT_DES_41
   id: Ach_041
   title: No.41
   description: "\u7D2F\u8BA1\u4F7F\u7528100\u4E2A\u9053\u5177"

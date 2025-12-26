@@ -83,8 +83,6 @@ TIP_ITEM,道具,道具,ITEM,アイテム
 TIP_ADVANCED_ITEM,高级道具,高級道具,ADVANCED ITEM,高級アイテム
 TIP_PROTOCOL,条约,條約,PROTOCOL,条約
 TIP_LEGEND,传奇,傳奇,HOLY,伝説
-ITEM_BOMB_NAME,炸弹,炸彈,BOMB,爆弾
-ITEM_BOMB_DES,强行消除底下2行方块,強行消除底下2行方塊,Force clear bottom 2 lines,最下段の2列を強制消去する
 HU_TYPE_FAN,番,番,Fan,翻
 HU_TYPE_TIAN,天胡,天胡,Heavenly Hand,天和
 HU_TYPE_DI,地胡,地胡,Earthly Hand,地和
@@ -108,3 +106,263 @@ HU_TYPE_SANSETONGKE_DES,筒、万、条都有相同数位的刻子,筒、萬、�
 HU_TYPE_PING_DES,基础胡牌牌型,基礎胡牌牌型,Basic winning hand,基本的なアガリ形
 HU_TYPE_KONG_DES,消除行时有4张一样的牌则形成杠牌，胡牌番数+1,消除行時有4張一樣的牌則形成槓，胡牌番數+1,Clearing a line with 4 identical tiles forms a Kong and adds 1 Fan,ライン消去時に同一牌が4枚あるとカンとなり、翻数+1
 HU_TYPE_STATE,当胡牌牌组同时包含多种多种牌型，则胡牌番数为所有牌型番数之和（不含平胡）,當胡牌牌組同時包含多種牌型，則胡牌番數為所有牌型番數之和（不含平胡）,"If multiple Hand Types apply, the Fan is the sum of all types (excluding Basic Hand)",複数の役が成立する場合、翻数はそれらの合計となります（基本形は除く）
+ITEM_NAME_01,果汁,果汁,Juice,ジュース
+ITEM_NAME_02,功能饮料,功能飲料,Energy Drink,エナドリ
+ITEM_NAME_03,香槟,香檳,Champagne,シャンパン
+ITEM_NAME_04,类固醇,類固醇,Steroid,ステロイド
+ITEM_NAME_05,气球,氣球,Balloon,風船
+ITEM_NAME_06,降落伞,降落傘,Parachute,パラシュート
+ITEM_NAME_07,喷气背包,噴氣背包,Jet Pack,ジェットパック
+ITEM_NAME_08,炸弹,炸彈,Bomb,爆弾
+ITEM_NAME_09,空投炸弹,空投炸彈,Drop Bomb,空爆
+ITEM_NAME_10,沙漏,沙漏,Hourglass,砂時計
+ITEM_NAME_11,停表,停錶,Stopwatch,ストップウォッチ
+ITEM_NAME_12,橡皮擦,橡皮擦,Eraser,消しゴム
+ITEM_NAME_13,方尖塔,方尖塔,Obelisk,オベリスク
+ITEM_NAME_14,微波炉,微波爐,Microwave Oven,電子レンジ
+ITEM_NAME_15,镜子,鏡子,Mirror,鏡
+ITEM_NAME_16,漏斗,漏斗,Filter,フィルター
+ITEM_NAME_17,试用小样,試用小樣,Sample,試供品
+ITEM_NAME_18,幸运瓶盖,幸運瓶蓋,Lucky Cap,ラッキーキャップ
+ITEM_NAME_19,剪刀,剪刀,Scissors,ハサミ
+ITEM_NAME_20,快进按钮,快進按鈕,Skip Button,早送り
+ITEM_NAME_21,代金券,代金券,Voucher,商品券
+ITEM_NAME_22,垃圾筒,垃圾桶,Trash Bin,ゴミ箱
+ITEM_NAME_23,魔术手帕,魔術手帕,Magic Hanky,魔法のハンカチ
+ITEM_NAME_24,磁铁,磁鐵,Magnet,磁石
+ITEM_NAME_25,仙酒,仙酒,Elixir Wine,エリクサー
+ITEM_NAME_26,优惠券,優惠券,Coupon,クーポン
+ITEM_NAME_27,超级炸弹,超級炸彈,Super Bomb,超爆弾
+ITEM_NAME_28,黄金镜,黃金鏡,Gold Mirror,黄金の鏡
+ITEM_NAME_29,儿童餐,兒童餐,Kids Meal,お子様ランチ
+ITEM_NAME_30,圣诞礼物,聖誕禮物,Xmas Gift,クリスマスギフト
+ITEM_NAME_31,复活石,復活石,Revive Stone,復活石
+ITEM_NAME_32,大垃圾桶,大垃圾桶,Big Trash Bin,大ゴミ箱
+ITEM_NAME_33,悬赏令,懸賞令,Wanted Poster,手配書
+ITEM_NAME_34,护照-筒子,護照-筒子,Passport - Tong,パスポート・筒
+ITEM_NAME_35,护照-万子,護照-萬子,Passport - Wan,パスポート・萬
+ITEM_NAME_36,护照-条子,護照-條子,Passport - Tiao,パスポート・索
+ITEM_NAME_37,点金手,點金手,Hand of Midas,ミダスの手
+ITEM_NAME_38,壞計算器,計分板,Broken Calculator,壊れた電卓
+ITEM_NAME_39,金苹果,金蘋果,Golden Apple,金のリンゴ
+ITEM_NAME_40,神之救济,神之救濟,God's Salvation,神の救済
+ITEM_DES_01,整局游戏<color=#3296DC>基础分+3</color>,整局遊戲<color=#3296DC>基礎分+3</color>,Game <color=#3296DC>Base Score +3</color>.,対局全体の<color=#3296DC>基礎点+3</color>。
+ITEM_DES_02,本轮游戏<color=#3296DC>基础分+8</color>，胡牌后恢复,本輪遊戲<color=#3296DC>基礎分+8</color>，胡牌後恢復,Round <color=#3296DC>Base Score +8</color>. Resets after Hu.,今ラウンドの<color=#3296DC>基礎点+8</color>。アガリ後にリセット。
+ITEM_DES_03,如果下下个方块降落后胡牌，本轮游戏<color=#3296DC>基础分+10</color>,如果下下個方塊降落後胡牌，本輪遊戲<color=#3296DC>基礎分+10</color>,"If Hu after the 2nd block drops, Round <color=#3296DC>Base Score +10</color>.",2つ後のブロック落下後にアガると、今ラウンドの<color=#3296DC>基礎点+10</color>。
+ITEM_DES_04,本轮游戏<color=#3296DC>基础分+16</color>，胡牌后<color=#3296DC>基础分-32</color>（最低为1），再次胡牌后恢复,本輪遊戲<color=#3296DC>基礎分+16</color>，胡牌後<color=#3296DC>基礎分-32</color>（最低為1），再次胡牌後恢復,Round <color=#3296DC>Base Score +16</color>. After Hu: <color=#3296DC>Base Score -32</color> (Min 1). Resets on next Hu.,今ラウンドの<color=#3296DC>基礎点+16</color>。アガリ後<color=#3296DC>基礎点-32</color>（最低1）、再度アガると回復。
+ITEM_DES_05,整局游戏方块<color=#36BA98>下降速度-3</color>,整局遊戲方塊<color=#36BA98>下降速度-3</color>,Game Block <color=#36BA98>Drop Speed -3</color>.,対局全体のブロック<color=#36BA98>落下速度-3</color>。
+ITEM_DES_06,本轮游戏方块<color=#36BA98>下降速度-8</color>，胡牌后恢复,本輪遊戲方塊<color=#36BA98>下降速度-8</color>，胡牌後恢復,Round Block <color=#36BA98>Drop Speed -8</color>. Resets after Hu.,今ラウンドのブロック<color=#36BA98>落下速度-8</color>。アガリ後にリセット。
+ITEM_DES_07,接下来10个方块的<color=#36BA98>下降速度-15</color>（最低为1），期间胡牌效果中止,接下來10個方塊的<color=#36BA98>下降速度-15</color>（最低為1），期間胡牌效果中止,Next 10 Blocks <color=#36BA98>Drop Speed -15</color> (Min 1). Ends on Hu.,次のブロック10個の<color=#36BA98>落下速度-15</color>（最低1）。アガると効果終了。
+ITEM_DES_08,强行消除底下2行方块,強行消除底下2行方塊,Force clear bottom 2 lines.,最下段の2列を強制消去する。
+ITEM_DES_09,强行消除最上方3行方块,強行消除最上方3行方塊,Force clear top 3 lines.,最上段の3列を強制消去する。
+ITEM_DES_10,剩余<color=#36BA98>游戏时间+40秒</color>,剩餘<color=#36BA98>遊戲時間+40秒</color>,Remaining <color=#36BA98>Time +40s</color>.,残り<color=#36BA98>時間+40秒</color>。
+ITEM_DES_11,本轮游戏增加5次暂停时间，胡牌后恢复,本輪遊戲增加5次暫停時間，胡牌後恢復,Add 5 Pauses this round. Resets after Hu.,今ラウンドの一時停止回数+5。アガリ後にリセット。
+ITEM_DES_12,将上一组加入胡牌区的牌放回牌库,將上一組加入胡牌區的牌放回牌庫,Return the last set added to Hu Zone to the Deck.,アガリ牌エリアに加えた直近の1組を山牌に戻す。
+ITEM_DES_13,下一个形状会变为7格长条方块,下一個形狀會變為7格長條方塊,Next block becomes a 7-cell I-piece.,次のブロックが7マスの棒状に変化する。
+ITEM_DES_14,将下一个方块替换成相同方块数量的其他形状,將下一個方塊替換成相同方塊數量的其他形狀,Reroll next block (keep size).,次のブロックを同じサイズの別の形に変換する。
+ITEM_DES_15,下一个方块形状会连续出现3次,下一個方塊形狀會連續出現3次,Next block shape appears 3 times in a row.,次のブロックと同じ形が3連続で出現する。
+ITEM_DES_16,40秒内不会出现5格方块，期间胡牌效果中止,40秒內不會出現5格方塊，期間胡牌效果中止,No 5-cell blocks for 40s. Ends on Hu.,40秒間、5マスブロックが出現しない。アガると効果終了。
+ITEM_DES_17,下次胡牌额外获得2个1格方块,下次胡牌額外獲得2個1格方塊,Get 2 extra 1-cell blocks on next Hu.,次回のアガリ時、1マスブロックを2つ追加で獲得。
+ITEM_DES_18,下次胡牌选择的方块奖励会额外增加1个,下次胡牌選擇的方塊獎勵會額外增加1個,+1 Block Reward choice on next Hu.,次回のアガリ時、ブロック報酬の選択肢が1つ増える。
+ITEM_DES_19,移除方块列表中方块倍率最大的方块,移除方塊列表中方塊倍率最大的方塊,Remove the block with highest Mult. from list.,リスト内で倍率が最大のブロックを削除する。
+ITEM_DES_20,圈数计数+2，方块<color=#36BA98>下降速度+2</color>,圈數計數+2，方塊<color=#36BA98>下降速度+2</color>,"Streak Count +2, Block <color=#36BA98>Drop Speed +2</color>.",周回カウント+2、ブロック<color=#36BA98>落下速度+2</color>。
+ITEM_DES_21,获得300金币,獲得300金幣,Get 300 Coins.,300コインを獲得。
+ITEM_DES_22,下次消除的行不会进行判定而是会被直接移除，胡牌后恢复为正常牌库,下次消除的行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next cleared lines are removed without judging. Resets after Hu.,次に消去した列は判定されずに破棄される。アガリ後にリセット。
+ITEM_DES_23,后场上所有方块的麻将牌面被随机打乱,後場上所有方塊的麻將牌面被隨機打亂,Shuffle tiles on all placed blocks.,場にある全てのブロックの牌をシャッフルする。
+ITEM_DES_24,当有胡牌区有刻子时，且场上有这个刻子的牌，加入该牌形成杠牌（满足多个刻子时随机）,當胡牌區有刻子時，且場上有這個刻子的牌，加入該牌形成槓牌（滿足多個刻子時隨機）,"If Hu Zone has Triplet & board has that tile, form a Kong (Random).",アガリ牌に刻子があり、場にその牌がある場合、槓子を作る（ランダム）。
+ITEM_DES_25,整局游戏当前<color=#3296DC>基础分x2</color>,整局遊戲當前<color=#3296DC>基礎分x2</color>,Game Current <color=#3296DC>Base Score x2</color>.,対局全体の現在<color=#3296DC>基礎点x2</color>。
+ITEM_DES_26,当前目标分数-20%,當前目標分數-20%,Current Target Score -20%.,現在の目標スコア-20%。
+ITEM_DES_27,强行消除底下5行方块,強行消除底下5行方塊,Force clear bottom 5 lines.,最下段の5列を強制消去する。
+ITEM_DES_28,使用效果复制上一个使用的道具,使用效果複製上一個使用的道具,Copy effect of last used Item.,直前に使用したアイテムの効果をコピーする。
+ITEM_DES_29,60秒内只会出现1~3格的方块，期间胡牌则效果停止,60秒內只會出現1~3格的方塊，期間胡牌則效果停止,Only 1-3 cell blocks for 60s. Ends on Hu.,60秒間、1~3マスのブロックのみ出現。アガると効果終了。
+ITEM_DES_30,当胡牌区牌组小于4组且牌库中存在可以组成刻子或顺子的牌时，随机将一组牌加入胡牌区,當胡牌區牌組小於4組且牌庫中存在可以組成刻子或順子的牌時，隨機將一組牌加入胡牌區,"If Hu Zone <4 sets & Deck has valid set, add random set to Hu Zone.",アガリ牌が4組未満で、山牌に有効な面子がある場合、ランダムに1組追加。
+ITEM_DES_31,本轮游戏如果游戏失败则会将场上所有牌返回牌库，<color=#36BA98>游戏时间+30秒</color>，然后继续游戏,本輪遊戲如果遊戲失敗則會將場上所有牌返回牌庫，<color=#36BA98>遊戲時間+30秒</color>，然後繼續遊戲,"On Defeat: Return board tiles to Deck, <color=#36BA98>Time +30s</color>, Continue.",敗北時、場の牌を全て山牌に戻し、<color=#36BA98>時間+30秒</color>で再開。
+ITEM_DES_32,接下来3次消除的行不会进行判定而是会被直接移除，胡牌后恢复为正常牌库,接下來3次消除的行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next 3 line clears are removed without judging.,次の3回のライン消去は判定されずに破棄される。
+ITEM_DES_33,当前目标的金币奖励x3,當前目標的金幣獎勵x3,Current Target Coin Reward x3.,現在の目標のコイン報酬x3。
+ITEM_DES_34,接下来15秒的方块会尽可能只有筒子牌,接下來15秒的方塊會盡可能只有筒子牌,Next 15s: Blocks mostly contain Dot tiles.,15秒間、ブロックが可能な限り筒子のみになる。
+ITEM_DES_35,接下来15秒的方块会尽可能只有万子牌,接下來15秒的方塊會盡可能只有萬子牌,Next 15s: Blocks mostly contain Char tiles.,15秒間、ブロックが可能な限り萬子のみになる。
+ITEM_DES_36,接下来15秒的方块会尽可能只有条子牌,接下來15秒的方塊會盡可能只有條子牌,Next 15s: Blocks mostly contain Bamboo tiles.,15秒間、ブロックが可能な限り索子のみになる。
+ITEM_DES_37,20秒内每次消除行会给与金币，初始为1，此后每消除1行金币奖励x2，期间胡牌效果中止,20秒內每次消除行會給與金幣，初始為1，此後每消除1行金幣獎勵x2，期間胡牌效果中止,"20s: Line clear gives Coins (Starts 1, x2 per clear). Ends on Hu.",20秒間、ライン消去でコイン獲得（初期1、消去毎にx2）。アガリで中止。
+ITEM_DES_38,20秒内每次消除行会给增加当前得分的5%，期间胡牌效果中止,20秒內每次消除行會給增加當前得分的5%，期間胡牌效果中止,20s: Line clear adds 5% of Current Score. Ends on Hu.,20秒間、ライン消去で現在のスコアの5%を加算。アガリで中止。
+ITEM_DES_39,方块列表中每有一种方块，整局游戏<color=#3296DC>基础分+3</color>,方塊列表中每一種方塊，整局遊戲<color=#3296DC>基礎分+3</color>,Game <color=#3296DC>Base Score +3</color> per block type in list.,リスト内のブロック1種につき、全体の<color=#3296DC>基礎点+3</color>。
+ITEM_DES_40,整局游戏<color=#3296DC>基础分+18</color>，方块<color=#36BA98>下落速度-8</color>，<color=#36BA98>游戏时间+80秒</color>，强行消除底下3行方块,整局遊戲<color=#3296DC>基礎分+18</color>，方塊<color=#36BA98>下落速度-8</color>，<color=#36BA98>遊戲時間+80秒</color>，強行消除底下3行方塊,"Game <color=#3296DC>Base +18</color>, <color=#36BA98>Speed -8</color>, <color=#36BA98>Time +80s</color>, Clear bottom 3 lines.",全体の<color=#3296DC>基礎点+18</color>、<color=#36BA98>速度-8</color>、<color=#36BA98>時間+80秒</color>、下3列消去。
+PROTOCOL_NAME_01,速度之星,速度之星,Speed Star,スピードスター
+PROTOCOL_NAME_02,临期食品,臨期食品,Expiring Food,見切り品
+PROTOCOL_NAME_03,新能源,新能源,Renewable Energy,再生可能エネ
+PROTOCOL_NAME_04,超算力,超算力,Hyper Hashrate,超計算力
+PROTOCOL_NAME_05,便宜仓库,便宜倉庫,Cheap Warehouse,格安倉庫
+PROTOCOL_NAME_06,台风天气,颱風天氣,Typhoon,台風
+PROTOCOL_NAME_07,无重力,無重力,No Gravity,無重力
+PROTOCOL_NAME_08,时间就是金钱,時間就是金錢,Time is Money,時は金なり
+PROTOCOL_NAME_09,断幺九,斷么九,All Simples,断幺九
+PROTOCOL_NAME_10,缺一门,缺一門,Suit Remover,絶一門
+PROTOCOL_NAME_11,杠上开花,槓上開花,Blooming on Kong,嶺上開花
+PROTOCOL_NAME_12,迷雾,迷霧,Mist,濃霧
+PROTOCOL_NAME_13,海底捞月,海底撈月,Bottom Moon,海底摸月
+PROTOCOL_NAME_14,混淆视听,混淆視聽,Blurred Vision,錯乱
+PROTOCOL_NAME_15,老派玩家,老派玩家,Old School,オールドスクール
+PROTOCOL_NAME_16,麻将博士,麻將博士,Dr. Mahjong,麻雀博士
+PROTOCOL_NAME_17,三位一体,三位一體,Trinity,三位一体
+PROTOCOL_NAME_18,延迟满足,延遲滿足,Delay of Gratification,遅延報酬
+PROTOCOL_NAME_19,朝九晚五,朝九晚五,Routine Work,9時5時
+PROTOCOL_NAME_20,子弹时间,子彈時間,Bullet Time,バレットタイム
+PROTOCOL_NAME_21,不稳定电流,不穩定電流,Unstable Current,不安定電流
+PROTOCOL_NAME_22,自然保护区,自然保護區,Nature Reserve,自然保護区
+PROTOCOL_NAME_23,戏法空间,戲法空間,Trick Room,トリックルーム
+PROTOCOL_NAME_24,攻击的巨人,攻擊的巨人,Attack on Giant,進撃の巨人
+PROTOCOL_NAME_25,人人平等,人人平等,All Men are Equal,人類皆平等
+PROTOCOL_NAME_26,绝杀,絕殺,Last Gasp Goal,ブザービーター
+PROTOCOL_NAME_27,沼泽地,沼澤地,Swamp,沼地
+PROTOCOL_NAME_28,流星雨,流星雨,Meteor Shower,流星群
+PROTOCOL_NAME_29,独木桥,獨木橋,Log Bridge,独木橋
+PROTOCOL_NAME_30,狂战士,狂戰士,Berserker,バーサーカー
+PROTOCOL_NAME_31,深邃黑暗幻想,深邃黑暗幻想,Deep Dark Fantasy,Deep Dark Fantasy
+PROTOCOL_NAME_32,空手道大师,空手道大師,Karate Master,空手マスター
+PROTOCOL_NAME_33,背水一战,背水一戰,A Last Stand,背水の陣
+PROTOCOL_NAME_34,强者世界,強者世界,Strong World,強者の世界
+PROTOCOL_NAME_35,大革命,大革命,Great Revolution,大革命
+PROTOCOL_NAME_36,千里走单骑,千里走單騎,One Man Army,単騎千里走
+PROTOCOL_NAME_37,亚空间,亞空間,Subspace,亜空間
+PROTOCOL_NAME_38,合纵连横,合縱連橫,Realpolitik,合従連衡
+PROTOCOL_NAME_39,超超超贵宾,超超超貴賓,SSSVIP,SSSVIP
+PROTOCOL_NAME_40,奥义很爽,奧義很爽,Ultimate Impact,奥義・爽快
+PROTOCOL_DES_01,方块<color=#36BA98>下降速度+10</color>，<color=#E682E6>额外倍率x2</color>,方塊<color=#36BA98>下降速度+10</color>，<color=#E682E6>額外倍率x2</color>,"Block <color=#36BA98>Speed +10</color>, <color=#E682E6>Ex Mult x2</color>.",ブロック<color=#36BA98>落下速度+10</color>、<color=#E682E6>追加倍率x2</color>。
+PROTOCOL_DES_02,每轮游戏开始时，胡牌<color=#3296DC>基础分+70</color>，之后<color=#3296DC>每秒-1</color>（最低为1），胡牌后重置,每輪遊戲開始時，胡牌<color=#3296DC>基礎分+70</color>，之後<color=#3296DC>每秒-1</color>（最低為1），胡牌後重置,"Round Start: <color=#3296DC>Base Score +70</color>, then <color=#3296DC>-1 per sec</color> (Min 1). Resets on Hu.",各ラウンド開始時、<color=#3296DC>基礎点+70</color>。その後<color=#3296DC>每秒-1</color>（最低1）。アガリ後リセット。
+PROTOCOL_DES_03,每次胡牌时游戏时间奖励+20秒,每次胡牌時遊戲時間獎勵+20秒,Time Reward +20s on Hu.,アガリ時の時間報酬+20秒。
+PROTOCOL_DES_04,当有5格方块时生效，5格方块出现的权重提高200%，<color=#E682E6>额外倍率x3</color>,當有5格方塊時生效，5格方塊出現的權重提高200%，<color=#E682E6>額外倍率x3</color>,5-cell block weight +200% if present. <color=#E682E6>Ex Mult x3</color>.,5マスブロックがある場合、出現率+200%、<color=#E682E6>追加倍率x3</color>。
+PROTOCOL_DES_05,当牌库中剩余的牌低于36张时游戏失败，<color=#E682E6>额外倍率x2</color>,當牌庫中剩餘的牌低於36張時遊戲失敗，<color=#E682E6>額外倍率x2</color>,Defeat if Deck < 36 tiles. <color=#E682E6>Ex Mult x2</color>.,山牌が36枚未満になると敗北。<color=#E682E6>追加倍率x2</color>。
+PROTOCOL_DES_06,方块下落时每2秒会随机往左或右移动1~2格，<color=#E682E6>额外倍率x3</color>,方塊下落時每2秒會隨機往左或右移動1~2格，<color=#E682E6>額外倍率x3</color>,Blocks shift randomly 1-2 cells every 2s. <color=#E682E6>Ex Mult x3</color>.,落下中、2秒毎に左右に1~2マスランダム移動。<color=#E682E6>追加倍率x3</color>。
+PROTOCOL_DES_07,方块中的麻将牌面会随机旋转方向，<color=#E682E6>额外倍率x2</color>,方塊中的麻將牌面會隨機旋轉方向，<color=#E682E6>額外倍率x2</color>,Tile orientation rotates randomly. <color=#E682E6>Ex Mult x2</color>.,ブロック内の牌の向きがランダムに回転。<color=#E682E6>追加倍率x2</color>。
+PROTOCOL_DES_08,胡牌时不再奖励游戏时间，目标金币奖励x2,胡牌時不再獎勵遊戲時間，目標金幣獎勵x2,No Time Reward on Hu. Target Coin Reward x2.,アガリ時の時間報酬なし。目標コイン報酬x2。
+PROTOCOL_DES_09,移除所有数字1和9的牌，<color=#FF595E>方块倍率-12（最低为1）</color>,移除所有數字1和9的牌，<color=#FF595E>方塊倍率-12（最低為1）</color>,Remove all 1 & 9 tiles. <color=#FF595E>Block Mult -12 (Min 1)</color>.,全ての一・九牌を除去。<color=#FF595E>ブロック倍率-12（最低1）</color>。
+PROTOCOL_DES_10,随机移除一种花色所有的牌，<color=#FF595E>方块倍率-16（最低为1）</color>,隨機移除一種花色所有的牌，<color=#FF595E>方塊倍率-16（最低為1）</color>,Remove random Suit. <color=#FF595E>Block Mult -16 (Min 1)</color>.,ランダムな1種類の数牌を全除去。<color=#FF595E>ブロック倍率-16（最低1）</color>。
+PROTOCOL_DES_11,<color=#FF595E>方块倍率-20（最低为1）</color>，每组杠牌提供的番数+1,<color=#FF595E>方塊倍率-20（最低為1）</color>，每組槓牌提供的番數+1,"<color=#FF595E>Block Mult -20 (Min 1)</color>, Fan per Kong +1.",<color=#FF595E>ブロック倍率-20（最低1）</color>、カン1組につき翻数+1。
+PROTOCOL_DES_12,下一个方块预览会被迷雾遮挡，<color=#E682E6>额外倍率x3</color>,下一個方塊預覽會被迷霧遮擋，<color=#E682E6>額外倍率x3</color>,Mask Next Block preview. <color=#E682E6>Ex Mult x3</color>.,NEXTブロックが見えなくなる。<color=#E682E6>追加倍率x3</color>。
+PROTOCOL_DES_13,当牌库中的麻将不足时，如果当前方块着陆后触发胡牌，本次胡牌<color=#3296DC>基础分+36</color>,當牌庫中的麻將不足時，如果當前方塊著陸後觸發胡牌，本次胡牌<color=#3296DC>基礎分+36</color>,If Deck low & block drop triggers Hu: <color=#3296DC>Base Score +36</color>.,山牌不足時、着地でアガると<color=#3296DC>基礎点+36</color>。
+PROTOCOL_DES_14,胡牌时如牌型仅2种花面，视为“清一色”牌型，<color=#FF595E>方块倍率-16</color>（最低为1）,胡牌時如牌型僅2種花面，視為“清一色”牌型，<color=#FF595E>方塊倍率-16</color>（最低為1）,"2 Suits count as ""Full Flush"". <color=#FF595E>Block Mult -16</color> (Min 1).",2色のみでも「清一色」扱い。<color=#FF595E>ブロック倍率-16</color>（最低1）。
+PROTOCOL_DES_15,胡牌时所有牌型都视为平胡，消行分数调整为：<color=#3296DC>基础分x2</color>的“连续消行数量”次方,胡牌時所有牌型都視為平胡，消行分數調整為：<color=#3296DC>基礎分x2</color>的“連續消行數量”次方,"All hands are ""Basic Hand"". Score: <color=#3296DC>Base x2</color> ^ Clears.",全てのアガリが「基本形」扱い。消去点：<color=#3296DC>基礎点x2</color>の連鎖数乗。
+PROTOCOL_DES_16,胡牌时如果是平胡，<color=#E682E6>额外倍率x0</color>，且无奖励，其他牌型计算番数倍率时底数从2变为3,胡牌時如果是平胡，<color=#E682E6>額外倍率x0</color>，且無獎勵，其他牌型計算番數倍率時底數從2變為3,"If ""Basic Hand"": <color=#E682E6>Ex Mult x0</color>, No Reward. Others: Fan base 2->3.",「基本形」は<color=#E682E6>倍率0・報酬なし</color>。他役の翻数底が2→3になる。
+PROTOCOL_DES_17,<color=#FF595E>方块倍率-15</color>（最低为1），每次将“刻子”牌加入胡牌区时，整局游戏<color=#3296DC>基础分+5</color>,<color=#FF595E>方塊倍率-15</color>（最低為1），每次將“刻子”牌加入胡牌區時，整局遊戲<color=#3296DC>基礎分+5</color>,<color=#FF595E>Block Mult -15</color> (Min 1). Add Triplet: Game <color=#3296DC>Base Score +5</color>.,<color=#FF595E>ブロック倍率-15</color>（最低1）。刻子追加時、全体の<color=#3296DC>基礎点+5</color>。
+PROTOCOL_DES_18,每轮游戏开始时，<color=#3296DC>基础分-10</color>（最低为1），每当一次性消除4行及以上时<color=#3296DC>基础分+8</color>，胡牌后重置,每輪遊戲開始時，<color=#3296DC>基礎分-10</color>（最低為1），每當一次性消除4行及以上時<color=#3296DC>基礎分+8</color>，胡牌後重置,Round Start <color=#3296DC>Base -10</color> (Min 1). Clear 4+ lines: <color=#3296DC>Base +8</color>. Resets on Hu.,開始時<color=#3296DC>基礎点-10</color>（最低1）。4列以上同時消しで<color=#3296DC>基礎点+8</color>。アガリ後リセット。
+PROTOCOL_DES_19,每轮游戏开始时，剩余游戏时间变为固定95秒,每輪遊戲開始時，剩餘遊戲時間變為固定95秒,Round Start: Time set to 95s fixed.,ラウンド開始時、残り時間を95秒に固定。
+PROTOCOL_DES_20,当场上有方块高度超过8时，方块下降速度变为5，游戏时间流逝速度减慢为20%,當場上有方塊高度超過8時，方塊下降速度變為5，遊戲時間流逝速度減慢為20%,"Height > 8: Block Speed 5, Time slows to 20%.",高さ8超で速度が5になり、時間の経過が20%になる。
+PROTOCOL_DES_21,每经过6秒<color=#3296DC>基础分增加或减少1~36</color>（最低为1），胡牌后重置,每經過6秒<color=#3296DC>基礎分增加或減少1~36</color>（最低為1），胡牌後重置,Every 6s: <color=#3296DC>Base Score +/- 1~36</color> (Min 1). Resets on Hu.,6秒毎に<color=#3296DC>基礎点が1~36増減</color>（最低1）。アガリ後にリセット。
+PROTOCOL_DES_22,每当向胡牌区添加一张”一条“，本局<color=#3296DC>基础分+6</color>，胡牌后重置,每當向胡牌區添加一張”一條“，本局<color=#3296DC>基礎分+6</color>，胡牌後重置,"Add ""1 Bamboo"" to Hu Zone: Game <color=#3296DC>Base Score +6</color>. Resets on Hu.",アガリ牌に「一索」追加毎に<color=#3296DC>基礎点+6</color>。アガリ後にリセット。
+PROTOCOL_DES_23,键盘上下、左右按键功能调换，<color=#E682E6>额外倍率x3</color>,鍵盤上下、左右按鍵功能調換，<color=#E682E6>額外倍率x3</color>,"Swap Up/Down, Left/Right controls. <color=#E682E6>Ex Mult x3</color>.",上下・左右の操作が反転。<color=#E682E6>追加倍率x3</color>。
+PROTOCOL_DES_24,每轮游戏开始时，第1个方块固定是“巨人方块”，<color=#FF595E>方块倍率+36</color>,每輪遊戲開始時，第1個方塊固定是“巨人方塊”，<color=#FF595E>方塊倍率+36</color>,"Round Start: 1st Block is ""Giant Block"". <color=#FF595E>Block Mult +36</color>.",ラウンド開始時、最初のブロックが「巨人」固定。<color=#FF595E>ブロック倍率+36</color>。
+PROTOCOL_DES_25,所有形状的方块所提供的<color=#FF595E>方块倍率变为3</color>,所有形狀的方塊所提供的<color=#FF595E>方塊倍率變為3</color>,All Block Shapes have <color=#FF595E>Block Mult 3</color>.,全形状の<color=#FF595E>ブロック倍率が3になる</color>。
+PROTOCOL_DES_26,剩余时间小于3秒时，当前<color=#3296DC>基础分+36</color>,剩餘時間小於3秒時，當前<color=#3296DC>基礎分+36</color>,Time < 3s: Current <color=#3296DC>Base Score +36</color>.,残り3秒未満で、現在の<color=#3296DC>基礎点+36</color>。
+PROTOCOL_DES_27,每经过10秒即会强行消除最底下一行方块，<color=#E682E6>额外倍率x2</color>,每經過10秒即會強行消除最底下一行方塊，<color=#E682E6>額外倍率x2</color>,Clear bottom line every 10s. <color=#E682E6>Ex Mult x2</color>.,10秒毎に最下段を強制消去。<color=#E682E6>追加倍率x2</color>。
+PROTOCOL_DES_28,方块有10%的概率以25的速度下落，<color=#E682E6>额外倍率x2</color>,方塊有10%的概率以25的速度下落，<color=#E682E6>額外倍率x2</color>,10% chance Block Speed is 25. <color=#E682E6>Ex Mult x2</color>.,10%の確率で速度25で落下。<color=#E682E6>追加倍率x2</color>。
+PROTOCOL_DES_29,胡牌时每种奖励的数量减为1个，<color=#E682E6>额外倍率x3</color>,胡牌時每種獎勵的數量減為1個，<color=#E682E6>額外倍率x3</color>,Rewards count reduced to 1. <color=#E682E6>Ex Mult x3</color>.,報酬の選択肢が各1つになる。<color=#E682E6>追加倍率x3</color>。
+PROTOCOL_DES_30,胡牌时会自动随机选择奖励，并在游戏开始时自动使用所有可用道具，<color=#E682E6>额外倍率x4</color>,胡牌時會自動隨機選擇獎勵，並在遊戲開始時自動使用所有可用道具，<color=#E682E6>額外倍率x4</color>,Auto-pick Rewards & Auto-use Items on Start. <color=#E682E6>Ex Mult x4</color>.,報酬自動選択、開始時アイテム自動使用。<color=#E682E6>追加倍率x4</color>。
+PROTOCOL_DES_31,方块落地后牌面会在12秒内逐渐变为黑色，<color=#E682E6>额外倍率x4</color>,方塊落地後牌面會在12秒內逐漸變為黑色，<color=#E682E6>額外倍率x4</color>,Placed blocks turn black over 12s. <color=#E682E6>Ex Mult x4</color>.,設置後12秒でブロックが黒くなる。<color=#E682E6>追加倍率x4</color>。
+PROTOCOL_DES_32,不可使用道具，<color=#E682E6>额外倍率x4</color>,不可使用道具，<color=#E682E6>額外倍率x4</color>,Cannot use Items. <color=#E682E6>Ex Mult x4</color>.,アイテム使用不可。<color=#E682E6>追加倍率x4</color>。
+PROTOCOL_DES_33,消除行时麻将不会返回牌库，<color=#E682E6>额外倍率x10</color>,消除行時麻將不會返回牌庫，<color=#E682E6>額外倍率x10</color>,Cleared tiles won't return to Deck. <color=#E682E6>Ex Mult x10</color>.,消去した牌は山牌に戻らない。<color=#E682E6>追加倍率x10</color>。
+PROTOCOL_DES_34,胡牌时强行加入随机一个5格方块，<color=#E682E6>额外倍率x5</color>,胡牌時強行加入隨機一個5格方塊，<color=#E682E6>額外倍率x5</color>,Add random 5-cell block on Hu. <color=#E682E6>Ex Mult x5</color>.,アガリ時、5マスブロックを強制追加。<color=#E682E6>追加倍率x5</color>。
+PROTOCOL_DES_35,每轮游戏开始时，会将方块列表中所有方块随机变为其他方块，<color=#E682E6>额外倍率x5</color>,每輪遊戲開始時，會將方塊列表中所有方塊隨機變為其他方塊，<color=#E682E6>額外倍率x5</color>,Randomize all blocks on Round Start. <color=#E682E6>Ex Mult x5</color>.,ラウンド開始時、全ブロックを変化させる。<color=#E682E6>追加倍率x5</color>。
+PROTOCOL_DES_36,如果没有其他条约，每完成一圈胡牌，<color=#E682E6>额外倍率x2</color>，期间加入条约则失效,如果沒有其他條約，每完成一圈胡牌，<color=#E682E6>額外倍率x2</color>，期間加入條約則失效,No other Protocol & 4-Hu Streak: <color=#E682E6>Ex Mult x2</color>. Voids if Protocol added.,他の条約なしで1周達成時、<color=#E682E6>追加倍率x2</color>。条約追加で無効化。
+PROTOCOL_DES_37,完成一圈所需要的轮数-1，每次胡牌方块<color=#36BA98>下降速度</color>额外+2,完成一圈所需要的輪數-1，每次胡牌方塊<color=#36BA98>下降速度</color>額外+2,Streak needs 1 less Hu. Hu adds <color=#36BA98>Speed +2</color>.,周回に必要なアガリ回数-1。アガリ毎に<color=#36BA98>速度+2</color>。
+PROTOCOL_DES_38,每次消除多行时会视为一行来进行麻将判定,每次消除多行時會視為一行來進行麻將判定,Multi-line clears judged as single line.,複数列消去時、1列として判定する。
+PROTOCOL_DES_39,胡牌时每种奖励可以选择2个,胡牌時每種獎勵可以選擇2個,Select 2 Rewards per category on Hu.,アガリ時、各カテゴリの報酬を2つ選べる。
+PROTOCOL_DES_40,<color=#E682E6>额外倍率x16</color>,<color=#E682E6>額外倍率x16</color>,<color=#E682E6>Extra Mult x16</color>,<color=#E682E6>追加倍率x16</color>
+ACHIEVEMENT_NAME_01,No.01,No.01,No.01,No.01
+ACHIEVEMENT_NAME_02,No.02,No.02,No.02,No.02
+ACHIEVEMENT_NAME_03,No.03,No.03,No.03,No.03
+ACHIEVEMENT_NAME_04,No.04,No.04,No.04,No.04
+ACHIEVEMENT_NAME_05,No.05,No.05,No.05,No.05
+ACHIEVEMENT_NAME_06,No.06,No.06,No.06,No.06
+ACHIEVEMENT_NAME_07,No.07,No.07,No.07,No.07
+ACHIEVEMENT_NAME_08,No.08,No.08,No.08,No.08
+ACHIEVEMENT_NAME_09,No.09,No.09,No.09,No.09
+ACHIEVEMENT_NAME_10,No.10,No.10,No.10,No.10
+ACHIEVEMENT_NAME_11,No.11,No.11,No.11,No.11
+ACHIEVEMENT_NAME_12,No.12,No.12,No.12,No.12
+ACHIEVEMENT_NAME_13,No.13,No.13,No.13,No.13
+ACHIEVEMENT_NAME_14,No.14,No.14,No.14,No.14
+ACHIEVEMENT_NAME_15,No.15,No.15,No.15,No.15
+ACHIEVEMENT_NAME_16,No.16,No.16,No.16,No.16
+ACHIEVEMENT_NAME_17,No.17,No.17,No.17,No.17
+ACHIEVEMENT_NAME_18,No.18,No.18,No.18,No.18
+ACHIEVEMENT_NAME_19,No.19,No.19,No.19,No.19
+ACHIEVEMENT_NAME_20,No.20,No.20,No.20,No.20
+ACHIEVEMENT_NAME_21,No.21,No.21,No.21,No.21
+ACHIEVEMENT_NAME_22,No.22,No.22,No.22,No.22
+ACHIEVEMENT_NAME_23,No.23,No.23,No.23,No.23
+ACHIEVEMENT_NAME_24,No.24,No.24,No.24,No.24
+ACHIEVEMENT_NAME_25,No.25,No.25,No.25,No.25
+ACHIEVEMENT_NAME_26,No.26,No.26,No.26,No.26
+ACHIEVEMENT_NAME_27,No.27,No.27,No.27,No.27
+ACHIEVEMENT_NAME_28,No.28,No.28,No.28,No.28
+ACHIEVEMENT_NAME_29,No.29,No.29,No.29,No.29
+ACHIEVEMENT_NAME_30,No.30,No.30,No.30,No.30
+ACHIEVEMENT_NAME_31,No.31,No.31,No.31,No.31
+ACHIEVEMENT_NAME_32,No.32,No.32,No.32,No.32
+ACHIEVEMENT_NAME_33,No.33,No.33,No.33,No.33
+ACHIEVEMENT_NAME_34,No.34,No.34,No.34,No.34
+ACHIEVEMENT_NAME_35,No.35,No.35,No.35,No.35
+ACHIEVEMENT_NAME_36,No.36,No.36,No.36,No.36
+ACHIEVEMENT_NAME_37,No.37,No.37,No.37,No.37
+ACHIEVEMENT_NAME_38,No.38,No.38,No.38,No.38
+ACHIEVEMENT_NAME_39,No.39,No.39,No.39,No.39
+ACHIEVEMENT_NAME_40,No.40,No.40,No.40,No.40
+ACHIEVEMENT_NAME_41,No.41,No.41,No.41,No.41
+ACHIEVEMENT_NAME_42,No.42,No.42,No.42,No.42
+ACHIEVEMENT_NAME_43,No.43,No.43,No.43,No.43
+ACHIEVEMENT_NAME_44,No.44,No.44,No.44,No.44
+ACHIEVEMENT_NAME_45,No.45,No.45,No.45,No.45
+ACHIEVEMENT_NAME_46,No.46,No.46,No.46,No.46
+ACHIEVEMENT_NAME_47,No.47,No.47,No.47,No.47
+ACHIEVEMENT_NAME_48,No.48,No.48,No.48,No.48
+ACHIEVEMENT_NAME_49,No.49,No.49,No.49,No.49
+ACHIEVEMENT_NAME_50,No.50,No.50,No.50,No.50
+ACHIEVEMENT_DES_01,完成一次胡牌,完成一次胡牌,Complete a winning hand.,1回和了（アガリ）する
+ACHIEVEMENT_DES_02,完成一局新手难度的游戏,完成一局新手難度的遊戲,Complete a game on Novice difficulty.,ビギナー難易度でゲームをクリアする
+ACHIEVEMENT_DES_03,完成一局专家难度的游戏,完成一局專家難度的遊戲,Complete a game on Expert difficulty.,エキスパート難易度でゲームをクリアする
+ACHIEVEMENT_DES_04,完成一局大师难度的游戏,完成一局大師難度的遊戲,Complete a game on Master difficulty.,マスター難易度でゲームをクリアする
+ACHIEVEMENT_DES_05,完成一次番数≥4的胡牌牌型,完成一次番數≥4的胡牌牌型,Complete a winning hand with ≥4 Fan.,4翻以上の手で和了する
+ACHIEVEMENT_DES_06,完成一次番数≥6的胡牌牌型,完成一次番數≥6的胡牌牌型,Complete a winning hand with ≥6 Fan.,6翻以上の手で和了する
+ACHIEVEMENT_DES_07,完成一次番数≥8的胡牌牌型,完成一次番數≥8的胡牌牌型,Complete a winning hand with ≥8 Fan.,8翻以上の手で和了する
+ACHIEVEMENT_DES_08,完成一次番数≥10的胡牌牌型,完成一次番數≥10的胡牌牌型,Complete a winning hand with ≥10 Fan.,10翻以上の手で和了する
+ACHIEVEMENT_DES_09,完成一次番数≥12的胡牌牌型,完成一次番數≥12的胡牌牌型,Complete a winning hand with ≥12 Fan.,12翻以上の手で和了する
+ACHIEVEMENT_DES_10,在方块下落速度≥15时完成一局游戏,在方塊下落速度≥15時完成一局遊戲,Complete a game with block drop speed ≥15.,ブロック落下速度15以上でゲームをクリアする
+ACHIEVEMENT_DES_11,在方块下落速度≥20时完成一局游戏,在方塊下落速度≥20時完成一局遊戲,Complete a game with block drop speed ≥20.,ブロック落下速度20以上でゲームをクリアする
+ACHIEVEMENT_DES_12,在方块下落速度≥30时完成一局游戏,在方塊下落速度≥30時完成一局遊戲,Complete a game with block drop speed ≥30.,ブロック落下速度30以上でゲームをクリアする
+ACHIEVEMENT_DES_13,在方块下落速度≥50时完成一局游戏,在方塊下落速度≥50時完成一局遊戲,Complete a game with block drop speed ≥50.,ブロック落下速度50以上でゲームをクリアする
+ACHIEVEMENT_DES_14,在剩余时间≥50秒时完成一局游戏,在剩餘時間≥50秒時完成一局遊戲,Complete a game with ≥50 seconds remaining.,残り時間50秒以上でゲームをクリアする
+ACHIEVEMENT_DES_15,在剩余时间≥100秒时完成一局游戏,在剩餘時間≥100秒時完成一局遊戲,Complete a game with ≥100 seconds remaining.,残り時間100秒以上でゲームをクリアする
+ACHIEVEMENT_DES_16,在剩余时间≥200秒时完成一局游戏,在剩餘時間≥200秒時完成一局遊戲,Complete a game with ≥200 seconds remaining.,残り時間200秒以上でゲームをクリアする
+ACHIEVEMENT_DES_17,在剩余时间≥400秒时完成一局游戏,在剩餘時間≥400秒時完成一局遊戲,Complete a game with ≥400 seconds remaining.,残り時間400秒以上でゲームをクリアする
+ACHIEVEMENT_DES_18,在一局游戏中基础分达到50,在一局遊戲中基礎分達到50,Reach a Base Score of 50 in a single game.,1回のゲームで基礎点50に到達する
+ACHIEVEMENT_DES_19,在一局游戏中基础分达到100,在一局遊戲中基礎分達到100,Reach a Base Score of 100 in a single game.,1回のゲームで基礎点100に到達する
+ACHIEVEMENT_DES_20,在一局游戏中方块倍率达到50,在一局遊戲中方塊倍率達到50,Reach a Block Multiplier of 50 in a single game.,1回のゲームでブロック倍率50に到達する
+ACHIEVEMENT_DES_21,在一局游戏中方块倍率达到100,在一局遊戲中方塊倍率達到100,Reach a Block Multiplier of 100 in a single game.,1回のゲームでブロック倍率100に到達する
+ACHIEVEMENT_DES_22,在一局游戏中额外倍率达到30,在一局遊戲中額外倍率達到30,Reach an Extra Multiplier of 30 in a single game.,1回のゲームで追加倍率30に到達する
+ACHIEVEMENT_DES_23,在一局游戏中额外倍率达到60,在一局遊戲中額外倍率達到60,Reach an Extra Multiplier of 60 in a single game.,1回のゲームで追加倍率60に到達する
+ACHIEVEMENT_DES_24,在一局游戏中累计使用20个道具,在一局遊戲中累計使用20個道具,Use a total of 20 Items in a single game.,1回のゲームでアイテムを合計20個使用する
+ACHIEVEMENT_DES_25,完成一局游戏中同时拥有5个条约,完成一局遊戲且同時擁有5個條約,Finish a game while possessing 5 Treaties simultaneously.,条約を5つ所持した状態でゲームをクリアする
+ACHIEVEMENT_DES_26,在一局游戏中累计获得10个条约,在一局遊戲中累計獲得10個條約,Obtain a total of 10 Treaties in a single game.,1回のゲームで条約を合計10個獲得する
+ACHIEVEMENT_DES_27,完成一局游戏且期间未获得任何道具,完成一局遊戲且期間未獲得任何道具,Complete a game without obtaining any Items.,アイテムを一切獲得せずにゲームをクリアする
+ACHIEVEMENT_DES_28,完成一局游戏且期间未获得任何条约,完成一局遊戲且期間未獲得任何條約,Complete a game without obtaining any Treaties.,条約を一切獲得せずにゲームをクリアする
+ACHIEVEMENT_DES_29,在一局游戏中同时拥有≥20个方块,在一局遊戲中同時擁有≥20個方塊,Possess ≥20 blocks simultaneously in a single game.,1回のゲームでブロックを同時に20個以上所持する
+ACHIEVEMENT_DES_30,完成一局游戏且拥有方块数量≤8个,完成一局遊戲且擁有方塊數量≤8個,Complete a game with ≤8 blocks in possession.,ブロック所持数8個以下でゲームをクリアする
+ACHIEVEMENT_DES_31,在一局游戏中完成2圈胡牌,在一局遊戲中完成2圈胡牌,Complete 2 rounds of winning hands in a single game.,1回のゲームで2周和了する
+ACHIEVEMENT_DES_32,在一局游戏中完成4圈胡牌,在一局遊戲中完成4圈胡牌,Complete 4 rounds of winning hands in a single game.,1回のゲームで4周和了する
+ACHIEVEMENT_DES_33,在一局游戏中完成6圈胡牌,在一局遊戲中完成6圈胡牌,Complete 6 rounds of winning hands in a single game.,1回のゲームで6周和了する
+ACHIEVEMENT_DES_34,在一局游戏中完成8圈胡牌,在一局遊戲中完成8圈胡牌,Complete 8 rounds of winning hands in a single game.,1回のゲームで8周和了する
+ACHIEVEMENT_DES_35,解锁20种道具,解鎖20種道具,Unlock 20 types of Items.,アイテムを20種類アンロックする
+ACHIEVEMENT_DES_36,解锁30种道具,解鎖30種道具,Unlock 30 types of Items.,アイテムを30種類アンロックする
+ACHIEVEMENT_DES_37,解锁40种道具,解鎖40種道具,Unlock 40 types of Items.,アイテムを40種類アンロックする
+ACHIEVEMENT_DES_38,解锁20种条约,解鎖20種條約,Unlock 20 types of Treaties.,条約を20種類アンロックする
+ACHIEVEMENT_DES_39,解锁30种条约,解鎖30種條約,Unlock 30 types of Treaties.,条約を30種類アンロックする
+ACHIEVEMENT_DES_40,解锁40种条约,解鎖40種條約,Unlock 40 types of Treaties.,条約を40種類アンロックする
+ACHIEVEMENT_DES_41,累计使用100个道具,累計使用100個道具,Use a total of 100 Items.,アイテムを累計100個使用する
+ACHIEVEMENT_DES_42,累计获得80个条约,累計獲得80個條約,Obtain a total of 80 Treaties.,条約を累計80個獲得する
+ACHIEVEMENT_DES_43,累计获得30个传奇奖励,累計獲得30個傳奇獎勵,Obtain a total of 30 Legendary Rewards.,レジェンダリー報酬を累計30個獲得する
+ACHIEVEMENT_DES_44,累计获得10000金币,累計獲得10000金幣,"Accumulate 10,000 Gold.","ゴールドを累計10,000獲得する"
+ACHIEVEMENT_DES_45,累计获得100000金币,累計獲得100000金幣,"Accumulate 100,000 Gold.","ゴールドを累計100,000獲得する"
+ACHIEVEMENT_DES_46,累计获得1000000金币,累計獲得1000000金幣,"Accumulate 1,000,000 Gold.","ゴールドを累計1,000,000獲得する"
+ACHIEVEMENT_DES_47,游戏最高分达到10000分,遊戲最高分達到10000分,"Reach a high score of 10,000.","ハイスコア10,000点に到達する"
+ACHIEVEMENT_DES_48,游戏最高分达到100000分,遊戲最高分達到100000分,"Reach a high score of 100,000.","ハイスコア100,000点に到達する"
+ACHIEVEMENT_DES_49,游戏最高分达到1000000分,遊戲最高分達到1000000分,"Reach a high score of 1,000,000.","ハイスコア1,000,000点に到達する"
+ACHIEVEMENT_DES_50,游戏最高分达到10000000分,遊戲最高分達到10000000分,"Reach a high score of 10,000,000.","ハイスコア10,000,000点に到達する"

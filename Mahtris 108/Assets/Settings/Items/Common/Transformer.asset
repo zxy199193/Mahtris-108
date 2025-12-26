@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 522c8757ce382934b9fa0bcb0e298b76, type: 3}
   m_Name: Transformer
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_14
+  descKey: ITEM_DES_14
   itemName: "\u5FAE\u6CE2\u7089"
   itemIcon: {fileID: 21300000, guid: 5da72c70019268446aa8526c4274129c, type: 3}
   itemDescription: "\u5C06\u4E0B\u4E00\u4E2A\u65B9\u5757\u66FF\u6362\u6210\u76F8\u540C\u65B9\u5757\u6570\u91CF\u7684\u5176\u4ED6\u5F62\u72B6\r"
+  isAdvanced: 0
   isLegendary: 0
   useSound: {fileID: 0}
   price: 500

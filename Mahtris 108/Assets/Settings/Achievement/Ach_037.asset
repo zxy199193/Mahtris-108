@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35da09e80649faa4694973338d38c612, type: 3}
   m_Name: Ach_037
   m_EditorClassIdentifier: 
-  nameKey: 
-  descKey: 
+  nameKey: ACHIEVEMENT_NAME_37
+  descKey: ACHIEVEMENT_DES_37
   id: Ach_037
   title: No.37
   description: "\u89E3\u950140\u79CD\u9053\u5177"

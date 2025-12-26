@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35efb706507103b4da1f5e4a6ecb1147, type: 3}
   m_Name: Scissors
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_19
+  descKey: ITEM_DES_19
   itemName: "\u526A\u5200"
   itemIcon: {fileID: 21300000, guid: 0a3dde516ec389d4e98304ffc2b330a6, type: 3}
   itemDescription: "\u79FB\u9664\u65B9\u5757\u5217\u8868\u4E2D\u65B9\u5757\u500D\u7387\u6700\u5927\u7684\u65B9\u5757"

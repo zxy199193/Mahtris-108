@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8305513c1f01f2b4e9384a4f5aa40116, type: 3}
   m_Name: Steroids
   m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_04
+  descKey: ITEM_DES_04
   itemName: "\u7C7B\u56FA\u9187"
   itemIcon: {fileID: 21300000, guid: 885345866bd2666448d62cca6aaffc4f, type: 3}
   itemDescription: "\u672C\u8F6E\u6E38\u620F<color=#3296DC>\u57FA\u7840\u5206+16</color>\uFF0C\u80E1\u724C\u540E<color=#3296DC>\u57FA\u7840\u5206-32</color>\uFF08\u6700\u4F4E\u4E3A1\uFF09\uFF0C\u518D\u6B21\u80E1\u724C\u540E\u6062\u590D\r"
+  isAdvanced: 0
   isLegendary: 0
   useSound: {fileID: 0}
   price: 500
