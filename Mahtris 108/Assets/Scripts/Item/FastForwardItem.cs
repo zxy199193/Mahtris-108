@@ -4,19 +4,17 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "FastForward", menuName = "Items/Common/FastForward")]
 public class FastForwardItem : ItemData
 {
-    [Tooltip("永久增加的胡牌轮数")]
-    public int huCountBonus = 2;
-
     [Tooltip("永久增加的速度等级")]
-    public int speedBonus = 2;
+    public int speedBonus = 3;
 
     public override bool Use(GameManager gameManager)
     {
-        // 调用GameManager的接口来修改速度
+        // 1. 永久增加速度 +3
         gameManager.ApplyPermanentSpeedBonus(speedBonus);
 
-        // 调用GameManager的接口来修改胡牌轮数
-        gameManager.AddHuCount(huCountBonus);
+        // 2. 【修改】直接跳到本圈最后一轮
+        // 效果：下次胡牌必定触发高级奖励，并进入下一圈
+        gameManager.SkipToLastRoundOfLoop();
 
         return true;
     }

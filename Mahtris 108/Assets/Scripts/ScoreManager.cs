@@ -127,4 +127,13 @@ public class ScoreManager : MonoBehaviour
 
         return target;
     }
+    public void SetProgressToLastRound()
+    {
+        int target = GetCurrentLoopTarget();
+
+        // 设置为 "只差1次就满" 的状态
+        // 例如目标是4：设为3。UI显示 "4/4"。
+        // 下次胡牌时：3+1=4，达到目标，触发高级奖励并进入下一圈。
+        huCountInCurrentLoop = Mathf.Max(0, target - 1);
+    }
 }

@@ -2529,4 +2529,18 @@ public class GameManager : MonoBehaviour
             Debug.LogError($"无法找到名为 {prefabName} 的方块预制体！请检查 TrialSampleItem 配置的名字是否正确。");
         }
     }
+    public void SkipToLastRoundOfLoop()
+    {
+        if (scoreManager != null)
+        {
+            // 1. 修改核心数据
+            scoreManager.SetProgressToLastRound();
+
+            // 2. 立即刷新左上角的圈数 UI (例如从 "1/4" 变成 "4/4")
+            if (gameUI != null)
+            {
+                gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+            }
+        }
+    }
 }
