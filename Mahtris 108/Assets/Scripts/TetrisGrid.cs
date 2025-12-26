@@ -367,7 +367,8 @@ public class TetrisGrid : MonoBehaviour
                     GameObject overlay = new GameObject("HighlightMask");
                     overlay.transform.SetParent(t, false);
                     overlay.transform.localPosition = Vector3.zero;
-
+                    overlay.transform.rotation = parentSr.transform.rotation;
+                    overlay.transform.localScale = parentSr.transform.localScale;
                     // 3. 添加 SpriteRenderer 并复制属性
                     SpriteRenderer overlaySr = overlay.AddComponent<SpriteRenderer>();
                     overlaySr.sprite = parentSr.sprite; // 复制形状
