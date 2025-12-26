@@ -16,9 +16,9 @@ public class AchievementNotificationUI : MonoBehaviour
     public void Show(AchievementData data, Action onComplete)
     {
         if (icon) icon.sprite = data.icon;
-        if (title) title.text = data.title;
+        if (title) title.text = data.GetName();
         if (reward) reward.text = $"{data.rewardGold}";
-        if (description) description.text = data.description;
+        if (description) description.text = data.GetDescription();
         // 1. «ø÷∆÷√∂•‰÷»æ≤„º∂
         if (canvas == null) canvas = GetComponent<Canvas>();
         if (canvas == null) canvas = gameObject.AddComponent<Canvas>();

@@ -15,12 +15,12 @@ public class AchievementItemUI : MonoBehaviour
         if (iconImage) iconImage.sprite = data.icon;
         if (titleText)
         {
-            titleText.text = data.title;
+            titleText.text = data.GetName();
             if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(titleText);
         }
         if (descText)
         {
-            descText.text = data.description;
+            descText.text = data.GetDescription();
             if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(descText);
         }
         if (rewardText)
