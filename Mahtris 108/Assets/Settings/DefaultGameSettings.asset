@@ -30,21 +30,21 @@ MonoBehaviour:
   scorePerRow: 2
   scoreLevels:
   - targetScore: 50
-    goldReward: 10
-  - targetScore: 150
-    goldReward: 30
+    goldReward: 20
+  - targetScore: 180
+    goldReward: 50
   - targetScore: 500
-    goldReward: 100
-  - targetScore: 900
+    goldReward: 80
+  - targetScore: 1000
+    goldReward: 150
+  - targetScore: 1600
     goldReward: 300
-  - targetScore: 1500
+  - targetScore: 2400
     goldReward: 500
-  - targetScore: 1500
-    goldReward: 1000
+  - targetScore: 3500
+    goldReward: 700
   - targetScore: 5000
-    goldReward: 1600
-  - targetScore: 4000
-    goldReward: 3000
+    goldReward: 1000
   husPerLoop: 3
   normalWeight: 10
   legendaryWeightBase: 5
