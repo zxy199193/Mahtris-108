@@ -1266,16 +1266,43 @@ public class GameManager : MonoBehaviour
     }
     public void UpdateActiveBlockListUI()
     {
+        // 1. 先计算全局生效倍率 (更新 HUD 顶部文本)
         RecalculateBlockMultiplier();
-        var prefabs = spawner.GetActivePrefabs();
-        float totalMultiplier = this.blockMultiplier;
 
-        // 【修复】检查是否有人人平等，传递 3f 或 -1f
+        var prefabs = spawner.GetActivePrefabs();
+
+        // 2. 【核心修改】计算“方块倍率之和”
+        // 这里需要体现“人人平等”对基础方块数值的改变
+        float rawBlockSum = 0f;
+        if (prefabs != null)
+        {
+            foreach (var p in prefabs)
+            {
+                // 特殊情况：人人平等条约
+                // 该条约强制将所有方块视为 3倍，所以这里累加 3
+                if (isAllMenEqualActive)
+                {
+                    rawBlockSum += 3f;
+                }
+                else
+                {
+                    // 正常情况：累加方块自身的倍率
+                    var t = p.GetComponent<Tetromino>();
+                    if (t != null)
+                    {
+                        rawBlockSum += t.extraMultiplier;
+                    }
+                }
+            }
+        }
+
+        // 3. 准备人人平等的显示覆盖值 (影响列表项单项显示)
         float overrideMult = isAllMenEqualActive ? 3f : -1f;
 
         if (gameUI != null)
         {
-            gameUI.UpdateTetrominoList(prefabs, totalMultiplier, overrideMult);
+            // 传入修正后的 rawBlockSum
+            gameUI.UpdateTetrominoList(prefabs, rawBlockSum, overrideMult);
         }
     }
     public void ApplyBlockMultiplierModifier(float amount)

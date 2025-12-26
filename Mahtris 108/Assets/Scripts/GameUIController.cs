@@ -567,11 +567,7 @@ public class GameUIController : MonoBehaviour
             // ¡¾ÐÞ¸Ä¡¿´«µÝ overrideMultiplier
             listItemUI.InitializeForPrefab(representativePrefab.GetComponent<Tetromino>().uiPrefab, $"{tetromino.extraMultiplier:F0}", overrideMultiplier);
 
-            if (listItemUI.countText != null)
-            {
-                listItemUI.countText.gameObject.SetActive(count > 1);
-                listItemUI.countText.text = $"x{count}";
-            }
+            listItemUI.SetStackCount(count);
         }
         if (totalMultiplierText) totalMultiplierText.text = $"{totalMultiplier:F0}";
     }
