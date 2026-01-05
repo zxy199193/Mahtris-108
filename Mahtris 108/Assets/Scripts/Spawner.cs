@@ -1,4 +1,3 @@
-// FileName: Spawner.cs
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +27,10 @@ public class Spawner : MonoBehaviour
     private GameObject forcedNextBlock = null;
     private bool isFirstBlockOfRound = true;
 
+    // 【新增】防重复机制变量
+    private string lastSpawnedBlockName = "";
+    private int consecutiveCount = 0;
+
     public GameObject[] GetInitialTetrominoPrefabs()
     {
         return initialTetrominoPrefabs;
@@ -47,6 +50,10 @@ public class Spawner : MonoBehaviour
         activeTetrominoPool = new List<GameObject>(initialPrefabs);
         replicationCount = 0;
         replicationPrefab = null;
+
+        // 【新增】重置防重复计数
+        lastSpawnedBlockName = "";
+        consecutiveCount = 0;
 
         if (activeTetrominoPool == null || activeTetrominoPool.Count == 0)
         {
@@ -73,6 +80,7 @@ public class Spawner : MonoBehaviour
         }
     }
 
+    // 【核心修改】准备下一个方块
     private void PrepareNextTetromino()
     {
         bool blockSelected = false;
@@ -96,7 +104,7 @@ public class Spawner : MonoBehaviour
             nextTetrominoPrefab = replicationPrefab; replicationCount--; if (replicationCount == 0) replicationPrefab = null; blockSelected = true;
         }
 
-        // 4. 【常规/儿童餐/漏斗/超算力】逻辑
+        // 4. 【常规/儿童餐/漏斗/超算力 + 防重复】逻辑
         if (!blockSelected)
         {
             if (activeTetrominoPool.Count > 0)
@@ -105,73 +113,36 @@ public class Spawner : MonoBehaviour
                 if (GameManager.Instance.IsKidsMealActive())
                 {
                     var lv1Options = activeTetrominoPool.Where(p => p.GetComponentsInChildren<BlockUnit>(true).Length <= 3).ToList();
+
                     if (lv1Options.Count > 0)
-                        nextTetrominoPrefab = lv1Options[Random.Range(0, lv1Options.Count)];
+                        nextTetrominoPrefab = GetWeightedRandomBlock(lv1Options); // 使用加权随机
                     else
+                        // 如果池里没有Lv1，从总表中随机补一个 (这里也可以用加权，但通常不需要)
                         nextTetrominoPrefab = masterTetrominoPrefabs.Where(p => p.name.StartsWith("T1-") || p.name.StartsWith("T2-") || p.name.StartsWith("T3-")).OrderBy(x => Random.value).FirstOrDefault();
                 }
                 // B. 【漏斗】逻辑 (其次，屏蔽 Lv3)
-                // 注意：漏斗屏蔽了 Lv3，所以超算力在这里不生效是正确的
                 else if (GameManager.Instance.isFilterActive)
                 {
                     var filteredPool = activeTetrominoPool.Where(p => !p.name.StartsWith("T5-")).ToList();
 
                     if (filteredPool.Count > 0)
                     {
-                        nextTetrominoPrefab = filteredPool[Random.Range(0, filteredPool.Count)];
+                        nextTetrominoPrefab = GetWeightedRandomBlock(filteredPool); // 使用加权随机
                     }
                     else
                     {
+                        // 保底逻辑
                         var backupPool = masterTetrominoPrefabs.Where(p => !p.name.StartsWith("T5-")).ToList();
                         if (backupPool.Count > 0)
                             nextTetrominoPrefab = backupPool[Random.Range(0, backupPool.Count)];
                         else
-                            nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)];
+                            nextTetrominoPrefab = GetWeightedRandomBlock(activeTetrominoPool);
                     }
                 }
-                // C. 【正常随机】(在此处加入 超算力 逻辑)
+                // C. 【正常逻辑】(包含 超算力 和 防重复)
                 else
                 {
-                    // 【新增】超算力：Lv3 权重翻倍 (x3)
-                    if (GameManager.Instance.isChaoSuanLiActive)
-                    {
-                        // 将池子分为 Lv3 和 非Lv3
-                        var lv3Blocks = activeTetrominoPool.Where(p => p.name.StartsWith("T5-")).ToList();
-                        var otherBlocks = activeTetrominoPool.Where(p => !p.name.StartsWith("T5-")).ToList();
-
-                        // 如果池中没有 Lv3 或全是 Lv3，加权没有意义，直接随机
-                        if (lv3Blocks.Count == 0 || otherBlocks.Count == 0)
-                        {
-                            nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)];
-                        }
-                        else
-                        {
-                            // 计算权重
-                            // Lv3 权重 = 数量 * 3 (增加200%)
-                            // 其他 权重 = 数量 * 1
-                            float wLv3 = lv3Blocks.Count * 3f;
-                            float wOther = otherBlocks.Count * 1f;
-                            float totalWeight = wLv3 + wOther;
-
-                            float roll = Random.Range(0f, totalWeight);
-
-                            if (roll < wLv3)
-                            {
-                                // 选中 Lv3 组
-                                nextTetrominoPrefab = lv3Blocks[Random.Range(0, lv3Blocks.Count)];
-                            }
-                            else
-                            {
-                                // 选中其他组
-                                nextTetrominoPrefab = otherBlocks[Random.Range(0, otherBlocks.Count)];
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // 正常随机
-                        nextTetrominoPrefab = activeTetrominoPool[Random.Range(0, activeTetrominoPool.Count)];
-                    }
+                    nextTetrominoPrefab = GetWeightedRandomBlock(activeTetrominoPool);
                 }
             }
             else
@@ -205,10 +176,79 @@ public class Spawner : MonoBehaviour
         GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, nextTileIds);
     }
 
+    // 【新增】核心加权随机方法
+    // 同时处理：1. 超算力 (Lv3 x3)  2. 防重复 (1/2, 1/4...)
+    private GameObject GetWeightedRandomBlock(List<GameObject> candidates)
+    {
+        if (candidates == null || candidates.Count == 0) return null;
+        if (candidates.Count == 1) return candidates[0];
+
+        Dictionary<GameObject, float> weights = new Dictionary<GameObject, float>();
+        float totalWeight = 0f;
+
+        bool isChaoSuanLi = GameManager.Instance.isChaoSuanLiActive;
+
+        foreach (var block in candidates)
+        {
+            float w = 1f;
+
+            // 1. 应用【超算力】权重 (Lv3 权重翻3倍)
+            if (isChaoSuanLi && block.name.StartsWith("T5-"))
+            {
+                w *= 3f;
+            }
+
+            // 2. 应用【防重复】权重 (连续出现 N 次，权重乘 0.5^N)
+            if (block.name == lastSpawnedBlockName)
+            {
+                w *= Mathf.Pow(0.5f, consecutiveCount);
+            }
+
+            // 【核心修复】累加权重，而不是覆盖！
+            // 之前是 weights[block] = w; 导致多个相同方块被视为1个
+            if (weights.ContainsKey(block))
+            {
+                weights[block] += w;
+            }
+            else
+            {
+                weights[block] = w;
+            }
+
+            totalWeight += w;
+        }
+
+        // 加权抽取
+        float randomPoint = Random.Range(0f, totalWeight);
+        foreach (var kvp in weights)
+        {
+            if (randomPoint < kvp.Value)
+            {
+                return kvp.Key;
+            }
+            randomPoint -= kvp.Value;
+        }
+
+        return candidates.Last(); // 浮点误差保底
+    }
+
     public void SpawnBlock()
     {
         GameManager.Instance.NotifyBlockSpawned();
         if (nextTetrominoPrefab == null) { GameEvents.TriggerGameOver(); return; }
+
+        // 【新增】在生成瞬间，更新历史记录
+        if (nextTetrominoPrefab.name == lastSpawnedBlockName)
+        {
+            consecutiveCount++;
+            // Debug.Log($"连续生成检测: {lastSpawnedBlockName} 已连续出现 {consecutiveCount} 次，下次权重将降低。");
+        }
+        else
+        {
+            lastSpawnedBlockName = nextTetrominoPrefab.name;
+            consecutiveCount = 1;
+        }
+
         int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length;
         if (!blockPool.HasEnoughBlocks(tilesNeeded))
         {
@@ -318,7 +358,9 @@ public class Spawner : MonoBehaviour
 
             if (nonLv3Pool.Count > 0)
             {
-                nextTetrominoPrefab = nonLv3Pool[Random.Range(0, nonLv3Pool.Count)];
+                // 【修改】漏斗重随也应用加权随机（防止漏斗也一直出同一个）
+                nextTetrominoPrefab = GetWeightedRandomBlock(nonLv3Pool);
+
                 int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length;
                 if (blockPool != null)
                 {

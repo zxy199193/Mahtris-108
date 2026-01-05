@@ -5,7 +5,7 @@ using UnityEngine;
 public class TrialSampleItem : ItemData
 {
     [Tooltip("使用后立即获得的T1-Dot方块数量")]
-    public int bonusBlockCount = 2;
+    public int bonusBlockCount = 1;
 
     [Tooltip("要奖励的方块的预制件名称")]
     public string blockPrefabName = "T1-Dot";

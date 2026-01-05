@@ -162,7 +162,7 @@ ITEM_DES_13,下一个形状会变为7格长条方块,下一個形狀會變為7�
 ITEM_DES_14,将下一个方块替换成相同方块数量的其他形状,將下一個方塊替換成相同方塊數量的其他形狀,Reroll next block (keep size).,次のブロックを同じサイズの別の形に変換する。
 ITEM_DES_15,下一个方块形状会连续出现3次,下一個方塊形狀會連續出現3次,Next block shape appears 3 times in a row.,次のブロックと同じ形が3連続で出現する。
 ITEM_DES_16,40秒内不会出现5格方块，期间胡牌效果中止,40秒內不會出現5格方塊，期間胡牌效果中止,No 5-cell blocks for 40s. Ends on Hu.,40秒間、5マスブロックが出現しない。アガると効果終了。
-ITEM_DES_17,下次胡牌额外获得2个1格方块,下次胡牌額外獲得2個1格方塊,Get 2 extra 1-cell blocks on next Hu.,次回のアガリ時、1マスブロックを2つ追加で獲得。
+ITEM_DES_17,获得1个1格方块,獲得1個1格方塊,Obtain a 1-cell block,1マスブロックを1個獲得する
 ITEM_DES_18,下次胡牌选择的方块奖励会额外增加1个,下次胡牌選擇的方塊獎勵會額外增加1個,+1 Block Reward choice on next Hu.,次回のアガリ時、ブロック報酬の選択肢が1つ増える。
 ITEM_DES_19,移除方块列表中方块倍率最大的方块,移除方塊列表中方塊倍率最大的方塊,Remove the block with highest Mult. from list.,リスト内で倍率が最大のブロックを削除する。
 ITEM_DES_20,游戏轮数快进至当前圈最后一轮，方块<color=#36BA98>下降速度+3</color>,遊戲輪數快進至當前圈最後一輪，方塊<color=#36BA98>下降速度+3</color>,Skip to the last hand of the current round. Block <color=#36BA98>Drop Speed +3</color>,現在の周の最終局までスキップする。ブロック<color=#36BA98>落下速度+3</color>
