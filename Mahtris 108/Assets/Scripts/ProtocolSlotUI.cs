@@ -38,7 +38,7 @@ public class ProtocolSlotUI : MonoBehaviour, IPointerClickHandler
             if (deleteButton) deleteButton.onClick.AddListener(OnDeleteClicked);
 
             // 【核心修复】强制传入 Protocol 类型
-            trigger.SetData(protocol.protocolName, protocol.protocolDescription, protocol.protocolIcon, protocol.isLegendary, TooltipTriggerUI.TooltipType.Protocol);
+            trigger.SetData(protocol.nameKey, protocol.descKey, protocol.protocolIcon, protocol.isLegendary, TooltipTriggerUI.TooltipType.Protocol);
         }
         else
         {

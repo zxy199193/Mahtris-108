@@ -50,7 +50,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
                 : TooltipTriggerUI.TooltipType.Common;
 
             // 传入 5 个参数，确保 type 被传递
-            trigger.SetData(item.itemName, item.itemDescription, item.itemIcon, item.isLegendary, type);
+            trigger.SetData(item.nameKey, item.descKey, item.itemIcon, item.isLegendary, type);
         }
         else
         {

@@ -118,8 +118,8 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
         if (_itemData != null)
         {
-            title = _itemData.itemName;
-            desc = _itemData.itemDescription;
+            title = _itemData.nameKey;
+            desc = _itemData.descKey;
             icon = _itemData.itemIcon;
             legendary = _itemData.isLegendary;
 
@@ -137,8 +137,8 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         }
         else if (_protocolData != null)
         {
-            title = _protocolData.protocolName;
-            desc = _protocolData.protocolDescription;
+            title = _protocolData.nameKey;
+            desc = _protocolData.descKey;
             icon = _protocolData.protocolIcon;
             legendary = _protocolData.isLegendary;
 
