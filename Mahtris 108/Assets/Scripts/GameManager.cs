@@ -903,6 +903,11 @@ public class GameManager : MonoBehaviour
 
             bool wasCleanRound = !hasClearedRowsInThisRound;
             hasClearedRowsInThisRound = true;
+            if (!isOldSchoolActive && rowIndices.Count > 0)
+            {
+                int defaultScore = rowIndices.Count * 10;
+                scoreManager.AddScore(defaultScore);
+            }
             if (isOldSchoolActive && rowIndices.Count > 0)
             {
                 int lineCount = rowIndices.Count;
@@ -1535,7 +1540,6 @@ public class GameManager : MonoBehaviour
     {
         if (prefab == null)
         {
-            Debug.LogError("[IsInLevel] 错误: 传入的 prefab 为 null!");
             return false;
         }
         string prefabName = prefab.name;
@@ -1552,17 +1556,6 @@ public class GameManager : MonoBehaviour
             case 2: // Lv.3
                 result = prefabName.StartsWith("T5-");
                 break;
-        }
-
-        // 【诊断日志】
-        // 我们只打印失败的检查，以减少日志 spam
-        if (!result && (levelIndex == 1 || levelIndex == 2))
-        {
-            Debug.Log($"[IsInLevel] 检查失败: 预制件 '{prefabName}' (来自 MasterList) 与 Level {levelIndex} (T{levelIndex + 3}-) 的命名规则不匹配。");
-        }
-        else if (result)
-        {
-            Debug.Log($"<color=green>[IsInLevel] 匹配成功: '{prefabName}' 属于 Level {levelIndex}</color>");
         }
 
         return result;
