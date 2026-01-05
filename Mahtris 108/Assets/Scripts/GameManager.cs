@@ -901,7 +901,22 @@ public class GameManager : MonoBehaviour
 
             bool wasCleanRound = !hasClearedRowsInThisRound;
             hasClearedRowsInThisRound = true;
+            if (isOldSchoolActive && rowIndices.Count > 0)
+            {
+                int lineCount = rowIndices.Count;
 
+                // 使用位移运算计算 2^N (比 Pow 更高效且精确)
+                // 1 << 4 等于 16
+                long multiplier = 1L << lineCount;
+
+                long clearScore = baseFanScore * multiplier;
+
+                // 加分 (确保不溢出)
+                scoreManager.AddScore((int)Mathf.Min(clearScore, int.MaxValue));
+
+                // Log 方便调试
+                // Debug.Log($"老派玩家消行: {lineCount} 行, 得分: {clearScore}");
+            }
             // 【移除】移除了之前错误的 TryFindAndAddRandomSetFromPool 调用
 
             bool isHandEmptyAtStart = huPaiArea.GetSetCount() == 0;
