@@ -170,7 +170,7 @@ ITEM_DES_21,获得300金币,獲得300金幣,Get 300 Coins.,300コインを獲得
 ITEM_DES_22,下次消除的行不会进行判定而是会被直接移除，胡牌后恢复为正常牌库,下次消除的行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next cleared lines are removed without judging. Resets after Hu.,次に消去した列は判定されずに破棄される。アガリ後にリセット。
 ITEM_DES_23,后场上所有方块的麻将牌面被随机打乱,後場上所有方塊的麻將牌面被隨機打亂,Shuffle tiles on all placed blocks.,場にある全てのブロックの牌をシャッフルする。
 ITEM_DES_24,当有胡牌区有刻子时，且场上有这个刻子的牌，加入该牌形成杠牌（满足多个刻子时随机）,當胡牌區有刻子時，且場上有這個刻子的牌，加入該牌形成槓牌（滿足多個刻子時隨機）,"If Hu Zone has Triplet & board has that tile, form a Kong (Random).",アガリ牌に刻子があり、場にその牌がある場合、槓子を作る（ランダム）。
-ITEM_DES_25,整局游戏当前<color=#3296DC>基础分x2</color>,整局遊戲當前<color=#3296DC>基礎分x2</color>,Game Current <color=#3296DC>Base Score x2</color>.,対局全体の現在<color=#3296DC>基礎点x2</color>。
+ITEM_DES_25,整局游戏当前<color=#3296DC>基础分+50%</color>,整局遊戲當前<color=#3296DC>基礎分+50%</color>,Game Current <color=#3296DC>Base Score +50%</color>.,対局全体の現在<color=#3296DC>基礎点+50%</color>。
 ITEM_DES_26,当前目标分数-20%,當前目標分數-20%,Current Target Score -20%.,現在の目標スコア-20%。
 ITEM_DES_27,强行消除底下6行方块,強行消除底下6行方塊,Force clear bottom 6 lines.,最下段の6列を強制消去する。
 ITEM_DES_28,使用效果复制上一个使用的道具,使用效果複製上一個使用的道具,Copy effect of last used Item.,直前に使用したアイテムの効果をコピーする。
@@ -227,7 +227,7 @@ PROTOCOL_NAME_38,合纵连横,合縱連橫,Realpolitik,合従連衡
 PROTOCOL_NAME_39,超超超贵宾,超超超貴賓,SSSVIP,SSSVIP
 PROTOCOL_NAME_40,奥义很爽,奧義很爽,Ultimate Impact,奥義・爽快
 PROTOCOL_DES_01,方块<color=#36BA98>下降速度+10</color>，<color=#E682E6>额外倍率x2</color>,方塊<color=#36BA98>下降速度+10</color>，<color=#E682E6>額外倍率x2</color>,"Block <color=#36BA98>Speed +10</color>, <color=#E682E6>Ex Mult x2</color>.",ブロック<color=#36BA98>落下速度+10</color>、<color=#E682E6>追加倍率x2</color>。
-PROTOCOL_DES_02,每轮游戏开始时，胡牌<color=#3296DC>基础分+70</color>，之后<color=#3296DC>每秒-1</color>（最低为1），胡牌后重置,每輪遊戲開始時，胡牌<color=#3296DC>基礎分+70</color>，之後<color=#3296DC>每秒-1</color>（最低為1），胡牌後重置,"Round Start: <color=#3296DC>Base Score +70</color>, then <color=#3296DC>-1 per sec</color> (Min 1). Resets on Hu.",各ラウンド開始時、<color=#3296DC>基礎点+70</color>。その後<color=#3296DC>每秒-1</color>（最低1）。アガリ後リセット。
+PROTOCOL_DES_02,每轮游戏开始时，胡牌<color=#3296DC>基础分+60</color>，之后<color=#3296DC>每秒-1</color>（最低为1），胡牌后重置,每輪遊戲開始時，胡牌<color=#3296DC>基礎分+60</color>，之後<color=#3296DC>每秒-1</color>（最低為1），胡牌後重置,"Round Start: <color=#3296DC>Base Score +60</color>, then <color=#3296DC>-1 per sec</color> (Min 1). Resets on Hu.",各ラウンド開始時、<color=#3296DC>基礎点+60</color>。その後<color=#3296DC>每秒-1</color>（最低1）。アガリ後リセット。
 PROTOCOL_DES_03,每次胡牌时游戏时间奖励+20秒,每次胡牌時遊戲時間獎勵+20秒,Time Reward +20s on Hu.,アガリ時の時間報酬+20秒。
 PROTOCOL_DES_04,当有5格方块时生效，5格方块出现的权重提高200%，<color=#E682E6>额外倍率x3</color>,當有5格方塊時生效，5格方塊出現的權重提高200%，<color=#E682E6>額外倍率x3</color>,5-cell block weight +200% if present. <color=#E682E6>Ex Mult x3</color>.,5マスブロックがある場合、出現率+200%、<color=#E682E6>追加倍率x3</color>。
 PROTOCOL_DES_05,当牌库中剩余的牌低于36张时游戏失败，<color=#E682E6>额外倍率x2</color>,當牌庫中剩餘的牌低於36張時遊戲失敗，<color=#E682E6>額外倍率x2</color>,Defeat if Deck < 36 tiles. <color=#E682E6>Ex Mult x2</color>.,山牌が36枚未満になると敗北。<color=#E682E6>追加倍率x2</color>。

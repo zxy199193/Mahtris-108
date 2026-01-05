@@ -499,7 +499,7 @@ public class GameManager : MonoBehaviour
         inventoryManager.ClearInventory();
         protocolsMarkedForRemoval.Clear();
         GrantStartingRewards(DifficultyManager.Instance.CurrentDifficulty);
-        if (isAdventFoodActive) { adventFoodBonus = 70; adventFoodTimer = 1f; }
+        if (isAdventFoodActive) { adventFoodBonus = 60; adventFoodTimer = 1f; }
         else { adventFoodBonus = 0; }
 
         // 2. 例行公事：如果有条约，锁定时间
@@ -727,7 +727,7 @@ public class GameManager : MonoBehaviour
         else if (isSteroidActive) { roundBaseScoreBonus = -16; isSteroidActive = false; isSteroidReversalActive = true; }
         else { roundBaseScoreBonus = 0; }
 
-        if (isAdventFoodActive) { adventFoodBonus = 120; adventFoodTimer = 1f; } else { adventFoodBonus = 0; }
+        if (isAdventFoodActive) { adventFoodBonus = 60; adventFoodTimer = 1f; } else { adventFoodBonus = 0; }
         UpdateCurrentBaseScore();
 
         if (isRoutineWorkActive) remainingTime = 95f;
@@ -812,7 +812,7 @@ public class GameManager : MonoBehaviour
             else if (isSteroidActive) { roundBaseScoreBonus = -16; isSteroidActive = false; isSteroidReversalActive = true; }
             else { roundBaseScoreBonus = 0; }
 
-            if (isAdventFoodActive) { adventFoodBonus = 120; adventFoodTimer = 1f; } else { adventFoodBonus = 0; }
+            if (isAdventFoodActive) { adventFoodBonus = 60; adventFoodTimer = 1f; } else { adventFoodBonus = 0; }
 
             UpdateCurrentBaseScore();
 
