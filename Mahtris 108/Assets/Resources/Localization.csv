@@ -153,7 +153,7 @@ ITEM_DES_04,本轮游戏<color=#3296DC>基础分+16</color>，胡牌后<color=#3
 ITEM_DES_05,整局游戏方块<color=#36BA98>下降速度-3</color>,整局遊戲方塊<color=#36BA98>下降速度-3</color>,Game Block <color=#36BA98>Drop Speed -3</color>.,対局全体のブロック<color=#36BA98>落下速度-3</color>。
 ITEM_DES_06,本轮游戏方块<color=#36BA98>下降速度-8</color>，胡牌后恢复,本輪遊戲方塊<color=#36BA98>下降速度-8</color>，胡牌後恢復,Round Block <color=#36BA98>Drop Speed -8</color>. Resets after Hu.,今ラウンドのブロック<color=#36BA98>落下速度-8</color>。アガリ後にリセット。
 ITEM_DES_07,接下来10个方块的<color=#36BA98>下降速度-15</color>（最低为1），期间胡牌效果中止,接下來10個方塊的<color=#36BA98>下降速度-15</color>（最低為1），期間胡牌效果中止,Next 10 Blocks <color=#36BA98>Drop Speed -15</color> (Min 1). Ends on Hu.,次のブロック10個の<color=#36BA98>落下速度-15</color>（最低1）。アガると効果終了。
-ITEM_DES_08,强行消除底下2行方块,強行消除底下2行方塊,Force clear bottom 2 lines.,最下段の2列を強制消去する。
+ITEM_DES_08,强行消除底下3行方块,強行消除底下3行方塊,Force clear bottom 3 lines.,最下段の3列を強制消去する。
 ITEM_DES_09,强行消除最上方3行方块,強行消除最上方3行方塊,Force clear top 3 lines.,最上段の3列を強制消去する。
 ITEM_DES_10,剩余<color=#36BA98>游戏时间+40秒</color>,剩餘<color=#36BA98>遊戲時間+40秒</color>,Remaining <color=#36BA98>Time +40s</color>.,残り<color=#36BA98>時間+40秒</color>。
 ITEM_DES_11,本轮游戏增加5次暂停时间，胡牌后恢复,本輪遊戲增加5次暫停時間，胡牌後恢復,Add 5 Pauses this round. Resets after Hu.,今ラウンドの一時停止回数+5。アガリ後にリセット。
@@ -172,7 +172,7 @@ ITEM_DES_23,后场上所有方块的麻将牌面被随机打乱,後場上所有�
 ITEM_DES_24,当有胡牌区有刻子时，且场上有这个刻子的牌，加入该牌形成杠牌（满足多个刻子时随机）,當胡牌區有刻子時，且場上有這個刻子的牌，加入該牌形成槓牌（滿足多個刻子時隨機）,"If Hu Zone has Triplet & board has that tile, form a Kong (Random).",アガリ牌に刻子があり、場にその牌がある場合、槓子を作る（ランダム）。
 ITEM_DES_25,整局游戏当前<color=#3296DC>基础分x2</color>,整局遊戲當前<color=#3296DC>基礎分x2</color>,Game Current <color=#3296DC>Base Score x2</color>.,対局全体の現在<color=#3296DC>基礎点x2</color>。
 ITEM_DES_26,当前目标分数-20%,當前目標分數-20%,Current Target Score -20%.,現在の目標スコア-20%。
-ITEM_DES_27,强行消除底下5行方块,強行消除底下5行方塊,Force clear bottom 5 lines.,最下段の5列を強制消去する。
+ITEM_DES_27,强行消除底下6行方块,強行消除底下6行方塊,Force clear bottom 6 lines.,最下段の6列を強制消去する。
 ITEM_DES_28,使用效果复制上一个使用的道具,使用效果複製上一個使用的道具,Copy effect of last used Item.,直前に使用したアイテムの効果をコピーする。
 ITEM_DES_29,60秒内只会出现1~3格的方块，期间胡牌则效果停止,60秒內只會出現1~3格的方塊，期間胡牌則效果停止,Only 1-3 cell blocks for 60s. Ends on Hu.,60秒間、1~3マスのブロックのみ出現。アガると効果終了。
 ITEM_DES_30,当胡牌区牌组小于4组且牌库中存在可以组成刻子或顺子的牌时，随机将一组牌加入胡牌区,當胡牌區牌組小於4組且牌庫中存在可以組成刻子或順子的牌時，隨機將一組牌加入胡牌區,"If Hu Zone <4 sets & Deck has valid set, add random set to Hu Zone.",アガリ牌が4組未満で、山牌に有効な面子がある場合、ランダムに1組追加。

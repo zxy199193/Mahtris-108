@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "SuperBomb", menuName = "Items/Advanced/SuperBomb")]
 public class SuperBombItem : ItemData
 {
-    public int rowsToClear = 3;
+    public int rowsToClear = 6;
 
     public override bool Use(GameManager gameManager)
     {
