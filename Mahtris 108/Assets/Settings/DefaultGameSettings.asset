@@ -45,7 +45,7 @@ MonoBehaviour:
     goldReward: 700
   - targetScore: 5000
     goldReward: 1000
-  husPerLoop: 3
+  husPerLoop: 1
   normalWeight: 10
   legendaryWeightBase: 5
   legendaryWeightIncreasePerLoop: 2.5
@@ -112,7 +112,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 81c37f71ba9d54f4897fa6de64d32181, type: 2}
   maxProtocolCount: 5
   protocolPool:
-  - {fileID: 11400000, guid: 7b13910c1074a534ea16e549bb8cb788, type: 2}
+  - {fileID: 11400000, guid: 459616c96c3613947973b789280a260e, type: 2}
   refreshBaseCost: 100
   legendaryIcon: {fileID: 21300000, guid: 71b55c0a7c1906e48bd3b525833135cf, type: 3}
   tooltipBgCommon: {fileID: 21300000, guid: 0a8ab05b60e1f0545b5c1135286dc257, type: 3}

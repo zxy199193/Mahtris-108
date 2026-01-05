@@ -917,6 +917,14 @@ public class GameManager : MonoBehaviour
                 // Log 方便调试
                 // Debug.Log($"老派玩家消行: {lineCount} 行, 得分: {clearScore}");
             }
+            if (isDelayGratificationActive && rowIndices.Count >= 3)
+            {
+                delayGratificationBonus += 7;
+                UpdateCurrentBaseScore(); // 立即刷新 UI 显示
+
+                // Debug.Log($"延迟满足生效：一次性消除 {rowIndices.Count} 行，基础分 +7！");
+            }
+
             // 【移除】移除了之前错误的 TryFindAndAddRandomSetFromPool 调用
 
             bool isHandEmptyAtStart = huPaiArea.GetSetCount() == 0;
