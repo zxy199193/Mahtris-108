@@ -186,6 +186,7 @@ public class GameManager : MonoBehaviour
     private int _protocolsObtainedThisGame = 0;
     private int _currentRefreshCost;
     private int _gameExecutionId = 0;
+    private int _loopOfLastLegendaryAppearance = 0;
     void Awake()
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
@@ -478,6 +479,7 @@ public class GameManager : MonoBehaviour
         isMistActive = false;
         _itemsUsedThisGame = 0;
         _protocolsObtainedThisGame = 0;
+        _loopOfLastLegendaryAppearance = 0;
         if (gameUI != null) gameUI.SetMistActive(false);
         _omaCurrentGrowth = 2f;
         _omaAppliedFactor = 1f;
@@ -1463,7 +1465,29 @@ public class GameManager : MonoBehaviour
             // 使用加权随机
             package.ItemChoices = GetWeightedRandomList(unlockedItems, itemCount);
         }
+        bool hasLegendary = false;
 
+        if (package.ItemChoices != null)
+        {
+            foreach (var item in package.ItemChoices)
+            {
+                if (item != null && item.isLegendary) { hasLegendary = true; break; }
+            }
+        }
+
+        if (!hasLegendary && package.ProtocolChoices != null)
+        {
+            foreach (var proto in package.ProtocolChoices)
+            {
+                if (proto != null && proto.isLegendary) { hasLegendary = true; break; }
+            }
+        }
+
+        if (hasLegendary)
+        {
+            _loopOfLastLegendaryAppearance = scoreManager.GetCurrentLoop();
+            // Debug.Log($"[概率平衡] 传奇物品出现于第 {_loopOfLastLegendaryAppearance} 圈，概率权重已重置。");
+        }
         return package;
     }
 
@@ -2102,7 +2126,14 @@ public class GameManager : MonoBehaviour
         // 也就是每一圈增加 50% 的基础权重
         float legendaryBase = settings.legendaryWeightBase;
         int currentLoop = scoreManager.GetCurrentLoop();
-        float currentLegendaryWeight = legendaryBase + (legendaryBase * settings.legendaryWeightIncreasePerLoop * (currentLoop - 1));
+
+        // 【修改】计算逻辑：不再直接用 currentLoop，而是用“距离上次出现过的圈数差”
+        // 比如：第1圈(未出现)，delta = 1 - 0 - 1 = 0 (基础权重)
+        // 第5圈出现过，第6圈时，delta = 6 - 5 - 1 = 0 (重置回基础权重)
+        // 第10圈还没出，delta = 10 - 5 - 1 = 4 (权重增加)
+        int deltaLoops = Mathf.Max(0, currentLoop - _loopOfLastLegendaryAppearance - 1);
+
+        float currentLegendaryWeight = legendaryBase + (legendaryBase * settings.legendaryWeightIncreasePerLoop * deltaLoops);
 
         float normalWeight = settings.normalWeight;
 
