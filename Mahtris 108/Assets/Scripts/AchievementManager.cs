@@ -362,4 +362,24 @@ public class AchievementManager : MonoBehaviour
 
         // Debug.Log($"[成就检查] 已解锁道具: {unlockedItems}, 已解锁条约: {unlockedProtocols}");
     }
+    public void CheckSingleGameRealtimeStats(int itemsUsed, int protocolsObtained)
+    {
+        foreach (var ach in allAchievements)
+        {
+            if (IsUnlocked(ach)) continue;
+
+            bool passed = false;
+            switch (ach.type)
+            {
+                case AchievementType.SingleGameItemUse:
+                    if (itemsUsed >= ach.targetValue) passed = true;
+                    break;
+                case AchievementType.SingleGameTotalProtocol:
+                    if (protocolsObtained >= ach.targetValue) passed = true;
+                    break;
+            }
+
+            if (passed) UnlockAchievement(ach);
+        }
+    }
 }

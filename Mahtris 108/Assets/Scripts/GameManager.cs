@@ -1245,6 +1245,7 @@ public class GameManager : MonoBehaviour
                 {
                     AchievementManager.Instance.AddProgress(AchievementType.AccumulateLegendary, 1);
                 }
+                AchievementManager.Instance.CheckSingleGameRealtimeStats(_itemsUsedThisGame, _protocolsObtainedThisGame);
             }
             protocol.ApplyEffect(this);
             // 更新条约栏UI
@@ -2583,6 +2584,14 @@ public class GameManager : MonoBehaviour
     public void IncrementItemUsedCount()
     {
         _itemsUsedThisGame++;
+        if (AchievementManager.Instance != null)
+        {
+            // 1. 检查单局成就 (如: 单局使用20个)
+            AchievementManager.Instance.CheckSingleGameRealtimeStats(_itemsUsedThisGame, _protocolsObtainedThisGame);
+
+            // 2. 累积成就 (如: 累计使用1000个) - 顺便补上这个逻辑
+            AchievementManager.Instance.AddProgress(AchievementType.AccumulateItemUse, 1);
+        }
     }
     // 1. 检查是否所有内容已解锁 (开启功能的条件)
     public bool IsAllContentUnlocked()
