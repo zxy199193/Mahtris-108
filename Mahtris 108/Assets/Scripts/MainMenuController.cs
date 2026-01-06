@@ -111,6 +111,10 @@ public class MainMenuController : MonoBehaviour
         // 【新增】初始化时检查一次提示
         CheckStoreNotification();
         CheckAndShowRefreshUnlockTip();
+        if (AchievementManager.Instance != null && storePanel != null)
+        {
+            AchievementManager.Instance.CheckAllUnlockProgress(storePanel.GetSettings());
+        }
     }
 
     void OnDestroy()

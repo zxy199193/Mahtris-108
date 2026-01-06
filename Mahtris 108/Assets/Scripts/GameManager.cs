@@ -210,6 +210,10 @@ public class GameManager : MonoBehaviour
         }
 
         StartNewGame();
+        if (AchievementManager.Instance != null)
+        {
+            AchievementManager.Instance.CheckAllUnlockProgress(settings);
+        }
     }
 
     void Update()
@@ -582,9 +586,14 @@ public class GameManager : MonoBehaviour
                 string[] split = analysisResult.PatternName.Split(new string[] { " · " }, System.StringSplitOptions.None);
                 patterns.AddRange(split);
             }
-
-            // 触发成就检查
-            AchievementManager.Instance.CheckOnHu(analysisResult.TotalFan, patterns);
+            int currentLoop = scoreManager.GetCurrentLoop();
+            int completedLoops = Mathf.Max(0, currentLoop - 1);
+            AchievementManager.Instance.CheckOnHu(
+            analysisResult.TotalFan,
+            patterns,
+            completedLoops,
+            activeProtocols.Count
+            );
         }
         if (isBloomingOnKongActive)
         {
@@ -1171,6 +1180,10 @@ public class GameManager : MonoBehaviour
         if (midasTimer > 0)
         {
             GameSession.Instance.AddGold(midasGoldValue);
+            if (AchievementManager.Instance != null)
+            {
+                AchievementManager.Instance.AddProgress(AchievementType.AccumulateGold, midasGoldValue);
+            }
             midasGoldValue *= 2;
         }
         if (scoreboardTimer > 0)
@@ -1647,6 +1660,10 @@ public class GameManager : MonoBehaviour
             if (GameSession.Instance != null)
             {
                 GameSession.Instance.AddGold(finalReward);
+                if (AchievementManager.Instance != null)
+                {
+                    AchievementManager.Instance.AddProgress(AchievementType.AccumulateGold, finalReward);
+                }
             }
 
             if (AudioManager.Instance != null)
@@ -1740,6 +1757,28 @@ public class GameManager : MonoBehaviour
         if (AudioManager.Instance) AudioManager.Instance.StopCountdownSound();
         int finalScore = scoreManager.GetCurrentScore();
         bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore);
+        if (isEndlessMode && AchievementManager.Instance != null)
+        {
+            // 准备数据
+            Difficulty currentDiff = DifficultyManager.Instance.CurrentDifficulty;
+            int currentGold = GameSession.Instance != null ? GameSession.Instance.CurrentGold : 0;
+
+            // 使用 CurrentDisplaySpeed 获取准确的速度等级
+            int finalSpeed = CurrentDisplaySpeed;
+
+            AchievementManager.Instance.CheckGameWin(
+                false,              // isWin = false (因为是 Game Over)
+                (int)currentDiff,
+                finalSpeed,         // 最终速度
+                remainingTime,      // 剩余时间 (通常是0，但在无尽模式可能不重要)
+                currentGold,
+                finalScore,
+                _itemsUsedThisGame,
+                _protocolsObtainedThisGame,
+                tetrisGrid.GetAllBlocksCount(),
+                true                // isEndlessMode = true (开启无尽模式检查权限)
+            );
+        }
         gameUI.ShowGameEndPanel(false, finalScore, isNewHighScore);
     }
 
@@ -1811,15 +1850,16 @@ public class GameManager : MonoBehaviour
             // 如果还没做，那您可以先填 0，或者暂时用 currentFallSpeed 反推。
 
             AchievementManager.Instance.CheckGameWin(
-                true,                           // 胜利
+                true,                           // isWin = true
                 (int)currentDiff,               // 难度
-                (int)(20.0f / currentFallSpeed),// 粗略反推速度值 (仅作参考，建议优化)
-                remainingTime,                  // 剩余时间
-                currentGold,                    // 剩余金币
-                finalScore,                   // 分数
+                CurrentDisplaySpeed,            // 【优化】直接使用 CurrentDisplaySpeed
+                remainingTime,
+                currentGold,
+                finalScore,
                 _itemsUsedThisGame,
                 _protocolsObtainedThisGame,
-                tetrisGrid.GetAllBlocksCount()
+                tetrisGrid.GetAllBlocksCount(),
+                false                           // isEndlessMode = false (此时还没进无尽模式)
             );
         }
         gameUI.ShowGameEndPanel(true, finalScore, isNewHighScore);
@@ -1892,14 +1932,25 @@ public class GameManager : MonoBehaviour
 
         baseFanScore = calculatedScore;
         gameUI.UpdateBaseScoreText(baseFanScore);
+
         if (AchievementManager.Instance != null)
         {
-            // 假设这些变量您都有
+            // 【核心修复】
+            // 成就目标：同时拥有 >= 20 个方块 (指牌库 Deck 的大小)
+            // 原逻辑错误：tetrisGrid.GetAllBlocksCount() (这是场上的格子数)
+            // 新逻辑正确：spawner.GetActivePrefabs().Count() (这是当前牌库里的方块总数)
+
+            int currentDeckCount = 0;
+            if (spawner != null && spawner.GetActivePrefabs() != null)
+            {
+                currentDeckCount = spawner.GetActivePrefabs().Count();
+            }
+
             AchievementManager.Instance.CheckRealtimeStats(
                 baseFanScore,
                 blockMultiplier,
                 extraMultiplier,
-                tetrisGrid.GetAllBlocksCount() // 需要您在 Grid 脚本里写个获取总数的方法
+                currentDeckCount // <--- 传入牌库数量
             );
         }
     }
@@ -2597,6 +2648,7 @@ public class GameManager : MonoBehaviour
             }
 
             Debug.Log($"试用小样生效：立即添加了 {count} 个 {prefabName}");
+            UpdateCurrentBaseScore();
         }
         else
         {

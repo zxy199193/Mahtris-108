@@ -23,5 +23,5 @@ MonoBehaviour:
   price: 500
   isInitial: 0
   unlockConditionCount: 0
-  bonusBlockCount: 1
+  bonusBlockCount: 15
   blockPrefabName: T1-Dot

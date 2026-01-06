@@ -217,6 +217,10 @@ public class StorePanelController : MonoBehaviour
             // 刷新列表以更新状态
             UpdateButtonStates();
             RefreshGrid();
+            if (AchievementManager.Instance != null)
+            {
+                AchievementManager.Instance.CheckAllUnlockProgress(settings);
+            }
         }
         else
         {
