@@ -118,7 +118,7 @@ ITEM_NAME_07,喷气背包,噴氣背包,Jet Pack,ジェットパック
 ITEM_NAME_08,炸弹,炸彈,Bomb,爆弾
 ITEM_NAME_09,空投炸弹,空投炸彈,Drop Bomb,空爆
 ITEM_NAME_10,沙漏,沙漏,Hourglass,砂時計
-ITEM_NAME_11,停表,停錶,Stopwatch,ストップウォッチ
+ITEM_NAME_11,平底锅,平底鍋,Frying Pan,フライパン
 ITEM_NAME_12,橡皮擦,橡皮擦,Eraser,消しゴム
 ITEM_NAME_13,方尖塔,方尖塔,Obelisk,オベリスク
 ITEM_NAME_14,微波炉,微波爐,Microwave Oven,電子レンジ
@@ -157,8 +157,8 @@ ITEM_DES_06,本轮游戏方块<color=#36BA98>下降速度-8</color>，胡牌后�
 ITEM_DES_07,接下来10个方块的<color=#36BA98>下降速度-15</color>（最低为1），期间胡牌效果中止,接下來10個方塊的<color=#36BA98>下降速度-15</color>（最低為1），期間胡牌效果中止,Next 10 Blocks <color=#36BA98>Drop Speed -15</color> (Min 1). Ends on Hu.,次のブロック10個の<color=#36BA98>落下速度-15</color>（最低1）。アガると効果終了。
 ITEM_DES_08,强行消除底下3行方块,強行消除底下3行方塊,Force clear bottom 3 lines.,最下段の3列を強制消去する。
 ITEM_DES_09,强行消除最上方3行方块,強行消除最上方3行方塊,Force clear top 3 lines.,最上段の3列を強制消去する。
-ITEM_DES_10,剩余<color=#36BA98>游戏时间+40秒</color>,剩餘<color=#36BA98>遊戲時間+40秒</color>,Remaining <color=#36BA98>Time +40s</color>.,残り<color=#36BA98>時間+40秒</color>。
-ITEM_DES_11,本轮游戏增加5次暂停时间，胡牌后恢复,本輪遊戲增加5次暫停時間，胡牌後恢復,Add 5 Pauses this round. Resets after Hu.,今ラウンドの一時停止回数+5。アガリ後にリセット。
+ITEM_DES_10,剩余<color=#36BA98>游戏时间+40秒</color>,剩餘<color=#36BA98>遊戲時間+40秒</color>,Remaining <color=#36BA98>Time +40s</color>,残り<color=#36BA98>時間+40秒</color>。
+ITEM_DES_11,随机移除一个方块，剩余<color=#36BA98>游戏时间+30秒</color>，整局游戏<color=#3296DC>基础分+5</color>,隨機移除一個方塊，剩餘<color=#36BA98>遊戲時間+30秒</color>，整局遊戲<color=#3296DC>基礎分+5</color>,"Randomly remove 1 block. Remaining <color=#36BA98>Time +30s</color>, Game <color=#3296DC>Base Score +5</color>",ランダムにブロックを1個削除する。残り<color=#36BA98>時間+30秒</color>、ゲーム<color=#3296DC>基礎点+5</color>
 ITEM_DES_12,将上一组加入胡牌区的牌放回牌库,將上一組加入胡牌區的牌放回牌庫,Return the last set added to Hu Zone to the Deck.,アガリ牌エリアに加えた直近の1組を山牌に戻す。
 ITEM_DES_13,下一个形状会变为7格长条方块,下一個形狀會變為7格長條方塊,Next block becomes a 7-cell I-piece.,次のブロックが7マスの棒状に変化する。
 ITEM_DES_14,将下一个方块替换成相同方块数量的其他形状,將下一個方塊替換成相同方塊數量的其他形狀,Reroll next block (keep size).,次のブロックを同じサイズの別の形に変換する。
@@ -188,6 +188,7 @@ ITEM_DES_37,20秒内每次消除行会给与金币，初始为1，此后每消�
 ITEM_DES_38,20秒内每次消除行会给增加当前得分的5%，期间胡牌效果中止,20秒內每次消除行會給增加當前得分的5%，期間胡牌效果中止,20s: Line clear adds 5% of Current Score. Ends on Hu.,20秒間、ライン消去で現在のスコアの5%を加算。アガリで中止。
 ITEM_DES_39,方块列表中每有一种方块，整局游戏<color=#3296DC>基础分+3</color>,方塊列表中每一種方塊，整局遊戲<color=#3296DC>基礎分+3</color>,Game <color=#3296DC>Base Score +3</color> per block type in list.,リスト内のブロック1種につき、全体の<color=#3296DC>基礎点+3</color>。
 ITEM_DES_40,整局游戏<color=#3296DC>基础分+18</color>，方块<color=#36BA98>下落速度-8</color>，<color=#36BA98>游戏时间+80秒</color>，强行消除底下3行方块,整局遊戲<color=#3296DC>基礎分+18</color>，方塊<color=#36BA98>下落速度-8</color>，<color=#36BA98>遊戲時間+80秒</color>，強行消除底下3行方塊,"Game <color=#3296DC>Base +18</color>, <color=#36BA98>Speed -8</color>, <color=#36BA98>Time +80s</color>, Clear bottom 3 lines.",全体の<color=#3296DC>基礎点+18</color>、<color=#36BA98>速度-8</color>、<color=#36BA98>時間+80秒</color>、下3列消去。
+ITEM_TIPS_11,方块不足，无法使用,方塊不足，無法使用,Not enough blocks. Cannot use.,ブロックが足りないため、使用できません
 PROTOCOL_NAME_01,速度之星,速度之星,Speed Star,スピードスター
 PROTOCOL_NAME_02,临期食品,臨期食品,Expiring Food,見切り品
 PROTOCOL_NAME_03,新能源,新能源,Renewable Energy,再生可能エネ

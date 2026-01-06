@@ -460,4 +460,34 @@ public class Spawner : MonoBehaviour
         }
         GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, nextTileIds);
     }
+    public bool RemoveRandomBlock()
+    {
+        // 1. 保底检查：必须至少有2个方块才能移除 (防止死局)
+        if (activeTetrominoPool == null || activeTetrominoPool.Count <= 1)
+        {
+            Debug.Log("平底锅失效：池中方块不足（至少保留一个）。");
+            return false;
+        }
+
+        // 2. 随机选择一个索引
+        int index = Random.Range(0, activeTetrominoPool.Count);
+        GameObject target = activeTetrominoPool[index];
+
+        // 3. 移除
+        activeTetrominoPool.RemoveAt(index);
+        Debug.Log($"平底锅生效：随机移除了 {target.name}");
+
+        // 4. 刷新 UI 列表
+        GameManager.Instance.UpdateActiveBlockListUI();
+
+        // 5. 【关键】如果移除的正好是当前“预览中”的方块，必须立刻重随一个新的
+        if (nextTetrominoPrefab == target)
+        {
+            Debug.Log("平底锅：预览方块即为被删方块，正在重随...");
+            PrepareNextTetromino();
+            // PrepareNextTetromino 内部会自动调用 TriggerNextBlockReady 更新预览 UI
+        }
+
+        return true;
+    }
 }

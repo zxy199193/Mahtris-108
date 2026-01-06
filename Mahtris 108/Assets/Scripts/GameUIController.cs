@@ -1189,6 +1189,14 @@ public class GameUIController : MonoBehaviour
         {
             LocalizationManager.Instance.UpdateFont(toastText);
         }
+        if (toastText.transform.parent != null)
+        {
+            RectTransform layoutRoot = toastText.transform.parent.GetComponent<RectTransform>();
+            if (layoutRoot != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(layoutRoot);
+            }
+        }
         toastCanvasGroup.alpha = 1; // 立刻显示
 
         // 持续 0.8s 后，用 0.4s 淡出

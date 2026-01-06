@@ -2385,6 +2385,44 @@ public class GameManager : MonoBehaviour
         tetrisGrid.ForceClearTopRows(3, ignoreTransform);
     }
 
+    public bool ActivateFryingPan(float timeToAdd, int scoreToAdd)
+    {
+        if (spawner == null) return false;
+
+        // 1. 尝试移除随机方块
+        bool success = spawner.RemoveRandomBlock();
+
+        if (success)
+        {
+            // 2. 成功移除后 -> 增加时间
+            remainingTime += timeToAdd;
+            // 立即刷新时间UI (防止游戏处于暂停/菜单状态时UI不更新)
+            if (gameUI != null) gameUI.UpdateTimerText(remainingTime);
+
+            // 3. 增加永久基础分
+            ApplyPermanentBaseScoreBonus(scoreToAdd);
+
+            Debug.Log($"平底锅使用成功：时间+{timeToAdd}s, 基础分+{scoreToAdd}");
+            return true;
+        }
+        else
+        {
+            // 4. 方块不足，使用失败 (道具不消耗)
+            string msg = "方块数量不足，无法使用！"; // 默认兜底文本
+
+            if (LocalizationManager.Instance != null)
+            {
+                msg = LocalizationManager.Instance.GetText("ITEM_TIPS_11");
+            }
+
+            if (gameUI != null)
+            {
+                gameUI.ShowToast(msg);
+            }
+            return false;
+        }
+    }
+
     // 2. 激活剪刀
     public bool ActivateScissors()
     {

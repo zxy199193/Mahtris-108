@@ -9,18 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16f5afb1abc642b4497f34b2f5d57e30, type: 3}
-  m_Name: Stopwatch
+  m_Script: {fileID: 11500000, guid: 565a73da685dfdb409a400412d0e40b5, type: 3}
+  m_Name: FryingPan
   m_EditorClassIdentifier: 
   nameKey: ITEM_NAME_11
   descKey: ITEM_DES_11
-  itemName: "\u505C\u8868"
-  itemIcon: {fileID: 21300000, guid: 9b8cd7a1a6b71aa4594d0eff5e0c3dc0, type: 3}
-  itemDescription: "\u672C\u8F6E\u6E38\u620F\u589E\u52A05\u6B21\u6682\u505C\u65F6\u95F4\uFF0C\u80E1\u724C\u540E\u6062\u590D\r\r"
+  itemName: "\u5E73\u5E95\u9505"
+  itemIcon: {fileID: 21300000, guid: 39a220c6c01572747a5d9152d94459e6, type: 3}
+  itemDescription: "\u968F\u673A\u79FB\u9664\u4E00\u4E2A\u65B9\u5757\uFF0C\u5269\u4F59\u6E38\u620F\u65F6\u95F4+30\u79D2\uFF0C\u6574\u5C40\u6E38\u620F\u57FA\u7840\u5206+5"
   isAdvanced: 0
   isLegendary: 0
   useSound: {fileID: 0}
   price: 500
   isInitial: 1
   unlockConditionCount: 0
-  pauseCountToAdd: 5
+  timeBonus: 30
+  baseScoreBonus: 5
