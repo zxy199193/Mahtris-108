@@ -168,10 +168,7 @@ public class GameManager : MonoBehaviour
     // 8. 暂停控制
     // ========================================================================
     [Header("暂停功能")]
-    [SerializeField] private int maxPauses = 2;
     private bool isPaused = false;
-    private int remainingPauses;
-    private bool isStopwatchActive = false;
 
     // ========================================================================
     // 9. 教学
@@ -490,9 +487,6 @@ public class GameManager : MonoBehaviour
         _currentRefreshCost = settings.refreshBaseCost;
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
 
-        remainingPauses = maxPauses;
-        if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
-
         remainingTime = settings.initialTimeLimit;
         currentScoreLevelIndex = 0;
         isEndlessMode = false;
@@ -771,10 +765,7 @@ public class GameManager : MonoBehaviour
 
         UpdateCurrentBaseScore();
         isPaused = false;
-        if (isStopwatchActive) { remainingPauses = maxPauses; isStopwatchActive = false; }
-        else { remainingPauses = maxPauses; }
 
-        if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
         gameUI.PlayHuPopupExitAnimation(() =>
         {
             // ==========================================
@@ -803,9 +794,6 @@ public class GameManager : MonoBehaviour
 
             // 重置暂停状态
             isPaused = false;
-            if (isStopwatchActive) { remainingPauses = maxPauses; isStopwatchActive = false; }
-            else { remainingPauses = maxPauses; }
-            if (gameUI != null) gameUI.UpdatePauseUI(isPaused, remainingPauses);
 
             // 重置各种变量 (保持原有逻辑)
             delayGratificationBonus = 0;
@@ -1785,42 +1773,42 @@ public class GameManager : MonoBehaviour
 
     public void TogglePause()
     {
-        // 如果游戏已结束，不允许暂停
+        // 如果游戏已结束 (Time.timeScale == 0) 且不是处于暂停状态 (例如在胡牌结算中)，则不允许暂停
         if (Time.timeScale == 0f && !isPaused) return;
 
         if (isPaused)
         {
-            // --- 取消暂停 ---
+            // --- 取消暂停 (继续游戏) ---
             isPaused = false;
             Time.timeScale = 1f;
-            gameUI.ShowPausePanel(false);
+
+            // 关闭 UI (不带回调)
+            if (gameUI != null) gameUI.ShowPausePanel(false);
+
             if (AudioManager.Instance) AudioManager.Instance.ResumeCountdownSound();
         }
         else
         {
-            // --- 尝试暂停 ---
-            if (remainingPauses > 0)
-            {
-                isPaused = true;
-                remainingPauses--;
-                Time.timeScale = 0f;
-                gameUI.ShowPausePanel(true);
-                if (AudioManager.Instance) AudioManager.Instance.PauseCountdownSound();
-            }
-            else
-            {
-                Debug.Log("暂停次数已用完!");
-                // (可选) 可以在此触发一个UI提示
-            }
-        }
-        gameUI.UpdatePauseUI(isPaused, remainingPauses);
+            // --- 暂停游戏 (无限次) ---
+            isPaused = true;
+            Time.timeScale = 0f;
 
+            // 打开 UI
+            if (gameUI != null) gameUI.ShowPausePanel(true);
+
+            if (AudioManager.Instance) AudioManager.Instance.PauseCountdownSound();
+        }
     }
-    public void AddPauseCount(int amount)
+    public void QuitGameFromPause()
     {
-        remainingPauses += amount;
-        gameUI.UpdatePauseUI(isPaused, remainingPauses);
+        // 1. 逻辑状态重置
+        isPaused = false;
+
+        // 2. 触发标准的游戏结束流程
+        // 这会调用 HandleGameOver -> 计算分数 -> ShowGameEndPanel
+        GameEvents.TriggerGameOver();
     }
+
     private void HandleGameWon()
     {
         Time.timeScale = 0f;
@@ -1889,10 +1877,6 @@ public class GameManager : MonoBehaviour
             // 继续游戏
             ContinueAfterHu();
         });
-    }
-    public void SetStopwatchActive(bool isActive)
-    {
-        isStopwatchActive = isActive;
     }
 
     // 添加新方法

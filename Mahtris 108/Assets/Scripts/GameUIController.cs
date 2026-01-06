@@ -156,15 +156,15 @@ public class GameUIController : MonoBehaviour
     // 7. 暂停面板 (Pause)
     // ========================================================================
     [Header("暂停面板")]
-    [SerializeField] private GameObject pausePanel;
-    [SerializeField] private Text pauseStatusText; // "暂停中" (带呼吸动画)
+    [SerializeField] private GameObject pausePanel;       // 父节点 (黑色遮罩)
+    [SerializeField] private RectTransform pauseContainer;// 弹窗本体
 
     [Header("暂停按钮 (HUD)")]
-    [SerializeField] private Button pauseButton;
-    [SerializeField] private Image pauseButtonIcon;
-    [SerializeField] private Text pauseCountText;
-    [SerializeField] private Sprite playIcon;
-    [SerializeField] private Sprite pauseIcon;
+    [SerializeField] private Button pauseButton;          // 仅保留点击功能，不换图
+
+    [Header("面板内按钮")]
+    [SerializeField] private Button resumeButton;         // "继续游戏"
+    [SerializeField] private Button endGameButton;        // "结束游戏"
 
     // ========================================================================
     // 8. 列表与杂项
@@ -219,7 +219,6 @@ public class GameUIController : MonoBehaviour
     // 动画 Tweens
     private Tween poolCountBlinkTween;
     private Tween timerBlinkTween;
-    private Tween pauseBlinkTween;
     private const float POPUP_SLIDE_DURATION = 0.6f;
     private const float POPUP_HIDDEN_Y = -1500f; // 弹窗滑出屏幕外的Y坐标
     private const float POPUP_SHOWN_Y = 0f;      // 弹窗显示时的中心Y坐标 (假设锚点在中心)
@@ -390,9 +389,33 @@ public class GameUIController : MonoBehaviour
             });
         }
         if (restartButton) restartButton.onClick.AddListener(() => { ReturnToMainMenu(); });
-        if (pauseButton) pauseButton.onClick.AddListener(() => GameManager.Instance.TogglePause());
         if (endlessModeButton) endlessModeButton.onClick.AddListener(() => GameManager.Instance.StartEndlessMode());
         if (nextStepButton) nextStepButton.onClick.AddListener(OnNextStepClicked);
+        if (pauseButton) pauseButton.onClick.AddListener(() => GameManager.Instance.TogglePause());
+
+        // 2. 面板内的 "继续游戏" -> 关闭面板，恢复游戏
+        if (resumeButton)
+        {
+            resumeButton.onClick.AddListener(() =>
+            {
+                // 调用 GameManager 解除暂停
+                GameManager.Instance.TogglePause();
+            });
+        }
+
+        // 3. 面板内的 "结束游戏" -> 先关面板，再触发 GameOver
+        if (endGameButton)
+        {
+            endGameButton.onClick.AddListener(() =>
+            {
+                // 先播放关闭动画
+                ShowPausePanel(false, () =>
+                {
+                    // 动画播完后，通知 Manager 结束游戏
+                    GameManager.Instance.QuitGameFromPause();
+                });
+            });
+        }
     }
     private void OnNextStepClicked()
     {
@@ -1075,53 +1098,17 @@ public class GameUIController : MonoBehaviour
         SceneManager.LoadScene("MainMenuScene");
     }
 
-    public void UpdatePauseUI(bool isCurrentlyPaused, int count)
+    public void ShowPausePanel(bool show, Action onComplete = null)
     {
-        if (pauseButtonIcon) pauseButtonIcon.sprite = isCurrentlyPaused ? playIcon : pauseIcon;
-        if (pauseCountText) pauseCountText.text = count.ToString();
-        // 只有在次数 > 0 或 已经暂停时，按钮才可交互
-        if (pauseButton) pauseButton.interactable = (count > 0 || isCurrentlyPaused);
-    }
-
-    public void ShowPausePanel(bool show)
-    {
-        if (pausePanel)
+        if (show)
         {
-            pausePanel.SetActive(show);
-
-            if (show)
-            {
-                // === 开启暂停：播放闪烁 ===
-                if (pauseStatusText != null)
-                {
-                    // 1. 先杀掉旧动画（防止重复）
-                    if (pauseBlinkTween != null) pauseBlinkTween.Kill();
-
-                    // 2. 重置透明度为 1 (完全显示)
-                    pauseStatusText.DOFade(1f, 0f).SetUpdate(true);
-
-                    // 3. 开始呼吸闪烁 (Alpha 1 -> 0.3 -> 1)
-                    // SetUpdate(true) 是关键！让动画在 Time.timeScale = 0 时依然运行
-                    pauseBlinkTween = pauseStatusText.DOFade(0.5f, 0.8f)
-                        .SetLoops(-1, LoopType.Yoyo) // 无限循环，悠悠球模式
-                        .SetUpdate(true);
-                }
-            }
-            else
-            {
-                // === 关闭暂停：停止闪烁 ===
-                if (pauseBlinkTween != null)
-                {
-                    pauseBlinkTween.Kill();
-                    pauseBlinkTween = null;
-                }
-
-                // 恢复文字为不透明
-                if (pauseStatusText != null)
-                {
-                    pauseStatusText.DOFade(1f, 0f).SetUpdate(true);
-                }
-            }
+            // 显示：播放滑入动画
+            PlayPopupShow(pausePanel, pauseContainer);
+        }
+        else
+        {
+            // 隐藏：播放滑出动画，并在结束后执行回调
+            PlayPopupHide(pausePanel, pauseContainer, onComplete);
         }
     }
     // 【新增】这个方法用于显示目标和进度条

@@ -53,13 +53,15 @@ GAME_DECK,牌库,牌庫,DECK,山牌
 GAME_HU_ZONE,胡牌区,胡牌區,HU ZONE,アガリ牌
 GAME_PROTOCOL,条约,條約,PROTOCOL,条約
 GAME_ITEM,道具,道具,ITEM,アイテム
-GAME_PAUSED,已暂停,已暫停,PAUSED,一時停止
 GAME_LACK,缺牌,缺牌,LACK,不足
 DECK_TITLE,牌库,牌庫,DECK,山牌
 DECK_TONG,筒,筒,BOT,筒子
 DECK_WAN,万,萬,CHARACTER,萬子
 DECK_TIAO,条,索,BAMBOO,索子
 TYPE_TITLE,牌型列表,牌型列表,HAND TYPE,役一覧
+PAUSE_PAUSED,游戏暂停,遊戲暫停,GAME PAUSED,ポーズ
+PAUSE_CONTINUE,继续游戏,繼續遊戲,CONTINUE,ゲーム再開
+PAUSE_ENDGAME,结束游戏,結束遊戲,END GAME,ゲーム終了
 GAME_OVER_LOSE,游戏结束,遊戲結束,GAME OVER,ゲームオーバー
 GAME_OVER_CLEAR,恭喜过关！,恭喜過關！,STAGE CLEAR!!,ステージクリア
 GAME_OVER_SCORE,得分,得分,SCORE,スコア
