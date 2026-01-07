@@ -187,7 +187,7 @@ ITEM_DES_36,接下来15秒的方块会尽可能只有条子牌,接下來15秒的
 ITEM_DES_37,20秒内每次消除行会给与金币，初始为1，此后每消除1行金币奖励x2，期间胡牌效果中止,20秒內每次消除行會給與金幣，初始為1，此後每消除1行金幣獎勵x2，期間胡牌效果中止,"20s: Line clear gives Coins (Starts 1, x2 per clear). Ends on Hu.",20秒間、ライン消去でコイン獲得（初期1、消去毎にx2）。アガリで中止。
 ITEM_DES_38,20秒内每次消除行会给增加当前得分的5%，期间胡牌效果中止,20秒內每次消除行會給增加當前得分的5%，期間胡牌效果中止,20s: Line clear adds 5% of Current Score. Ends on Hu.,20秒間、ライン消去で現在のスコアの5%を加算。アガリで中止。
 ITEM_DES_39,方块列表中每有一种方块，整局游戏<color=#3296DC>基础分+3</color>,方塊列表中每一種方塊，整局遊戲<color=#3296DC>基礎分+3</color>,Game <color=#3296DC>Base Score +3</color> per block type in list.,リスト内のブロック1種につき、全体の<color=#3296DC>基礎点+3</color>。
-ITEM_DES_40,整局游戏<color=#3296DC>基础分+18</color>，方块<color=#36BA98>下落速度-8</color>，<color=#36BA98>游戏时间+80秒</color>，强行消除底下3行方块,整局遊戲<color=#3296DC>基礎分+18</color>，方塊<color=#36BA98>下落速度-8</color>，<color=#36BA98>遊戲時間+80秒</color>，強行消除底下3行方塊,"Game <color=#3296DC>Base +18</color>, <color=#36BA98>Speed -8</color>, <color=#36BA98>Time +80s</color>, Clear bottom 3 lines.",全体の<color=#3296DC>基礎点+18</color>、<color=#36BA98>速度-8</color>、<color=#36BA98>時間+80秒</color>、下3列消去。
+ITEM_DES_40,整局游戏<color=#3296DC>基础分+18</color>，方块<color=#36BA98>下落速度-8</color>，<color=#36BA98>游戏时间+80秒</color>，强行消除底下4行方块,整局遊戲<color=#3296DC>基礎分+18</color>，方塊<color=#36BA98>下落速度-8</color>，<color=#36BA98>遊戲時間+80秒</color>，強行消除底下4行方塊,"Game <color=#3296DC>Base +18</color>, <color=#36BA98>Speed -8</color>, <color=#36BA98>Time +80s</color>, Clear bottom 4 lines.",全体の<color=#3296DC>基礎点+18</color>、<color=#36BA98>速度-8</color>、<color=#36BA98>時間+80秒</color>、下4列消去。
 ITEM_TIPS_11,方块不足，无法使用,方塊不足，無法使用,Not enough blocks. Cannot use.,ブロックが足りないため、使用できません
 PROTOCOL_NAME_01,速度之星,速度之星,Speed Star,スピードスター
 PROTOCOL_NAME_02,临期食品,臨期食品,Expiring Food,見切り品

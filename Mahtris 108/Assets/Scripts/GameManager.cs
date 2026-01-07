@@ -1352,8 +1352,13 @@ public class GameManager : MonoBehaviour
 
     public void ForceClearRowsFromBottom(int count)
     {
-        _isBombOrSpecialClear = true;
-        tetrisGrid.ForceClearBottomRows(count);
+        // 【修复】获取返回值：是否真的执行了消除？
+        bool hasCleared = tetrisGrid.ForceClearBottomRows(count);
+
+        if (hasCleared)
+        {
+            _isBombOrSpecialClear = true;
+        }
     }
     // 【新增】1. 供“气球”和“神之救济”调用
     public void ApplyPermanentSpeedBonus(int amount)

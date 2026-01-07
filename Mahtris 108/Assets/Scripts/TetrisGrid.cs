@@ -25,7 +25,7 @@ public class TetrisGrid : MonoBehaviour
     }
 
     // 【新增方法】供炸弹道具调用
-    public void ForceClearBottomRows(int count)
+    public bool ForceClearBottomRows(int count)
     {
         List<int> rowsToClear = new List<int>();
         for (int i = 0; i < count && i < height; i++)
@@ -50,7 +50,10 @@ public class TetrisGrid : MonoBehaviour
         {
             // 触发和普通消行完全一样的事件，让GameManager处理后续的计分和胡牌判定
             GameEvents.TriggerRowsCleared(rowsToClear);
+            return true; // 【修复点】确实触发了消除，返回 true
         }
+
+        return false; // 【修复点】什么都没消，返回 false
     }
 
     public Vector2 RoundVector2(Vector2 v) => new Vector2(Mathf.Round(v.x), Mathf.Round(v.y));
