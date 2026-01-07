@@ -631,7 +631,7 @@ public class GameManager : MonoBehaviour
 
         double scorePart = baseFanScore * analysisResult.FanMultiplier;
         long finalScore = (long)(scorePart * blockMultiplier * extraMultiplier);
-        scoreManager.AddScore((int)Mathf.Min(finalScore, int.MaxValue));
+        scoreManager.AddScore(finalScore);
 
         float addedTime = 0f;
 
@@ -916,7 +916,7 @@ public class GameManager : MonoBehaviour
                 long clearScore = baseFanScore * multiplier;
 
                 // 加分 (确保不溢出)
-                scoreManager.AddScore((int)Mathf.Min(clearScore, int.MaxValue));
+                scoreManager.AddScore(clearScore);
 
                 // Log 方便调试
                 // Debug.Log($"老派玩家消行: {lineCount} 行, 得分: {clearScore}");
@@ -1176,8 +1176,8 @@ public class GameManager : MonoBehaviour
         }
         if (scoreboardTimer > 0)
         {
-            int currentScore = scoreManager.GetCurrentScore();
-            int bonusScore = Mathf.RoundToInt(currentScore * 0.05f);
+            long currentScore = scoreManager.GetCurrentScore();
+            long bonusScore = (long)(currentScore * 0.05d);
             scoreManager.AddScore(bonusScore);
         }
     }
@@ -1618,7 +1618,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void OnScoreUpdated(int newScore)
+    private void OnScoreUpdated(long newScore)
     {
         // 1. 处理悬赏令 (Wanted Poster)
         // 这里的逻辑是：只要分数变化了（通常是因为消除），就检查是否激活了悬赏令
@@ -1744,7 +1744,7 @@ public class GameManager : MonoBehaviour
         // 正常游戏结束流程
         Time.timeScale = 0f;
         if (AudioManager.Instance) AudioManager.Instance.StopCountdownSound();
-        int finalScore = scoreManager.GetCurrentScore();
+        long finalScore = scoreManager.GetCurrentScore();
         bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore);
         if (isEndlessMode && AchievementManager.Instance != null)
         {
@@ -1820,7 +1820,7 @@ public class GameManager : MonoBehaviour
         // 尝试解锁下一级
         DifficultyManager.Instance.CompleteDifficulty(currentDiff);
 
-        int finalScore = scoreManager.GetCurrentScore();
+        long finalScore = scoreManager.GetCurrentScore();
         bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore);
         if (AchievementManager.Instance != null)
         {
@@ -2109,8 +2109,8 @@ public class GameManager : MonoBehaviour
         // 这里保留代码逻辑以防万一您以后想加回来
         if (scorePercent > 0)
         {
-            int currentScore = scoreManager.GetCurrentScore();
-            int bonus = (int)(currentScore * scorePercent);
+            long currentScore = scoreManager.GetCurrentScore();
+            long bonus = (long)(currentScore * scorePercent);
             if (bonus > 0)
             {
                 scoreManager.AddScore(bonus);
@@ -2698,6 +2698,30 @@ public class GameManager : MonoBehaviour
             {
                 gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
             }
+        }
+    }
+    public void ActivateElixirWine(float multiplier)
+    {
+        // 1. 获取当前基础分 (此时已包含所有之前的加成)
+        int currentScore = baseFanScore;
+
+        // 2. 计算需要增加的数值
+        // 逻辑：目标分 = 当前分 * 倍率
+        // 增量 = 目标分 - 当前分 = 当前分 * (倍率 - 1)
+        // 例如：15分 * 1.5倍 = 22.5 -> 增量 7.5 -> 四舍五入为 8
+        int bonusToAdd = Mathf.RoundToInt(currentScore * (multiplier - 1f));
+
+        if (bonusToAdd > 0)
+        {
+            // 3. 将增量应用为永久固定加分 (就像吃了好几个果汁一样)
+            // 这样后续再吃果汁(+3)，就只是单纯的 +3，不会被倍率放大
+            ApplyPermanentBaseScoreBonus(bonusToAdd);
+
+            Debug.Log($"仙酒生效：当前分 {currentScore} -> 增加 {bonusToAdd} (倍率 {multiplier})");
+        }
+        else
+        {
+            Debug.Log("仙酒生效：但当前分数为0或倍率无效，未增加分数。");
         }
     }
 }

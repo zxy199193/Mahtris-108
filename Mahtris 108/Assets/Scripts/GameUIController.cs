@@ -509,7 +509,7 @@ public class GameUIController : MonoBehaviour
     public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"{multiplier:F0}"; }
     public void UpdateBaseScoreText(int score) { if (baseScoreText) baseScoreText.text = $"{score}"; }
     public void UpdateExtraMultiplierText(float multiplier) { if (extraMultiplierText) extraMultiplierText.text = $"{multiplier:F0}"; }
-    private void UpdateScoreText(int newScore) { if (scoreText) scoreText.text = $"{newScore}"; }
+    private void UpdateScoreText(long newScore) { if (scoreText) scoreText.text = $"{newScore}"; }
     private void UpdatePoolCountText(int count) { if (poolCountText) poolCountText.text = $"{count}"; }
     // 【新增】供 GameManager 调用，更新圈数显示 (例如 "第1圈 2/4")
     public void UpdateLoopProgressText(string text)
@@ -903,7 +903,7 @@ public class GameUIController : MonoBehaviour
 
         if (huPopupRoot) huPopupRoot.SetActive(false);
     }
-    public void ShowGameEndPanel(bool isWin, int finalScore, bool isNewHighScore)
+    public void ShowGameEndPanel(bool isWin, long finalScore, bool isNewHighScore)
     {
         if (gameOverPanel)
         {
@@ -1136,7 +1136,7 @@ public class GameUIController : MonoBehaviour
         if (currentScoreForBarText) currentScoreForBarText.gameObject.SetActive(false);
         if (goldRewardText) goldRewardText.text = endlessText;
     }
-    public void UpdateScoreProgress(int currentScore)
+    public void UpdateScoreProgress(long currentScore)
     {
         if (targetProgressBar && targetProgressBar.gameObject.activeSelf)
         {

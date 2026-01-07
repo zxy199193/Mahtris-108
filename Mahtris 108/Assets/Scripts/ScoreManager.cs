@@ -1,79 +1,80 @@
-// FileName: ScoreManager.cs
 using System;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
-    public static event Action<int> OnScoreChanged;
+    // 【核心修改】事件参数改为 long
+    public static event Action<long> OnScoreChanged;
 
-    private int score;
+    // 【核心修改】分数变量改为 long
+    private long score;
+    private long _highScore;
+
     private int huCount;
-    private int _highScore;
 
     // 循环系统变量
     private int currentLoop = 1;
-    private int huCountInCurrentLoop = 0; // 当前圈已完成的胡牌数
+    private int huCountInCurrentLoop = 0;
 
     void Start()
     {
-        _highScore = SaveManager.LoadHighScore();
+        // 【核心修改】兼容性读取逻辑
+        // 1. 先尝试读取新的 long 类型存档 (字符串格式)
+        string savedLong = PlayerPrefs.GetString("HighScore_Long", "");
+
+        if (!string.IsNullOrEmpty(savedLong) && long.TryParse(savedLong, out long result))
+        {
+            _highScore = result;
+        }
+        else
+        {
+            // 2. 如果没有，则读取旧的 int 类型存档 (兼容老玩家)
+            // 注意：这里暂时不调用 SaveManager，直接用 PlayerPrefs 以确保逻辑闭环
+            _highScore = PlayerPrefs.GetInt("HighScore", 0);
+        }
     }
 
-    // --- 核心修复区域 ---
-
-    // 【修复】重置逻辑
     public void ResetScore()
     {
         score = 0;
         huCount = 0;
         currentLoop = 1;
-        huCountInCurrentLoop = 0; // 重置为0，UI显示会+1变成 "1/4"
+        huCountInCurrentLoop = 0;
 
-        if (OnScoreChanged != null) OnScoreChanged(score);
+        // 【核心修改】
+        OnScoreChanged?.Invoke(score);
     }
 
-    // 【修复】增加胡牌计数并检查循环
-    // 返回 true = 触发高级奖励 (本圈结束)
-    // 返回 false = 普通奖励 (本圈继续)
     public bool IncrementHuCountAndCheckCycle()
     {
         huCount++;
-        huCountInCurrentLoop++; // 完成了一次胡牌
+        huCountInCurrentLoop++;
 
         int target = GetCurrentLoopTarget();
 
-        // 检查是否达到目标
         if (huCountInCurrentLoop >= target)
         {
             currentLoop++;
-            huCountInCurrentLoop = 0; // 归零，准备开始下一圈的第1次
-            return true; // 发放高级奖励
+            huCountInCurrentLoop = 0;
+            return true;
         }
 
-        return false; // 发放普通奖励
+        return false;
     }
 
-    // 【修复】UI显示逻辑
-    // 逻辑：huCountInCurrentLoop 是“已完成”的数量。
-    // 玩家正在进行的是第 (已完成 + 1) 轮。
-    // 比如刚开始：已完成0，显示 "1/4" (正在打第1把)
-    // 胡了3次：已完成3，显示 "4/4" (正在打第4把，这把胡了就发奖)
     public string GetLoopProgressString()
     {
         int target = GetCurrentLoopTarget();
         string format = "第{0}圈 {1}/{2}";
 
-        // 获取多语言格式字符串
         if (LocalizationManager.Instance)
         {
             format = LocalizationManager.Instance.GetText("GAME_LOOP");
         }
 
-        // 格式化输出：参数0=当前圈数，参数1=当前进度，参数2=总目标
         return string.Format(format, currentLoop, huCountInCurrentLoop + 1, target);
     }
 
-    // 【修复】快进按钮逻辑
     public void AddHuCount(int amount)
     {
         huCount += amount;
@@ -88,38 +89,49 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    // --- 基础 Getter/Setter ---
+    // --- Getter/Setter ---
 
     public int GetHuCount() => huCount;
     public int GetHuCountInCycle() => huCountInCurrentLoop;
-    public int GetCurrentScore() => score;
+
+    // 【核心修改】返回值改为 long
+    public long GetCurrentScore() => score;
     public int GetCurrentLoop() => currentLoop;
 
-    public void AddScore(int amount)
+    // 【核心修改】参数改为 long
+    public void AddScore(long amount)
     {
         score += amount;
         OnScoreChanged?.Invoke(score);
     }
 
-    public bool CheckForNewHighScore(int finalScore)
+    // 【核心修改】参数改为 long
+    public bool CheckForNewHighScore(long finalScore)
     {
         if (finalScore > _highScore)
         {
             _highScore = finalScore;
-            SaveManager.SaveHighScore(_highScore);
+
+            // 【核心修改】存为字符串以支持超大数值
+            PlayerPrefs.SetString("HighScore_Long", _highScore.ToString());
+            PlayerPrefs.Save();
+
+            // 顺便也更新一下旧的int存档，防止其他未修改的地方报错 (虽然存不下会溢出，但为了兼容性)
+            PlayerPrefs.SetInt("HighScore", (int)Mathf.Clamp(finalScore, 0, int.MaxValue));
+
             return true;
         }
         return false;
     }
+
     private int GetCurrentLoopTarget()
     {
-        int target = 4; // 默认值
+        int target = 4;
         if (GameManager.Instance != null && GameManager.Instance.GetSettings() != null)
         {
             target = GameManager.Instance.GetSettings().husPerLoop;
         }
 
-        // 【亚空间逻辑】如果激活，目标减 1 (最低为 1)
         if (GameManager.Instance != null && GameManager.Instance.isSubspaceActive)
         {
             target = Mathf.Max(1, target - 1);
@@ -127,13 +139,10 @@ public class ScoreManager : MonoBehaviour
 
         return target;
     }
+
     public void SetProgressToLastRound()
     {
         int target = GetCurrentLoopTarget();
-
-        // 设置为 "只差1次就满" 的状态
-        // 例如目标是4：设为3。UI显示 "4/4"。
-        // 下次胡牌时：3+1=4，达到目标，触发高级奖励并进入下一圈。
         huCountInCurrentLoop = Mathf.Max(0, target - 1);
     }
 }

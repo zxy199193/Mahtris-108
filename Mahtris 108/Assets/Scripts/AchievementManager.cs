@@ -38,7 +38,7 @@ public class AchievementManager : MonoBehaviour
 
     // 场景 B: 游戏胜利/结束时调用
     // difficulty: 0=Easy, 1=Normal, 2=Hard
-    public void CheckGameWin(bool isWin, int difficulty, int finalSpeed, float remainTime, int remainGold, int score,
+    public void CheckGameWin(bool isWin, int difficulty, int finalSpeed, float remainTime, int remainGold, long score,
                                  int itemsUsed, int protocolsObtained, int finalBlockCount, bool isEndlessMode = false)
     {
         // 1. 检查最高分 (无论输赢都可以查)
