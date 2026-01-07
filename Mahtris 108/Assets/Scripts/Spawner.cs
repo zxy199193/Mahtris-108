@@ -147,7 +147,7 @@ public class Spawner : MonoBehaviour
             }
             else
             {
-                GameEvents.TriggerGameOver();
+                GameManager.Instance.TriggerGameOver("GAME_OVER_NO_BLOCK");
                 return;
             }
         }
@@ -155,8 +155,11 @@ public class Spawner : MonoBehaviour
         // --- 公共收尾逻辑 ---
         isFirstBlockOfRound = false;
 
-        if (nextTetrominoPrefab == null) { GameEvents.TriggerGameOver(); return; }
-
+        if (nextTetrominoPrefab == null)
+        {
+            GameManager.Instance.TriggerGameOver("GAME_OVER_NO_BLOCK");
+            return;
+        }
         int tilesNeeded = nextTetrominoPrefab.GetComponentsInChildren<BlockUnit>(true).Length;
         nextTileIds = blockPool.PeekBlockIDs(tilesNeeded);
 
@@ -171,8 +174,11 @@ public class Spawner : MonoBehaviour
             nextTileIds = blockPool.PeekBlockIDs(tilesNeeded);
         }
 
-        if (nextTileIds == null) { GameEvents.TriggerGameOver(); return; }
-
+        if (nextTileIds == null)
+        {
+            GameManager.Instance.TriggerGameOver("GAME_OVER_NO_BLOCK");
+            return;
+        }
         GameEvents.TriggerNextBlockReady(nextTetrominoPrefab, nextTileIds);
     }
 
@@ -235,8 +241,11 @@ public class Spawner : MonoBehaviour
     public void SpawnBlock()
     {
         GameManager.Instance.NotifyBlockSpawned();
-        if (nextTetrominoPrefab == null) { GameEvents.TriggerGameOver(); return; }
-
+        if (nextTetrominoPrefab == null)
+        {
+            GameManager.Instance.TriggerGameOver("GAME_OVER_NO_BLOCK");
+            return;
+        }
         // 【新增】在生成瞬间，更新历史记录
         if (nextTetrominoPrefab.name == lastSpawnedBlockName)
         {
@@ -253,7 +262,7 @@ public class Spawner : MonoBehaviour
         if (!blockPool.HasEnoughBlocks(tilesNeeded))
         {
             Debug.Log("【Game Over】牌库枯竭！无法生成下一个方块。");
-            GameEvents.TriggerGameOver();
+            GameManager.Instance.TriggerGameOver("GAME_OVER_NO_BLOCK");
             return;
         }
         bool removeSuccess = blockPool.RemoveSpecificBlockIds(nextTileIds);

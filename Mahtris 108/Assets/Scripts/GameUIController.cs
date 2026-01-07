@@ -148,6 +148,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private RectTransform gameOverContainer;  // 动画容器
     [SerializeField] private Text gameOverTitleText;
     [SerializeField] private Text finalScoreText;
+    [SerializeField] private Text gameOverReasonText;
     [SerializeField] private GameObject newHighScoreIndicator;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button endlessModeButton;
@@ -421,7 +422,7 @@ public class GameUIController : MonoBehaviour
     {
         // 1. 停止分数滚动
         if (scoreRollTween != null) { scoreRollTween.Kill(); scoreRollTween = null; }
-        if (formulaFinalScoreText) formulaFinalScoreText.text = $"{_currentDisplayScoreTarget}";
+        if (formulaFinalScoreText) formulaFinalScoreText.text = $"{_currentDisplayScoreTarget:N0}";
 
         // 2. 切换页面：隐藏第一页，显示第二页
         if (huStage1Panel) huStage1Panel.SetActive(false);
@@ -507,9 +508,9 @@ public class GameUIController : MonoBehaviour
         }
     }
     public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"{multiplier:F0}"; }
-    public void UpdateBaseScoreText(int score) { if (baseScoreText) baseScoreText.text = $"{score}"; }
+    public void UpdateBaseScoreText(int score) { if (baseScoreText) baseScoreText.text = $"{score}";}
     public void UpdateExtraMultiplierText(float multiplier) { if (extraMultiplierText) extraMultiplierText.text = $"{multiplier:F0}"; }
-    private void UpdateScoreText(long newScore) { if (scoreText) scoreText.text = $"{newScore}"; }
+    private void UpdateScoreText(long newScore) { if (scoreText) scoreText.text = $"{newScore:N0}";}
     private void UpdatePoolCountText(int count) { if (poolCountText) poolCountText.text = $"{count}"; }
     // 【新增】供 GameManager 调用，更新圈数显示 (例如 "第1圈 2/4")
     public void UpdateLoopProgressText(string text)
@@ -736,7 +737,7 @@ public class GameUIController : MonoBehaviour
                 () => startValue,               // Getter
                 x => {                          // Setter
                     startValue = (long)x;
-                    formulaFinalScoreText.text = $"{startValue}";
+                    formulaFinalScoreText.text = $"{startValue:N0}";
                 },
                 finalScore,                     // Target
                 scoreRollDuration               // Duration
@@ -903,7 +904,7 @@ public class GameUIController : MonoBehaviour
 
         if (huPopupRoot) huPopupRoot.SetActive(false);
     }
-    public void ShowGameEndPanel(bool isWin, long finalScore, bool isNewHighScore)
+    public void ShowGameEndPanel(bool isWin, long finalScore, bool isNewHighScore, string reasonKey = "")
     {
         if (gameOverPanel)
         {
@@ -951,9 +952,31 @@ public class GameUIController : MonoBehaviour
                 gameOverTitleText.text = isWin ? "恭喜过关！" : "游戏结束"; // 兜底
             }
         }
+        if (gameOverReasonText)
+        {
+            // 只有在失败(非Win) 且 有具体原因Key时才显示
+            if (!isWin && !string.IsNullOrEmpty(reasonKey))
+            {
+                gameOverReasonText.gameObject.SetActive(true);
+                if (LocalizationManager.Instance)
+                {
+                    gameOverReasonText.text = LocalizationManager.Instance.GetText(reasonKey);
+                    LocalizationManager.Instance.UpdateFont(gameOverReasonText);
+                }
+                else
+                {
+                    gameOverReasonText.text = reasonKey; // 兜底
+                }
+            }
+            else
+            {
+                // 通关或无原因时隐藏
+                gameOverReasonText.gameObject.SetActive(false);
+            }
+        }
         if (finalScoreText)
         {
-            finalScoreText.text = $"{finalScore}";
+            finalScoreText.text = $"{finalScore:N0}";
             if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(finalScoreText);
         }
         if (newHighScoreIndicator) newHighScoreIndicator.SetActive(isNewHighScore);
@@ -1143,7 +1166,7 @@ public class GameUIController : MonoBehaviour
             targetProgressBar.value = currentScore;
             if (currentScoreForBarText)
             {
-                currentScoreForBarText.text = $"{targetProgressBar.maxValue}";
+                currentScoreForBarText.text = $"{targetProgressBar.maxValue:N0}";
             }
         }
     }

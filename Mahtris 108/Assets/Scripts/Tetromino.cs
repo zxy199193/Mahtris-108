@@ -56,7 +56,7 @@ public class Tetromino : MonoBehaviour
     {
         if (!tetrisGrid.IsValidGridPos(transform))
         {
-            GameEvents.TriggerGameOver();
+            GameManager.Instance.TriggerGameOver("GAME_OVER_TOUCH_DEADLINE");
             Destroy(gameObject);
         }
     }
@@ -103,7 +103,7 @@ public class Tetromino : MonoBehaviour
         {
             if (Mathf.RoundToInt(child.position.y) >= settings.deadlineHeight)
             {
-                GameEvents.TriggerGameOver();
+                GameManager.Instance.TriggerGameOver("GAME_OVER_TOUCH_DEADLINE");
                 return;
             }
         }

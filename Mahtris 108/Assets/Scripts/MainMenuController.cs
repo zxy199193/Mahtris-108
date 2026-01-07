@@ -133,7 +133,8 @@ public class MainMenuController : MonoBehaviour
     {
         if (goldText != null)
         {
-            goldText.text = $"{newGoldAmount}";
+            // 【修改】使用 "N0" 格式化字符串添加千位分隔符 (例如: 123,456)
+            goldText.text = newGoldAmount.ToString("N0");
         }
         // 【新增】金币变化时检查提示 (防止玩家通关回来钱多了，可以买新东西了)
         CheckStoreNotification();
@@ -143,7 +144,8 @@ public class MainMenuController : MonoBehaviour
     {
         if (GameSession.Instance != null && goldText != null)
         {
-            goldText.text = $"{GameSession.Instance.CurrentGold}";
+            // 【修改】使用 "N0" 格式化
+            goldText.text = GameSession.Instance.CurrentGold.ToString("N0");
         }
         else if (goldText != null)
         {
@@ -256,7 +258,8 @@ public class MainMenuController : MonoBehaviour
         if (highScoreText != null)
         {
             int highScore = SaveManager.LoadHighScore();
-            highScoreText.text = $"{highScore}";
+            // 【修改】使用 "N0" 格式化
+            highScoreText.text = highScore.ToString("N0");
         }
     }
 

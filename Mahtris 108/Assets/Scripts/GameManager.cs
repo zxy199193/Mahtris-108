@@ -53,6 +53,7 @@ public class GameManager : MonoBehaviour
     private bool _tempIsTianHu = false;
     private bool _tempIsDiHu = false;
     private bool _isBombOrSpecialClear = false;
+    private string _currentGameOverReason = "";
 
     // ========================================================================
     // 4. 难度与会话配置
@@ -294,7 +295,7 @@ public class GameManager : MonoBehaviour
         if (midasTimer > 0) midasTimer -= logicDeltaTime;
         if (scoreboardTimer > 0) scoreboardTimer -= logicDeltaTime;
 
-        if (remainingTime <= 0) GameEvents.TriggerGameOver();
+        if (remainingTime <= 0) TriggerGameOver("GAME_OVER_TIMEUP");
         if (activePassportSuit != -1)
         {
             passportTimer -= Time.deltaTime; // 使用非逻辑时间，或者 logicDeltaTime 取决于是否受暂停影响
@@ -309,7 +310,11 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-
+    public void TriggerGameOver(string reasonKey)
+    {
+        _currentGameOverReason = reasonKey;
+        GameEvents.TriggerGameOver();
+    }
     void OnEnable()
     {
         GameEvents.OnRowsCleared += HandleRowsCleared;
@@ -486,7 +491,7 @@ public class GameManager : MonoBehaviour
         _omaAppliedFactor = 1f;
         _currentRefreshCost = settings.refreshBaseCost;
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
-
+        _currentGameOverReason = "";
         remainingTime = settings.initialTimeLimit;
         currentScoreLevelIndex = 0;
         isEndlessMode = false;
@@ -1775,7 +1780,7 @@ public class GameManager : MonoBehaviour
                 true                // isEndlessMode = true (开启无尽模式检查权限)
             );
         }
-        gameUI.ShowGameEndPanel(false, finalScore, isNewHighScore);
+        gameUI.ShowGameEndPanel(false, finalScore, isNewHighScore, _currentGameOverReason);
     }
 
     public void TogglePause()
@@ -1858,7 +1863,7 @@ public class GameManager : MonoBehaviour
                 false                           // isEndlessMode = false (此时还没进无尽模式)
             );
         }
-        gameUI.ShowGameEndPanel(true, finalScore, isNewHighScore);
+        gameUI.ShowGameEndPanel(true, finalScore, isNewHighScore, "");
     }
 
     public void StartEndlessMode()
