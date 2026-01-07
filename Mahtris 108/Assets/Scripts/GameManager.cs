@@ -2378,11 +2378,15 @@ public class GameManager : MonoBehaviour
     // 1. ¼¤»î¿ÕÍ¶Õ¨µ¯
     public void ActivateDropBomb()
     {
-        _isBombOrSpecialClear = true;
-
         Tetromino currentTetromino = FindObjectOfType<Tetromino>();
         Transform ignoreTransform = currentTetromino != null ? currentTetromino.transform : null;
-        tetrisGrid.ForceClearTopRows(3, ignoreTransform);
+
+        bool hasCleared = tetrisGrid.ForceClearTopRows(3, ignoreTransform);
+
+        if (hasCleared)
+        {
+            _isBombOrSpecialClear = true;
+        }
     }
 
     public bool ActivateFryingPan(float timeToAdd, int scoreToAdd)

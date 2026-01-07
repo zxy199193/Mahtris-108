@@ -235,7 +235,7 @@ public class TetrisGrid : MonoBehaviour
         }
         return null;
     }
-    public void ForceClearTopRows(int count, Transform ignoreSource = null)
+    public bool ForceClearTopRows(int count, Transform ignoreSource = null)
     {
         // 1. 从上往下扫，找到当前最高的【已锁定】方块在哪一行
         int maxHeightIndex = -1;
@@ -245,7 +245,7 @@ public class TetrisGrid : MonoBehaviour
             {
                 if (grid[x, y] != null)
                 {
-                    // 【关键修复】如果这个格子属于正在下落的方块，则忽略，继续找
+                    // 如果这个格子属于正在下落的方块，则忽略，继续找
                     if (ignoreSource != null && grid[x, y].parent == ignoreSource)
                     {
                         continue;
@@ -262,7 +262,7 @@ public class TetrisGrid : MonoBehaviour
         if (maxHeightIndex == -1)
         {
             Debug.Log("空投炸弹：场上没有已锁定的方块，无效。");
-            return;
+            return false; // 【修改点】返回 false，表示未执行消除
         }
 
         // 2. 计算要消除哪些行 (从 maxHeightIndex 向下数 count 行)
@@ -281,7 +281,10 @@ public class TetrisGrid : MonoBehaviour
         {
             GameEvents.TriggerRowsCleared(rowsToClear);
             Debug.Log($"空投炸弹生效：消除了 {rowsToClear.Count} 行 (最高堆叠: {maxHeightIndex + 1})");
+            return true; // 【修改点】返回 true，表示消除已触发
         }
+
+        return false; // 【修改点】如果没有行被消除，返回 false
     }
     public void ShuffleAllBoardTiles()
     {
