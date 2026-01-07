@@ -718,6 +718,8 @@ public class GameManager : MonoBehaviour
     public void ContinueAfterHu()
     {
         delayGratificationBonus = 0;
+        kidsMealTimer = 0f;
+        hasReviveStone = false;
         if (isGreatRevolutionActive) spawner.RandomizeActivePool();
         if (isBerserkerActive) inventoryManager.UseAllItems();
         UpdateCurrentBaseScore();
