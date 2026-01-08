@@ -283,6 +283,10 @@ public class Spawner : MonoBehaviour
         {
             sortedBlockUnits[i].Initialize(nextTileIds[i], blockPool);
         }
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.TryExecutePendingPassportShuffle();
+        }
         PrepareNextTetromino();
     }
 

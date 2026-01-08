@@ -207,4 +207,14 @@ public class BlockPool : MonoBehaviour
 
         return result;
     }
+    public void ShuffleRemainingBlocks()
+    {
+        if (availableBlocks == null || availableBlocks.Count == 0) return;
+
+        var rng = new System.Random();
+        // 使用与 ResetFullDeck 相同的洗牌逻辑
+        availableBlocks = availableBlocks.OrderBy(a => rng.Next()).ToList();
+
+        Debug.Log("【BlockPool】牌库已重新洗牌，恢复随机分布。");
+    }
 }

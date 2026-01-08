@@ -25,17 +25,22 @@ public class TetrisGrid : MonoBehaviour
     }
 
     // 【新增方法】供炸弹道具调用
-    public bool ForceClearBottomRows(int count)
+    public bool ForceClearBottomRows(int count, Transform ignoreSource = null)
     {
         List<int> rowsToClear = new List<int>();
         for (int i = 0; i < count && i < height; i++)
         {
-            // 检查这一行是否真的有方块，空的行不算
             bool hasBlocks = false;
             for (int x = 0; x < width; x++)
             {
                 if (grid[x, i] != null)
                 {
+                    // 【关键】如果是正在下落的方块，视为空气，不算作“有方块”
+                    if (ignoreSource != null && grid[x, i].parent == ignoreSource)
+                    {
+                        continue;
+                    }
+
                     hasBlocks = true;
                     break;
                 }
@@ -48,12 +53,10 @@ public class TetrisGrid : MonoBehaviour
 
         if (rowsToClear.Count > 0)
         {
-            // 触发和普通消行完全一样的事件，让GameManager处理后续的计分和胡牌判定
             GameEvents.TriggerRowsCleared(rowsToClear);
-            return true; // 【修复点】确实触发了消除，返回 true
+            return true;
         }
-
-        return false; // 【修复点】什么都没消，返回 false
+        return false;
     }
 
     public Vector2 RoundVector2(Vector2 v) => new Vector2(Mathf.Round(v.x), Mathf.Round(v.y));
@@ -117,13 +120,19 @@ public class TetrisGrid : MonoBehaviour
         return true;
     }
 
-    public (List<int> blockIds, List<Transform> transforms) GetRowDataAndClear(int y)
+    public (List<int> blockIds, List<Transform> transforms) GetRowDataAndClear(int y, Transform ignoreSource = null)
     {
         var rowData = (blockIds: new List<int>(), transforms: new List<Transform>());
         for (int x = 0; x < width; x++)
         {
             if (grid[x, y] != null)
             {
+                // 【关键】如果是正在下落的方块，跳过，不回收也不销毁
+                if (ignoreSource != null && grid[x, y].parent == ignoreSource)
+                {
+                    continue;
+                }
+
                 rowData.blockIds.Add(grid[x, y].GetComponent<BlockUnit>().blockId);
                 rowData.transforms.Add(grid[x, y]);
                 grid[x, y] = null;
@@ -138,7 +147,7 @@ public class TetrisGrid : MonoBehaviour
             Destroy(t.gameObject);
     }
 
-    public void CompactAllColumns(List<int> clearedRows)
+    public void CompactAllColumns(List<int> clearedRows, Transform ignoreSource = null)
     {
         clearedRows.Sort();
         for (int y = 0; y < height; y++)
@@ -150,6 +159,12 @@ public class TetrisGrid : MonoBehaviour
                 {
                     if (grid[x, y] != null)
                     {
+                        if (ignoreSource != null && grid[x, y].parent == ignoreSource)
+                        {
+                            continue;
+                        }
+
+                        // 正常的下移逻辑
                         grid[x, y - clearedRowsBelow] = grid[x, y];
                         grid[x, y] = null;
                         grid[x, y - clearedRowsBelow].position += new Vector3(0, -clearedRowsBelow, 0);

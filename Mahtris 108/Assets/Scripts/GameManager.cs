@@ -129,6 +129,7 @@ public class GameManager : MonoBehaviour
     public bool isMistActive = false;
     private float _omaCurrentGrowth = 2f;
     private float _omaAppliedFactor = 1f;
+    private bool _pendingPassportShuffle = false;
     // ========================================================================
     // 7. 道具与特殊机制状态
     // ========================================================================
@@ -305,8 +306,14 @@ public class GameManager : MonoBehaviour
             if (passportTimer <= 0)
             {
                 activePassportSuit = -1; // 过期失效
-                // 可选：过期后刷新一下预览，变回随机牌？
-                // spawner.RefreshPreviewTilesOnly(); 
+
+                // 【核心修改】只设置标记，不立即洗牌
+                _pendingPassportShuffle = true;
+
+                // 也不要刷新 UI 了，保持界面稳定
+                // if (spawner != null) spawner.RefreshPreviewTilesOnly(); <--- 删除这行
+
+                Debug.Log("护照失效：已标记为待洗牌，将在下一次生成方块时执行。");
             }
         }
     }
@@ -882,9 +889,15 @@ public class GameManager : MonoBehaviour
         // 暂存胡牌数据 (用于延迟弹窗)
         List<List<int>> pendingHuHand = null;
         List<int> pendingPairIds = null;
-
+        List<int> trashedByItemIds = new List<int>();
         bool logicSuccess = false;
-
+        Tetromino activeTetromino = null;
+        var allTetrominos = FindObjectsOfType<Tetromino>();
+        foreach (var t in allTetrominos)
+        {
+            if (t.enabled) { activeTetromino = t; break; }
+        }
+        Transform ignoreTransform = activeTetromino != null ? activeTetromino.transform : null;
         try
         {
             if (_gameExecutionId != capturedExecutionId) yield break;
@@ -895,10 +908,17 @@ public class GameManager : MonoBehaviour
             foreach (var y in rowIndices)
             {
                 if (tetrisGrid == null) break;
-                var rowData = tetrisGrid.GetRowDataAndClear(y);
-                allClearedTransforms.AddRange(rowData.transforms);
-                rowsBlockIds.Add(rowData.blockIds);
-                ApplyRowClearRewards();
+
+                // 【关键】传入 ignoreTransform
+                var rowData = tetrisGrid.GetRowDataAndClear(y, ignoreTransform);
+
+                // 只有当这一行真的清除了东西才记录 (防止全是下落方块导致空行)
+                if (rowData.blockIds.Count > 0)
+                {
+                    allClearedTransforms.AddRange(rowData.transforms);
+                    rowsBlockIds.Add(rowData.blockIds);
+                    ApplyRowClearRewards();
+                }
             }
 
             bool wasCleanRound = !hasClearedRowsInThisRound;
@@ -949,7 +969,9 @@ public class GameManager : MonoBehaviour
             // 将被忽略的行直接加入回收列表
             for (int i = 0; i < rowsToRemove; i++)
             {
-                finalIdsToReturn.AddRange(rowsBlockIds[i]);
+                trashedByItemIds.AddRange(rowsBlockIds[i]);
+
+                Debug.Log($"垃圾桶生效：第 {i + 1} 行被移除游戏 (不回牌库)。");
             }
 
             // 2. 处理剩余的行
@@ -993,6 +1015,7 @@ public class GameManager : MonoBehaviour
 
             // --- 筛选方块类型 (垃圾/牌组/将牌) ---
             List<int> trashIdsCopy = new List<int>(finalIdsToReturn);
+            trashIdsCopy.AddRange(trashedByItemIds);
             List<int> pairIdsCopy = (pendingPairIds != null) ? new List<int>(pendingPairIds) : new List<int>();
 
             foreach (var t in allClearedTransforms)
@@ -1064,7 +1087,10 @@ public class GameManager : MonoBehaviour
                     if (tetrisGrid != null) tetrisGrid.DestroyTransforms(allClearedTransforms);
                 }
 
-                if (tetrisGrid != null) tetrisGrid.CompactAllColumns(rowIndices);
+                if (tetrisGrid != null)
+                {
+                    tetrisGrid.CompactAllColumns(rowIndices, ignoreTransform);
+                }
 
                 if (!_hasDeclaredHuThisFrame)
                 {
@@ -1380,12 +1406,26 @@ public class GameManager : MonoBehaviour
 
     public void ForceClearRowsFromBottom(int count)
     {
-        // 【修复】获取返回值：是否真的执行了消除？
-        bool hasCleared = tetrisGrid.ForceClearBottomRows(count);
+        // 查找当前正在控制的方块 (enabled == true 的那个)
+        Tetromino activeTetromino = null;
+        var allTetrominos = FindObjectsOfType<Tetromino>();
+        foreach (var t in allTetrominos)
+        {
+            if (t.enabled) { activeTetromino = t; break; }
+        }
+
+        Transform ignoreTransform = activeTetromino != null ? activeTetromino.transform : null;
+
+        // 传入忽略目标
+        bool hasCleared = tetrisGrid.ForceClearBottomRows(count, ignoreTransform);
 
         if (hasCleared)
         {
             _isBombOrSpecialClear = true;
+        }
+        else
+        {
+            Debug.Log("强制底部消除：没有可消除的行(已忽略下落方块)，跳过。");
         }
     }
     // 【新增】1. 供“气球”和“神之救济”调用
@@ -1984,7 +2024,9 @@ public class GameManager : MonoBehaviour
     // 【新增】供“垃圾筒”调用
     public void SetIgnoreMahjongCheck(int count)
     {
-        ignoreMahjongCheckCount = count;
+        ignoreMahjongCheckCount += count;
+
+        Debug.Log($"垃圾桶效果叠加：当前将忽略接下来的 {ignoreMahjongCheckCount} 行消除。");
     }
     public bool TryFindAndAddRandomSetFromPool()
     {
@@ -2766,6 +2808,18 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.Log("仙酒生效：但当前分数为0或倍率无效，未增加分数。");
+        }
+    }
+    public void TryExecutePendingPassportShuffle()
+    {
+        if (_pendingPassportShuffle)
+        {
+            if (blockPool != null)
+            {
+                blockPool.ShuffleRemainingBlocks();
+                Debug.Log("【GameManager】执行延迟洗牌：牌库已重置随机。");
+            }
+            _pendingPassportShuffle = false;
         }
     }
 }
