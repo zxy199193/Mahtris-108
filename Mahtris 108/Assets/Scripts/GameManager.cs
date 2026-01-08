@@ -132,7 +132,7 @@ public class GameManager : MonoBehaviour
     // ========================================================================
     // 7. 道具与特殊机制状态
     // ========================================================================
-    public bool isLuckyCapActive = false;
+    public int luckyCapStack = 0;
     public bool isFilterActive = false;
 
     // 【修正】防止 lastUsedItem 定义冲突，这里保留唯一的定义
@@ -465,7 +465,7 @@ public class GameManager : MonoBehaviour
         isRealpolitikActive = false;
         isWantedPosterActive = false;
         wantedPosterGoldMult = 1;
-        isLuckyCapActive = false;
+        luckyCapStack = 0;
         isFilterActive = false;
         filterTimer = 0f;
         isChampagneActive = false;
@@ -731,7 +731,7 @@ public class GameManager : MonoBehaviour
         midasTimer = 0f; midasGoldValue = 0; scoreboardTimer = 0f;
         ignoreMahjongCheckCount = 0;
         roundSpeedBonus = 0; countedSpeedBonus = 0; countedBonusBlocksRemaining = 0;
-        isFilterActive = false; filterTimer = 0f; isLuckyCapActive = false;
+        isFilterActive = false; filterTimer = 0f; luckyCapStack = 0;
 
         if (isSteroidReversalActive) { roundBaseScoreBonus = 0; isSteroidReversalActive = false; }
         else if (isSteroidActive) { roundBaseScoreBonus = -16; isSteroidActive = false; isSteroidReversalActive = true; }
@@ -810,11 +810,7 @@ public class GameManager : MonoBehaviour
             midasTimer = 0f; midasGoldValue = 0; scoreboardTimer = 0f;
             ignoreMahjongCheckCount = 0;
             roundSpeedBonus = 0; countedSpeedBonus = 0; countedBonusBlocksRemaining = 0;
-            isFilterActive = false; filterTimer = 0f; isLuckyCapActive = false;
-
-            if (isSteroidReversalActive) { roundBaseScoreBonus = 0; isSteroidReversalActive = false; }
-            else if (isSteroidActive) { roundBaseScoreBonus = -16; isSteroidActive = false; isSteroidReversalActive = true; }
-            else { roundBaseScoreBonus = 0; }
+            isFilterActive = false; filterTimer = 0f; luckyCapStack = 0;
 
             if (isAdventFoodActive) { adventFoodBonus = 60; adventFoodTimer = 1f; } else { adventFoodBonus = 0; }
 
@@ -1219,9 +1215,34 @@ public class GameManager : MonoBehaviour
     public void ModifyTargetScore(float multiplier)
     {
         if (isEndlessMode) return;
-        var level = settings.scoreLevels[currentScoreLevelIndex];
-        level.targetScore = (int)(level.targetScore * multiplier);
-        UpdateTargetScoreUI();
+
+        // 【修复】确保当前会话配置存在，且索引有效
+        if (currentSessionConfig != null &&
+            currentSessionConfig.DifficultyScoreLevels != null &&
+            currentScoreLevelIndex < currentSessionConfig.DifficultyScoreLevels.Count)
+        {
+            // 1. 获取运行时关卡数据 (而不是 settings)
+            var level = currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex];
+
+            // 2. 修改目标分
+            int oldTarget = level.targetScore;
+            level.targetScore = (int)(level.targetScore * multiplier);
+
+            // 防止变为0或负数，至少保留1分
+            if (level.targetScore < 1) level.targetScore = 1;
+
+            Debug.Log($"优惠券生效：目标分从 {oldTarget} 降低至 {level.targetScore}");
+
+            // 3. 立即刷新 UI (现在读取的是正确的数据了，UI会变)
+            UpdateTargetScoreUI();
+
+            // 4. 【关键】立即检查当前分数是否已经达标
+            // 调用 OnScoreUpdated 传入当前分，复用已有的"达标-发奖-升级"逻辑
+            if (scoreManager != null)
+            {
+                OnScoreUpdated(scoreManager.GetCurrentScore());
+            }
+        }
     }
 
     public void AddProtocol(ProtocolData protocol)
@@ -2108,8 +2129,15 @@ public class GameManager : MonoBehaviour
     public void ActivateWantedPoster(int goldMult, float scorePercent)
     {
         // 设置状态
-        isWantedPosterActive = true;
-        wantedPosterGoldMult = goldMult;
+        if (isWantedPosterActive)
+        {
+            wantedPosterGoldMult *= goldMult; // 3 * 3 = 9
+        }
+        else
+        {
+            isWantedPosterActive = true;
+            wantedPosterGoldMult = goldMult; // 初始 = 3
+        }
 
         // 【关键】立即刷新 UI
         // 这会让界面上的金币目标数字立刻变红，并显示 x3 后的数值
@@ -2140,8 +2168,8 @@ public class GameManager : MonoBehaviour
         return settings;
     }
     // 【新增】幸运瓶盖
-    public void ActivateLuckyCap() { isLuckyCapActive = true; }
-    public void ConsumeLuckyCap() { isLuckyCapActive = false; } // 使用后消耗
+    public void ActivateLuckyCap() { luckyCapStack++; }
+    public void ConsumeLuckyCap() { luckyCapStack = 0; } // 使用后消耗
 
     // 【新增】漏斗
     public void ActivateFilter(float duration)

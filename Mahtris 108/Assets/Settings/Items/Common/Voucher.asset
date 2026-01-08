@@ -23,4 +23,4 @@ MonoBehaviour:
   price: 0
   isInitial: 1
   unlockConditionCount: 0
-  goldAmount: 50
+  goldAmount: 300

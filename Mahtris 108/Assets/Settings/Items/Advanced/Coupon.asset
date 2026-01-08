@@ -23,4 +23,4 @@ MonoBehaviour:
   price: 2000
   isInitial: 1
   unlockConditionCount: 0
-  reductionPercentage: 0.5
+  reductionPercentage: 0.2

@@ -782,22 +782,22 @@ public class GameUIController : MonoBehaviour
             {
                 rewardUI.Setup(blockPrefab, (clickedUI) => {
 
-                    // 【新增】幸运瓶盖逻辑
-                    // 检查是否激活了幸运瓶盖
-                    if (GameManager.Instance.isLuckyCapActive)
-                    {
-                        // 效果：获得 2 个相同的方块
-                        FindObjectOfType<Spawner>().AddTetrominoToPool(blockPrefab);
-                        FindObjectOfType<Spawner>().AddTetrominoToPool(blockPrefab);
+                    int stackCount = GameManager.Instance.luckyCapStack;
 
-                        // 消耗道具状态
-                        GameManager.Instance.ConsumeLuckyCap();
-                        Debug.Log("幸运瓶盖生效！获得双倍方块。");
-                    }
-                    else
+                    // 基础获得 1 个 + 瓶盖提供的额外数量
+                    int totalCount = 1 + stackCount;
+
+                    // 循环添加方块
+                    for (int k = 0; k < totalCount; k++)
                     {
-                        // 正常逻辑：获得 1 个方块
-                        FindObjectOfType<Spawner>().AddTetrominoToPool(blockPrefab);
+                        GameManager.Instance.Spawner.AddTetrominoToPool(blockPrefab);
+                    }
+
+                    // 如果使用了瓶盖，消耗掉并打印日志
+                    if (stackCount > 0)
+                    {
+                        GameManager.Instance.ConsumeLuckyCap();
+                        Debug.Log($"幸运瓶盖生效 (x{stackCount})！总共获得 {totalCount} 个方块。");
                     }
 
                     DisableOtherOptions(container, clickedUI);

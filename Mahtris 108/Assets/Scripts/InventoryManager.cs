@@ -71,9 +71,10 @@ public class InventoryManager : MonoBehaviour
             // ... (播放音效等代码)
 
             // 【新增】统计本局使用道具数 (No.24, No.27, No.41)
-            if (GameManager.Instance != null)
+            if (gameManager != null)
             {
-                GameManager.Instance.IncrementItemUsedCount(); // 下面会在GM里添加这个方法
+                gameManager.SetLastUsedItem(itemSlots[slotIndex]);
+                gameManager.IncrementItemUsedCount();
             }
             // 统计累计使用
             if (AchievementManager.Instance != null)
