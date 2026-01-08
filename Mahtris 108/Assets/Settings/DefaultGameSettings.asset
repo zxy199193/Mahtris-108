@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34f88dd859e3f9844bf9b482276e7c35, type: 3}
   m_Name: DefaultGameSettings
   m_EditorClassIdentifier: 
+  isTestMode: 0
   gridWidth: 8
   gridHeight: 16
   deadlineHeight: 13
@@ -31,7 +32,7 @@ MonoBehaviour:
   scoreLevels:
   - targetScore: 50
     goldReward: 20
-  - targetScore: 90
+  - targetScore: 180
     goldReward: 50
   - targetScore: 500
     goldReward: 80
@@ -69,8 +70,8 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 5
   commonItemPool:
-  - {fileID: 11400000, guid: ffc57473305f5944491607a4d2593e62, type: 2}
-  - {fileID: 11400000, guid: 5f24d3ea78bdfea40a255df77ca6636d, type: 2}
+  - {fileID: 11400000, guid: 666e6ac47852de246be41fa1a614445d, type: 2}
+  - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}

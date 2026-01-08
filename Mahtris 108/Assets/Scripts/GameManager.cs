@@ -14,8 +14,6 @@ public class GameManager : MonoBehaviour
 
     [Header("核心配置")]
     [SerializeField] private GameSettings settings;
-    [Tooltip("开启后, 将忽略难度选择, 并使用Spawner中的'Initial Tetromino Prefabs'列表开始游戏。")]
-    [SerializeField] private bool isTestMode = false;
 
     // ========================================================================
     // 2. 模块引用
@@ -352,7 +350,7 @@ public class GameManager : MonoBehaviour
         float speedMultiplier = 1f;
 
         // 【新增：测试模式检查】
-        if (isTestMode)
+        if (settings.isTestMode)
         {
             // 1. 使用Spawner的默认列表
             currentSessionConfig.InitialTetrominoes = new List<GameObject>(spawner.GetInitialTetrominoPrefabs());
@@ -360,6 +358,7 @@ public class GameManager : MonoBehaviour
             // 2. 使用“普通”难度的乘数
             scoreMultiplier = 2f;
             speedMultiplier = 1.5f;
+            Debug.LogWarning("【测试模式已激活】读取 GameSettings 配置...");
         }
         else // 【常规难度逻辑】
         {
@@ -1521,7 +1520,7 @@ public class GameManager : MonoBehaviour
         {
             // 【修改】高级道具池筛选：测试模式 或 已解锁
             var unlockedItems = settings.advancedItemPool
-                .Where(i => isTestMode || SaveManager.IsItemUnlocked(i.itemName, i.isInitial))
+                .Where(i => settings.isTestMode || SaveManager.IsItemUnlocked(i.itemName, i.isInitial))
                 .ToList();
 
             // 使用加权随机
@@ -1530,7 +1529,7 @@ public class GameManager : MonoBehaviour
             // 【修改】条约池筛选：排除已激活 && (测试模式 或 已解锁)
             var availableProtocols = settings.protocolPool
                 .Except(activeProtocols)
-                .Where(p => isTestMode || SaveManager.IsProtocolUnlocked(p.protocolName, p.isInitial))
+                .Where(p => settings.isTestMode || SaveManager.IsProtocolUnlocked(p.protocolName, p.isInitial))
                 .ToList();
 
             package.ProtocolChoices = GetWeightedRandomList(availableProtocols, protocolCount);
@@ -1539,7 +1538,7 @@ public class GameManager : MonoBehaviour
         {
             // 【修改】普通道具池筛选：测试模式 或 已解锁
             var unlockedItems = settings.commonItemPool
-                .Where(i => isTestMode || SaveManager.IsItemUnlocked(i.itemName, i.isInitial))
+                .Where(i => settings.isTestMode || SaveManager.IsItemUnlocked(i.itemName, i.isInitial))
                 .ToList();
 
             // 使用加权随机
@@ -2317,23 +2316,23 @@ public class GameManager : MonoBehaviour
         // 【修改】添加 (isTestMode || ...) 判断
         // 逻辑：如果是测试模式，或者道具已解锁，则允许放入随机池
         var validItems = settings.commonItemPool
-            .Where(i => !i.isLegendary && (isTestMode || SaveManager.IsItemUnlocked(i.itemName, i.isInitial)))
+            .Where(i => !i.isLegendary && (settings.isTestMode || SaveManager.IsItemUnlocked(i.itemName, i.isInitial)))
             .ToList();
 
         var validProtocols = settings.protocolPool
-            .Where(p => !p.isLegendary && (isTestMode || SaveManager.IsProtocolUnlocked(p.protocolName, p.isInitial)))
+            .Where(p => !p.isLegendary && (settings.isTestMode || SaveManager.IsProtocolUnlocked(p.protocolName, p.isInitial)))
             .ToList();
 
         if (difficulty == Difficulty.Normal)
         {
             AddRandomItems(validItems, 1);
-            Debug.Log($"普通难度开局奖励 (TestMode:{isTestMode})");
+            Debug.Log($"普通难度开局奖励 (TestMode:{settings.isTestMode})");
         }
         else if (difficulty == Difficulty.Hard)
         {
             AddRandomItems(validItems, 2);
             AddRandomProtocol(validProtocols);
-            Debug.Log($"困难难度开局奖励 (TestMode:{isTestMode})");
+            Debug.Log($"困难难度开局奖励 (TestMode:{settings.isTestMode})");
         }
     }
     private void AddRandomItems(List<ItemData> sourcePool, int count)
