@@ -128,6 +128,7 @@ public class GameManager : MonoBehaviour
     private float _omaCurrentGrowth = 2f;
     private float _omaAppliedFactor = 1f;
     private bool _pendingPassportShuffle = false;
+    private float _tempLastHandMult = 1f;
     // ========================================================================
     // 7. 道具与特殊机制状态
     // ========================================================================
@@ -267,10 +268,18 @@ public class GameManager : MonoBehaviour
             if (marshLandTimer <= 0) { marshLandTimer = 10f; ForceClearRowsFromBottom(1); }
         }
 
-        if (isAdventFoodActive && adventFoodBonus > 1)
+        if (isAdventFoodActive)
         {
             adventFoodTimer -= logicDeltaTime;
-            if (adventFoodTimer <= 0) { adventFoodTimer = 1f; adventFoodBonus--; UpdateCurrentBaseScore(); }
+            if (adventFoodTimer <= 0)
+            {
+                adventFoodTimer = 1f;
+                if (baseFanScore > 1)
+                {
+                    adventFoodBonus--;
+                    UpdateCurrentBaseScore();
+                }
+            }
         }
 
         if (isUnstableCurrentActive)
@@ -511,12 +520,6 @@ public class GameManager : MonoBehaviour
         if (isAdventFoodActive) { adventFoodBonus = 60; adventFoodTimer = 1f; }
         else { adventFoodBonus = 0; }
 
-        // 2. 例行公事：如果有条约，锁定时间
-        if (isRoutineWorkActive) remainingTime = 95f;
-
-        // 3. 新能源：如果有条约，加时
-        if (isRenewableEnergyActive) remainingTime += 20f;
-
         // 4. 不稳定电流：初始化计时器
         if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
         UpdateCurrentBaseScore();
@@ -550,6 +553,7 @@ public class GameManager : MonoBehaviour
 
     private void HandleHuDeclared(List<List<int>> huHand)
     {
+        float finalExtraMult = extraMultiplier;
         _snapshotSSSVIP = isSSSVIPActive;
         _snapshotStrongWorld = isStrongWorldActive;
         isProcessingRows = true;
@@ -619,14 +623,15 @@ public class GameManager : MonoBehaviour
         if (isDrMahjongActive)
         {
             // 如果是平胡 (且未被混淆视听改为清一色)，倍率为0
-            if (analysisResult.PatternName == "平胡" && !isOldSchoolActive)
+            if (analysisResult.PatternName == "HU_TYPE_PING" && !isOldSchoolActive)
             {
-                extraMultiplier = 0;
+                finalExtraMult *= 0f;
             }
             else
             {
                 // 其他牌型，底数变3
                 analysisResult.BaseMultiplier = 3f;
+                // FanMultiplier 是属性 (getter)，会自动读取新的 BaseMultiplier 进行计算，无需手动重算
             }
         }
 
@@ -641,7 +646,7 @@ public class GameManager : MonoBehaviour
         }
 
         double scorePart = baseFanScore * analysisResult.FanMultiplier;
-        long finalScore = (long)(scorePart * blockMultiplier * extraMultiplier);
+        long finalScore = (long)(scorePart * blockMultiplier * finalExtraMult);
         scoreManager.AddScore(finalScore);
 
         float addedTime = 0f;
@@ -676,7 +681,8 @@ public class GameManager : MonoBehaviour
         int speedIncrease = perHuSpeed;
 
         ProcessPendingProtocolRemovals();
-        var rewards = GenerateHuRewards(isAdvancedReward);
+        _tempLastHandMult = finalExtraMult;
+        var rewards = GenerateHuRewards(isAdvancedReward, finalExtraMult);
 
         // 狂战士 (Berserker) 逻辑
         int autoBlockIndex = -1;
@@ -700,7 +706,7 @@ public class GameManager : MonoBehaviour
             analysisResult,
             baseFanScore,
             blockMultiplier,
-            extraMultiplier,
+            finalExtraMult,
             finalScore,
             rewards,
             isAdvancedReward,
@@ -749,21 +755,14 @@ public class GameManager : MonoBehaviour
         if (isRoutineWorkActive) remainingTime = 95f;
         if (!isTimeIsMoneyActive)
         {
-            // 2. 只有在 "朝九晚五" 激活时，才执行强制重置
             if (isRoutineWorkActive)
             {
-                // 强制重置为 95s (这会覆盖掉刚才 HandleHuDeclared 里加的时间)
                 remainingTime = 95f;
-
-                // 3. 补回 "新能源" (因为被 95s 覆盖了，所以要再补一次)
-                // 最终效果：95 + 20 = 115s
                 if (isRenewableEnergyActive)
                 {
                     remainingTime += 20f;
                 }
             }
-            // 【注意】普通情况（无朝九晚五）不需要 else 分支！
-            // 因为时间已经在 HandleHuDeclared 里加好了，这里不要动。
         }
         if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
         isChampagneActive = false;
@@ -822,8 +821,6 @@ public class GameManager : MonoBehaviour
 
             UpdateCurrentBaseScore();
 
-            if (isRoutineWorkActive) remainingTime = 95f;
-            if (isRenewableEnergyActive) remainingTime += 20f;
             if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
             _isBombOrSpecialClear = false;
             _lastBulletTimeState = false;
@@ -1166,7 +1163,19 @@ public class GameManager : MonoBehaviour
 
                 result.RemainingIds.Remove(pair[0]);
                 result.RemainingIds.Remove(pair[1]);
-
+                if (isNatureReserveActive)
+                {
+                    foreach (var id in pair)
+                    {
+                        // 逻辑与 OnHuPaiTileAdded 保持一致：检查是否为 ID 0 (一条/一筒)
+                        if (id % 27 == 0)
+                        {
+                            int bonus = 6;
+                            ApplyRoundBaseScoreBonus(bonus);
+                            Debug.Log("自然保护区生效：将牌包含目标牌，基础分 +6");
+                        }
+                    }
+                }
                 var finalHand = huPaiArea.GetAllSets();
                 finalHand.Add(pair);
 
@@ -1322,6 +1331,7 @@ public class GameManager : MonoBehaviour
             UpdateFallSpeed();
             gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
             RecalculateOneManArmy();
+            UpdateTargetScoreUI();
         }
     }
     public void RecalculateBlockMultiplier()
@@ -1497,12 +1507,12 @@ public class GameManager : MonoBehaviour
         CheckAndApplyBulletTime();
     }
     // --- 私有辅助方法 ---
-    private HuRewardPackage GenerateHuRewards(bool isAdvanced)
+    private HuRewardPackage GenerateHuRewards(bool isAdvanced, float currentExtraMult)
     {
         // 【新增】麻将博士：如果是平胡（extraMultiplier被置为0），则无法获得任何奖励
-        if (isDrMahjongActive && extraMultiplier == 0)
+        if (isDrMahjongActive && currentExtraMult == 0)
         {
-            return new HuRewardPackage(); // 返回空包，不显示任何选项
+            return new HuRewardPackage(); // 返回空包
         }
 
         var package = new HuRewardPackage();
@@ -2127,7 +2137,9 @@ public class GameManager : MonoBehaviour
     {
         if (isCheapWarehouseActive && count < 36)
         {
-            GameEvents.TriggerGameOver();
+            TriggerGameOver("GAME_OVER_NO_BLOCK_CHEAP_WEARHOUSE");
+
+            Debug.Log("便宜仓库效果触发：牌库不足36张，游戏失败。");
         }
     }
     public bool ActivateMagnetV2()
@@ -2741,7 +2753,7 @@ public class GameManager : MonoBehaviour
     public HuRewardPackage RefreshRewardPackage(HuRewardPackage currentPackage, bool keepBlocks, bool keepItems, bool keepProtocols, bool isAdvanced)
     {
         // 生成一套全新的奖励
-        HuRewardPackage newPackage = GenerateHuRewards(isAdvanced);
+        HuRewardPackage newPackage = GenerateHuRewards(isAdvanced, _tempLastHandMult);
 
         // 如果某一项被锁定了(keep=true)，则把旧数据覆盖回去 (保留旧的)
         if (keepBlocks) newPackage.BlockChoices = currentPackage.BlockChoices;

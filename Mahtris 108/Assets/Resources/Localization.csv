@@ -71,6 +71,7 @@ GAME_OVER_ENDLESS,无尽模式,無盡模式,ENDLESS MODE,エンドレス
 GAME_OVER_TOUCH_DEADLINE,方块触顶,方塊觸頂,Reached Top,天井到達
 GAME_OVER_TIMEUP,时间耗尽,時間耗盡,Time's Up,時間切れ
 GAME_OVER_NO_BLOCK,牌库耗尽,牌庫耗盡,No More Tiles,山切れ
+GAME_OVER_NO_BLOCK_CHEAP_WEARHOUSE,牌库耗尽-便宜仓库,牌庫耗盡-便宜倉庫,No More Tiles - Cheap Warehouse,山切れ-格安倉庫
 HU_CONTINUE,继续,繼續,CONTINUE,次へ
 HU_TITLE,请选择奖励,請選擇獎勵,SELECT REWARDS,報酬選択
 HU_FAN,番,番,  Fan,翻
