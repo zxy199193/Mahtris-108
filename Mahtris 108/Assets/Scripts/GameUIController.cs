@@ -574,24 +574,24 @@ public class GameUIController : MonoBehaviour
     {
         if (tetrominoListContent == null) return;
         foreach (Transform child in tetrominoListContent) Destroy(child.gameObject);
-        if (tetrominoListItemPrefab == null) return;
-
-        var prefabCounts = prefabs.GroupBy(p => p.GetInstanceID()).ToDictionary(g => g.Key, g => g.ToList());
-        foreach (var group in prefabCounts.Values)
+        if (prefabs != null && tetrominoListItemPrefab != null)
         {
-            var representativePrefab = group.First();
-            int count = group.Count;
-            var tetromino = representativePrefab.GetComponent<Tetromino>();
-            if (tetromino == null) continue;
+            // 原有的生成逻辑
+            var prefabCounts = prefabs.GroupBy(p => p.GetInstanceID()).ToDictionary(g => g.Key, g => g.ToList());
+            foreach (var group in prefabCounts.Values)
+            {
+                var representativePrefab = group.First();
+                int count = group.Count;
+                var tetromino = representativePrefab.GetComponent<Tetromino>();
+                if (tetromino == null) continue;
 
-            var itemGO = Instantiate(tetrominoListItemPrefab, tetrominoListContent);
-            var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
-            if (listItemUI == null) continue;
+                var itemGO = Instantiate(tetrominoListItemPrefab, tetrominoListContent);
+                var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
+                if (listItemUI == null) continue;
 
-            // 【修改】传递 overrideMultiplier
-            listItemUI.InitializeForPrefab(representativePrefab.GetComponent<Tetromino>().uiPrefab, $"{tetromino.extraMultiplier:F0}", overrideMultiplier);
-
-            listItemUI.SetStackCount(count);
+                listItemUI.InitializeForPrefab(representativePrefab.GetComponent<Tetromino>().uiPrefab, $"{tetromino.extraMultiplier:F0}", overrideMultiplier);
+                listItemUI.SetStackCount(count);
+            }
         }
         if (totalMultiplierText) totalMultiplierText.text = $"{totalMultiplier:F0}";
     }

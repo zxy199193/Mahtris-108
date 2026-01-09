@@ -64,7 +64,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55cb93c9bbb9002468959347df4d13d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  extraMultiplier: 20
+  extraMultiplier: 5
   shapeUISprite: {fileID: 0}
   uiPrefab: {fileID: 3580106032658444086, guid: 1156253b0292fd74190cf4f6a8bc0afc, type: 3}
   dasDelay: 0.2

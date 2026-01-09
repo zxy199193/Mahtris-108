@@ -109,6 +109,7 @@ public class GameManager : MonoBehaviour
     public bool isDrMahjongActive = false;
     public bool isOldSchoolActive = false;
     public bool isBerserkerActive = false;
+    public bool isFrenziedActive = false;
     public bool isTimeIsMoneyActive = false;
     public bool isBulletTimeActive = false;
     public bool isLogBridgeActive = false;
@@ -134,7 +135,6 @@ public class GameManager : MonoBehaviour
     // ========================================================================
     public int luckyCapStack = 0;
     public bool isFilterActive = false;
-
     // 【修正】防止 lastUsedItem 定义冲突，这里保留唯一的定义
     private ItemData lastUsedItem = null;
 
@@ -442,6 +442,7 @@ public class GameManager : MonoBehaviour
         permanentBaseScoreBonus = 0;
         roundBaseScoreBonus = 0;
         permanentBaseScoreMultiplier = 1f;
+        isFrenziedActive = false;
         isSteroidActive = false;
         isSteroidReversalActive = false;
         ignoreMahjongCheckCount = 0;
@@ -526,10 +527,39 @@ public class GameManager : MonoBehaviour
         // 【修复】必须先计算速度，再生成方块
         blockPool.ResetFullDeck();
         UpdateFallSpeed();
+        List<GameObject> initialBlocks = currentSessionConfig.InitialTetrominoes;
+        if (isGreatRevolutionActive)
+        {
+            // 确保数量有效，如果原始列表为空，默认给 20 个
+            int targetCount = (initialBlocks != null && initialBlocks.Count > 0) ? initialBlocks.Count : 20;
 
+            // 生成新的随机常规方块列表
+            var replacedBlocks = GenerateRandomRegularBlocks(targetCount);
+
+            // 安全检查：只有生成成功才替换，防止因数据未加载导致生成空列表从而引发 Game Over
+            if (replacedBlocks != null && replacedBlocks.Count > 0)
+            {
+                initialBlocks = replacedBlocks;
+                Debug.Log($"大革命生效 (开局)：已重组 {initialBlocks.Count} 个初始方块。");
+            }
+            else
+            {
+                Debug.LogWarning("大革命生效但生成方块失败，将使用默认方块。");
+            }
+        }
+        spawner.InitializeForNewGame(settings, initialBlocks);
         // 使用会话配置中的数据来初始化
-        spawner.InitializeForNewGame(settings, currentSessionConfig.InitialTetrominoes);
+        if (isStrongWorldActive)
+        {
+            spawner.AddRandomLevel3Block();
+            Debug.Log("【强者世界】开局生效：已补发 Lv.3 方块。");
+        }
 
+        if (isBerserkerActive)
+        {
+            inventoryManager.UseAllItems();
+            Debug.Log("狂战士生效：开局自动使用所有道具。");
+        }
         UpdateActiveBlockListUI();
         isProcessingRows = false;
         gameUI.HideAllPanels();
@@ -737,7 +767,6 @@ public class GameManager : MonoBehaviour
         delayGratificationBonus = 0;
         kidsMealTimer = 0f;
         hasReviveStone = false;
-        if (isGreatRevolutionActive) spawner.RandomizeActivePool();
         if (isBerserkerActive) inventoryManager.UseAllItems();
         UpdateCurrentBaseScore();
         midasTimer = 0f; midasGoldValue = 0; scoreboardTimer = 0f;
@@ -773,8 +802,6 @@ public class GameManager : MonoBehaviour
         _lastBulletTimeState = false;
         _hasDeclaredHuThisFrame = false;
 
-        if (_snapshotStrongWorld) spawner.AddRandomLevel3Block();
-
         UpdateCurrentBaseScore();
         isPaused = false;
 
@@ -809,7 +836,10 @@ public class GameManager : MonoBehaviour
 
             // 重置各种变量 (保持原有逻辑)
             delayGratificationBonus = 0;
-            if (isGreatRevolutionActive) spawner.RandomizeActivePool();
+            if (isGreatRevolutionActive)
+            {
+                ProcessGreatRevolution();
+            }
             if (isBerserkerActive) inventoryManager.UseAllItems();
 
             midasTimer = 0f; midasGoldValue = 0; scoreboardTimer = 0f;
@@ -826,7 +856,19 @@ public class GameManager : MonoBehaviour
             _lastBulletTimeState = false;
             _hasDeclaredHuThisFrame = false;
 
-            if (_snapshotStrongWorld) spawner.AddRandomLevel3Block();
+            if (isStrongWorldActive)
+            {
+                spawner.AddRandomLevel3Block();
+                Debug.Log("【强者世界】条约生效：已添加随机 Lv.3 方块。");
+            }
+
+            // 【建议保留】安全重置倍率 (防止 x0 污染，这是之前的修复逻辑，建议保留或补上)
+            if (extraMultiplier == 0f)
+            {
+                extraMultiplier = 1f;
+                if (isOneManArmyActive && _omaAppliedFactor > 1f) extraMultiplier *= _omaAppliedFactor;
+                gameUI.UpdateExtraMultiplierText(extraMultiplier);
+            }
 
             UpdateCurrentBaseScore();
 
@@ -859,7 +901,43 @@ public class GameManager : MonoBehaviour
             isProcessingRows = false;
         });
     }
+    private void ProcessGreatRevolution()
+    {
+        if (!isGreatRevolutionActive) return;
 
+        var currentBlocks = spawner.GetActivePrefabs();
+        // 【修复】使用 Count() 方法，防止 IEnumerable 类型报错
+        int count = (currentBlocks != null) ? currentBlocks.Count() : 0;
+
+        if (count == 0) return;
+
+        var newBlocks = GenerateRandomRegularBlocks(count);
+
+        // 安全检查：防止生成空列表导致 Bug
+        if (newBlocks.Count > 0)
+        {
+            spawner.InitializeForNewGame(settings, newBlocks);
+            UpdateActiveBlockListUI();
+            Debug.Log($"大革命生效 (回合)：已重组 {count} 个方块。");
+        }
+    }
+    private List<GameObject> GenerateRandomRegularBlocks(int count)
+    {
+        var result = new List<GameObject>();
+        // 增加安全检查：如果权重没配置好，避免死循环
+        if (settings.commonBlockRewardWeights == null) return result;
+
+        for (int i = 0; i < count; i++)
+        {
+            // 每次请求 1 个，这样就可以绕过去重限制，允许生成重复方块
+            var singleBlockList = GetWeightedRandomBlocks(1, settings.commonBlockRewardWeights);
+            if (singleBlockList != null && singleBlockList.Any())
+            {
+                result.Add(singleBlockList.First());
+            }
+        }
+        return result;
+    }
     private void HandleRowsCleared(List<int> rowIndices)
     {
         if (isProcessingRows) return;

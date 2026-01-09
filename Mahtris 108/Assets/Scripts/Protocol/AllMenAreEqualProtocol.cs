@@ -5,11 +5,11 @@ public class AllMenAreEqualProtocol : ProtocolData
     public override void ApplyEffect(GameManager gm)
     {
         gm.isAllMenEqualActive = true;
-        gm.RecalculateBlockMultiplier();
+        gm.UpdateActiveBlockListUI();
     }
     public override void RemoveEffect(GameManager gm)
     {
         gm.isAllMenEqualActive = false;
-        gm.RecalculateBlockMultiplier();
+        gm.UpdateActiveBlockListUI();
     }
 }

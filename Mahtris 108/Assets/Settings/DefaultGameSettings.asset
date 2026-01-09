@@ -70,16 +70,13 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 5
   commonItemPool:
-  - {fileID: 11400000, guid: c3ade023d44989d4ca30cfcae1d8ed79, type: 2}
-  - {fileID: 11400000, guid: 1fb733d140bb12e4a81824d4e18f236d, type: 2}
-  - {fileID: 11400000, guid: 0afb30e8bc85279448670b1037fe466b, type: 2}
+  - {fileID: 11400000, guid: fc708f6af3962d14bb00fa1297a60727, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}
   maxProtocolCount: 5
   protocolPool:
-  - {fileID: 11400000, guid: c7e790c46601bdb438475c53926486c9, type: 2}
-  - {fileID: 11400000, guid: 59c4f171aab6301459fadb14ef791df1, type: 2}
+  - {fileID: 11400000, guid: e2fa7fc9676cd0947a1e6e79eeabb6e6, type: 2}
   refreshBaseCost: 100
   legendaryIcon: {fileID: 21300000, guid: 71b55c0a7c1906e48bd3b525833135cf, type: 3}
   tooltipBgCommon: {fileID: 21300000, guid: 0a8ab05b60e1f0545b5c1135286dc257, type: 3}
