@@ -26,7 +26,7 @@ MonoBehaviour:
   initialFallSpeed: 1
   initialTimeLimit: 300
   huTimeBonus: 60
-  baseFanScore: 10
+  baseFanScore: 100
   fanBonusPerKong: 1
   scorePerRow: 2
   scoreLevels:
@@ -46,7 +46,7 @@ MonoBehaviour:
     goldReward: 700
   - targetScore: 5000
     goldReward: 1000
-  husPerLoop: 1
+  husPerLoop: 3
   normalWeight: 10
   legendaryWeightBase: 5
   legendaryWeightIncreasePerLoop: 1

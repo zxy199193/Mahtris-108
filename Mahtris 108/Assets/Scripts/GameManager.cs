@@ -145,7 +145,7 @@ public class GameManager : MonoBehaviour
     private float filterTimer = 0f;
     private float midasTimer = 0f;
     private float scoreboardTimer = 0f;
-
+    private bool isJetpackActive = false;
     private int delayGratificationBonus = 0;
     private int adventFoodBonus = 0;
     private int midasGoldValue = 0;
@@ -775,7 +775,7 @@ public class GameManager : MonoBehaviour
         isFilterActive = false; filterTimer = 0f; luckyCapStack = 0;
 
         if (isSteroidReversalActive) { roundBaseScoreBonus = 0; isSteroidReversalActive = false; }
-        else if (isSteroidActive) { roundBaseScoreBonus = -16; isSteroidActive = false; isSteroidReversalActive = true; }
+        else if (isSteroidActive) { roundBaseScoreBonus = -24; isSteroidActive = false; isSteroidReversalActive = true; }
         else { roundBaseScoreBonus = 0; }
 
         if (isAdventFoodActive) { adventFoodBonus = 60; adventFoodTimer = 1f; } else { adventFoodBonus = 0; }
@@ -1282,12 +1282,25 @@ public class GameManager : MonoBehaviour
     {
         if (midasTimer > 0)
         {
-            GameSession.Instance.AddGold(midasGoldValue);
+            // 1. 获取当前玩家持有的总金币
+            // 注意：GameSession.Instance 必须存在，且 CurrentGold 必须是最新的
+            int currentGold = GameSession.Instance.CurrentGold;
+
+            // 2. 计算 2% 的收益
+            // 使用 CeilToInt 向上取整，确保即使金币很少（比如10块钱），也能至少获得 1 块钱
+            int bonus = Mathf.CeilToInt(currentGold * 0.02f);
+
+            // 保底逻辑：如果金币为0，或者算出来是0，至少给 1 金币以示奖励
+            if (bonus < 1) bonus = 1;
+
+            // 3. 发放奖励
+            GameSession.Instance.AddGold(bonus);
+
             if (AchievementManager.Instance != null)
             {
-                AchievementManager.Instance.AddProgress(AchievementType.AccumulateGold, midasGoldValue);
+                AchievementManager.Instance.AddProgress(AchievementType.AccumulateGold, bonus);
             }
-            midasGoldValue *= 2;
+            Debug.Log($"点金手生效：本金 {currentGold} -> 收益 {bonus} (+2%)");
         }
         if (scoreboardTimer > 0)
         {
@@ -1530,9 +1543,19 @@ public class GameManager : MonoBehaviour
     // 【新增】3. 供“喷气背包”调用
     public void ApplyCountedSpeedBonus(int amount, int blockCount)
     {
+        isJetpackActive = false;
         countedSpeedBonus = amount; // 效果可叠加或覆盖，暂定为覆盖
         countedBonusBlocksRemaining = blockCount;
         UpdateFallSpeedAndApplyToCurrentBlock();
+    }
+    public void ActivateJetpack(int blockCount)
+    {
+        isJetpackActive = true; // 激活喷气背包模式
+        countedBonusBlocksRemaining = blockCount;
+        // 此时 countedSpeedBonus 的值不重要，因为会被 isJetpackActive 覆盖
+        UpdateFallSpeedAndApplyToCurrentBlock();
+
+        Debug.Log($"喷气背包启动：接下来的 {blockCount} 个方块速度将锁定为 1");
     }
     // 【新增】4. 辅助方法，用于立即刷新速度
     private void UpdateFallSpeedAndApplyToCurrentBlock()
@@ -1555,6 +1578,7 @@ public class GameManager : MonoBehaviour
             if (countedBonusBlocksRemaining == 0)
             {
                 countedSpeedBonus = 0;
+                isJetpackActive = false;
                 UpdateFallSpeed();
             }
         }
@@ -1753,7 +1777,7 @@ public class GameManager : MonoBehaviour
             perHuIncrease += 2; // 亚空间额外 +2
         }
         int huBonus = cumulativeHuSpeedBonus;
-        int currentCountedBonus = (countedBonusBlocksRemaining > 0) ? countedSpeedBonus : 0;
+        int currentCountedBonus = (!isJetpackActive && countedBonusBlocksRemaining > 0) ? countedSpeedBonus : 0;
         int totalBonus = permanentSpeedBonus + roundSpeedBonus + currentCountedBonus;
 
         int totalDisplayedSpeed = baseSpeedWithDifficulty + huBonus + totalBonus;
@@ -1767,6 +1791,16 @@ public class GameManager : MonoBehaviour
             totalDisplayedSpeed = 5;
             currentFallSpeed = 20.0f / 5.0f; // 4.0
         }
+        if (isJetpackActive && countedBonusBlocksRemaining > 0)
+        {
+            totalDisplayedSpeed = 1;
+        }
+
+        // 兜底：速度至少为 1
+        if (totalDisplayedSpeed < 1) totalDisplayedSpeed = 1;
+
+        currentFallSpeed = 20.0f / totalDisplayedSpeed;
+
         CurrentDisplaySpeed = totalDisplayedSpeed;
         gameUI.UpdateSpeedText(totalDisplayedSpeed, _lastBulletTimeState);
 
@@ -2182,7 +2216,6 @@ public class GameManager : MonoBehaviour
     public void ActivateMidas(float duration)
     {
         midasTimer = duration;
-        midasGoldValue = 1; // 激活时，将初始金币设为1
     }
     // 【新增】供“计分板”调用
     public void ActivateScoreboard(float duration)

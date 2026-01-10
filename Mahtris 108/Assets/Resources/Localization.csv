@@ -158,7 +158,7 @@ ITEM_DES_03,如果下下个方块降落后胡牌，<color=#3296DC>基础分+18</
 ITEM_DES_04,<color=#3296DC>基础分+24</color>，下轮开始<color=#3296DC>基础分-48</color>（最低为1），下下轮恢复,<color=#3296DC>基礎分+24</color>，下一局開始<color=#3296DC>基礎分-48</color>（最低為1），再下一局恢復,"<color=#3296DC>Base Point +24</color>. Next round <color=#3296DC>Base Point -48</color> (min 1), restores the hand after",<color=#3296DC>基礎点+24</color>、次局は<color=#3296DC>基礎点-48</color>（最低1）、その次の局で元に戻る
 ITEM_DES_05,<color=#36BA98>方块速度-5</color>，整局有效,<color=#36BA98>方塊速度-5</color>，整局有效,<color=#36BA98>Block Speed -5</color> (entire game),<color=#36BA98>ブロック落下速度-5</color>、ゲーム終了まで有効
 ITEM_DES_06,<color=#36BA98>方块速度-12</color>，仅本轮有效,<color=#36BA98>方塊速度-12</color>，僅本局有效,<color=#36BA98>Block Speed -12</color> (this round only),<color=#36BA98>ブロック落下速度-12</color>、今局のみ有効
-ITEM_DES_07,接下来10个<color=#36BA98>方块速度</color>变为1，仅本轮有效,接下來10個<color=#36BA98>方塊速度</color>變為1，僅本局有效,<color=#36BA98>Block Speed</color> becomes 1 for the next 10 blocks (this round only),次のブロック10個の間、<color=#36BA98>落下速度</color>が1になる、今局のみ有効
+ITEM_DES_07,接下来15个方块的<color=#36BA98>方块速度</color>变为1，仅本轮有效,接下來15個方块的<color=#36BA98>方塊速度</color>變為1，僅本局有效,<color=#36BA98>Block Speed</color> becomes 1 for the next 15 blocks (this round only),次のブロック15個の間、<color=#36BA98>落下速度</color>が1になる、今局のみ有効
 ITEM_DES_08,强行消除底部3行方块,強制消除底部3行方塊,Forcibly clear the bottom 3 lines,最下段の3ラインを強制的に消去する
 ITEM_DES_09,强行消除最上方3行方块,強制消除最上方3行方塊,Forcibly clear the top 3 lines,最上段の3ラインを強制的に消去する
 ITEM_DES_10,剩余<color=#36BA98>游戏时间+45秒</color>,剩餘<color=#36BA98>遊戲時間+45秒</color>,Remaining <color=#36BA98>Time +45s</color>,残り<color=#36BA98>時間+45秒</color>
@@ -191,7 +191,7 @@ ITEM_DES_36,20秒内出现的方块会尽可能只有条子牌，仅本轮有效
 ITEM_DES_37,20秒内每次消除行会给增加金币总数的2%，仅本轮有效,20秒內每次消除行會給增加金幣總數的2%，僅本局有效,"For 20s, each line cleared adds 2% to Total Gold (this round only)",20秒間、ラインを消去するたびに総ゴールドの2%を獲得、今局のみ有効
 ITEM_DES_38,20秒内每次消除行会给增加当前得分的5%，仅本轮有效,20秒內每次消除行會給增加當前得分的5%，僅本局有效,"For 20s, each line cleared adds 5% to Current Score (this round only)",20秒間、ラインを消去するたびに現在スコアの5%を加算、今局のみ有効
 ITEM_DES_39,方块列表中每有一种方块，<color=#3296DC>基础分+3</color>，整局有效,方塊列表中每有一種方塊，<color=#3296DC>基礎分+3</color>，整局有效,<color=#3296DC>Base Point +3</color> for every unique block type in inventory (entire game),所持しているブロックの種類1つにつき<color=#3296DC>基礎点+3</color>、ゲーム終了まで有効
-ITEM_DES_40,<color=#3296DC>基础分+20</color>（整局有效），<color=#36BA98>方块速度-10</color>，<color=#36BA98>游戏时间+100秒</color>，强行消除底下4行方块,<color=#3296DC>基礎分+20</color>（整局有效），<color=#36BA98>方塊速度-10</color>，<color=#36BA98>遊戲時間+100秒</color>，強制消除底部4行方塊,"<color=#3296DC>Base Point +20</color> (entire game), <color=#36BA98>Block Speed -10</color>, <color=#36BA98>Time +100s</color>, clear bottom 4 lines",<color=#3296DC>基礎点+20</color>（ゲーム終了まで有効）、<color=#36BA98>落下速度-10</color>、<color=#36BA98>時間+100秒</color>、最下段4ライン消去
+ITEM_DES_40,<color=#3296DC>基础分+20</color>，<color=#36BA98>方块速度-10</color>（均整局有效），<color=#36BA98>游戏时间+100秒</color>，强行消除底下4行方块,<color=#3296DC>基礎分+20</color>（整局有效），<color=#36BA98>方塊速度-10</color>（均整局有效），<color=#36BA98>遊戲時間+100秒</color>，強制消除底部4行方塊,"<color=#3296DC>Base Point +20</color>, <color=#36BA98>Block Speed -10</color> (both entire game), <color=#36BA98>Time +100s</color>, clear bottom 4 lines",<color=#3296DC>基礎点+20</color>、<color=#36BA98>落下速度-10</color>（ゲーム終了まで有効）、<color=#36BA98>時間+100秒</color>、最下段4ライン消去
 ITEM_TIPS_11,方块不足，无法使用,方塊不足，無法使用,Not enough blocks. Cannot use.,ブロックが足りないため、使用できません
 ITEM_TIPS_KARATE,无法使用道具,無法使用道具,Cannot use item,アイテム使用不可
 PROTOCOL_NAME_01,速度之星,速度之星,Speed Star,スピードスター

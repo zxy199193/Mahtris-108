@@ -3757,7 +3757,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialTetrominoPrefabs:
-  - {fileID: 621094592900249781, guid: 7f5bae3c68c4a964cbd75ffd08beb5f4, type: 3}
+  - {fileID: 6458403687790341162, guid: c2f2000eb0488e1448bcae45984b9222, type: 3}
   masterTetrominoPrefabs:
   - {fileID: 6458403687790341162, guid: e01a19483b3632a4194557fb4cf2043c, type: 3}
   - {fileID: 6458403687790341162, guid: d1d66bba774a1c644ad1e70105b2f231, type: 3}
@@ -7578,6 +7578,7 @@ MonoBehaviour:
   isDrMahjongActive: 0
   isOldSchoolActive: 0
   isBerserkerActive: 0
+  isFrenziedActive: 0
   isTimeIsMoneyActive: 0
   isBulletTimeActive: 0
   isLogBridgeActive: 0
@@ -15694,7 +15695,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1281159420
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15712,7 +15713,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -600, y: 486}
-  m_SizeDelta: {x: 56, y: 27}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1281159421
 MonoBehaviour:
