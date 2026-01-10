@@ -242,8 +242,8 @@ public class GameManager : MonoBehaviour
 
             if (shouldTrigger && lastGaspGoalBonus == 0)
             {
-                // 触发绝杀：加 36 分
-                lastGaspGoalBonus = 36;
+                // 触发绝杀：加 60 分
+                lastGaspGoalBonus = 60;
                 UpdateCurrentBaseScore();
                 // 可选：播放个心跳音效或视觉提示
             }
@@ -1020,10 +1020,10 @@ public class GameManager : MonoBehaviour
             }
             if (isDelayGratificationActive && rowIndices.Count >= 3)
             {
-                delayGratificationBonus += 7;
+                delayGratificationBonus += 8;
                 UpdateCurrentBaseScore(); // 立即刷新 UI 显示
 
-                // Debug.Log($"延迟满足生效：一次性消除 {rowIndices.Count} 行，基础分 +7！");
+                // Debug.Log($"延迟满足生效：一次性消除 {rowIndices.Count} 行，基础分 +8！");
             }
 
             // 【移除】移除了之前错误的 TryFindAndAddRandomSetFromPool 调用
@@ -1209,7 +1209,7 @@ public class GameManager : MonoBehaviour
         // 三位一体
         if (isTrinityActive)
         {
-            int setBonus = (result.Pungs.Count + result.Kongs.Count) * 5;
+            int setBonus = (result.Pungs.Count + result.Kongs.Count) * 3;
             if (setBonus > 0) ApplyPermanentBaseScoreBonus(setBonus);
         }
 
@@ -2099,8 +2099,8 @@ public class GameManager : MonoBehaviour
     public void UpdateCurrentBaseScore()
     {
         int defaultScore = settings.baseFanScore;
-        // 【新增】延迟满足 (-10)
-        int delayPenalty = isDelayGratificationActive ? -10 : 0;
+        // 【新增】延迟满足 (-12)
+        int delayPenalty = isDelayGratificationActive ? -12 : 0;
 
         int addedScore = defaultScore + permanentBaseScoreBonus + roundBaseScoreBonus + adventFoodBonus + delayGratificationBonus + delayPenalty + lastGaspGoalBonus;
         int calculatedScore = (int)(addedScore * permanentBaseScoreMultiplier);
@@ -2282,7 +2282,7 @@ public class GameManager : MonoBehaviour
                     // 【修复】确保物理移除
                     tetrisGrid.RemoveSpecificBlock(targetTransform);
 
-                    if (isTrinityActive) ApplyPermanentBaseScoreBonus(5);
+                    if (isTrinityActive) ApplyPermanentBaseScoreBonus(3);
                     return true;
                 }
             }
@@ -2686,7 +2686,7 @@ public class GameManager : MonoBehaviour
         {
             if (blockId % 27 == 0)
             {
-                int bonus = 6;
+                int bonus = 12;
                 ApplyRoundBaseScoreBonus(bonus);
             }
         }

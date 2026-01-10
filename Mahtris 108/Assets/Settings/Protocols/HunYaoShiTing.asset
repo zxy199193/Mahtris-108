@@ -16,9 +16,9 @@ MonoBehaviour:
   descKey: PROTOCOL_DES_14
   protocolName: "\u6DF7\u6DC6\u89C6\u542C"
   protocolIcon: {fileID: 21300000, guid: c29330643f30f1a4f94c384d8ad179f5, type: 3}
-  protocolDescription: "\u80E1\u724C\u65F6\u5982\u724C\u578B\u4EC52\u79CD\u82B1\u9762\uFF0C\u89C6\u4E3A\u201C\u6E05\u4E00\u8272\u201D\u724C\u578B\uFF0C<color=#FF595E>\u65B9\u5757\u500D\u7387-16</color>\uFF08\u6700\u4F4E\u4E3A1\uFF09\r\n"
+  protocolDescription: "\u80E1\u724C\u65F6\u5982\u724C\u578B\u4EC52\u79CD\u82B1\u9762\uFF0C\u89C6\u4E3A\u201C\u6E05\u4E00\u8272\u201D\u724C\u578B\uFF0C\u65B9\u5757\u500D\u7387-20\uFF08\u6700\u4F4E\u4E3A1\uFF09"
   isLegendary: 0
   price: 5000
   isInitial: 0
   unlockConditionCount: 0
-  blockMultiplierPenalty: -16
+  blockMultiplierPenalty: -20

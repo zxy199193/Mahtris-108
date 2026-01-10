@@ -8,15 +8,15 @@ public class LastStandProtocol : ProtocolData
     {
         manager.isLastStandActive = true;
 
-        // 额外倍率 x10
-        manager.ApplyExtraMultiplier(10f);
+        // 额外倍率 x16
+        manager.ApplyExtraMultiplier(16f);
     }
 
     public override void RemoveEffect(GameManager manager)
     {
         manager.isLastStandActive = false;
 
-        // 恢复倍率 (除以 10)
-        manager.ApplyExtraMultiplier(0.1f);
+        // 恢复倍率 (除以 16)
+        manager.ApplyExtraMultiplier(1f / 16f);
     }
 }
