@@ -16,11 +16,11 @@ MonoBehaviour:
   descKey: ITEM_DES_02
   itemName: "\u529F\u80FD\u996E\u6599"
   itemIcon: {fileID: 21300000, guid: 9079a057392fcd544bde742290a5aae9, type: 3}
-  itemDescription: "\u672C\u8F6E\u6E38\u620F<color=#3296DC>\u57FA\u7840\u5206+8</color>\uFF0C\u80E1\u724C\u540E\u6062\u590D\r"
+  itemDescription: "\u57FA\u7840\u5206+12\uFF0C\u4EC5\u672C\u8F6E\u6709\u6548\r"
   isAdvanced: 0
   isLegendary: 0
   useSound: {fileID: 0}
   price: 0
   isInitial: 1
   unlockConditionCount: 0
-  scoreBonus: 8
+  scoreBonus: 12

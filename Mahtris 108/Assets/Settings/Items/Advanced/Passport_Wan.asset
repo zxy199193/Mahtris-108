@@ -16,7 +16,7 @@ MonoBehaviour:
   descKey: ITEM_DES_35
   itemName: "\u62A4\u7167-\u4E07\u5B50"
   itemIcon: {fileID: 21300000, guid: 35bf2ef8a17908e47b63695c20709f08, type: 3}
-  itemDescription: "\u63A5\u4E0B\u676515\u79D2\u7684\u65B9\u5757\u4F1A\u5C3D\u53EF\u80FD\u53EA\u6709\u4E07\u5B50\u724C"
+  itemDescription: "20\u79D2\u5185\u51FA\u73B0\u7684\u65B9\u5757\u4F1A\u5C3D\u53EF\u80FD\u53EA\u6709\u4E07\u5B50\u724C\uFF0C\u4EC5\u672C\u8F6E\u6709\u6548"
   isAdvanced: 1
   isLegendary: 0
   useSound: {fileID: 0}

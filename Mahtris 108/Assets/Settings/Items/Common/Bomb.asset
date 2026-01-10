@@ -16,7 +16,7 @@ MonoBehaviour:
   descKey: ITEM_DES_08
   itemName: "\u70B8\u5F39"
   itemIcon: {fileID: 21300000, guid: b20f70ddadd340e45884d061466f3d68, type: 3}
-  itemDescription: "\u5F3A\u884C\u6D88\u9664\u5E95\u4E0B3\n\u884C\u65B9\u5757\r"
+  itemDescription: "\u5F3A\u884C\u6D88\u9664\u5E95\u90E83\u884C\u65B9\u5757\r"
   isAdvanced: 0
   isLegendary: 0
   useSound: {fileID: 8300000, guid: 98666ca704c105145b393e892df00bc9, type: 3}

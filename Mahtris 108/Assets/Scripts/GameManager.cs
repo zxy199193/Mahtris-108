@@ -1569,9 +1569,9 @@ public class GameManager : MonoBehaviour
 
             if (champagneSpawnCount == 2)
             {
-                // 到了预定回合，基础分 +10
+                // 到了预定回合，基础分 +18
                 // 这会实时更新UI，玩家能看到分数变多了
-                ApplyRoundBaseScoreBonus(10);
+                ApplyRoundBaseScoreBonus(18);
             }
             else if (champagneSpawnCount == 3)
             {
@@ -2629,7 +2629,7 @@ public class GameManager : MonoBehaviour
     {
         // 1. 设置状态
         activePassportSuit = suitIndex;
-        passportTimer = 15f; // 15秒
+        passportTimer = 20f; // 20秒
 
         // 2. 立即刷新当前预览的方块
         // 这样玩家能立刻看到下一个方块变成了指定花色
