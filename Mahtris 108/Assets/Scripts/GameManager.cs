@@ -99,6 +99,8 @@ public class GameManager : MonoBehaviour
     public bool isRenewableEnergyActive = false;
     public bool isAllMenEqualActive = false;
     public bool isStrongWorldActive = false;
+    public bool isUltimateActive = false;
+    public int ultimateHuCount = 0;
     public bool isRoutineWorkActive = false;
     public bool isUnstableCurrentActive = false;
     public bool isSSSVIPActive = false;
@@ -142,6 +144,7 @@ public class GameManager : MonoBehaviour
     private float marshLandTimer = 0f;
     private float adventFoodTimer = 0f;
     private float unstableCurrentTimer = 0f;
+    private int unstableCurrentBonus = 0;
     private float filterTimer = 0f;
     private float midasTimer = 0f;
     private float scoreboardTimer = 0f;
@@ -287,11 +290,16 @@ public class GameManager : MonoBehaviour
             unstableCurrentTimer -= logicDeltaTime;
             if (unstableCurrentTimer <= 0)
             {
-                unstableCurrentTimer = 6f;
+                unstableCurrentTimer = 3f;
                 int change = Random.Range(1, 37);
                 if (Random.value < 0.5f) change = -change;
-                if (baseFanScore + change < 1) change = 1 - baseFanScore;
-                ApplyRoundBaseScoreBonus(change);
+                int baseWithoutUnstable = baseFanScore - unstableCurrentBonus;
+                if (baseWithoutUnstable + change < 1)
+                {
+                    change = 1 - baseWithoutUnstable;
+                }
+                unstableCurrentBonus = change;
+                UpdateCurrentBaseScore();
             }
         }
         if (isFilterActive)
@@ -522,7 +530,7 @@ public class GameManager : MonoBehaviour
         else { adventFoodBonus = 0; }
 
         // 4. 不稳定电流：初始化计时器
-        if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
+        if (isUnstableCurrentActive) unstableCurrentTimer = 3f;
         UpdateCurrentBaseScore();
         // 【修复】必须先计算速度，再生成方块
         blockPool.ResetFullDeck();
@@ -602,7 +610,7 @@ public class GameManager : MonoBehaviour
             // 3. 动态判断：如果剩余 < 需要，即判定为“牌库不足/会出现黑块”
             if (neededForNext > 0 && remainingTiles < neededForNext)
             {
-                ApplyRoundBaseScoreBonus(36);
+                finalExtraMult *= 8f;
                 Debug.Log($"海底捞月触发！剩余 {remainingTiles} 张 < 下个方块需要 {neededForNext} 张。基础分 +36");
             }
         }
@@ -709,7 +717,23 @@ public class GameManager : MonoBehaviour
         }
         cumulativeHuSpeedBonus += perHuSpeed;
         int speedIncrease = perHuSpeed;
+        if (isUltimateActive)
+        {
+            ultimateHuCount++;
+            Debug.Log($"【奥义很爽】生效次数: {ultimateHuCount}/3");
 
+            if (ultimateHuCount >= 3)
+            {
+                // 找到条约对象并标记删除
+                // 注意：这里需要引用 UltimateProtocol 类型
+                var proto = activeProtocols.FirstOrDefault(p => p is UltimateProtocol);
+                if (proto != null)
+                {
+                    MarkProtocolForRemoval(proto);
+                    Debug.Log("【奥义很爽】3次机会已耗尽，已标记为移除。");
+                }
+            }
+        }
         ProcessPendingProtocolRemovals();
         _tempLastHandMult = finalExtraMult;
         var rewards = GenerateHuRewards(isAdvancedReward, finalExtraMult);
@@ -2101,8 +2125,8 @@ public class GameManager : MonoBehaviour
         int defaultScore = settings.baseFanScore;
         // 【新增】延迟满足 (-12)
         int delayPenalty = isDelayGratificationActive ? -12 : 0;
-
-        int addedScore = defaultScore + permanentBaseScoreBonus + roundBaseScoreBonus + adventFoodBonus + delayGratificationBonus + delayPenalty + lastGaspGoalBonus;
+        int unstableVal = isUnstableCurrentActive ? unstableCurrentBonus : 0;
+        int addedScore = defaultScore + permanentBaseScoreBonus + roundBaseScoreBonus + adventFoodBonus + delayGratificationBonus + delayPenalty + lastGaspGoalBonus + unstableVal;
         int calculatedScore = (int)(addedScore * permanentBaseScoreMultiplier);
 
         if (isSteroidReversalActive && calculatedScore < 1) calculatedScore = 1;
