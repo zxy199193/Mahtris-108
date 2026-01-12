@@ -16,9 +16,9 @@ MonoBehaviour:
   descKey: ACHIEVEMENT_DES_39
   id: Ach_039
   title: No.39
-  description: "\u89E3\u950130\u79CD\u6761\u7EA6"
+  description: "\u89E3\u950135\u79CD\u6761\u7EA6"
   icon: {fileID: 21300000, guid: 8ece1ec2c304625439fc6550b77188e5, type: 3}
   rewardGold: 2000
   type: 19
-  targetValue: 30
+  targetValue: 35
   targetString: 

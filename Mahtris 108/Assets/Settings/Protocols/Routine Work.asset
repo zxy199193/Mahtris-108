@@ -19,5 +19,5 @@ MonoBehaviour:
   protocolDescription: "\u6BCF\u8F6E\u6E38\u620F\u5F00\u59CB\u65F6\uFF0C\u5269\u4F59\u6E38\u620F\u65F6\u95F4\u53D8\u4E3A\u56FA\u5B9A95\u79D2\r"
   isLegendary: 0
   price: 5000
-  isInitial: 0
+  isInitial: 1
   unlockConditionCount: 0
