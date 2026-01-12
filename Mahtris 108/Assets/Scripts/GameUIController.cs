@@ -1148,7 +1148,7 @@ public class GameUIController : MonoBehaviour
         {
             goldRewardText.text = $"{reward}";
             // ¡¾ÐÞ¸´¡¿±äÉ«Âß¼­
-            goldRewardText.color = isBonusActive ? Color.red : Color.white;
+            goldRewardText.color = isBonusActive ? Color.red : new Color32(0, 95, 115, 255);
         }
     }
 
