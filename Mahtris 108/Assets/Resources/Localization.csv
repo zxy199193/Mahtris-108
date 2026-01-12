@@ -62,8 +62,8 @@ TYPE_TITLE,牌型列表,牌型列表,HAND TYPE,役一覧
 PAUSE_PAUSED,游戏暂停,遊戲暫停,GAME PAUSED,ポーズ
 PAUSE_CONTINUE,继续游戏,繼續遊戲,CONTINUE,ゲーム再開
 PAUSE_ENDGAME,结束游戏,結束遊戲,END GAME,ゲーム終了
-GAME_OVER_LOSE,游戏结束,遊戲結束,GAME OVER,ゲームオーバー
-GAME_OVER_CLEAR,恭喜过关！,恭喜過關！,STAGE CLEAR!!,ステージクリア
+GAME_OVER_LOSE,游 戏 结 束,遊 戲 結 束,GAME OVER,ゲームオーバー
+GAME_OVER_CLEAR,恭 喜 过 关,恭 喜 過 關,STAGE CLEAR!!,ステージクリア
 GAME_OVER_SCORE,得分,得分,SCORE,スコア
 GAME_OVER_NEW_RECORD,最高分,最高分,NEW RECORD,新記録
 GAME_OVER_BACK_TO_MENU,返回主菜单,返回主菜單,MAIN MENU,メニューへ
