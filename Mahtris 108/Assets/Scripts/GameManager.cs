@@ -531,6 +531,7 @@ public class GameManager : MonoBehaviour
 
         // 4. 不稳定电流：初始化计时器
         if (isUnstableCurrentActive) unstableCurrentTimer = 3f;
+        unstableCurrentBonus = 0;
         UpdateCurrentBaseScore();
         // 【修复】必须先计算速度，再生成方块
         blockPool.ResetFullDeck();
@@ -817,7 +818,11 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
-        if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
+        if (isUnstableCurrentActive)
+        {
+            unstableCurrentTimer = 3f;
+            unstableCurrentBonus = 0; // <--- 补上这一行！
+        }
         isChampagneActive = false;
         champagneSpawnCount = 0;
         activePassportSuit = -1;
@@ -875,7 +880,7 @@ public class GameManager : MonoBehaviour
 
             UpdateCurrentBaseScore();
 
-            if (isUnstableCurrentActive) unstableCurrentTimer = 6f;
+            if (isUnstableCurrentActive) unstableCurrentTimer = 3f;
             _isBombOrSpecialClear = false;
             _lastBulletTimeState = false;
             _hasDeclaredHuThisFrame = false;
