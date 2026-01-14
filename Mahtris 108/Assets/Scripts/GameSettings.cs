@@ -154,6 +154,7 @@ public class GameSettings : ScriptableObject
     public Sprite legendaryIcon;
 
     [Header("浮窗背板")]
+    public Sprite tooltipBgBlock;
     public Sprite tooltipBgCommon;    // 普通道具背板
     public Sprite tooltipBgAdvanced;  // 高级道具背板
     public Sprite tooltipBgProtocol;  // 条约背板

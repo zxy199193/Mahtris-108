@@ -32,6 +32,18 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         _isBlock = false;
         SetupCommon(item.itemIcon, onClick);
         if (legendaryBadge) legendaryBadge.SetActive(item.isLegendary);
+        if (backgroundImage != null && GameManager.Instance != null)
+        {
+            GameSettings settings = GameManager.Instance.GetSettings();
+            if (settings != null)
+            {
+                Sprite bg = item.isAdvanced ? settings.tooltipBgAdvanced : settings.tooltipBgCommon;
+                if (item.isLegendary) bg = settings.tooltipBgLegendary;
+
+                backgroundImage.sprite = bg;
+                backgroundImage.gameObject.SetActive(true);
+            }
+        }
     }
 
     // --- 初始化方法 2: 条约 ---
@@ -41,6 +53,18 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         _isBlock = false;
         SetupCommon(protocol.protocolIcon, onClick);
         if (legendaryBadge) legendaryBadge.SetActive(protocol.isLegendary);
+        if (backgroundImage != null && GameManager.Instance != null)
+        {
+            GameSettings settings = GameManager.Instance.GetSettings();
+            if (settings != null)
+            {
+                Sprite bg = settings.tooltipBgProtocol;
+                if (protocol.isLegendary) bg = settings.tooltipBgLegendary;
+
+                backgroundImage.sprite = bg;
+                backgroundImage.gameObject.SetActive(true);
+            }
+        }
     }
 
     // --- 初始化方法 3: 方块 ---
@@ -62,6 +86,19 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
             if (tet) optionText.text = $"{tet.extraMultiplier:F0}";
         }
         if (legendaryBadge) legendaryBadge.SetActive(false);
+        if (backgroundImage != null && GameManager.Instance != null)
+        {
+            GameSettings settings = GameManager.Instance.GetSettings();
+            if (settings != null)
+            {
+                // 优先使用专用背板，如果没有赋值，则兜底使用普通背板
+                Sprite bg = settings.tooltipBgBlock;
+                if (bg == null) bg = settings.tooltipBgCommon;
+
+                backgroundImage.sprite = bg;
+                backgroundImage.gameObject.SetActive(true);
+            }
+        }
         _onClick = onClick;
         if (optionButton)
         {

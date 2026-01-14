@@ -9,6 +9,7 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     [Header("UI 组件")]
     [SerializeField] private Image iconImage;
+    [SerializeField] private Image backplateImage;
     [SerializeField] private GameObject lockedOverlay;
     [SerializeField] private Text priceText;
     [SerializeField] private Button buyButton;
@@ -35,6 +36,7 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         }
 
         SetupStatus(status, data.price, data.isLegendary, data.unlockConditionCount, typeName);
+        UpdateBackplate(data.isLegendary, true, data.isAdvanced);
     }
 
     public void SetupProtocol(ProtocolData data, SlotStatus status, StorePanelController ctrl)
@@ -52,8 +54,32 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         }
 
         SetupStatus(status, data.price, data.isLegendary, data.unlockConditionCount, typeName);
+        UpdateBackplate(data.isLegendary, false, false);
     }
+    private void UpdateBackplate(bool isLegendary, bool isItem, bool isAdvanced)
+    {
+        if (backplateImage == null || controller == null) return;
 
+        GameSettings settings = controller.GetSettings();
+        if (settings == null) return;
+
+        Sprite targetBg = settings.tooltipBgCommon; // 默认
+
+        if (isItem)
+        {
+            if (isAdvanced) targetBg = settings.tooltipBgAdvanced; // 高级道具
+            else targetBg = settings.tooltipBgCommon; // 普通道具
+        }
+        else
+        {
+            targetBg = settings.tooltipBgProtocol; // 条约
+        }
+
+        // 如果是传奇物品，优先使用传奇背板 (保持与 Tooltip 视觉一致)
+        if (isLegendary) targetBg = settings.tooltipBgLegendary;
+
+        backplateImage.sprite = targetBg;
+    }
     private void SetupStatus(SlotStatus status, int price, bool isLegendary, int conditionCount, string typeName)
     {
         // 1. 初始化通用状态 (保持你的原始逻辑)
@@ -170,4 +196,5 @@ public class StoreSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public int GetPrice() => isItem ? itemData.price : protocolData.price;
     public string GetName() => isItem ? itemData.itemName : protocolData.protocolName;
     public bool IsItem() => isItem;
+
 }
