@@ -30,7 +30,20 @@ public class ProtocolSlotUI : MonoBehaviour, IPointerClickHandler
         {
             isEmpty = false;
             if (iconImage) { iconImage.gameObject.SetActive(true); iconImage.sprite = protocol.protocolIcon; }
-            if (backplateImage) backplateImage.gameObject.SetActive(true);
+            if (backplateImage)
+            {
+                backplateImage.gameObject.SetActive(true);
+                if (GameManager.Instance != null)
+                {
+                    GameSettings settings = GameManager.Instance.GetSettings();
+                    if (settings != null)
+                    {
+                        Sprite bg = settings.tooltipBgProtocol;
+                        if (protocol.isLegendary) bg = settings.tooltipBgLegendary;
+                        backplateImage.sprite = bg;
+                    }
+                }
+            }
             if (emptyStateImage) emptyStateImage.gameObject.SetActive(false);
 
             isPendingRemoval = GameManager.Instance.IsProtocolMarkedForRemoval(protocol);

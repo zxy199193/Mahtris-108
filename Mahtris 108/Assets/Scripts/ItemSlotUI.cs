@@ -41,7 +41,20 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
             // === 有道具 ===
             isEmpty = false;
             if (iconImage) { iconImage.gameObject.SetActive(true); iconImage.sprite = item.itemIcon; }
-            if (backplateImage) backplateImage.gameObject.SetActive(true);
+            if (backplateImage)
+            {
+                backplateImage.gameObject.SetActive(true);
+                if (GameManager.Instance != null)
+                {
+                    GameSettings settings = GameManager.Instance.GetSettings();
+                    if (settings != null)
+                    {
+                        Sprite bg = item.isAdvanced ? settings.tooltipBgAdvanced : settings.tooltipBgCommon;
+                        if (item.isLegendary) bg = settings.tooltipBgLegendary;
+                        backplateImage.sprite = bg;
+                    }
+                }
+            }
             if (emptyStateImage) emptyStateImage.gameObject.SetActive(false);
             if (deleteButton) deleteButton.onClick.AddListener(OnDeleteClicked);
             // 【核心修复】计算类型并传入
