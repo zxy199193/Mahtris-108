@@ -137,7 +137,7 @@ ITEM_NAME_22,垃圾筒,垃圾桶,Trash Bin,ゴミ箱
 ITEM_NAME_23,魔术手帕,魔術手帕,Magic Hanky,魔法のハンカチ
 ITEM_NAME_24,磁铁,磁鐵,Magnet,磁石
 ITEM_NAME_25,仙酒,仙酒,Elixir Wine,エリクサー
-ITEM_NAME_26,优惠券,優惠券,Coupon,クーポン
+ITEM_NAME_26,荣誉勋章,榮譽勳章,Medal of Honor,名誉勲章
 ITEM_NAME_27,超级炸弹,超級炸彈,Super Bomb,超爆弾
 ITEM_NAME_28,黄金镜,黃金鏡,Golden Mirror,金の鏡
 ITEM_NAME_29,儿童餐,兒童餐,Kids Meal,お子様ランチ
@@ -177,7 +177,7 @@ ITEM_DES_22,下次消除的行不会进行判定而是会被直接移除，下�
 ITEM_DES_23,场上所有方块的麻将牌面被随机打乱,場上所有方塊的麻將牌面被隨機打亂,Randomly shuffle the Mahjong patterns of all blocks on the board,フィールド上の全ブロックの麻雀牌の種類をランダムにシャッフルする
 ITEM_DES_24,当有胡牌区有刻子，且场上有这个刻子的牌，获取该牌形成杠牌（满足多个刻子时随机）,當胡牌區有刻子，且場上有這個刻子的牌，獲取該牌形成槓牌（滿足多個刻子時隨機）,"If a Triplet exists in Winning Area and the tile is on board, pull it to form a Kong",和了エリアに刻子があり、対応する牌が場にある場合、それを引き寄せて槓子（カンツ）にする
 ITEM_DES_25,<color=#3296DC>基础分+50%</color>，整局有效,<color=#3296DC>基礎分+50%</color>，整局有效,<color=#3296DC>Base Point +50%</color> (entire game),<color=#3296DC>基礎点+50%</color>、ゲーム終了まで有効
-ITEM_DES_26,当前目标分数-20%,當前目標分數-20%,Current Target Score -20%,現在の目標スコア-20%
+ITEM_DES_26,方块列表中随机2种方块，整局游戏这两种方块的<color=#FF595E>方块倍率+5</color>,方塊列表中隨機2種方塊，整局遊戲這兩種方塊的<color=#FF595E>方塊倍率+5</color>,Randomly select 2 block types from Block List. Their <color=#FF595E>Block Multiplier +5</color> (entire game).,所持ブロックからランダムに2種類選出。そのブ<color=#FF595E>ブロック倍率+5</color>（ゲーム終了まで有効）
 ITEM_DES_27,强行消除底下6行方块,強制消除底部6行方塊,Forcibly clear the bottom 6 lines,最下段の6ラインを強制的に消去する
 ITEM_DES_28,变为上一个使用的道具,變為上一個使用的道具,Duplicate the effect of the last used Item,直前に使用したアイテムの効果をコピーする
 ITEM_DES_29,60秒内只会出现1~3格的方块，仅本轮有效,60秒內只會出現1~3格的方塊，僅本局有效,Only 1-3 cell blocks will appear for 60s (this round only),60秒間、1～3マスのブロックしか出現しなくなる、今局のみ有効
@@ -201,7 +201,7 @@ PROTOCOL_NAME_04,超算力,超算力,Hyper Hashrate,超計算力
 PROTOCOL_NAME_05,便宜仓库,便宜倉庫,Cheap Warehouse,格安倉庫
 PROTOCOL_NAME_06,台风天气,颱風天氣,Typhoon,台風
 PROTOCOL_NAME_07,无重力,無重力,No Gravity,無重力
-PROTOCOL_NAME_08,时间就是金钱,時間就是金錢,Time is Money,時は金なり
+PROTOCOL_NAME_08,工匠,工匠,Craftsman,職人
 PROTOCOL_NAME_09,断幺九,斷么九,All Simples,断幺九
 PROTOCOL_NAME_10,缺一门,缺一門,Suit Remover,絶一門
 PROTOCOL_NAME_11,杠上开花,槓上開花,Blooming on Kong,嶺上開花
@@ -241,7 +241,7 @@ PROTOCOL_DES_04,当有5格方块时生效，5格方块出现的概率提高200%�
 PROTOCOL_DES_05,当牌库中剩余的牌少于36张时游戏失败，<color=#E682E6>额外倍率x2</color>,當牌庫中剩餘的牌少於36張時遊戲失敗，<color=#E682E6>額外倍率x2</color>,Game Over if deck has <36 tiles. <color=#E682E6>Extra Multiplier x2</color>.,山の残り牌が36枚未満になるとゲームオーバー。<color=#E682E6>追加倍率x2</color>。
 PROTOCOL_DES_06,方块下落时每2秒会随机往左或右移动1~2格，<color=#E682E6>额外倍率x4</color>,方塊下落時每2秒會隨機往左或右移動1~2格，<color=#E682E6>額外倍率x4</color>,Falling blocks shift 1-2 cells left/right every 2s. <color=#E682E6>Extra Multiplier x4</color>.,落下中のブロックが2秒毎に左右へ1～2マス移動する。<color=#E682E6>追加倍率x4</color>。
 PROTOCOL_DES_07,方块中的麻将牌面会随机旋转方向，<color=#E682E6>额外倍率x2</color>,方塊中的麻將牌面會隨機旋轉方向，<color=#E682E6>額外倍率x2</color>,Mahjong patterns in blocks rotate randomly. <color=#E682E6>Extra Multiplier x2</color>.,ブロック内の麻雀牌の向きがランダムに回転する。<color=#E682E6>追加倍率x2</color>。
-PROTOCOL_DES_08,胡牌时不再奖励游戏时间，目标金币奖励x2,胡牌時不再獎勵遊戲時間，目標金幣獎勵x2,No Time Reward upon winning. Target Gold Reward x2.,和了時の時間報酬なし。目標ゴールド報酬2倍。
+PROTOCOL_DES_08,每轮游戏开始后每经过80秒即会随机添加一个普通道具,每輪遊戲開始後每經過80秒即會隨機添加一個普通道具,"Every 80s after the start of each round, randomly adds a Normal Item.",各局開始後、80秒経過するごとに、ノーマルアイテムをランダムに1個獲得する。
 PROTOCOL_DES_09,移除所有数字1和9的牌，<color=#FF595E>方块倍率-14</color>（最低为1）,移除所有數字1和9的牌，<color=#FF595E>方塊倍率-14</color>（最低為1）,Remove all 1 and 9 tiles. <color=#FF595E>Block Multiplier -14</color> (min 1).,1と9の牌を全て削除。<color=#FF595E>ブロック倍率-14</color>（最低1）。
 PROTOCOL_DES_10,随机移除一种花色所有的牌，<color=#FF595E>方块倍率-24</color>（最低为1）,隨機移除一種花色所有的牌，<color=#FF595E>方塊倍率-24</color>（最低為1）,Randomly remove all tiles of one suit. <color=#FF595E>Block Multiplier -24</color> (min 1).,ランダムな1種類の数牌を全て削除。<color=#FF595E>ブロック倍率-24</color>（最低1）。
 PROTOCOL_DES_11,每组杠牌提供的番数+1，<color=#FF595E>方块倍率-16</color>（最低为1）,每組槓牌提供的番數+1，<color=#FF595E>方塊倍率-16</color>（最低為1）,+1 Fan for each Kong. <color=#FF595E>Block Multiplier -16</color> (min 1).,槓子（カンツ）1組につき1翻プラス。<color=#FF595E>ブロック倍率-16</color>（最低1）。

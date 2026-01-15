@@ -9,15 +9,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a4a89195cba8484b8e48724aa4a0c77, type: 3}
-  m_Name: Time Is Money
+  m_Script: {fileID: 11500000, guid: e128cac0cb8825b4290a60a07c6e330f, type: 3}
+  m_Name: Craftsman
   m_EditorClassIdentifier: 
   nameKey: PROTOCOL_NAME_08
   descKey: PROTOCOL_DES_08
-  protocolName: "\u65F6\u95F4\u5C31\u662F\u91D1\u94B1"
-  protocolIcon: {fileID: 21300000, guid: 5a1f6a42dd8741d48af9e7fa902b6bd8, type: 3}
-  protocolDescription: "\u80E1\u724C\u65F6\u4E0D\u518D\u5956\u52B1\u6E38\u620F\u65F6\u95F4\uFF0C\u76EE\u6807\u91D1\u5E01\u5956\u52B1x2\r"
+  protocolName: "\u5DE5\u5320"
+  protocolIcon: {fileID: 21300000, guid: e28a62e0317a7104c8c7251092205f04, type: 3}
+  protocolDescription: "\u6BCF\u8F6E\u6E38\u620F\u5F00\u59CB\u540E\u6BCF\u8FC780\u79D2\u5373\u4F1A\u968F\u673A\u6DFB\u52A0\u4E00\u4E2A\u666E\u901A\u9053\u5177"
   isLegendary: 0
-  price: 0
+  price: 5000
   isInitial: 1
   unlockConditionCount: 0
+  triggerInterval: 80

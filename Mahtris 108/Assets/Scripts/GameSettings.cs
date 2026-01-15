@@ -106,8 +106,11 @@ public class GameSettings : ScriptableObject
     public int scorePerRow = 10;
 
     [Space(10)]
-    [Tooltip("关卡分数目标列表")]
-    public List<ScoreLevel> scoreLevels;
+    [Tooltip("通关所需的目标分数 (例如 5000)")]
+    public int targetScore = 5000;
+
+    [Tooltip("通关后的总金币奖池 (例如 1000)")]
+    public int totalGoldReward = 1000;
 
     // ========================================================================
     // 4. 循环与传奇系统

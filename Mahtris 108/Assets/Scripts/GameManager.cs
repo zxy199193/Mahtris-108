@@ -57,7 +57,9 @@ public class GameManager : MonoBehaviour
     // 4. 难度与会话配置
     // ========================================================================
     private GameSessionConfig currentSessionConfig;
-    private int currentScoreLevelIndex;
+    private int _currentTargetScore;
+    private int _currentTotalGoldReward;
+    private int _accumulatedExtraGold = 0;
     private float difficultySpeedMultiplier = 1.0f;
 
     // ========================================================================
@@ -132,14 +134,15 @@ public class GameManager : MonoBehaviour
     private float _omaAppliedFactor = 1f;
     private bool _pendingPassportShuffle = false;
     private float _tempLastHandMult = 1f;
+    public bool isCraftsmanActive = false;
+    private float _craftsmanIntervalConfig = 80f;
+
     // ========================================================================
     // 7. 道具与特殊机制状态
     // ========================================================================
     public int luckyCapStack = 0;
     public bool isFilterActive = false;
-    // 【修正】防止 lastUsedItem 定义冲突，这里保留唯一的定义
     private ItemData lastUsedItem = null;
-
     private float kidsMealTimer = 0f;
     private float marshLandTimer = 0f;
     private float adventFoodTimer = 0f;
@@ -156,18 +159,15 @@ public class GameManager : MonoBehaviour
     private float reviveAddedTime = 0f;
     private bool isSteroidActive = false;
     private bool isSteroidReversalActive = false;
-
-    private bool isWantedPosterActive = false;
-    private int wantedPosterGoldMult = 1;
+    private float _wantedPosterBonusPercent = 0f;
     private bool isBountyActive = false;
     private int ignoreMahjongCheckCount = 0;
-
     private bool isChampagneActive = false;
     private int champagneSpawnCount = 0;
-
     private int activePassportSuit = -1;
     private float passportTimer = 0f;
-
+    private float craftsmanTimer = 0f;
+    private Dictionary<string, float> _activeBlockBuffs = new Dictionary<string, float>();
     // ========================================================================
     // 8. 暂停控制
     // ========================================================================
@@ -284,7 +284,40 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+        if (isCraftsmanActive)
+        {
+            craftsmanTimer -= logicDeltaTime;
+            if (craftsmanTimer <= 0)
+            {
+                // 重置计时器
+                craftsmanTimer = _craftsmanIntervalConfig;
 
+                if (inventoryManager != null)
+                {
+                    if (!inventoryManager.IsFull())
+                    {
+                        // 从普通道具池中随机获取一个 (筛选已解锁的)
+                        var validItems = settings.commonItemPool
+                            .Where(i => settings.isTestMode || SaveManager.IsItemUnlocked(i.itemName, i.isInitial))
+                            .ToList();
+
+                        if (validItems.Count > 0)
+                        {
+                            var randomItem = validItems[Random.Range(0, validItems.Count)];
+                            inventoryManager.AddItem(randomItem);
+
+                            Debug.Log($"工匠条约生效：发放道具 [{randomItem.itemName}]");
+                            //if (gameUI != null) gameUI.ShowToast("工匠：获得一个普通道具");
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log($"工匠生效但背包已满");
+                        // if (gameUI != null) gameUI.ShowToast("工匠生效但背包已满");
+                    }
+                }
+            }
+        }
         if (isUnstableCurrentActive)
         {
             unstableCurrentTimer -= logicDeltaTime;
@@ -421,14 +454,9 @@ public class GameManager : MonoBehaviour
         this.difficultySpeedMultiplier = speedMultiplier;
 
         // 3. 创建目标分数的临时副本
-        foreach (var levelTemplate in settings.scoreLevels)
-        {
-            currentSessionConfig.DifficultyScoreLevels.Add(new ScoreLevel
-            {
-                targetScore = (int)(levelTemplate.targetScore * scoreMultiplier),
-                goldReward = (int)(levelTemplate.goldReward * scoreMultiplier)
-            });
-        }
+        _currentTargetScore = (int)(settings.targetScore * scoreMultiplier);
+        _currentTotalGoldReward = (int)(settings.totalGoldReward * scoreMultiplier);
+        _accumulatedExtraGold = 0;
 
         // === 第2部分: 使用新配置重置游戏状态 ===
         Time.timeScale = 1f;
@@ -481,14 +509,12 @@ public class GameManager : MonoBehaviour
         isDrMahjongActive = false;
         isOldSchoolActive = false;
         isBerserkerActive = false;
-        isTimeIsMoneyActive = false;
         isBulletTimeActive = false;
         isLogBridgeActive = false;
         isGreatRevolutionActive = false;
         isTrinityActive = false;
         isRealpolitikActive = false;
-        isWantedPosterActive = false;
-        wantedPosterGoldMult = 1;
+        _wantedPosterBonusPercent = 0f;
         luckyCapStack = 0;
         isFilterActive = false;
         filterTimer = 0f;
@@ -507,6 +533,9 @@ public class GameManager : MonoBehaviour
         cumulativeHuSpeedBonus = 0;
         isOneManArmyActive = false;
         isMistActive = false;
+        isCraftsmanActive = false;
+        craftsmanTimer = _craftsmanIntervalConfig;
+        _activeBlockBuffs.Clear();
         _itemsUsedThisGame = 0;
         _protocolsObtainedThisGame = 0;
         _loopOfLastLegendaryAppearance = 0;
@@ -517,7 +546,6 @@ public class GameManager : MonoBehaviour
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
         _currentGameOverReason = "";
         remainingTime = settings.initialTimeLimit;
-        currentScoreLevelIndex = 0;
         isEndlessMode = false;
 
         tetrisGrid.ClearAllBlocks();
@@ -574,12 +602,6 @@ public class GameManager : MonoBehaviour
         gameUI.HideAllPanels();
         gameUI.SetEndlessModeLabelActive(false);
         UpdateTargetScoreUI();
-        if (currentSessionConfig != null && currentSessionConfig.DifficultyScoreLevels != null)
-        {
-            int total = currentSessionConfig.DifficultyScoreLevels.Count;
-            // currentScoreLevelIndex 初始为 0，所以显示 1
-            gameUI.UpdateLevelProgress(currentScoreLevelIndex + 1, total);
-        }
         gameUI.UpdateBaseScoreText(baseFanScore);
         gameUI.UpdateExtraMultiplierText(extraMultiplier);
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
@@ -690,25 +712,21 @@ public class GameManager : MonoBehaviour
 
         float addedTime = 0f;
 
-        // 【修复】时间就是金钱 (TimeIsMoney)
-        // 只有在未激活该条约时，才奖励时间
-        if (!isTimeIsMoneyActive)
-        {
             // 1. 加上基础时间 (通常是 60秒)
-            addedTime += settings.huTimeBonus;
+        addedTime += settings.huTimeBonus;
 
             // 2. 如果有新能源，额外 +20秒
-            if (isRenewableEnergyActive)
-            {
-                addedTime += 20f;
-            }
+        if (isRenewableEnergyActive)
+        {
+           addedTime += 20f;
+        }
 
             // 3. 真正把时间加到游戏里！(之前这行代码丢了)
-            remainingTime += addedTime;
+        remainingTime += addedTime;
 
             // 刷新 UI
-            gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
-        }
+        gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
+
         // 计算下一轮速度增加值 (仅用于显示)
         // 这里的逻辑是：每一轮胡牌，速度等级增加 settings.speedIncreasePerHu_Int
         int perHuSpeed = settings.speedIncreasePerHu_Int;
@@ -807,21 +825,15 @@ public class GameManager : MonoBehaviour
         UpdateCurrentBaseScore();
 
         if (isRoutineWorkActive) remainingTime = 95f;
-        if (!isTimeIsMoneyActive)
-        {
-            if (isRoutineWorkActive)
-            {
-                remainingTime = 95f;
-                if (isRenewableEnergyActive)
-                {
-                    remainingTime += 20f;
-                }
-            }
-        }
+
         if (isUnstableCurrentActive)
         {
             unstableCurrentTimer = 3f;
             unstableCurrentBonus = 0; // <--- 补上这一行！
+        }
+        if (isCraftsmanActive)
+        {
+            craftsmanTimer = _craftsmanIntervalConfig;
         }
         isChampagneActive = false;
         champagneSpawnCount = 0;
@@ -921,7 +933,7 @@ public class GameManager : MonoBehaviour
             CheckAndApplyBulletTime();
             huPaiArea.ClearAll();
 
-            if (remainingTime <= 0.1f && !isTimeIsMoneyActive) remainingTime = 1f;
+            if (remainingTime <= 0.1f) remainingTime = 1f;
 
             // 计算速度并生成新方块
             UpdateFallSpeed();
@@ -1321,9 +1333,9 @@ public class GameManager : MonoBehaviour
 
             // 保底逻辑：如果金币为0，或者算出来是0，至少给 1 金币以示奖励
             if (bonus < 1) bonus = 1;
-
-            // 3. 发放奖励
             GameSession.Instance.AddGold(bonus);
+            // 3. 发放奖励
+            _accumulatedExtraGold += bonus;
 
             if (AchievementManager.Instance != null)
             {
@@ -1339,7 +1351,20 @@ public class GameManager : MonoBehaviour
         }
     }
     public void AddTime(float time) => remainingTime += time;
-
+    public void AddExtraGoldReward(int amount)
+    {
+        _accumulatedExtraGold += amount;
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.AddGold(amount);
+        }
+        Debug.Log($"额外金币增加: +{amount} (当前累计: {_accumulatedExtraGold})");
+        // 可选：给个提示让玩家知道生效了
+        if (gameUI != null)
+        {
+            gameUI.ShowToast($"获得额外奖金: {amount} G");
+        }
+    }
     // 【新增】1. 供“果汁”调用 (永久加成)
     public void ApplyPermanentBaseScoreBonus(int amount)
     {
@@ -1364,39 +1389,6 @@ public class GameManager : MonoBehaviour
     {
         permanentBaseScoreMultiplier *= multiplier;
         UpdateCurrentBaseScore();
-    }
-
-    public void ModifyTargetScore(float multiplier)
-    {
-        if (isEndlessMode) return;
-
-        // 【修复】确保当前会话配置存在，且索引有效
-        if (currentSessionConfig != null &&
-            currentSessionConfig.DifficultyScoreLevels != null &&
-            currentScoreLevelIndex < currentSessionConfig.DifficultyScoreLevels.Count)
-        {
-            // 1. 获取运行时关卡数据 (而不是 settings)
-            var level = currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex];
-
-            // 2. 修改目标分
-            int oldTarget = level.targetScore;
-            level.targetScore = (int)(level.targetScore * multiplier);
-
-            // 防止变为0或负数，至少保留1分
-            if (level.targetScore < 1) level.targetScore = 1;
-
-            Debug.Log($"优惠券生效：目标分从 {oldTarget} 降低至 {level.targetScore}");
-
-            // 3. 立即刷新 UI (现在读取的是正确的数据了，UI会变)
-            UpdateTargetScoreUI();
-
-            // 4. 【关键】立即检查当前分数是否已经达标
-            // 调用 OnScoreUpdated 传入当前分，复用已有的"达标-发奖-升级"逻辑
-            if (scoreManager != null)
-            {
-                OnScoreUpdated(scoreManager.GetCurrentScore());
-            }
-        }
     }
 
     public void AddProtocol(ProtocolData protocol)
@@ -1456,21 +1448,29 @@ public class GameManager : MonoBehaviour
     }
     public void RecalculateBlockMultiplier()
     {
-        // 【修复】从永久修正值开始计算，而不是从 0 开始
+        // 从永久修正值开始
         blockMultiplier = permanentBlockMultiplierModifier;
 
         if (spawner.GetActivePrefabs() != null)
         {
             foreach (var prefab in spawner.GetActivePrefabs())
             {
-                // 【修改】人人平等逻辑
+                // 人人平等逻辑 (保持不变)
                 if (isAllMenEqualActive)
                 {
                     blockMultiplier += 3f;
                 }
                 else
                 {
-                    blockMultiplier += prefab.GetComponent<Tetromino>().extraMultiplier;
+                    float baseMult = prefab.GetComponent<Tetromino>().extraMultiplier;
+
+                    // 【新增】加上荣誉勋章的加成
+                    if (_activeBlockBuffs.ContainsKey(prefab.name))
+                    {
+                        baseMult += _activeBlockBuffs[prefab.name];
+                    }
+
+                    blockMultiplier += baseMult;
                 }
             }
         }
@@ -1481,43 +1481,44 @@ public class GameManager : MonoBehaviour
     }
     public void UpdateActiveBlockListUI()
     {
-        // 1. 先计算全局生效倍率 (更新 HUD 顶部文本)
+        // 1. 先计算全局生效倍率
         RecalculateBlockMultiplier();
 
         var prefabs = spawner.GetActivePrefabs();
 
-        // 2. 【核心修改】计算“方块倍率之和”
-        // 这里需要体现“人人平等”对基础方块数值的改变
+        // 2. 计算“方块倍率之和” (用于显示)
         float rawBlockSum = 0f;
         if (prefabs != null)
         {
             foreach (var p in prefabs)
             {
-                // 特殊情况：人人平等条约
-                // 该条约强制将所有方块视为 3倍，所以这里累加 3
                 if (isAllMenEqualActive)
                 {
                     rawBlockSum += 3f;
                 }
                 else
                 {
-                    // 正常情况：累加方块自身的倍率
                     var t = p.GetComponent<Tetromino>();
                     if (t != null)
                     {
-                        rawBlockSum += t.extraMultiplier;
+                        float val = t.extraMultiplier;
+                        // 【新增】UI总和也加上加成
+                        if (_activeBlockBuffs.ContainsKey(p.name))
+                        {
+                            val += _activeBlockBuffs[p.name];
+                        }
+                        rawBlockSum += val;
                     }
                 }
             }
         }
 
-        // 3. 准备人人平等的显示覆盖值 (影响列表项单项显示)
         float overrideMult = isAllMenEqualActive ? 3f : -1f;
 
         if (gameUI != null)
         {
-            // 传入修正后的 rawBlockSum
-            gameUI.UpdateTetrominoList(prefabs, rawBlockSum, overrideMult);
+            // 【修改】传入 _activeBlockBuffs
+            gameUI.UpdateTetrominoList(prefabs, rawBlockSum, _activeBlockBuffs, overrideMult);
         }
     }
     public void ApplyBlockMultiplierModifier(float amount)
@@ -1843,72 +1844,34 @@ public class GameManager : MonoBehaviour
 
     private void OnScoreUpdated(long newScore)
     {
-        // 1. 处理悬赏令 (Wanted Poster)
-        // 这里的逻辑是：只要分数变化了（通常是因为消除），就检查是否激活了悬赏令
-        // 但悬赏令通常作用于"金币奖励"。
-        // 我们将其移动到发放奖励的时刻判断，或者保持在这里修改 multiplier
-        // 之前的逻辑：isWantedPosterActive -> 奖励翻倍 -> 重置。
-        // 这里需要注意：AddGold 是在循环内部调用的。
-
-        if (currentSessionConfig == null || currentSessionConfig.DifficultyScoreLevels == null) return;
-
-        // 【修复】增加索引越界检查，防止无尽模式或通关后报错
-        while (currentScoreLevelIndex < currentSessionConfig.DifficultyScoreLevels.Count &&
-               newScore >= currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex].targetScore)
+        // 1. 更新进度条 UI
+        if (gameUI != null)
         {
-            // 获取基础奖励
-            int baseReward = currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex].goldReward;
-
-            int totalMult = GetCurrentGoldMultiplier();
-            int finalReward = baseReward * totalMult;
-
-            // 【修复】悬赏令逻辑：在发放前应用倍率
-            if (isWantedPosterActive)
-            {
-                isWantedPosterActive = false;
-                wantedPosterGoldMult = 1;
-            }
-
-            if (GameSession.Instance != null)
-            {
-                GameSession.Instance.AddGold(finalReward);
-                if (AchievementManager.Instance != null)
-                {
-                    AchievementManager.Instance.AddProgress(AchievementType.AccumulateGold, finalReward);
-                }
-            }
-
-            if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibrary.targetReached);
-            }
-
-            currentScoreLevelIndex++;
-            int total = currentSessionConfig.DifficultyScoreLevels.Count;
-            gameUI.UpdateLevelProgress(currentScoreLevelIndex + 1, total);
-            // 【修复】如果索引已达到上限（通关），立即停止循环并触发获胜
-            if (currentScoreLevelIndex >= currentSessionConfig.DifficultyScoreLevels.Count)
-            {
-                // 如果当前正在处理胡牌 (Time.timeScale == 0) 或者正在处理消行
-                // 我们不立即显示胜利面板，而是推迟到 ContinueAfterHu
-                if (Time.timeScale == 0f || isProcessingRows || _hasDeclaredHuThisFrame)
-                {
-                    _pendingGameWin = true;
-                    Debug.Log("达成胜利条件！但当前处于胡牌/暂停中，将推迟显示胜利面板。");
-                }
-                else
-                {
-                    // 只有在正常游戏过程中达成，才立即显示
-                    HandleGameWon();
-                }
-                break;
-            }
-
-            UpdateTargetScoreUI();
+            gameUI.UpdateScoreProgress(newScore);
         }
 
-        // 更新进度条
-        gameUI.UpdateScoreProgress(newScore);
+        // 2. 检查是否达成单一目标 (非无尽模式下)
+        if (!isEndlessMode && newScore >= _currentTargetScore)
+        {
+            // 如果不在特殊状态 (胡牌/消行中)，立即胜利
+            // 如果在特殊状态，标记 pending，稍后在 ContinueAfterHu 处理
+            if (Time.timeScale == 0f || isProcessingRows || _hasDeclaredHuThisFrame)
+            {
+                if (!_pendingGameWin)
+                {
+                    _pendingGameWin = true;
+                    Debug.Log("达成通关分！等待流程结束触发胜利结算。");
+                }
+            }
+            else
+            {
+                HandleGameWon();
+            }
+        }
+
+        // 注意：旧的“悬赏令”逻辑如果依赖于实时金币发放，在新机制下已移除。
+        // 如果您希望悬赏令改为影响“结算时的额外奖励”，
+        // 可以在 HandleGameWon/HandleGameOver 里处理 _accumulatedExtraGold 的倍率。
     }
 
     private void UpdateTargetScoreUI()
@@ -1917,18 +1880,11 @@ public class GameManager : MonoBehaviour
         {
             gameUI.UpdateTargetScoreDisplay("无尽模式");
         }
-        // 【修改】使用 currentSessionConfig
-        else if (currentScoreLevelIndex < currentSessionConfig.DifficultyScoreLevels.Count)
+        else
         {
-            // 【修改】使用 currentSessionConfig
-            var level = currentSessionConfig.DifficultyScoreLevels[currentScoreLevelIndex];
-
-            int mult = GetCurrentGoldMultiplier();
-            int displayedReward = level.goldReward * mult;
-
-            gameUI.UpdateTargetScoreDisplay(level.targetScore, displayedReward, mult > 1);
-
-            // (此行来自“进度条”功能，保持不变)
+            // 显示：目标分 / 总奖金
+            // 注意：这里不需要再乘倍率了，_currentTotalGoldReward 已经是乘过的
+            gameUI.UpdateTargetScoreDisplay(_currentTargetScore, _currentTotalGoldReward, false);
             gameUI.UpdateScoreProgress(scoreManager.GetCurrentScore());
         }
     }
@@ -1969,6 +1925,34 @@ public class GameManager : MonoBehaviour
         if (AudioManager.Instance) AudioManager.Instance.StopCountdownSound();
         long finalScore = scoreManager.GetCurrentScore();
         bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore);
+        int baseGoldEarned = 0;
+        int extraGoldEarned = 0;
+        float completionRate = 0f;
+        if (isEndlessMode)
+        {
+            // === 无尽模式 ===
+            completionRate = (_currentTargetScore > 0) ? (float)finalScore / _currentTargetScore : 0f;
+            baseGoldEarned = baseGoldEarned = _currentTotalGoldReward;
+            extraGoldEarned = _accumulatedExtraGold;
+            
+        }
+        else
+        {
+            // === 普通失败 ===
+            // 计算完成度
+            completionRate = (_currentTargetScore > 0) ? (float)finalScore / _currentTargetScore : 0f;
+
+            // 按照完成度发放奖金 (四舍五入)
+            baseGoldEarned = Mathf.RoundToInt(_currentTotalGoldReward * completionRate);
+
+            // 加上额外奖励
+            extraGoldEarned = _accumulatedExtraGold;
+
+            if (GameSession.Instance != null)
+            {
+                GameSession.Instance.AddGold(baseGoldEarned);
+            }
+        }
         if (isEndlessMode && AchievementManager.Instance != null)
         {
             // 准备数据
@@ -1991,7 +1975,16 @@ public class GameManager : MonoBehaviour
                 true                // isEndlessMode = true (开启无尽模式检查权限)
             );
         }
-        gameUI.ShowGameEndPanel(false, finalScore, isNewHighScore, _currentGameOverReason);
+        gameUI.ShowGameEndPanel(
+            false,              // isWin
+            finalScore,
+            isNewHighScore,
+            completionRate,     // 完成度
+            baseGoldEarned,     // 基础奖励
+            extraGoldEarned,    // 额外奖励
+            _currentGameOverReason,
+            isEndlessMode       // 传入是否为无尽模式，用于UI控制显隐
+        );
     }
 
     public void TogglePause()
@@ -2036,30 +2029,51 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 0f;
         isPaused = true;
+        _pendingGameWin = false;
 
-        // 【新增】通关时触发难度解锁检查
-        // 获取当前正在玩的难度
         Difficulty currentDiff = DifficultyManager.Instance.CurrentDifficulty;
-        // 尝试解锁下一级
         DifficultyManager.Instance.CompleteDifficulty(currentDiff);
 
         long finalScore = scoreManager.GetCurrentScore();
         bool isNewHighScore = scoreManager.CheckForNewHighScore(finalScore);
+
+        // 1. 计算悬赏令带来的额外奖励 (仅在普通模式通关时触发)
+        if (!isEndlessMode && _wantedPosterBonusPercent > 0f)
+        {
+            int posterBonus = Mathf.RoundToInt(_currentTotalGoldReward * _wantedPosterBonusPercent);
+
+            // 将其加入到"额外奖励"池中 (发钱 + 记账)
+            // 这样下面的 extraGoldEarned 就会包含这笔钱，UI 也会显示出来
+            AddExtraGoldReward(posterBonus);
+
+            Debug.Log($"悬赏令结算：通关达成，发放额外奖励 {posterBonus}");
+        }
+
+        // 2. 准备结算数据
+        int baseGoldEarned = _currentTotalGoldReward; // 基础奖励 (100%)
+        int extraGoldEarned = _accumulatedExtraGold;  // 额外奖励 (包含刚才加进去的悬赏令奖金)
+
+        // 3. 发放基础奖励 (额外奖励在 AddExtraGoldReward 里已经发过了)
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.AddGold(baseGoldEarned);
+        }
+
+        float completionRate = (_currentTargetScore > 0) ? (float)finalScore / _currentTargetScore : 1f;
+
+        // 4. 显示面板
+        gameUI.ShowGameEndPanel(
+            true,               // isWin
+            finalScore,
+            isNewHighScore,
+            completionRate,
+            baseGoldEarned,     // 显示基础
+            extraGoldEarned,    // 显示额外 (代金券 + 点金手 + 悬赏令)
+            ""
+        );
         if (AchievementManager.Instance != null)
         {
-            // 获取当前金币 (防止空引用)
             int currentGold = GameSession.Instance != null ? GameSession.Instance.CurrentGold : 0;
-
-            // 下落速度需要转换一下，您脚本里用的是 currentFallSpeed，或者重新计算一下等级
-            // 既然成就表里写的是"速度>=15"，我们这里直接传 gameUI 上显示的那个速度值比较准
-            // 但 gameUI.speedText 是 UI 文本。
-            // 我们可以用 settings.baseDisplayedSpeed 和 difficultySpeedMultiplier 反推，
-            // 或者直接用您计算速度时的公式。
-            // 这里为了方便，我们直接传一个估算的数值，或者您需要在 UpdateFallSpeed 里把 calculatedSpeed 存个变量。
-            // 简单起见，我们暂时传 0，或者您去 UpdateFallSpeed 里把 totalDisplayedSpeed 提升为类成员变量。
-
-            // 为了更严谨，建议您在 UpdateFallSpeed 方法里把 `totalDisplayedSpeed` 存到一个类成员变量里，比如 `currentDisplayedSpeed`。
-            // 如果还没做，那您可以先填 0，或者暂时用 currentFallSpeed 反推。
 
             AchievementManager.Instance.CheckGameWin(
                 true,                           // isWin = true
@@ -2074,7 +2088,6 @@ public class GameManager : MonoBehaviour
                 false                           // isEndlessMode = false (此时还没进无尽模式)
             );
         }
-        gameUI.ShowGameEndPanel(true, finalScore, isNewHighScore, "");
     }
 
     public void StartEndlessMode()
@@ -2087,7 +2100,6 @@ public class GameManager : MonoBehaviour
             // 这里的 HideAllPanels 其实已经在动画回调里处理了隐藏，
             // 但保留它作为双重保险也没问题，或者可以删掉
             gameUI.HideAllPanels();
-            gameUI.HideLevelProgress();
 
             UpdateTargetScoreUI();
             gameUI.SetEndlessModeLabelActive(true);
@@ -2319,35 +2331,35 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    public void ActivateWantedPoster(int goldMult, float scorePercent)
+    public void ActivateWantedPoster(float percent)
     {
-        // 设置状态
-        if (isWantedPosterActive)
+        if (isEndlessMode)
         {
-            wantedPosterGoldMult *= goldMult; // 3 * 3 = 9
+            // === 无尽模式 ===
+            // 规则：立刻发放，且面板体现
+            // 计算金额：当前总奖池 * 百分比
+            int bonus = Mathf.RoundToInt(_currentTotalGoldReward * percent);
+
+            // 使用我们之前写的 AddExtraGoldReward (即时到账 + 记账)
+            AddExtraGoldReward(bonus);
+
+            Debug.Log($"悬赏令(无尽)生效：立即获得 {bonus} G");
         }
         else
         {
-            isWantedPosterActive = true;
-            wantedPosterGoldMult = goldMult; // 初始 = 3
-        }
+            // === 普通模式 ===
+            // 规则：先记账，通关才给
+            _wantedPosterBonusPercent += percent;
 
-        // 【关键】立即刷新 UI
-        // 这会让界面上的金币目标数字立刻变红，并显示 x3 后的数值
-        UpdateTargetScoreUI();
-
-        Debug.Log($"悬赏令激活成功: 金币倍率 x{goldMult}");
-
-        // 处理加分 (如果您希望该道具仅加倍不加分，请在 Inspector 中将 scoreIncreasePercent 设为 0)
-        // 这里保留代码逻辑以防万一您以后想加回来
-        if (scorePercent > 0)
-        {
-            long currentScore = scoreManager.GetCurrentScore();
-            long bonus = (long)(currentScore * scorePercent);
-            if (bonus > 0)
+            // UI 提示
+            if (gameUI != null)
             {
-                scoreManager.AddScore(bonus);
+                // 显示百分比
+                string percentText = (_wantedPosterBonusPercent * 100f).ToString("F0");
+                gameUI.ShowToast($"悬赏令生效：通关将获得额外 +{percentText}% 奖金！");
             }
+
+            Debug.Log($"悬赏令(普通)挂起：当前累计悬赏加成 {_wantedPosterBonusPercent:P0}");
         }
     }
     // 【新增】供 UI 调用，获取当前允许的选择数量
@@ -2441,24 +2453,6 @@ public class GameManager : MonoBehaviour
             tempPool.Remove(selected); // 选过的不由再选
         }
         return result;
-    }
-    public int GetCurrentGoldMultiplier()
-    {
-        int mult = 1;
-
-        // 使用变量，而不是硬编码的 3
-        if (isWantedPosterActive)
-        {
-            mult *= wantedPosterGoldMult;
-        }
-
-        // 支持与“时间就是金钱”叠加
-        if (isTimeIsMoneyActive)
-        {
-            mult *= 2;
-        }
-
-        return mult;
     }
 
     private void GrantStartingRewards(Difficulty difficulty)
@@ -2972,5 +2966,75 @@ public class GameManager : MonoBehaviour
             }
             _pendingPassportShuffle = false;
         }
+    }
+    public void ActivateCraftsman(float interval)
+    {
+        isCraftsmanActive = true;
+        _craftsmanIntervalConfig = interval;
+
+        // 获得条约时，立即初始化倒计时
+        craftsmanTimer = _craftsmanIntervalConfig;
+
+        Debug.Log($"工匠条约激活：间隔设置为 {_craftsmanIntervalConfig} 秒");
+    }
+
+    public void DeactivateCraftsman()
+    {
+        isCraftsmanActive = false;
+    }
+    public bool ActivateBadgeOfHonor(int targetCount, float bonus)
+    {
+        var activePrefabs = spawner.GetActivePrefabs();
+        if (activePrefabs == null || activePrefabs.Count() == 0) return false;
+
+        // 1. 获取所有不重复的方块类型 (按名字区分)
+        // GroupBy 确保即使列表里有多个相同的方块，我们也只取一种作为一个候选项
+        var uniqueTypes = activePrefabs
+            .Select(p => p.name)
+            .Distinct()
+            .ToList();
+
+        if (uniqueTypes.Count == 0) return false;
+
+        // 2. 随机选择 N 个
+        int selectCount = Mathf.Min(targetCount, uniqueTypes.Count);
+        // 洗牌算法
+        var shuffled = uniqueTypes.OrderBy(x => Random.value).Take(selectCount).ToList();
+
+        // 3. 应用加成
+        string typeNames = "";
+        foreach (var name in shuffled)
+        {
+            if (_activeBlockBuffs.ContainsKey(name))
+            {
+                _activeBlockBuffs[name] += bonus; // 如果已存在则叠加
+            }
+            else
+            {
+                _activeBlockBuffs[name] = bonus;
+            }
+
+            // 记录名字用于提示 (去掉 "T-" 前缀简化显示，可选)
+            typeNames += $"[{name}] ";
+        }
+
+        // 4. 刷新数值和UI
+        UpdateActiveBlockListUI();
+
+        Debug.Log($"荣誉勋章生效：{typeNames} 倍率 +{bonus}");
+        //if (gameUI != null)
+        //{
+        //    gameUI.ShowToast($"荣誉勋章：{selectCount}种方块倍率 +{bonus}！");
+        //}
+
+        return true;
+    }
+    public float GetBlockBuff(string blockName)
+    {
+        if (_activeBlockBuffs != null && _activeBlockBuffs.ContainsKey(blockName))
+        {
+            return _activeBlockBuffs[blockName];
+        }
+        return 0f;
     }
 }

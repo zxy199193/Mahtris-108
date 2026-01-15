@@ -16,8 +16,10 @@ public class TetrominoListItemUI : MonoBehaviour
     public GameObject countGroup;
     [Tooltip("用于显示堆叠数量的Text组件 (例如 'x2')")]
     public Text countText;
+    [Tooltip("被强化时的图标标志")]
+    public GameObject buffIcon;
     // 【修改】增加 overrideMultiplier 参数
-    public void InitializeForPrefab(GameObject uiPrefab, string text, float overrideMultiplier = -1f)
+    public void InitializeForPrefab(GameObject uiPrefab, string text, float overrideMultiplier = -1f, bool isBuffed = false)
     {
         if (shapeContainer != null)
         {
@@ -36,6 +38,10 @@ public class TetrominoListItemUI : MonoBehaviour
             {
                 multiplierText.text = text;
             }
+        }
+        if (buffIcon != null)
+        {
+            buffIcon.SetActive(isBuffed);
         }
     }
     public void SetStackCount(int count)

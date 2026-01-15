@@ -29,24 +29,9 @@ MonoBehaviour:
   baseFanScore: 10
   fanBonusPerKong: 1
   scorePerRow: 2
-  scoreLevels:
-  - targetScore: 50
-    goldReward: 20
-  - targetScore: 180
-    goldReward: 50
-  - targetScore: 500
-    goldReward: 80
-  - targetScore: 1000
-    goldReward: 150
-  - targetScore: 1600
-    goldReward: 300
-  - targetScore: 2400
-    goldReward: 500
-  - targetScore: 3500
-    goldReward: 700
-  - targetScore: 5000
-    goldReward: 1000
-  husPerLoop: 3
+  targetScore: 5000
+  totalGoldReward: 3000
+  husPerLoop: 1
   normalWeight: 10
   legendaryWeightBase: 5
   legendaryWeightIncreasePerLoop: 1
@@ -70,34 +55,11 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 5
   commonItemPool:
-  - {fileID: 11400000, guid: 1fb733d140bb12e4a81824d4e18f236d, type: 2}
-  - {fileID: 11400000, guid: ffc57473305f5944491607a4d2593e62, type: 2}
-  - {fileID: 11400000, guid: 2616de08032776d4ca2fd12e01662f93, type: 2}
-  - {fileID: 11400000, guid: 23b6f079f3790704a98216b50a373c93, type: 2}
-  - {fileID: 11400000, guid: c3ade023d44989d4ca30cfcae1d8ed79, type: 2}
-  - {fileID: 11400000, guid: 92b90391a006cac489e8f1728cce7ff0, type: 2}
-  - {fileID: 11400000, guid: 09a40bce8a17bfa4689ace9c1173fa3e, type: 2}
-  - {fileID: 11400000, guid: 7e9371a6d760f7b4987cf7eb538f714d, type: 2}
-  - {fileID: 11400000, guid: a610a69eb8557494c9083ed926cceae9, type: 2}
-  - {fileID: 11400000, guid: 9a7e2b2bb73de494288909c06af11c3f, type: 2}
-  - {fileID: 11400000, guid: 62ff08fc95f0ac145b24f368c825383e, type: 2}
-  - {fileID: 11400000, guid: 0afb30e8bc85279448670b1037fe466b, type: 2}
-  - {fileID: 11400000, guid: e45f0377631f8fe41bc5d9b251893eb0, type: 2}
-  - {fileID: 11400000, guid: c3d545bea5cc3dc438bdbc29ec808853, type: 2}
-  - {fileID: 11400000, guid: 5b40825730be1644ca7a88ab44fe1c27, type: 2}
-  - {fileID: 11400000, guid: 085ab0d21261c324f8bd134d92bd9967, type: 2}
-  - {fileID: 11400000, guid: 2be156880e12a124fafe8abea3a85568, type: 2}
-  - {fileID: 11400000, guid: 03028a293d35d044badd2dd39864e90b, type: 2}
-  - {fileID: 11400000, guid: fc708f6af3962d14bb00fa1297a60727, type: 2}
-  - {fileID: 11400000, guid: beed3a2373849d14cb998965027abdfb, type: 2}
-  - {fileID: 11400000, guid: f8d2b9c0194cf2b4da26e19bd1b338a9, type: 2}
-  - {fileID: 11400000, guid: 666e6ac47852de246be41fa1a614445d, type: 2}
-  - {fileID: 11400000, guid: bd31d860b62dbee46bf57ad3b9043fa8, type: 2}
+  - {fileID: 11400000, guid: 09fc48b91470f024aa48708446a3673f, type: 2}
   - {fileID: 11400000, guid: b0b84eeb2b1316b4ca686819f027a1ca, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}
-  - {fileID: 11400000, guid: 640357944c5db1c46be5ce054a1ff85f, type: 2}
   - {fileID: 11400000, guid: 5f24d3ea78bdfea40a255df77ca6636d, type: 2}
   - {fileID: 11400000, guid: d51932ccf95c4a24293ed3ca50184169, type: 2}
   - {fileID: 11400000, guid: b30c70e02ca74cd40a7bab8c16f5ac8d, type: 2}
@@ -113,7 +75,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 81c37f71ba9d54f4897fa6de64d32181, type: 2}
   maxProtocolCount: 5
   protocolPool:
-  - {fileID: 11400000, guid: 0c2acdff134033f4793ed84dc2594f2a, type: 2}
+  - {fileID: 11400000, guid: 86a6f87b42b0523479af8f1a572faee1, type: 2}
   refreshBaseCost: 100
   legendaryIcon: {fileID: 21300000, guid: 71b55c0a7c1906e48bd3b525833135cf, type: 3}
   tooltipBgBlock: {fileID: 21300000, guid: 0676292378f3ddb4f9d3c32659878c7c, type: 3}

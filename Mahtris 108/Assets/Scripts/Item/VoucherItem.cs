@@ -4,15 +4,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Voucher", menuName = "Items/Common/Voucher")]
 public class VoucherItem : ItemData
 {
-    public int goldAmount = 300;
+    public int goldAmount = 800;
 
     public override bool Use(GameManager gameManager)
     {
-        if (GameSession.Instance != null)
-        {
-            GameSession.Instance.AddGold(goldAmount);
-            return true;
-        }
-        return false;
+        gameManager.AddExtraGoldReward(goldAmount);
+        return true;
     }
 }

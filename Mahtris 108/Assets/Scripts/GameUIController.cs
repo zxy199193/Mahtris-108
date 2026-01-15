@@ -52,10 +52,6 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Text currentScoreForBarText; // ex: "1200 / 5000"
     [SerializeField] private Text goldRewardText;         // ex: "100" 或 "无尽模式"
 
-    [Header("关卡进度 (1/8)")]
-    [SerializeField] private GameObject targetProgressParent;
-    [SerializeField] private Text targetProgressText;
-
     [Header("无尽模式标识")]
     [SerializeField] private GameObject endlessModeLabel;
 
@@ -153,6 +149,12 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Button restartButton;
     [SerializeField] private Button endlessModeButton;
 
+    [Header("结算详情")]
+    [SerializeField] private Text completionRateText;    // 完成度文本 (ex: "完成度: 85%")
+    [SerializeField] private GameObject rewardInfoRoot;  // 奖励信息的父节点 (无尽模式隐藏)
+    [SerializeField] private Text baseRewardText;        // 基础奖金文本
+    [SerializeField] private GameObject extraRewardRoot; // 额外奖金父节点 (为0隐藏)
+    [SerializeField] private Text extraRewardText;       // 额外奖金文本
     // ========================================================================
     // 7. 暂停面板 (Pause)
     // ========================================================================
@@ -570,14 +572,18 @@ public class GameUIController : MonoBehaviour
     }
 
     // 【修改】增加 overrideMultiplier 参数
-    public void UpdateTetrominoList(IEnumerable<GameObject> prefabs, float totalMultiplier, float overrideMultiplier = -1f)
+    public void UpdateTetrominoList(IEnumerable<GameObject> prefabs, float totalMultiplier, Dictionary<string, float> buffs = null, float overrideMultiplier = -1f)
     {
         if (tetrominoListContent == null) return;
+
+        // 清理旧列表
         foreach (Transform child in tetrominoListContent) Destroy(child.gameObject);
+
         if (prefabs != null && tetrominoListItemPrefab != null)
         {
-            // 原有的生成逻辑
+            // 按 ID 分组统计数量
             var prefabCounts = prefabs.GroupBy(p => p.GetInstanceID()).ToDictionary(g => g.Key, g => g.ToList());
+
             foreach (var group in prefabCounts.Values)
             {
                 var representativePrefab = group.First();
@@ -589,10 +595,33 @@ public class GameUIController : MonoBehaviour
                 var listItemUI = itemGO.GetComponent<TetrominoListItemUI>();
                 if (listItemUI == null) continue;
 
-                listItemUI.InitializeForPrefab(representativePrefab.GetComponent<Tetromino>().uiPrefab, $"{tetromino.extraMultiplier:F0}", overrideMultiplier);
+                // --- 1. 计算显示数值与状态 ---
+                float displayMult = tetromino.extraMultiplier;
+                bool isBuffed = false; // 标记是否被强化
+
+                // 检查是否有 Buff (荣誉勋章效果)
+                if (buffs != null && buffs.ContainsKey(representativePrefab.name))
+                {
+                    displayMult += buffs[representativePrefab.name]; // 加上强化值
+                    isBuffed = true; // 激活图标
+                }
+
+                // --- 2. 准备显示文本 ---
+                string multStr = $"{displayMult:F0}";
+
+                // --- 3. 初始化 UI (传入 isBuffed) ---
+                // 注意：这里调用的是 TetrominoListItemUI 中带有 isBuffed 参数的新方法
+                listItemUI.InitializeForPrefab(
+                    representativePrefab.GetComponent<Tetromino>().uiPrefab,
+                    multStr,
+                    overrideMultiplier,
+                    isBuffed // 关键修复：传递强化状态
+                );
+
                 listItemUI.SetStackCount(count);
             }
         }
+
         if (totalMultiplierText) totalMultiplierText.text = $"{totalMultiplier:F0}";
     }
 
@@ -904,7 +933,9 @@ public class GameUIController : MonoBehaviour
 
         if (huPopupRoot) huPopupRoot.SetActive(false);
     }
-    public void ShowGameEndPanel(bool isWin, long finalScore, bool isNewHighScore, string reasonKey = "")
+    public void ShowGameEndPanel(bool isWin, long finalScore, bool isNewHighScore,
+                                 float completionRate, int baseGold, int extraGold,
+                                 string reasonKey = "", bool isEndlessMode = false)
     {
         if (gameOverPanel)
         {
@@ -957,6 +988,13 @@ public class GameUIController : MonoBehaviour
             // 只有在失败(非Win) 且 有具体原因Key时才显示
             if (!isWin && !string.IsNullOrEmpty(reasonKey))
             {
+                // 1. 先激活父节点 (背景容器)
+                if (gameOverReasonText.transform.parent != null)
+                {
+                    gameOverReasonText.transform.parent.gameObject.SetActive(true);
+                }
+
+                // 2. 激活文本并设置内容
                 gameOverReasonText.gameObject.SetActive(true);
                 if (LocalizationManager.Instance)
                 {
@@ -965,12 +1003,18 @@ public class GameUIController : MonoBehaviour
                 }
                 else
                 {
-                    gameOverReasonText.text = reasonKey; // 兜底
+                    gameOverReasonText.text = reasonKey;
                 }
             }
             else
             {
-                // 通关或无原因时隐藏
+                // 1. 隐藏父节点 (连带背景一起隐藏)
+                if (gameOverReasonText.transform.parent != null)
+                {
+                    gameOverReasonText.transform.parent.gameObject.SetActive(false);
+                }
+
+                // 2. 隐藏文本本体 (双重保险)
                 gameOverReasonText.gameObject.SetActive(false);
             }
         }
@@ -978,6 +1022,46 @@ public class GameUIController : MonoBehaviour
         {
             finalScoreText.text = $"{finalScore:N0}";
             if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(finalScoreText);
+        }
+        if (completionRateText)
+        {
+            // 显示百分比，例如 "完成度: 120%"
+            float percent = completionRate * 100f;
+            completionRateText.text = $"{percent:F0}%";
+        }
+        if (rewardInfoRoot)
+        {
+            // 判定条件更新：
+            // 1. 普通模式：总是显示 (!isEndlessMode)
+            // 2. 无尽模式：只要 基础奖励 > 0 或者 额外奖励 > 0 就显示
+            bool shouldShow = !isEndlessMode || baseGold > 0 || extraGold > 0;
+
+            if (shouldShow)
+            {
+                rewardInfoRoot.SetActive(true);
+
+                // 显示基础奖励
+                if (baseRewardText) baseRewardText.text = $"{baseGold}";
+
+                // 显示/隐藏 额外奖励
+                if (extraRewardRoot)
+                {
+                    if (extraGold > 0)
+                    {
+                        extraRewardRoot.SetActive(true);
+                        if (extraRewardText) extraRewardText.text = $"{extraGold}";
+                    }
+                    else
+                    {
+                        extraRewardRoot.SetActive(false);
+                    }
+                }
+            }
+            else
+            {
+                // 无尽模式且没有任何奖励 -> 隐藏整个父节点
+                rewardInfoRoot.SetActive(false);
+            }
         }
         if (newHighScoreIndicator) newHighScoreIndicator.SetActive(isNewHighScore);
         if (endlessModeButton) endlessModeButton.gameObject.SetActive(isWin);
@@ -1140,14 +1224,13 @@ public class GameUIController : MonoBehaviour
         if (targetProgressBar)
         {
             targetProgressBar.gameObject.SetActive(true);
-            targetProgressBar.maxValue = target;
+            targetProgressBar.maxValue = target; // 设置最大值为目标分
         }
         if (currentScoreForBarText) currentScoreForBarText.gameObject.SetActive(true);
 
         if (goldRewardText)
         {
             goldRewardText.text = $"{reward}";
-            // 【修复】变色逻辑
             goldRewardText.color = isBonusActive ? Color.red : new Color32(0, 95, 115, 255);
         }
     }
@@ -1262,20 +1345,7 @@ public class GameUIController : MonoBehaviour
             poolCountText.DOFade(1f, 0.1f); // 快速恢复 Alpha 到 1
         }
     }
-    public void UpdateLevelProgress(int currentLevel, int totalLevels)
-    {
-        if (targetProgressParent) targetProgressParent.SetActive(true);
-        if (targetProgressText)
-        {
-            // 确保显示不超限
-            int displayCurrent = Mathf.Clamp(currentLevel, 1, totalLevels);
-            targetProgressText.text = $"{displayCurrent}/{totalLevels}";
-        }
-    }
-    public void HideLevelProgress()
-    {
-        if (targetProgressParent) targetProgressParent.SetActive(false);
-    }
+
     public void SetEndlessModeLabelActive(bool isActive)
     {
         if (endlessModeLabel)

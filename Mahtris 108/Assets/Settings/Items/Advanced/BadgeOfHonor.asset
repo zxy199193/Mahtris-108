@@ -9,18 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49382cfc487c8a04b9fbf657c1ef18af, type: 3}
-  m_Name: Coupon
+  m_Script: {fileID: 11500000, guid: 4b1c85b6ba1bd524297a476e722cd49b, type: 3}
+  m_Name: BadgeOfHonor
   m_EditorClassIdentifier: 
   nameKey: ITEM_NAME_26
   descKey: ITEM_DES_26
-  itemName: "\u4F18\u60E0\u5238"
-  itemIcon: {fileID: 21300000, guid: ee8b64b38eefc094f86853c580003dfd, type: 3}
-  itemDescription: "\u5F53\u524D\u76EE\u6807\u5206\u6570-20%\r"
+  itemName: "\u8363\u8A89\u52CB\u7AE0"
+  itemIcon: {fileID: 21300000, guid: e28a62e0317a7104c8c7251092205f04, type: 3}
+  itemDescription: "\u65B9\u5757\u5217\u8868\u4E2D\u968F\u673A2\u79CD\u65B9\u5757\u672C\u5C40\u6E38\u620F\u7684\u65B9\u5757\u500D\u7387+5"
   isAdvanced: 1
   isLegendary: 0
   useSound: {fileID: 0}
   price: 2000
   isInitial: 1
   unlockConditionCount: 0
-  reductionPercentage: 0.2
+  bonusMultiplier: 5
+  targetCount: 2

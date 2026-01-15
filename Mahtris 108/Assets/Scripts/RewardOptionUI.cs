@@ -83,7 +83,23 @@ public class RewardOptionUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         if (optionText)
         {
             var tet = prefab.GetComponent<Tetromino>();
-            if (tet) optionText.text = $"{tet.extraMultiplier:F0}";
+            if (tet)
+            {
+                // 【修改】显示倍率时加上当前的 Buff 值
+                float baseMult = tet.extraMultiplier;
+                float buff = 0f;
+
+                if (GameManager.Instance != null)
+                {
+                    buff = GameManager.Instance.GetBlockBuff(prefab.name);
+                }
+
+                // 显示总和 (例如 1 + 5 = 6)
+                optionText.text = $"{baseMult + buff:F0}";
+
+                // 可选：如果被强化了，可以让文字变色提示 (例如变绿)
+                // optionText.color = buff > 0 ? Color.green : Color.white;
+            }
         }
         if (legendaryBadge) legendaryBadge.SetActive(false);
         if (backgroundImage != null && GameManager.Instance != null)
