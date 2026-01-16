@@ -19,18 +19,45 @@ MonoBehaviour:
   setsForHu: 4
   tileRanks: 9
   tilesPerRank: 4
-  baseDisplayedSpeed: 10
   speedIncreasePerHu_Int: 1
   fastFallSpeed: 0.03
   speedIncreasePerHu: 0.2
   initialFallSpeed: 1
-  initialTimeLimit: 300
   huTimeBonus: 60
   baseFanScore: 10
   fanBonusPerKong: 1
   scorePerRow: 2
-  targetScore: 5000
-  totalGoldReward: 3000
+  easyProfile:
+    targetScore: 5000
+    goldReward: 2000
+    initialTime: 360
+    initialItemCount: 0
+    initialProtocolCount: 0
+    blockSpeed: 10
+  normalProfile:
+    targetScore: 100000
+    goldReward: 10000
+    initialTime: 300
+    initialItemCount: 1
+    initialProtocolCount: 0
+    blockSpeed: 12
+  hardProfile:
+    targetScore: 500000
+    goldReward: 50000
+    initialTime: 300
+    initialItemCount: 2
+    initialProtocolCount: 1
+    blockSpeed: 15
+  unmatchedProfile:
+    targetScore: 1000000000
+    goldReward: 300000
+    initialTime: 180
+    initialItemCount: 4
+    initialProtocolCount: 2
+    blockSpeed: 25
+  unmatchedFixedLevel3Blocks:
+  - {fileID: 621094592900249781, guid: dc620e8d5e4557f4dbd3a36dd502b7f7, type: 3}
+  - {fileID: 621094592900249781, guid: 5b39921c8a684a34ca3e2e04b10e55cc, type: 3}
   husPerLoop: 1
   normalWeight: 10
   legendaryWeightBase: 5

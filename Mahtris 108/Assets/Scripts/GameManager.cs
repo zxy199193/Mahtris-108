@@ -61,6 +61,7 @@ public class GameManager : MonoBehaviour
     private int _currentTotalGoldReward;
     private int _accumulatedExtraGold = 0;
     private float difficultySpeedMultiplier = 1.0f;
+    private int _currentProfileBaseSpeed;
 
     // ========================================================================
     // 5. 数值倍率与基础分系统 (V4.1+)
@@ -395,9 +396,15 @@ public class GameManager : MonoBehaviour
         currentSessionConfig = new GameSessionConfig();
         Difficulty difficulty = DifficultyManager.Instance.CurrentDifficulty;
 
-        // 定义难度乘数
-        float scoreMultiplier = 1f;
-        float speedMultiplier = 1f;
+        DifficultyProfile profile = null;
+        switch (difficulty)
+        {
+            case Difficulty.Easy: profile = settings.easyProfile; break;
+            case Difficulty.Normal: profile = settings.normalProfile; break;
+            case Difficulty.Hard: profile = settings.hardProfile; break;
+            case Difficulty.Unmatched: profile = settings.unmatchedProfile; break;
+            default: profile = settings.easyProfile; break;
+        }
 
         // 【新增：测试模式检查】
         if (settings.isTestMode)
@@ -405,62 +412,65 @@ public class GameManager : MonoBehaviour
             // 1. 使用Spawner的默认列表
             currentSessionConfig.InitialTetrominoes = new List<GameObject>(spawner.GetInitialTetrominoPrefabs());
 
-            // 2. 使用“普通”难度的乘数
-            scoreMultiplier = 2f;
-            speedMultiplier = 1.5f;
-            Debug.LogWarning("【测试模式已激活】读取 GameSettings 配置...");
+            profile = settings.normalProfile;
+            Debug.LogWarning("【测试模式】使用默认 Normal 配置");
         }
-        else // 【常规难度逻辑】
+        _currentTargetScore = profile.targetScore;
+        _currentTotalGoldReward = profile.goldReward;
+        remainingTime = profile.initialTime; // 应用自定义时间
+        int baseSpeed = profile.blockSpeed;  // 应用自定义速度
+
+        // 记录初始道具数量（供 GrantStartingRewards 使用）
+        int initialItems = profile.initialItemCount;
+        int initialProtocols = profile.initialProtocolCount;
+
+        // 【重构】3. 初始方块生成逻辑
+        List<GameObject> initialBlocks = new List<GameObject>();
+
+        // 准备 Lv1/Lv2/Lv3 列表
+        var masterList = spawner.GetMasterList();
+        var L1_Blocks = masterList.Where(p => IsInLevel(p, 0)).ToList();
+        var L2_Blocks = masterList.Where(p => IsInLevel(p, 1)).ToList();
+        var L3_Blocks = masterList.Where(p => IsInLevel(p, 2)).ToList();
+
+        if (settings.isTestMode)
         {
-            // 【修复】使用手动的 foreach 循环替换 LINQ .Where()
-            var masterList = spawner.GetMasterList();
-            var L1_Blocks = new List<GameObject>();
-            var L2_Blocks = new List<GameObject>();
-            var L3_Blocks = new List<GameObject>();
-
-            foreach (var prefab in masterList)
-            {
-                if (IsInLevel(prefab, 0)) L1_Blocks.Add(prefab);
-                if (IsInLevel(prefab, 1)) L2_Blocks.Add(prefab);
-                if (IsInLevel(prefab, 2)) L3_Blocks.Add(prefab);
-            }
-
-            // 1. 根据难度决定初始方块
+            initialBlocks = new List<GameObject>(spawner.GetInitialTetrominoPrefabs());
+        }
+        else
+        {
             switch (difficulty)
             {
                 case Difficulty.Easy:
-                    currentSessionConfig.InitialTetrominoes = L1_Blocks; // 使用筛选好的列表
-                    scoreMultiplier = 1f;
-                    speedMultiplier = 1.0f;
-                    break;
-                case Difficulty.Hard:
-                    var hardInitial = new List<GameObject>(L2_Blocks); // 使用筛选好的列表
-                    var level3Random = L3_Blocks.OrderBy(x => Random.value).Take(2).ToList();
-                    hardInitial.AddRange(level3Random);
-                    currentSessionConfig.InitialTetrominoes = hardInitial;
-                    scoreMultiplier = 100f;
-                    speedMultiplier = 1.5f;
+                    initialBlocks = L1_Blocks;
                     break;
                 case Difficulty.Normal:
-                default:
-                    currentSessionConfig.InitialTetrominoes = L2_Blocks; // 使用筛选好的列表
-                    scoreMultiplier = 20f;
-                    speedMultiplier = 1.2f;
+                    initialBlocks = L2_Blocks;
+                    break;
+                case Difficulty.Hard:
+                    var hardInitial = new List<GameObject>(L2_Blocks);
+                    // 随机2个 Lv3
+                    var randomL3 = L3_Blocks.OrderBy(x => Random.value).Take(2).ToList();
+                    hardInitial.AddRange(randomL3);
+                    initialBlocks = hardInitial;
+                    break;
+                case Difficulty.Unmatched:
+                    //  无双：所有 Lv2 + 配置指定的 Lv3
+                    var unmatchedInitial = new List<GameObject>(L2_Blocks);
+                    if (settings.unmatchedFixedLevel3Blocks != null)
+                    {
+                        unmatchedInitial.AddRange(settings.unmatchedFixedLevel3Blocks);
+                    }
+                    initialBlocks = unmatchedInitial;
                     break;
             }
         }
-
-        // 2. 应用速度配置
-        this.difficultySpeedMultiplier = speedMultiplier;
-
-        // 3. 创建目标分数的临时副本
-        _currentTargetScore = (int)(settings.targetScore * scoreMultiplier);
-        _currentTotalGoldReward = (int)(settings.totalGoldReward * scoreMultiplier);
-        _accumulatedExtraGold = 0;
+        currentSessionConfig.InitialTetrominoes = initialBlocks;
 
         // === 第2部分: 使用新配置重置游戏状态 ===
         Time.timeScale = 1f;
         isPaused = false;
+        isEndlessMode = false;
 
         foreach (var protocol in activeProtocols) { if (protocol != null) protocol.RemoveEffect(this); }
         activeProtocols.Clear();
@@ -545,15 +555,13 @@ public class GameManager : MonoBehaviour
         _currentRefreshCost = settings.refreshBaseCost;
         gameUI.UpdateLoopProgressText(scoreManager.GetLoopProgressString());
         _currentGameOverReason = "";
-        remainingTime = settings.initialTimeLimit;
-        isEndlessMode = false;
 
         tetrisGrid.ClearAllBlocks();
         huPaiArea.ClearAll();
         scoreManager.ResetScore();
         inventoryManager.ClearInventory();
         protocolsMarkedForRemoval.Clear();
-        GrantStartingRewards(DifficultyManager.Instance.CurrentDifficulty);
+        GrantStartingRewards(initialItems, initialProtocols);
         if (isAdventFoodActive) { adventFoodBonus = 60; adventFoodTimer = 1f; }
         else { adventFoodBonus = 0; }
 
@@ -563,8 +571,7 @@ public class GameManager : MonoBehaviour
         UpdateCurrentBaseScore();
         // 【修复】必须先计算速度，再生成方块
         blockPool.ResetFullDeck();
-        UpdateFallSpeed();
-        List<GameObject> initialBlocks = currentSessionConfig.InitialTetrominoes;
+        UpdateFallSpeed(baseSpeed);
         if (isGreatRevolutionActive)
         {
             // 确保数量有效，如果原始列表为空，默认给 20 个
@@ -1797,10 +1804,10 @@ public class GameManager : MonoBehaviour
             UpdateFallSpeed(); // 状态改变，刷新速度
         }
     }
-    private void UpdateFallSpeed()
+    private void UpdateFallSpeed(int newBaseSpeed = -1)
     {
-        int baseSpeed = settings.baseDisplayedSpeed;
-        int baseSpeedWithDifficulty = (int)(baseSpeed * this.difficultySpeedMultiplier);
+        if (newBaseSpeed != -1) _currentProfileBaseSpeed = newBaseSpeed;
+        int baseSpeed = _currentProfileBaseSpeed;
         int perHuIncrease = settings.speedIncreasePerHu_Int;
         if (isSubspaceActive)
         {
@@ -1810,7 +1817,7 @@ public class GameManager : MonoBehaviour
         int currentCountedBonus = (!isJetpackActive && countedBonusBlocksRemaining > 0) ? countedSpeedBonus : 0;
         int totalBonus = permanentSpeedBonus + roundSpeedBonus + currentCountedBonus;
 
-        int totalDisplayedSpeed = baseSpeedWithDifficulty + huBonus + totalBonus;
+        int totalDisplayedSpeed = baseSpeed + huBonus + totalBonus;
         if (totalDisplayedSpeed < 1) totalDisplayedSpeed = 1;
 
         currentFallSpeed = 20.0f / totalDisplayedSpeed;
@@ -2455,31 +2462,25 @@ public class GameManager : MonoBehaviour
         return result;
     }
 
-    private void GrantStartingRewards(Difficulty difficulty)
+    private void GrantStartingRewards(int itemCount, int protocolCount)
     {
-        if (difficulty == Difficulty.Easy) return;
-
-        // 【修改】添加 (isTestMode || ...) 判断
-        // 逻辑：如果是测试模式，或者道具已解锁，则允许放入随机池
+        // 筛选池
         var validItems = settings.commonItemPool
             .Where(i => !i.isLegendary && (settings.isTestMode || SaveManager.IsItemUnlocked(i.itemName, i.isInitial)))
             .ToList();
-
         var validProtocols = settings.protocolPool
             .Where(p => !p.isLegendary && (settings.isTestMode || SaveManager.IsProtocolUnlocked(p.protocolName, p.isInitial)))
             .ToList();
 
-        if (difficulty == Difficulty.Normal)
+        AddRandomItems(validItems, itemCount);
+
+        // 循环添加条约
+        for (int i = 0; i < protocolCount; i++)
         {
-            AddRandomItems(validItems, 1);
-            Debug.Log($"普通难度开局奖励 (TestMode:{settings.isTestMode})");
-        }
-        else if (difficulty == Difficulty.Hard)
-        {
-            AddRandomItems(validItems, 2);
             AddRandomProtocol(validProtocols);
-            Debug.Log($"困难难度开局奖励 (TestMode:{settings.isTestMode})");
         }
+
+        Debug.Log($"初始奖励发放: {itemCount} 道具, {protocolCount} 条约");
     }
     private void AddRandomItems(List<ItemData> sourcePool, int count)
     {

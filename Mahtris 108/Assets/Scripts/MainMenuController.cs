@@ -18,11 +18,20 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private Text currentDifficultyText;
     [SerializeField] private GameObject normalLockMask;
     [SerializeField] private GameObject hardLockMask;
+    [SerializeField] private GameObject unmatchedLockMask;
 
     [Header("难度选择 - 按钮")]
     [SerializeField] private Button easyButton;
     [SerializeField] private Button normalButton;
     [SerializeField] private Button hardButton;
+    [SerializeField] private Button unmatchedButton;
+
+    [Header("难度信息面板")]
+    [SerializeField] private GameSettings gameSettings;
+    [SerializeField] private DifficultyInfoPanel easyInfoPanel;
+    [SerializeField] private DifficultyInfoPanel normalInfoPanel;
+    [SerializeField] private DifficultyInfoPanel hardInfoPanel;
+    [SerializeField] private DifficultyInfoPanel unmatchedInfoPanel;
 
     [Header("难度选择 - 样式")]
     [SerializeField] private Color selectedColor = Color.green;
@@ -65,6 +74,7 @@ public class MainMenuController : MonoBehaviour
         {
             InitDifficultyUI();
         }
+        RefreshAllDifficultyPanels();
         UpdateHighScoreText();
         bool savedFullscreenState = SaveManager.LoadFullscreenState();
         if (Screen.fullScreen != savedFullscreenState)
@@ -284,9 +294,17 @@ public class MainMenuController : MonoBehaviour
 
         if (normalLockMask) normalLockMask.SetActive(unlockedLevel < 1);
         if (hardLockMask) hardLockMask.SetActive(unlockedLevel < 2);
+        if (unmatchedLockMask) unmatchedLockMask.SetActive(unlockedLevel < 3);
 
         if (normalButton) normalButton.interactable = (unlockedLevel >= 1);
         if (hardButton) hardButton.interactable = (unlockedLevel >= 2);
+        if (unmatchedButton) unmatchedButton.interactable = (unlockedLevel >= 3);
+
+        if (unmatchedButton)
+        {
+            unmatchedButton.onClick.RemoveAllListeners();
+            unmatchedButton.onClick.AddListener(SelectUnmatched);
+        }
 
         UpdateButtonVisuals(savedDiff);
     }
@@ -317,7 +335,43 @@ public class MainMenuController : MonoBehaviour
             UpdateButtonVisuals(Difficulty.Hard);
         }
     }
+    public void SelectUnmatched()
+    {
+        if (DifficultyManager.Instance.MaxUnlockedLevel >= 3)
+        {
+            DifficultyManager.Instance.SetDifficulty(Difficulty.Unmatched);
+            UpdateDifficultyText(Difficulty.Unmatched);
+            UpdateButtonVisuals(Difficulty.Unmatched);
+        }
+    }
+    private void RefreshAllDifficultyPanels()
+    {
+        if (gameSettings == null) return;
 
+        // 1. 填充简单难度面板
+        if (easyInfoPanel != null)
+        {
+            easyInfoPanel.UpdateUI(gameSettings.easyProfile, "Lv.1 方块");
+        }
+
+        // 2. 填充普通难度面板
+        if (normalInfoPanel != null)
+        {
+            normalInfoPanel.UpdateUI(gameSettings.normalProfile, "Lv.2 方块");
+        }
+
+        // 3. 填充困难难度面板
+        if (hardInfoPanel != null)
+        {
+            hardInfoPanel.UpdateUI(gameSettings.hardProfile, "Lv.2 + 随机 Lv.3");
+        }
+
+        // 4. 填充无双难度面板
+        if (unmatchedInfoPanel != null)
+        {
+            unmatchedInfoPanel.UpdateUI(gameSettings.unmatchedProfile, "Lv.2 + 固定 Lv.3");
+        }
+    }
     public void OpenDifficultyPopup()
     {
         if (difficultyPopupPanel != null)
@@ -380,6 +434,7 @@ public class MainMenuController : MonoBehaviour
         UpdateButtonState(easyButton, selected == Difficulty.Easy);
         UpdateButtonState(normalButton, selected == Difficulty.Normal);
         UpdateButtonState(hardButton, selected == Difficulty.Hard);
+        UpdateButtonState(unmatchedButton, selected == Difficulty.Unmatched);
     }
 
     private void UpdateButtonState(Button btn, bool isSelected)

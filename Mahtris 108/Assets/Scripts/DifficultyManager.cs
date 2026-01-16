@@ -1,8 +1,8 @@
 // FileName: DifficultyManager.cs
 using UnityEngine;
 
-// 确保枚举顺序对应：0=Easy, 1=Normal, 2=Hard
-public enum Difficulty { Easy = 0, Normal = 1, Hard = 2 }
+// 1. 【修改】增加 Unmatched = 3
+public enum Difficulty { Easy = 0, Normal = 1, Hard = 2, Unmatched = 3 }
 
 public class DifficultyManager : MonoBehaviour
 {
@@ -10,7 +10,7 @@ public class DifficultyManager : MonoBehaviour
 
     public Difficulty CurrentDifficulty { get; private set; } = Difficulty.Easy;
 
-    // 【新增】当前已解锁的最高等级 (0, 1, or 2)
+    // 当前已解锁的最高等级 (0, 1, 2, 3)
     public int MaxUnlockedLevel { get; private set; } = 0;
 
     void Awake()
@@ -19,8 +19,6 @@ public class DifficultyManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-
-            // 【新增】初始化时读取存档
             LoadData();
         }
         else
@@ -37,7 +35,7 @@ public class DifficultyManager : MonoBehaviour
 
     public void SetDifficulty(Difficulty newDifficulty)
     {
-        // 安全检查：如果试图选择未解锁的难度，强制切回 Easy
+        // 安全检查
         if ((int)newDifficulty > MaxUnlockedLevel)
         {
             Debug.LogWarning("试图选择未解锁的难度，操作被拦截。");
@@ -45,22 +43,26 @@ public class DifficultyManager : MonoBehaviour
         }
 
         CurrentDifficulty = newDifficulty;
-        // 【新增】保存选择
         SaveManager.SaveSelectedDifficulty(newDifficulty);
     }
 
-    // 【新增】供 GameManager 在通关时调用
     public void CompleteDifficulty(Difficulty difficultyJustBeaten)
     {
         int levelBeaten = (int)difficultyJustBeaten;
 
-        // 如果通关的难度 等于 当前解锁的最高难度，且不是最后一级(Hard=2)
-        // 那么解锁下一级
-        if (levelBeaten == MaxUnlockedLevel && MaxUnlockedLevel < 2)
+        // 【修改】现在最高等级是 3 (Unmatched)，所以判断 < 3
+        if (levelBeaten == MaxUnlockedLevel && MaxUnlockedLevel < 3)
         {
             MaxUnlockedLevel++;
             SaveManager.SaveUnlockedLevel(MaxUnlockedLevel);
             Debug.Log($"新难度解锁！当前最高解锁等级: {MaxUnlockedLevel}");
         }
+    }
+
+    // 【新增】调试用：一键解锁所有难度
+    public void UnlockAllForTesting()
+    {
+        MaxUnlockedLevel = 3;
+        SaveManager.SaveUnlockedLevel(3);
     }
 }

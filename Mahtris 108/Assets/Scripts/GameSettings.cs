@@ -33,6 +33,22 @@ public class BlockRewardWeights
     [Range(0f, 1f)] public float level3Weight = 0.15f;
 }
 
+[System.Serializable]
+public class DifficultyProfile
+{
+    [Header("目标与奖励")]
+    public int targetScore = 5000;
+    public int goldReward = 1000;
+
+    [Header("初始资源")]
+    public float initialTime = 180f;
+    public int initialItemCount = 0;     // 初始道具数量
+    public int initialProtocolCount = 0; // 初始条约数量
+
+    [Header("游戏参数")]
+    public int blockSpeed = 10;          // 初始速度等级
+    // 初始方块逻辑将在 GameManager 中根据难度枚举硬编码处理（简单=Lv1, 普通=Lv2等）
+}
 // ========================================================================
 // 核心配置类
 // ========================================================================
@@ -71,9 +87,6 @@ public class GameSettings : ScriptableObject
     // ========================================================================
     // 2. 速度与物理系统
     // ========================================================================
-    [Header("--- 速度与物理 (V4.1) ---")]
-    [Tooltip("简单难度下的基础速度等级 (例如: 10)")]
-    public int baseDisplayedSpeed = 10;
 
     [Tooltip("每次胡牌后, 速度等级增加的整数值 (例如: 2)")]
     public int speedIncreasePerHu_Int = 2;
@@ -91,13 +104,8 @@ public class GameSettings : ScriptableObject
     // ========================================================================
     // 3. 得分与关卡目标
     // ========================================================================
-    [Header("--- 得分与关卡目标 ---")]
-    [Tooltip("初始游戏时间 (秒)")]
-    public float initialTimeLimit = 180f;
     [Tooltip("每次胡牌奖励的时间 (秒)")]
     public float huTimeBonus = 60f;
-
-    [Space(10)]
     [Tooltip("基础番型的底分")]
     public int baseFanScore = 10;
     [Tooltip("每个杠的额外番数")]
@@ -105,13 +113,15 @@ public class GameSettings : ScriptableObject
     [Tooltip("每消除一行的得分")]
     public int scorePerRow = 10;
 
-    [Space(10)]
-    [Tooltip("通关所需的目标分数 (例如 5000)")]
-    public int targetScore = 5000;
+    [Header("--- 难度配置档案 ---")]
+    public DifficultyProfile easyProfile;
+    public DifficultyProfile normalProfile;
+    public DifficultyProfile hardProfile;
+    public DifficultyProfile unmatchedProfile; // 无双难度
 
-    [Tooltip("通关后的总金币奖池 (例如 1000)")]
-    public int totalGoldReward = 1000;
-
+    [Header("无双难度特殊配置")]
+    [Tooltip("无双难度下，除了所有Lv2方块外，额外固定的2种Lv3方块")]
+    public List<GameObject> unmatchedFixedLevel3Blocks;
     // ========================================================================
     // 4. 循环与传奇系统
     // ========================================================================
