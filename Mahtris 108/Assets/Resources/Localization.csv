@@ -8,22 +8,25 @@ MENU_SCORE_RECORD_COLON,最高分：,最高分：,RECORD: ,ベスト：
 MENU_EASY,新手,新手,NEWBIE,入門
 MENU_NORMAL,专家,專家,EXPERT,玄人
 MENU_HARD,大师,大師,MASTER,達人
+MENU_UNMATCHED,天下无双,天下無雙,G.O.A.T,天下無双
 DIFFICULTY_TITLE,难度,難度,GAME LEVEL,難易度
 DIFFICULTY_EASY,新手,新手,NEWBIE,入門
 DIFFICULTY_NORMAL,专家,專家,EXPERT,玄人
 DIFFICULTY_HARD,大师,大師,MASTER,達人
+DIFFICULTY_UNMATCHED,天下无双,天下無雙,G.O.A.T,天下無双
 DIFFICULTY_GOAL,目标,目標,GOAL,目標
-DIFFICULTY_REWARDS,奖励,獎勵,REWARD,報酬
+DIFFICULTY_REWARDS,总奖励,總獎勵,Total Reward,総報酬
 DIFFICULTY_INITIAL,初始状态,初始狀態,INITIAL STATE,初期ステータス
-DIFFICULTY_TIME,时间,時間,TIME,時間
-DIFFICULTY_SPEED,速度,速度,SPEED,速度
-DIFFICULTY_ITEM,道具,道具,ITEM,アイテム
-DIFFICULTY_PROTOCOL,条约,條約,PROTOCOL,条約
+DIFFICULTY_TIME,游戏时间,遊戲時間,Game Time,ゲーム時間
+DIFFICULTY_SPEED,方块速度,方塊速度,Block Speed,ブロック速度
+DIFFICULTY_ITEM,初始道具,初始道具,Initial Item,初期アイテム
+DIFFICULTY_PROTOCOL,初始条约,初始條約,Initial Protocol,初期条約
 DIFFICULTY_BLOCK,初始方块,初始方塊,INITIAL BLOCKS,初期ブロック
 DIFFICULTY_SELECT,选择,選擇,SELECT,選択
 DIFFICULTY_SELECTED,已选择,已選擇,SELECTED,選択中
 DIFFICULTY_NORMAL_CONDITION,通关一局【新手】难度游戏即可解锁,通關一局【新手】難度遊戲即可解鎖,Clear [NEWBIE] difficulty to unlock,[入門]をクリアでアンロック
 DIFFICULTY_HARD_CONDITION,通关一局【专家】难度游戏即可解锁,通關一局【專家】難度遊戲即可解鎖,Clear [EXPERT] difficulty to unlock,[玄人]をクリアでアンロック
+DIFFICULTY_UNMATCHED_CONDITION,通关一局【大师】难度游戏即可解锁,通關一局【大師】難度遊戲即可解鎖,Clear [MASTER] difficulty to unlock,[達人]をクリアでアンロック
 ITEM_PROTOCOL_TITLE,道具 · 条约,道具 · 條約,ITEM & PROTOCOL,アイテム・条約
 ITEM_PROTOCOL_ITEM,道具,道具,ITEM,アイテム
 ITEM_PROTOCOL_PROTOCOL,条约,條約,PROTOCOL,条約
@@ -140,7 +143,7 @@ ITEM_NAME_22,垃圾筒,垃圾桶,Trash Bin,ゴミ箱
 ITEM_NAME_23,魔术手帕,魔術手帕,Magic Hanky,魔法のハンカチ
 ITEM_NAME_24,磁铁,磁鐵,Magnet,磁石
 ITEM_NAME_25,仙酒,仙酒,Elixir Wine,エリクサー
-ITEM_NAME_26,荣誉勋章,榮譽勳章,Medal of Honor,名誉勲章
+ITEM_NAME_26,荣誉勋章,榮譽勳章,Badge of Honor,名誉勲章
 ITEM_NAME_27,超级炸弹,超級炸彈,Super Bomb,超爆弾
 ITEM_NAME_28,黄金镜,黃金鏡,Golden Mirror,金の鏡
 ITEM_NAME_29,儿童餐,兒童餐,Kids Meal,お子様ランチ
@@ -187,7 +190,7 @@ ITEM_DES_29,60秒内只会出现1~3格的方块，仅本轮有效,60秒內只會
 ITEM_DES_30,当胡牌区未满且牌库中存在可以组成刻子或顺子的牌时，随机将一组牌加入胡牌区,當胡牌區牌組小於4組且牌庫中存在可以組成刻子或順子的牌時，隨機將一組牌加入胡牌區,"If Winning Area is not full and the deck contains any Triplet or Sequence, add a random Set",和了エリアに空きがあり、山に刻子または順子を作れる牌がある場合、ランダムな1組を追加する
 ITEM_DES_31,如果游戏失败则会清空桌面，<color=#36BA98>游戏时间+30秒</color>，然后继续游戏，仅本轮有效,如果遊戲失敗則會清空桌面，<color=#36BA98>遊戲時間+30秒</color>，然後繼續遊戲，僅本局有效,"If you lose: Clear board, <color=#36BA98>Time +30s</color>, and continue game (this round only)",ゲームオーバー時、盤面を一掃し<color=#36BA98>時間+30秒</color>で再開する、今局のみ有効
 ITEM_DES_32,接下来消除的3行不会进行判定而是会被直接移除，下轮游戏恢复,接下來消除的3行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next 3 cleared lines are removed directly without check (restores next round),次に消去した3回のラインは判定を行わず直接削除される、和了後に元に戻る
-ITEM_DES_33,当前目标奖励的金币x3,當前目標的金幣獎勵x3,Gold Reward for the current target x3,現在の目標のゴールド報酬が3倍になる
+ITEM_DES_33,如果通关本局游戏，金币奖励+50%,如果通關本局遊戲，金幣獎勵+50%,"If you clear this game, Gold Reward +50%",この局をクリアすれば、総報酬+50%
 ITEM_DES_34,20秒内出现的方块会尽可能只有筒子牌，仅本轮有效,20秒內出現的方塊會盡可能只有筒子牌，僅本局有效,"For 20s, blocks will spawn mostly with Tong (Circle) tiles (this round only)",20秒間、出現するブロックが可能な限り筒子（ピンズ）のみになる、今局のみ有効
 ITEM_DES_35,20秒内出现的方块会尽可能只有万子牌，仅本轮有效,20秒內出現的方塊會盡可能只有萬子牌，僅本局有效,"For 20s, blocks will spawn mostly with Wan (Character) tiles (this round only)",20秒間、出現するブロックが可能な限り萬子（マンズ）のみになる、今局のみ有効
 ITEM_DES_36,20秒内出现的方块会尽可能只有条子牌，仅本轮有效,20秒內出現的方塊會盡可能只有條子牌，僅本局有效,"For 20s, blocks will spawn mostly with Tiao (Bamboo) tiles (this round only)",20秒間、出現するブロックが可能な限り索子（ソーズ）のみになる、今局のみ有効

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34f88dd859e3f9844bf9b482276e7c35, type: 3}
   m_Name: DefaultGameSettings
   m_EditorClassIdentifier: 
-  isTestMode: 1
+  isTestMode: 0
   gridWidth: 8
   gridHeight: 16
   deadlineHeight: 13
@@ -44,20 +44,20 @@ MonoBehaviour:
   hardProfile:
     targetScore: 500000
     goldReward: 50000
-    initialTime: 300
+    initialTime: 240
     initialItemCount: 2
     initialProtocolCount: 1
     blockSpeed: 15
   unmatchedProfile:
     targetScore: 1000000000
     goldReward: 300000
-    initialTime: 180
+    initialTime: 120
     initialItemCount: 4
     initialProtocolCount: 2
     blockSpeed: 25
   unmatchedFixedLevel3Blocks:
-  - {fileID: 621094592900249781, guid: dc620e8d5e4557f4dbd3a36dd502b7f7, type: 3}
-  - {fileID: 621094592900249781, guid: 5b39921c8a684a34ca3e2e04b10e55cc, type: 3}
+  - {fileID: 621094592900249781, guid: 67079f4d584f2f4468cb65e10fb941c4, type: 3}
+  - {fileID: 621094592900249781, guid: 36756bf567fdafc4a824d6e4b83b20bb, type: 3}
   husPerLoop: 1
   normalWeight: 10
   legendaryWeightBase: 5
@@ -84,6 +84,8 @@ MonoBehaviour:
   commonItemPool:
   - {fileID: 11400000, guid: 09fc48b91470f024aa48708446a3673f, type: 2}
   - {fileID: 11400000, guid: b0b84eeb2b1316b4ca686819f027a1ca, type: 2}
+  - {fileID: 11400000, guid: ffc57473305f5944491607a4d2593e62, type: 2}
+  - {fileID: 11400000, guid: 09a40bce8a17bfa4689ace9c1173fa3e, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}
@@ -103,6 +105,9 @@ MonoBehaviour:
   maxProtocolCount: 5
   protocolPool:
   - {fileID: 11400000, guid: 86a6f87b42b0523479af8f1a572faee1, type: 2}
+  - {fileID: 11400000, guid: 6acbde308fb3f2241828efc56aa7549c, type: 2}
+  - {fileID: 11400000, guid: fdb8f78abf84b6346a11c54ddc00ec2d, type: 2}
+  - {fileID: 11400000, guid: 9c2ae5f0bdad7354d830dab198bea85b, type: 2}
   refreshBaseCost: 100
   legendaryIcon: {fileID: 21300000, guid: 71b55c0a7c1906e48bd3b525833135cf, type: 3}
   tooltipBgBlock: {fileID: 21300000, guid: 0676292378f3ddb4f9d3c32659878c7c, type: 3}

@@ -416,6 +416,9 @@ public class MainMenuController : MonoBehaviour
                 case Difficulty.Hard:
                     key = "DIFFICULTY_HARD";
                     break;
+                case Difficulty.Unmatched:
+                    key = "DIFFICULTY_UNMATCHED";
+                    break;
                 case Difficulty.Normal:
                 default:
                     key = "DIFFICULTY_NORMAL";

@@ -20,8 +20,8 @@ public class DifficultyInfoPanel : MonoBehaviour
         if (profile == null) return;
 
         if (targetScoreText) targetScoreText.text = $"{profile.targetScore:N0}";
-        if (goldRewardText) goldRewardText.text = $"{profile.goldReward}";
-        if (timeLimitText) timeLimitText.text = $"{profile.initialTime}s";
+        if (goldRewardText) goldRewardText.text = $"{profile.goldReward:N0}";
+        if (timeLimitText) timeLimitText.text = $"{profile.initialTime}";
         if (blockSpeedText) blockSpeedText.text = $"{profile.blockSpeed}";
 
         if (startItemCountText) startItemCountText.text = $"{profile.initialItemCount}";
