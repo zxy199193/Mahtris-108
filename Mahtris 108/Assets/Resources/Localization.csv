@@ -54,6 +54,7 @@ GAME_HU_ZONE,胡牌区,胡牌區,HU ZONE,アガリ牌
 GAME_PROTOCOL,条约,條約,PROTOCOL,条約
 GAME_ITEM,道具,道具,ITEM,アイテム
 GAME_LACK,缺牌,缺牌,LACK,不足
+GAME_GOAL,目标,目標,GOAL,目標
 DECK_TITLE,牌库,牌庫,DECK,山牌
 DECK_TONG,筒,筒,TONG,筒子
 DECK_WAN,万,萬,WAN,萬子
