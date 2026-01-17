@@ -15,7 +15,7 @@ DIFFICULTY_NORMAL,专家,專家,EXPERT,玄人
 DIFFICULTY_HARD,大师,大師,MASTER,達人
 DIFFICULTY_UNMATCHED,天下无双,天下無雙,G.O.A.T,天下無双
 DIFFICULTY_GOAL,目标,目標,GOAL,目標
-DIFFICULTY_REWARDS,总奖励,總獎勵,Total Reward,総報酬
+DIFFICULTY_REWARDS,总奖金,總獎金,Total Prize,総賞金
 DIFFICULTY_INITIAL,初始状态,初始狀態,INITIAL STATE,初期ステータス
 DIFFICULTY_TIME,游戏时间,遊戲時間,Game Time,ゲーム時間
 DIFFICULTY_SPEED,方块速度,方塊速度,Block Speed,ブロック速度
@@ -257,7 +257,7 @@ PROTOCOL_DES_14,胡牌时如牌型仅2种花面，视为“清一色”牌型，
 PROTOCOL_DES_15,胡牌时所有牌型都视为平胡，消行分数调整为：基础分x2的“连续消行数量”次方,胡牌時所有牌型都視為平胡，消行分數調整為：基礎分x2的“連續消行數量”次方,"All wins count as ""Pinfu"". Line clear score: Base Point x 2^(consecutive lines).",全ての和了を「平和」とみなす。ライン消去スコアを「基礎点×2の(連続消去数)乗」に変更。
 PROTOCOL_DES_16,胡牌时如果是平胡，<color=#E682E6>额外倍率x0</color>，且无奖励，其他牌型计算番数倍率时底数从2变为3,胡牌時如果是平胡，<color=#E682E6>額外倍率x0</color>，且無獎勵，其他牌型計算番數倍率時底數從2變為3,If Pinfu: <color=#E682E6>Extra Multiplier x0</color> & No Reward. Other hands calculate Fan with base 3.,平和の和了は<color=#E682E6>追加倍率x0</color>で報酬なし。他は翻数計算の底を2から3に変更。
 PROTOCOL_DES_17,每次将“刻子”牌加入胡牌区时，<color=#3296DC>基础分+3</color>，整局有效,每次將“刻子”牌加入胡牌區時，<color=#3296DC>基礎分+3</color>，整局有效,"Adding a ""Triplet"" to Winning Area gives <color=#3296DC>Base Point +3</color> (entire game).",「刻子」を和了エリアに加えるたび、<color=#3296DC>基礎点+3</color>（ゲーム終了まで有効）。
-PROTOCOL_DES_18,每轮游戏开始时，<color=#3296DC>基础分-12</color>（最低为1），每当一次性消除3行及以上时基础分+8，仅本轮有效,每輪遊戲開始時，<color=#3296DC>基礎分-12</color>（最低為1），每當一次性消除3行及以上時基礎分+8，僅本局有效,Start of round: <color=#3296DC>Base Point -12</color> (min 1). Clearing 3+ lines at once gives Base Point +8 (this round only).,各局開始時、<color=#3296DC>基礎点-12</color>（最低1）。3ライン以上同時消去で基礎点+8（今局のみ有効）。
+PROTOCOL_DES_18,每轮游戏开始时，<color=#3296DC>基础分-12</color>（最低为1），每当一次性消除3行及以上时<color=#3296DC>基础分+8</color>，仅本轮有效,每輪遊戲開始時，<color=#3296DC>基礎分-12</color>（最低為1），每當一次性消除3行及以上時<color=#3296DC>基礎分+8</color>，僅本局有效,Start of round: <color=#3296DC>Base Point -12</color> (min 1). Clearing 3+ lines at once gives <color=#3296DC>Base Point +8</color> (this round only).,各局開始時、<color=#3296DC>基礎点-12</color>（最低1）。3ライン以上同時消去で<color=#3296DC>基礎点+8</color>（今局のみ有効）。
 PROTOCOL_DES_19,每轮游戏开始时，剩余<color=#36BA98>游戏时间</color>变为95秒,每輪遊戲開始時，剩餘<color=#36BA98>遊戲時間</color>變為95秒,Start of round: Remaining <color=#36BA98>Time</color> becomes 95s.,各局開始時、残り<color=#36BA98>時間</color>が95秒になる。
 PROTOCOL_DES_20,当场上堆叠的方块高度超过8时，<color=#36BA98>方块速度</color>变为5，游戏时间流逝速度减慢至20%,當場上堆疊的方塊高度超過8時，<color=#36BA98>方塊速度</color>變為5，遊戲時間流逝速度減慢至20%,"When stack height > 8: <color=#36BA98>Block Speed</color> becomes 5, Game Time slows to 20%.",積み上げ高さが8を超えると、<color=#36BA98>落下速度</color>が5になり、時間の流れが20%になる。
 PROTOCOL_DES_21,每经过3秒，<color=#3296DC>基础分</color>增加或减少1~36（最低为1）,每經過3秒，<color=#3296DC>基礎分</color>增加或減少1~36（最低為1）,"Every 3s, <color=#3296DC>Base Point</color> increases or decreases by 1-36 (min 1).",3秒ごとに、<color=#3296DC>基礎点</color>が1～36増減する（最低1）。
@@ -376,7 +376,7 @@ ACHIEVEMENT_DES_43,累计获得30个传奇奖励,累計獲得30個傳奇獎勵,O
 ACHIEVEMENT_DES_44,"累计获得10,000金币","累計獲得10,000金幣","Accumulate 10,000 Gold","ゴールドを累計10,000獲得する"
 ACHIEVEMENT_DES_45,"累计获得100,000金币","累計獲得100,000金幣","Accumulate 100,000 Gold","ゴールドを累計100,000獲得する"
 ACHIEVEMENT_DES_46,"累计获得1000,000金币","累計獲得1000,000金幣","Accumulate 1,000,000 Gold","ゴールドを累計1,000,000獲得する"
-ACHIEVEMENT_DES_47,"游戏最高分达到100,000分","遊戲最高分達到100,000分","Reach a high score of 100,000","ハイスコア100,000点に到達する"
-ACHIEVEMENT_DES_48,"游戏最高分达到1000,000分","遊戲最高分達到1000,000分","Reach a high score of 1000,000","ハイスコア1000,000点に到達する"
-ACHIEVEMENT_DES_49,"游戏最高分达到10,000,000分","遊戲最高分達到10,000,000分","Reach a high score of 10,000,000","ハイスコア10,000,000点に到達する"
-ACHIEVEMENT_DES_50,"游戏最高分达到100,000,000分","遊戲最高分達到100,000,000分","Reach a high score of 100,000,000","ハイスコア100,000,000点に到達する"
+ACHIEVEMENT_DES_47,一次胡牌获得1000分,一次胡牌獲得1000分,Score 1000 points in a single hand,1回の和了で1000点を獲得する
+ACHIEVEMENT_DES_48,"一次胡牌获得100,000分","一次胡牌獲得100,000分","Score 100,000 points in a single hand","1回の和了で100,000点を獲得する"
+ACHIEVEMENT_DES_49,"一次胡牌获得5,000,000分","一次胡牌獲得5,000,000分","Score 5,000,000 points in a single hand","1回の和了で5,000,000点を獲得する"
+ACHIEVEMENT_DES_50,"一次胡牌获得100,000,000分","一次胡牌獲得100,000,000分","Score 100,000,000 points in a single hand","1回の和了で100,000,000点を獲得する"

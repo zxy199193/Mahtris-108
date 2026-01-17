@@ -20,6 +20,6 @@ MonoBehaviour:
   isAdvanced: 1
   isLegendary: 0
   useSound: {fileID: 0}
-  price: 2000
+  price: 300
   isInitial: 0
   unlockConditionCount: 0

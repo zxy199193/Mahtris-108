@@ -19,7 +19,7 @@ MonoBehaviour:
   description: "\u5B8C\u6210\u4E00\u5C40\u6E38\u620F\u4E14\u62E5\u6709\u65B9\u5757\u6570\u91CF
     \u22648\u4E2A"
   icon: {fileID: 21300000, guid: b709b079d82ecfd47a44b1fd940f8066, type: 3}
-  rewardGold: 10000
+  rewardGold: 1000
   type: 16
   targetValue: 8
   targetString: 

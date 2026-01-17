@@ -39,6 +39,7 @@ public enum AchievementType
     AccumulateLegendary,// No.43 (传奇物品统计)
     AccumulateGold,     // No.44-46
     HighScore,          // No.47-50
+    SingleHuScore
 }
 
 [CreateAssetMenu(fileName = "New Achievement", menuName = "Mahjong/Achievement Data")]

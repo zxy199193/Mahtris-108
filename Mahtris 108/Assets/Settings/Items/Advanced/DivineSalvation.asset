@@ -20,7 +20,7 @@ MonoBehaviour:
   isAdvanced: 1
   isLegendary: 1
   useSound: {fileID: 0}
-  price: 120000
+  price: 12000
   isInitial: 0
   unlockConditionCount: 39
   baseScoreBonus: 20

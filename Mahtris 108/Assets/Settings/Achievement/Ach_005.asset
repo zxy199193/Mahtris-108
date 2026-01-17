@@ -18,7 +18,7 @@ MonoBehaviour:
   title: No.5
   description: "\u5B8C\u6210\u4E00\u6B21\u756A\u6570 \u22654 \u7684\u80E1\u724C\u724C\u578B"
   icon: {fileID: 21300000, guid: 8ece1ec2c304625439fc6550b77188e5, type: 3}
-  rewardGold: 2000
+  rewardGold: 300
   type: 2
   targetValue: 4
   targetString: 

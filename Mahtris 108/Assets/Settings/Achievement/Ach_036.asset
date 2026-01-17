@@ -18,7 +18,7 @@ MonoBehaviour:
   title: No.36
   description: "\u89E3\u950135\u79CD\u9053\u5177"
   icon: {fileID: 21300000, guid: 8ece1ec2c304625439fc6550b77188e5, type: 3}
-  rewardGold: 2000
+  rewardGold: 300
   type: 18
   targetValue: 35
   targetString: 

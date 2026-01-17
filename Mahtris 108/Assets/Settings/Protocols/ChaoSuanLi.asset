@@ -18,7 +18,7 @@ MonoBehaviour:
   protocolIcon: {fileID: 21300000, guid: 517fdf572a2ff2b4380df31e5aeeb7d2, type: 3}
   protocolDescription: "\u5F53\u67095\u683C\u65B9\u5757\u65F6\u751F\u6548\uFF0C5\u683C\u65B9\u5757\u51FA\u73B0\u7684\u6982\u7387\u63D0\u9AD8200%\uFF0C\u989D\u5916\u500D\u7387x3\r"
   isLegendary: 0
-  price: 0
+  price: 500
   isInitial: 1
   unlockConditionCount: 0
   extraMultiplier: 3

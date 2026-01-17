@@ -20,7 +20,7 @@ MonoBehaviour:
   isAdvanced: 0
   isLegendary: 0
   useSound: {fileID: 8300000, guid: 98666ca704c105145b393e892df00bc9, type: 3}
-  price: 0
+  price: 200
   isInitial: 1
   unlockConditionCount: 0
   rowsToClear: 3

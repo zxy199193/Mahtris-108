@@ -654,24 +654,7 @@ public class GameManager : MonoBehaviour
         }
         // 1. 基础番数计算
         var analysisResult = mahjongCore.CalculateHandFan(huHand, settings, _tempIsTianHu, _tempIsDiHu);
-        if (AchievementManager.Instance != null)
-        {
-            // 解析牌型名称字符串，例如 "清一色 · 对对" -> ["清一色", "对对"]
-            List<string> patterns = new List<string>();
-            if (!string.IsNullOrEmpty(analysisResult.PatternName))
-            {
-                string[] split = analysisResult.PatternName.Split(new string[] { " · " }, System.StringSplitOptions.None);
-                patterns.AddRange(split);
-            }
-            int currentLoop = scoreManager.GetCurrentLoop();
-            int completedLoops = Mathf.Max(0, currentLoop - 1);
-            AchievementManager.Instance.CheckOnHu(
-            analysisResult.TotalFan,
-            patterns,
-            completedLoops,
-            activeProtocols.Count
-            );
-        }
+
         if (isBloomingOnKongActive)
         {
             int kongCount = huHand.Count(set => set.Count == 4);
@@ -716,7 +699,25 @@ public class GameManager : MonoBehaviour
         double scorePart = baseFanScore * analysisResult.FanMultiplier;
         long finalScore = (long)(scorePart * blockMultiplier * finalExtraMult);
         scoreManager.AddScore(finalScore);
-
+        if (AchievementManager.Instance != null)
+        {
+            // 解析牌型名称字符串，例如 "清一色 · 对对" -> ["清一色", "对对"]
+            List<string> patterns = new List<string>();
+            if (!string.IsNullOrEmpty(analysisResult.PatternName))
+            {
+                string[] split = analysisResult.PatternName.Split(new string[] { " · " }, System.StringSplitOptions.None);
+                patterns.AddRange(split);
+            }
+            int currentLoop = scoreManager.GetCurrentLoop();
+            int completedLoops = Mathf.Max(0, currentLoop - 1);
+            AchievementManager.Instance.CheckOnHu(
+            analysisResult.TotalFan,
+            patterns,
+            completedLoops,
+            activeProtocols.Count,
+            finalScore
+            );
+        }
         float addedTime = 0f;
 
             // 1. 加上基础时间 (通常是 60秒)

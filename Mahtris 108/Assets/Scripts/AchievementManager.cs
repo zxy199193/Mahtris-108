@@ -255,7 +255,7 @@ public class AchievementManager : MonoBehaviour
     }
     // 【新增】胡牌时检查 (扩展)
     // loopCount: 当前圈数, activeProtocols: 当前激活条约数
-    public void CheckOnHu(int fan, List<string> patterns, int loopCount, int activeProtocols)
+    public void CheckOnHu(int fan, List<string> patterns, int loopCount, int activeProtocols, long huScore)
     {
         // 1. 增加累计胡牌次数 (来自旧逻辑)
         AddProgress(AchievementType.AccumulateHu, 1);
@@ -285,6 +285,9 @@ public class AchievementManager : MonoBehaviour
                     break;
                 case AchievementType.SingleGameActiveProtocol:
                     if (activeProtocols >= ach.targetValue) passed = true;
+                    break;
+                case AchievementType.SingleHuScore:
+                    if (huScore >= ach.targetValue) passed = true;
                     break;
             }
 
