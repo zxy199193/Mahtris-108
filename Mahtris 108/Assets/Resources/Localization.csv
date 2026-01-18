@@ -33,6 +33,7 @@ ITEM_PROTOCOL_PROTOCOL,条约,條約,PROTOCOL,条約
 ITEM_PROTOCOL_LACK_GOLD,金币不足,金幣不足,Not enough coins,コイン不足
 ITEM_PROTOCOL_UNLOCK_CONDITION,解锁{0}个{1}后显示,解鎖 {0} 個 {1} 後顯示,Revealed when {0} {1} unlocked,{0}個の{1}をアンロックで表示
 ITEM_PROTOCOL_CONFIRM,确认,確定,CONFIRM,決定
+ITEM_PROTOCOL_INFO,解锁道具和条约后即可在胡牌奖励中出现,解鎖道具和條約後即可在胡牌獎勵中出現,Unlocked Items and Treaties can appear in Winning Rewards,解放後、アイテムと条約が和了報酬に出現します
 ACHIEVEMENT_ACHIEVEMENT,成就,成就,ACHIEVEMENT,実績
 INTRODUCTION_TITLE,说明,說明,GUIDE,ヘルプ
 INTRODUCTION_INTRODUCTION,游戏说明,遊戲說明,HOW TO PLAY,遊び方
@@ -280,56 +281,56 @@ PROTOCOL_DES_37,完成一圈所需要的轮数-1，每次胡牌<color=#36BA98>�
 PROTOCOL_DES_38,每次消除多行时会视为一行来进行麻将判定,每次消除多行時會視為一行來進行麻將判定,Multi-line clears are treated as a single line for Mahjong checks.,複数行の同時消去を1行として麻雀判定を行う。
 PROTOCOL_DES_39,胡牌时每种奖励可以选择2个,胡牌時每種獎勵可以選擇2個,Select 2 of each reward type upon winning.,和了時に各報酬を2個選択できる。
 PROTOCOL_DES_40,<color=#E682E6>额外倍率x36</color>，3轮游戏之后自动销毁,<color=#E682E6>額外倍率x36</color>，3輪遊戲之後自動銷毀,<color=#E682E6>Extra Multiplier x36</color>. Self-destructs after 3 rounds.,<color=#E682E6>追加倍率x36</color>。3局後に自動消滅。
-ACHIEVEMENT_NAME_01,No.01,No.01,No.01,No.01
-ACHIEVEMENT_NAME_02,No.02,No.02,No.02,No.02
-ACHIEVEMENT_NAME_03,No.03,No.03,No.03,No.03
-ACHIEVEMENT_NAME_04,No.04,No.04,No.04,No.04
-ACHIEVEMENT_NAME_05,No.05,No.05,No.05,No.05
-ACHIEVEMENT_NAME_06,No.06,No.06,No.06,No.06
-ACHIEVEMENT_NAME_07,No.07,No.07,No.07,No.07
-ACHIEVEMENT_NAME_08,No.08,No.08,No.08,No.08
-ACHIEVEMENT_NAME_09,No.09,No.09,No.09,No.09
-ACHIEVEMENT_NAME_10,No.10,No.10,No.10,No.10
-ACHIEVEMENT_NAME_11,No.11,No.11,No.11,No.11
-ACHIEVEMENT_NAME_12,No.12,No.12,No.12,No.12
-ACHIEVEMENT_NAME_13,No.13,No.13,No.13,No.13
-ACHIEVEMENT_NAME_14,No.14,No.14,No.14,No.14
-ACHIEVEMENT_NAME_15,No.15,No.15,No.15,No.15
-ACHIEVEMENT_NAME_16,No.16,No.16,No.16,No.16
-ACHIEVEMENT_NAME_17,No.17,No.17,No.17,No.17
-ACHIEVEMENT_NAME_18,No.18,No.18,No.18,No.18
-ACHIEVEMENT_NAME_19,No.19,No.19,No.19,No.19
-ACHIEVEMENT_NAME_20,No.20,No.20,No.20,No.20
-ACHIEVEMENT_NAME_21,No.21,No.21,No.21,No.21
-ACHIEVEMENT_NAME_22,No.22,No.22,No.22,No.22
-ACHIEVEMENT_NAME_23,No.23,No.23,No.23,No.23
-ACHIEVEMENT_NAME_24,No.24,No.24,No.24,No.24
-ACHIEVEMENT_NAME_25,No.25,No.25,No.25,No.25
-ACHIEVEMENT_NAME_26,No.26,No.26,No.26,No.26
-ACHIEVEMENT_NAME_27,No.27,No.27,No.27,No.27
-ACHIEVEMENT_NAME_28,No.28,No.28,No.28,No.28
-ACHIEVEMENT_NAME_29,No.29,No.29,No.29,No.29
-ACHIEVEMENT_NAME_30,No.30,No.30,No.30,No.30
-ACHIEVEMENT_NAME_31,No.31,No.31,No.31,No.31
-ACHIEVEMENT_NAME_32,No.32,No.32,No.32,No.32
-ACHIEVEMENT_NAME_33,No.33,No.33,No.33,No.33
-ACHIEVEMENT_NAME_34,No.34,No.34,No.34,No.34
-ACHIEVEMENT_NAME_35,No.35,No.35,No.35,No.35
-ACHIEVEMENT_NAME_36,No.36,No.36,No.36,No.36
-ACHIEVEMENT_NAME_37,No.37,No.37,No.37,No.37
-ACHIEVEMENT_NAME_38,No.38,No.38,No.38,No.38
-ACHIEVEMENT_NAME_39,No.39,No.39,No.39,No.39
-ACHIEVEMENT_NAME_40,No.40,No.40,No.40,No.40
-ACHIEVEMENT_NAME_41,No.41,No.41,No.41,No.41
-ACHIEVEMENT_NAME_42,No.42,No.42,No.42,No.42
-ACHIEVEMENT_NAME_43,No.43,No.43,No.43,No.43
-ACHIEVEMENT_NAME_44,No.44,No.44,No.44,No.44
-ACHIEVEMENT_NAME_45,No.45,No.45,No.45,No.45
-ACHIEVEMENT_NAME_46,No.46,No.46,No.46,No.46
-ACHIEVEMENT_NAME_47,No.47,No.47,No.47,No.47
-ACHIEVEMENT_NAME_48,No.48,No.48,No.48,No.48
-ACHIEVEMENT_NAME_49,No.49,No.49,No.49,No.49
-ACHIEVEMENT_NAME_50,No.50,No.50,No.50,No.50
+ACHIEVEMENT_NAME_01,胡啦！,胡啦！,Mahjong!,和了！
+ACHIEVEMENT_NAME_02,攀登高峰1,攀登高峰1,Scaling Heights I,高みを目指して I
+ACHIEVEMENT_NAME_03,攀登高峰2,攀登高峰2,Scaling Heights II,高みを目指して II
+ACHIEVEMENT_NAME_04,攀登高峰3,攀登高峰3,Scaling Heights III,高みを目指して III
+ACHIEVEMENT_NAME_05,攀登高峰4,攀登高峰4,Scaling Heights IV,高みを目指して IV
+ACHIEVEMENT_NAME_06,麻将魂1,麻將魂1,Mahjong Soul I,麻雀魂 I
+ACHIEVEMENT_NAME_07,麻将魂2,麻將魂2,Mahjong Soul II,麻雀魂 II
+ACHIEVEMENT_NAME_08,麻将魂3,麻將魂3,Mahjong Soul III,麻雀魂 III
+ACHIEVEMENT_NAME_09,麻将魂4,麻將魂4,Mahjong Soul IV,麻雀魂 IV
+ACHIEVEMENT_NAME_10,最速传说1,最速傳說1,Speed Legend I,最速伝説 I
+ACHIEVEMENT_NAME_11,最速传说2,最速傳說2,Speed Legend II,最速伝説 II
+ACHIEVEMENT_NAME_12,最速传说3,最速傳說3,Speed Legend III,最速伝説 III
+ACHIEVEMENT_NAME_13,最速传说4,最速傳說4,Speed Legend IV,最速伝説 IV
+ACHIEVEMENT_NAME_14,时间管理大师1,時間管理大師1,Time Master I,時間管理の達人 I
+ACHIEVEMENT_NAME_15,时间管理大师2,時間管理大師2,Time Master II,時間管理の達人 II
+ACHIEVEMENT_NAME_16,时间管理大师3,時間管理大師3,Time Master III,時間管理の達人 III
+ACHIEVEMENT_NAME_17,时间管理大师4,時間管理大師4,Time Master IV,時間管理の達人 IV
+ACHIEVEMENT_NAME_18,营养师1,營養師1,Nutritionist I,栄養士 I
+ACHIEVEMENT_NAME_19,营养师2,營養師2,Nutritionist II,栄養士 II
+ACHIEVEMENT_NAME_20,建筑师1,建築師1,Architect I,建築家 I
+ACHIEVEMENT_NAME_21,建筑师2,建築師2,Architect II,建築家 II
+ACHIEVEMENT_NAME_22,战术大师1,戰術大師1,Master Tactician I,戦術マスター I
+ACHIEVEMENT_NAME_23,战术大师2,戰術大師2,Master Tactician II,戦術マスター II
+ACHIEVEMENT_NAME_24,忍者大师,忍者大師,Ninja Master,忍者マスター
+ACHIEVEMENT_NAME_25,完全体,完全體,Perfect Form,完全体
+ACHIEVEMENT_NAME_26,军神,軍神,God of War,軍神
+ACHIEVEMENT_NAME_27,限行路段1,限行路段1,Restricted Zone I,通行規制 I
+ACHIEVEMENT_NAME_28,限行路段2,限行路段2,Restricted Zone II,通行規制 II
+ACHIEVEMENT_NAME_29,人海战术,人海戰術,Swarm Tactics,人海戦術
+ACHIEVEMENT_NAME_30,精英小队,精英小隊,Elite Squad,精鋭部隊
+ACHIEVEMENT_NAME_31,马拉松1,馬拉松1,Marathon I,マラソン I
+ACHIEVEMENT_NAME_32,马拉松2,馬拉松2,Marathon II,マラソン II
+ACHIEVEMENT_NAME_33,马拉松3,馬拉松3,Marathon III,マラソン III
+ACHIEVEMENT_NAME_34,马拉松4,馬拉松4,Marathon IV,マラソン IV
+ACHIEVEMENT_NAME_35,收藏家1,收藏家1,Collector I,コレクター I
+ACHIEVEMENT_NAME_36,收藏家2,收藏家2,Collector II,コレクター II
+ACHIEVEMENT_NAME_37,收藏家3,收藏家3,Collector III,コレクター III
+ACHIEVEMENT_NAME_38,纵横家1,縱橫家1,Strategist I,縦横無尽 I
+ACHIEVEMENT_NAME_39,纵横家2,縱橫家2,Strategist II,縦横無尽 II
+ACHIEVEMENT_NAME_40,纵横家3,縱橫家3,Strategist III,縦横無尽 III
+ACHIEVEMENT_NAME_41,历战王者1,歷戰王者1,Veteran King I,歴戦の王者 I
+ACHIEVEMENT_NAME_42,历战王者2,歷戰王者2,Veteran King II,歴戦の王者 II
+ACHIEVEMENT_NAME_43,历战王者3,歷戰王者3,Veteran King III,歴戦の王者 III
+ACHIEVEMENT_NAME_44,大富翁1,大富翁1,Tycoon I,大富豪 I
+ACHIEVEMENT_NAME_45,大富翁2,大富翁2,Tycoon II,大富豪 II
+ACHIEVEMENT_NAME_46,大富翁3,大富翁3,Tycoon III,大富豪 III
+ACHIEVEMENT_NAME_47,第一次冲击,第一次衝擊,First Impact,第一次衝撃
+ACHIEVEMENT_NAME_48,第二次冲击,第二次衝擊,Second Impact,第二次衝撃
+ACHIEVEMENT_NAME_49,第三次冲击,第三次衝擊,Third Impact,第三次衝撃
+ACHIEVEMENT_NAME_50,最终冲击,最終衝擊,Final Impact,最終衝撃
 ACHIEVEMENT_DES_01,完成一次胡牌,完成一次胡牌,Complete a winning hand,1回和了（アガリ）する
 ACHIEVEMENT_DES_02,完成一局新手难度的游戏,完成一局新手難度的遊戲,Complete a game on Novice difficulty,ビギナー難易度でゲームをクリアする
 ACHIEVEMENT_DES_03,完成一局专家难度的游戏,完成一局專家難度的遊戲,Complete a game on Expert difficulty,エキスパート難易度でゲームをクリアする
@@ -358,7 +359,7 @@ ACHIEVEMENT_DES_25,完成一局游戏中同时拥有5个条约,完成一局遊�
 ACHIEVEMENT_DES_26,在一局游戏中累计获得12个条约,在一局遊戲中累計獲得12個條約,Obtain a total of 12 Treaties in a single game,1回のゲームで条約を合計12個獲得する
 ACHIEVEMENT_DES_27,完成一局游戏且期间未使用任何道具,完成一局遊戲且期間未使用任何道具,Complete a game without using any Items,アイテムを一切使わずにゲームをクリアする
 ACHIEVEMENT_DES_28,完成一局游戏且期间未获得任何条约,完成一局遊戲且期間未獲得任何條約,Complete a game without obtaining any Treaties,条約を一切獲得せずにゲームをクリアする
-ACHIEVEMENT_DES_29,在一局游戏中同时拥有≥20个方块,在一局遊戲中同時擁有≥20個方塊,Possess ≥20 blocks simultaneously in a single game,1回のゲームでブロックを同時に20個以上所持する
+ACHIEVEMENT_DES_29,在一局游戏中同时拥有≥30个方块,在一局遊戲中同時擁有≥30個方塊,Possess ≥30 blocks simultaneously in a single game,1回のゲームでブロックを同時に30個以上所持する
 ACHIEVEMENT_DES_30,完成一局游戏且拥有方块数量≤8个,完成一局遊戲且擁有方塊數量≤8個,Complete a game with ≤8 blocks in possession,ブロック所持数8個以下でゲームをクリアする
 ACHIEVEMENT_DES_31,在一局游戏中完成2圈胡牌,在一局遊戲中完成2圈胡牌,Complete 2 rounds of winning hands in a single game,1回のゲームで2周和了する
 ACHIEVEMENT_DES_32,在一局游戏中完成4圈胡牌,在一局遊戲中完成4圈胡牌,Complete 4 rounds of winning hands in a single game,1回のゲームで4周和了する
