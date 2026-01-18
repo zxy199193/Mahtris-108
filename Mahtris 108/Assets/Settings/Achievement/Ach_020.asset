@@ -16,9 +16,9 @@ MonoBehaviour:
   descKey: ACHIEVEMENT_DES_20
   id: Ach_020
   title: No.20
-  description: "\u5728\u4E00\u5C40\u6E38\u620F\u4E2D\u65B9\u5757\u500D\u7387\u8FBE\u523050"
+  description: "\u5728\u4E00\u5C40\u6E38\u620F\u4E2D\u65B9\u5757\u500D\u7387\u8FBE\u523060"
   icon: {fileID: 21300000, guid: 8ece1ec2c304625439fc6550b77188e5, type: 3}
   rewardGold: 300
   type: 6
-  targetValue: 50
+  targetValue: 60
   targetString: 

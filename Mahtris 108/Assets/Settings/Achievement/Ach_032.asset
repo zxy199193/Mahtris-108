@@ -16,9 +16,9 @@ MonoBehaviour:
   descKey: ACHIEVEMENT_DES_32
   id: Ach_032
   title: No.32
-  description: "\u5728\u4E00\u5C40\u6E38\u620F\u4E2D\u5B8C\u62104\u5708\u80E1\u724C"
-  icon: {fileID: 21300000, guid: cd3f33ceed9ebc545840b93161f9e78f, type: 3}
-  rewardGold: 100
+  description: "\u5728\u4E00\u5C40\u6E38\u620F\u4E2D\u5B8C\u62108\u5708\u80E1\u724C"
+  icon: {fileID: 21300000, guid: 8ece1ec2c304625439fc6550b77188e5, type: 3}
+  rewardGold: 300
   type: 12
-  targetValue: 4
+  targetValue: 8
   targetString: 

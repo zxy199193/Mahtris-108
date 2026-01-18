@@ -1979,7 +1979,7 @@ public class GameManager : MonoBehaviour
                 finalScore,
                 _itemsUsedThisGame,
                 _protocolsObtainedThisGame,
-                tetrisGrid.GetAllBlocksCount(),
+                spawner.GetActivePrefabs().Count(),
                 true                // isEndlessMode = true (开启无尽模式检查权限)
             );
         }
@@ -2092,7 +2092,7 @@ public class GameManager : MonoBehaviour
                 finalScore,
                 _itemsUsedThisGame,
                 _protocolsObtainedThisGame,
-                tetrisGrid.GetAllBlocksCount(),
+                spawner.GetActivePrefabs().Count(),
                 false                           // isEndlessMode = false (此时还没进无尽模式)
             );
         }

@@ -178,7 +178,7 @@ ITEM_DES_17,获得1个1格方块,獲得1個1格方塊,Obtain a 1-cell block,1マ
 ITEM_DES_18,下次胡牌所选择的方块奖励会获得2个,下次胡牌所選擇的方塊獎勵會獲得2個,Get 2x Block Rewards for the chosen block upon the next win,次の和了時、選択したブロックの報酬を2個獲得できる
 ITEM_DES_19,移除1个方块列表中倍率最大的方块,移除1個方塊列表中倍率最大的方塊,Remove 1 block with the highest multiplier from the inventory,所持ブロックの中から、倍率が最も高いものを1つ削除する
 ITEM_DES_20,本次胡牌即完成一圈，<color=#36BA98>方块速度+4</color>,本次胡牌即完成一圈，<color=#36BA98>方塊速度+4</color>,Winning this hand completes the current streak. <color=#36BA98>Block Speed +4</color>,今回の和了で現在の周を完了とする、<color=#36BA98>ブロック落下速度+4</color>
-ITEM_DES_21,获得800金币,獲得800金幣,Obtain 800 Gold,ゴールドを800獲得する
+ITEM_DES_21,获得300金币,獲得300金幣,Obtain 300 Gold,ゴールドを300獲得する
 ITEM_DES_22,下次消除的行不会进行判定而是会被直接移除，下轮游戏恢复,下次消除的行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next 1 cleared line is removed directly without check (restores next round),次に消去したラインは判定を行わず直接削除される、和了後に元に戻る
 ITEM_DES_23,场上所有方块的麻将牌面被随机打乱,場上所有方塊的麻將牌面被隨機打亂,Randomly shuffle the Mahjong patterns of all blocks on the board,フィールド上の全ブロックの麻雀牌の種類をランダムにシャッフルする
 ITEM_DES_24,当有胡牌区有刻子，且场上有这个刻子的牌，获取该牌形成杠牌（满足多个刻子时随机）,當胡牌區有刻子，且場上有這個刻子的牌，獲取該牌形成槓牌（滿足多個刻子時隨機）,"If a Triplet exists in Winning Area and the tile is on board, pull it to form a Kong",和了エリアに刻子があり、対応する牌が場にある場合、それを引き寄せて槓子（カンツ）にする
@@ -334,29 +334,29 @@ ACHIEVEMENT_DES_01,完成一次胡牌,完成一次胡牌,Complete a winning hand
 ACHIEVEMENT_DES_02,完成一局新手难度的游戏,完成一局新手難度的遊戲,Complete a game on Novice difficulty,ビギナー難易度でゲームをクリアする
 ACHIEVEMENT_DES_03,完成一局专家难度的游戏,完成一局專家難度的遊戲,Complete a game on Expert difficulty,エキスパート難易度でゲームをクリアする
 ACHIEVEMENT_DES_04,完成一局大师难度的游戏,完成一局大師難度的遊戲,Complete a game on Master difficulty,マスター難易度でゲームをクリアする
-ACHIEVEMENT_DES_05,完成一次番数≥4的胡牌牌型,完成一次番數≥4的胡牌牌型,Complete a winning hand with ≥4 Fan,4翻以上の手で和了する
-ACHIEVEMENT_DES_06,完成一次番数≥6的胡牌牌型,完成一次番數≥6的胡牌牌型,Complete a winning hand with ≥6 Fan,6翻以上の手で和了する
-ACHIEVEMENT_DES_07,完成一次番数≥8的胡牌牌型,完成一次番數≥8的胡牌牌型,Complete a winning hand with ≥8 Fan,8翻以上の手で和了する
-ACHIEVEMENT_DES_08,完成一次番数≥10的胡牌牌型,完成一次番數≥10的胡牌牌型,Complete a winning hand with ≥10 Fan,10翻以上の手で和了する
+ACHIEVEMENT_DES_05,完成一局天下无双难度的游戏,完成一局天下無雙難度的遊戲,Complete a game on G.O.A.T difficulty,天下無双難易度でゲームをクリアする
+ACHIEVEMENT_DES_06,完成一次番数≥3的胡牌牌型,完成一次番數≥3的胡牌牌型,Complete a winning hand with ≥3 Fan,3翻以上の手で和了する
+ACHIEVEMENT_DES_07,完成一次番数≥6的胡牌牌型,完成一次番數≥6的胡牌牌型,Complete a winning hand with ≥6 Fan,6翻以上の手で和了する
+ACHIEVEMENT_DES_08,完成一次番数≥9的胡牌牌型,完成一次番數≥9的胡牌牌型,Complete a winning hand with ≥9 Fan,9翻以上の手で和了する
 ACHIEVEMENT_DES_09,完成一次番数≥12的胡牌牌型,完成一次番數≥12的胡牌牌型,Complete a winning hand with ≥12 Fan,12翻以上の手で和了する
-ACHIEVEMENT_DES_10,在方块下落速度≥15时完成一局游戏,在方塊下落速度≥15時完成一局遊戲,Complete a game with block drop speed ≥15,ブロック落下速度15以上でゲームをクリアする
-ACHIEVEMENT_DES_11,在方块下落速度≥20时完成一局游戏,在方塊下落速度≥20時完成一局遊戲,Complete a game with block drop speed ≥20,ブロック落下速度20以上でゲームをクリアする
-ACHIEVEMENT_DES_12,在方块下落速度≥30时完成一局游戏,在方塊下落速度≥30時完成一局遊戲,Complete a game with block drop speed ≥30,ブロック落下速度30以上でゲームをクリアする
-ACHIEVEMENT_DES_13,在方块下落速度≥50时完成一局游戏,在方塊下落速度≥50時完成一局遊戲,Complete a game with block drop speed ≥50,ブロック落下速度50以上でゲームをクリアする
-ACHIEVEMENT_DES_14,在剩余时间≥50秒时完成一局游戏,在剩餘時間≥50秒時完成一局遊戲,Complete a game with ≥50 seconds remaining,残り時間50秒以上でゲームをクリアする
-ACHIEVEMENT_DES_15,在剩余时间≥100秒时完成一局游戏,在剩餘時間≥100秒時完成一局遊戲,Complete a game with ≥100 seconds remaining,残り時間100秒以上でゲームをクリアする
-ACHIEVEMENT_DES_16,在剩余时间≥200秒时完成一局游戏,在剩餘時間≥200秒時完成一局遊戲,Complete a game with ≥200 seconds remaining,残り時間200秒以上でゲームをクリアする
-ACHIEVEMENT_DES_17,在剩余时间≥400秒时完成一局游戏,在剩餘時間≥400秒時完成一局遊戲,Complete a game with ≥400 seconds remaining,残り時間400秒以上でゲームをクリアする
-ACHIEVEMENT_DES_18,在一局游戏中基础分达到50,在一局遊戲中基礎分達到50,Reach a Base Score of 50 in a single game,1回のゲームで基礎点50に到達する
-ACHIEVEMENT_DES_19,在一局游戏中基础分达到100,在一局遊戲中基礎分達到100,Reach a Base Score of 100 in a single game,1回のゲームで基礎点100に到達する
-ACHIEVEMENT_DES_20,在一局游戏中方块倍率达到50,在一局遊戲中方塊倍率達到50,Reach a Block Multiplier of 50 in a single game,1回のゲームでブロック倍率50に到達する
-ACHIEVEMENT_DES_21,在一局游戏中方块倍率达到100,在一局遊戲中方塊倍率達到100,Reach a Block Multiplier of 100 in a single game,1回のゲームでブロック倍率100に到達する
-ACHIEVEMENT_DES_22,在一局游戏中额外倍率达到30,在一局遊戲中額外倍率達到30,Reach an Extra Multiplier of 30 in a single game,1回のゲームで追加倍率30に到達する
-ACHIEVEMENT_DES_23,在一局游戏中额外倍率达到60,在一局遊戲中額外倍率達到60,Reach an Extra Multiplier of 60 in a single game,1回のゲームで追加倍率60に到達する
-ACHIEVEMENT_DES_24,在一局游戏中累计使用20个道具,在一局遊戲中累計使用20個道具,Use a total of 20 Items in a single game,1回のゲームでアイテムを合計20個使用する
+ACHIEVEMENT_DES_10,在方块下落速度≥16时完成一局游戏,在方塊下落速度≥16時完成一局遊戲,Complete a game with block drop speed ≥16,ブロック落下速度16以上でゲームをクリアする
+ACHIEVEMENT_DES_11,在方块下落速度≥24时完成一局游戏,在方塊下落速度≥24時完成一局遊戲,Complete a game with block drop speed ≥24,ブロック落下速度24以上でゲームをクリアする
+ACHIEVEMENT_DES_12,在方块下落速度≥32时完成一局游戏,在方塊下落速度≥32時完成一局遊戲,Complete a game with block drop speed ≥32,ブロック落下速度32以上でゲームをクリアする
+ACHIEVEMENT_DES_13,在方块下落速度≥56时完成一局游戏,在方塊下落速度≥56時完成一局遊戲,Complete a game with block drop speed ≥56,ブロック落下速度56以上でゲームをクリアする
+ACHIEVEMENT_DES_14,在剩余时间≥240秒时完成一局游戏,在剩餘時間≥240秒時完成一局遊戲,Complete a game with ≥240 seconds remaining,残り時間240秒以上でゲームをクリアする
+ACHIEVEMENT_DES_15,在剩余时间≥360秒时完成一局游戏,在剩餘時間≥360秒時完成一局遊戲,Complete a game with ≥360 seconds remaining,残り時間360秒以上でゲームをクリアする
+ACHIEVEMENT_DES_16,在剩余时间≥480秒时完成一局游戏,在剩餘時間≥480秒時完成一局遊戲,Complete a game with ≥480 seconds remaining,残り時間480秒以上でゲームをクリアする
+ACHIEVEMENT_DES_17,在剩余时间≥600秒时完成一局游戏,在剩餘時間≥600秒時完成一局遊戲,Complete a game with ≥600 seconds remaining,残り時間600秒以上でゲームをクリアする
+ACHIEVEMENT_DES_18,在一局游戏中基础分达到60,在一局遊戲中基礎分達到60,Reach a Base Score of 60 in a single game,1回のゲームで基礎点60に到達する
+ACHIEVEMENT_DES_19,在一局游戏中基础分达到120,在一局遊戲中基礎分達到120,Reach a Base Score of 120 in a single game,1回のゲームで基礎点120に到達する
+ACHIEVEMENT_DES_20,在一局游戏中方块倍率达到60,在一局遊戲中方塊倍率達到60,Reach a Block Multiplier of 60 in a single game,1回のゲームでブロック倍率60に到達する
+ACHIEVEMENT_DES_21,在一局游戏中方块倍率达到120,在一局遊戲中方塊倍率達到120,Reach a Block Multiplier of 120 in a single game,1回のゲームでブロック倍率120に到達する
+ACHIEVEMENT_DES_22,在一局游戏中额外倍率达到40,在一局遊戲中額外倍率達到40,Reach an Extra Multiplier of 40 in a single game,1回のゲームで追加倍率40に到達する
+ACHIEVEMENT_DES_23,在一局游戏中额外倍率达到80,在一局遊戲中額外倍率達到80,Reach an Extra Multiplier of 80 in a single game,1回のゲームで追加倍率80に到達する
+ACHIEVEMENT_DES_24,在一局游戏中累计使用24个道具,在一局遊戲中累計使用24個道具,Use a total of 24 Items in a single game,1回のゲームでアイテムを合計24個使用する
 ACHIEVEMENT_DES_25,完成一局游戏中同时拥有5个条约,完成一局遊戲且同時擁有5個條約,Finish a game while possessing 5 Treaties simultaneously,条約を5つ所持した状態でゲームをクリアする
-ACHIEVEMENT_DES_26,在一局游戏中累计获得10个条约,在一局遊戲中累計獲得10個條約,Obtain a total of 10 Treaties in a single game,1回のゲームで条約を合計10個獲得する
-ACHIEVEMENT_DES_27,完成一局游戏且期间未获得任何道具,完成一局遊戲且期間未獲得任何道具,Complete a game without obtaining any Items,アイテムを一切獲得せずにゲームをクリアする
+ACHIEVEMENT_DES_26,在一局游戏中累计获得12个条约,在一局遊戲中累計獲得12個條約,Obtain a total of 12 Treaties in a single game,1回のゲームで条約を合計12個獲得する
+ACHIEVEMENT_DES_27,完成一局游戏且期间未使用任何道具,完成一局遊戲且期間未使用任何道具,Complete a game without using any Items,アイテムを一切使わずにゲームをクリアする
 ACHIEVEMENT_DES_28,完成一局游戏且期间未获得任何条约,完成一局遊戲且期間未獲得任何條約,Complete a game without obtaining any Treaties,条約を一切獲得せずにゲームをクリアする
 ACHIEVEMENT_DES_29,在一局游戏中同时拥有≥20个方块,在一局遊戲中同時擁有≥20個方塊,Possess ≥20 blocks simultaneously in a single game,1回のゲームでブロックを同時に20個以上所持する
 ACHIEVEMENT_DES_30,完成一局游戏且拥有方块数量≤8个,完成一局遊戲且擁有方塊數量≤8個,Complete a game with ≤8 blocks in possession,ブロック所持数8個以下でゲームをクリアする
@@ -370,9 +370,9 @@ ACHIEVEMENT_DES_37,解锁40种道具,解鎖40種道具,Unlock 40 types of Items,
 ACHIEVEMENT_DES_38,解锁25种条约,解鎖25種條約,Unlock 25 types of Treaties,条約を25種類アンロックする
 ACHIEVEMENT_DES_39,解锁35种条约,解鎖35種條約,Unlock 35 types of Treaties,条約を35種類アンロックする
 ACHIEVEMENT_DES_40,解锁40种条约,解鎖40種條約,Unlock 40 types of Treaties,条約を40種類アンロックする
-ACHIEVEMENT_DES_41,累计使用100个道具,累計使用100個道具,Use a total of 100 Items,アイテムを累計100個使用する
+ACHIEVEMENT_DES_41,累计使用120个道具,累計使用120個道具,Use a total of 120 Items,アイテムを累計120個使用する
 ACHIEVEMENT_DES_42,累计获得80个条约,累計獲得80個條約,Obtain a total of 80 Treaties,条約を累計80個獲得する
-ACHIEVEMENT_DES_43,累计获得30个传奇奖励,累計獲得30個傳奇獎勵,Obtain a total of 30 Legendary Rewards,レジェンダリー報酬を累計30個獲得する
+ACHIEVEMENT_DES_43,累计获得60个传奇奖励,累計獲得60個傳奇獎勵,Obtain a total of 60 Legendary Rewards,レジェンダリー報酬を累計60個獲得する
 ACHIEVEMENT_DES_44,"累计获得10,000金币","累計獲得10,000金幣","Accumulate 10,000 Gold","ゴールドを累計10,000獲得する"
 ACHIEVEMENT_DES_45,"累计获得100,000金币","累計獲得100,000金幣","Accumulate 100,000 Gold","ゴールドを累計100,000獲得する"
 ACHIEVEMENT_DES_46,"累计获得1000,000金币","累計獲得1000,000金幣","Accumulate 1,000,000 Gold","ゴールドを累計1,000,000獲得する"

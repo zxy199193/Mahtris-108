@@ -16,9 +16,9 @@ MonoBehaviour:
   descKey: ACHIEVEMENT_DES_15
   id: Ach_015
   title: No.15
-  description: "\u5728\u5269\u4F59\u65F6\u95F4 \u2265100\u79D2 \u65F6\u5B8C\u6210\u4E00\u5C40\u6E38\u620F"
-  icon: {fileID: 21300000, guid: cd3f33ceed9ebc545840b93161f9e78f, type: 3}
-  rewardGold: 100
+  description: "\u5728\u5269\u4F59\u65F6\u95F4 \u2265360\u79D2 \u65F6\u5B8C\u6210\u4E00\u5C40\u6E38\u620F"
+  icon: {fileID: 21300000, guid: 8ece1ec2c304625439fc6550b77188e5, type: 3}
+  rewardGold: 300
   type: 4
-  targetValue: 100
+  targetValue: 360
   targetString: 

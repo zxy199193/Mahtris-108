@@ -16,9 +16,9 @@ MonoBehaviour:
   descKey: ACHIEVEMENT_DES_41
   id: Ach_041
   title: No.41
-  description: "\u7D2F\u8BA1\u4F7F\u7528100\u4E2A\u9053\u5177"
-  icon: {fileID: 21300000, guid: b709b079d82ecfd47a44b1fd940f8066, type: 3}
-  rewardGold: 1000
+  description: "\u7D2F\u8BA1\u4F7F\u7528120\u4E2A\u9053\u5177"
+  icon: {fileID: 21300000, guid: 8ece1ec2c304625439fc6550b77188e5, type: 3}
+  rewardGold: 300
   type: 22
-  targetValue: 100
+  targetValue: 120
   targetString: 

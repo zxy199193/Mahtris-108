@@ -17,8 +17,8 @@ MonoBehaviour:
   id: Ach_038
   title: No.38
   description: "\u89E3\u950125\u79CD\u6761\u7EA6"
-  icon: {fileID: 21300000, guid: cd3f33ceed9ebc545840b93161f9e78f, type: 3}
-  rewardGold: 100
+  icon: {fileID: 21300000, guid: 8ece1ec2c304625439fc6550b77188e5, type: 3}
+  rewardGold: 300
   type: 19
   targetValue: 25
   targetString: 

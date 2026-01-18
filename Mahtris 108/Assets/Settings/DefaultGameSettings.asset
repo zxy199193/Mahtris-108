@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34f88dd859e3f9844bf9b482276e7c35, type: 3}
   m_Name: DefaultGameSettings
   m_EditorClassIdentifier: 
-  isTestMode: 0
+  isTestMode: 1
   gridWidth: 8
   gridHeight: 16
   deadlineHeight: 13
