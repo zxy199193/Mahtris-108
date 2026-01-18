@@ -63,6 +63,10 @@ public class MainMenuController : MonoBehaviour
     public IntroPanelController introPanel;
     public Button openIntroButton;
 
+    [Header("调试")]
+    [Tooltip("测试用：一键解锁所有内容")]
+    [SerializeField] private Button debugUnlockAllButton;
+
     void Start()
     {
         if (AudioManager.Instance != null)
@@ -125,8 +129,62 @@ public class MainMenuController : MonoBehaviour
         {
             AchievementManager.Instance.CheckAllUnlockProgress(storePanel.GetSettings());
         }
+        if (debugUnlockAllButton != null)
+        {
+            debugUnlockAllButton.onClick.AddListener(DebugUnlockAllContent);
+            // 只有在编辑器或测试包里才显示 (可选)
+            // debugUnlockAllButton.gameObject.SetActive(Debug.isDebugBuild); 
+        }
     }
+    private void DebugUnlockAllContent()
+    {
+        if (gameSettings == null) return;
 
+        Debug.Log("【测试】开始解锁所有内容...");
+
+        // 1. 解锁所有普通道具
+        foreach (var item in gameSettings.commonItemPool)
+        {
+            SaveManager.UnlockItem(item.itemName);
+        }
+
+        // 2. 解锁所有高级道具
+        foreach (var item in gameSettings.advancedItemPool)
+        {
+            SaveManager.UnlockItem(item.itemName);
+        }
+
+        // 3. 解锁所有条约
+        foreach (var proto in gameSettings.protocolPool)
+        {
+            SaveManager.UnlockProtocol(proto.protocolName);
+        }
+
+        // 4. 解锁所有难度
+        if (DifficultyManager.Instance != null)
+        {
+            // 调用之前添加的测试方法
+            DifficultyManager.Instance.UnlockAllForTesting();
+        }
+        else
+        {
+            // 兜底：如果单例还没好，直接改存档
+            SaveManager.SaveUnlockedLevel(3); // 3 = Unmatched
+        }
+
+        // 5. 解锁“刷新奖励功能”提示状态 (可选，让它也显示出来)
+        // PlayerPrefs.DeleteKey(PREF_REFRESH_TIP_SHOWN); 
+
+        // 6. 刷新界面显示
+        InitDifficultyUI();          // 刷新难度锁
+        CheckStoreNotification();    // 刷新商店红点
+        CheckAndShowRefreshUnlockTip(); // 刷新解锁提示
+
+        // 7. (可选) 给点钱测试
+        GameSession.Instance.AddGold(100000);
+
+        Debug.Log("【测试】全部解锁完成！");
+    }
     void OnDestroy()
     {
         GameSession.OnGoldChanged -= UpdateGoldText;
