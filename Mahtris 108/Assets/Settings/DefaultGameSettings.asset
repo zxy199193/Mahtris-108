@@ -58,7 +58,7 @@ MonoBehaviour:
   unmatchedFixedLevel3Blocks:
   - {fileID: 621094592900249781, guid: 67079f4d584f2f4468cb65e10fb941c4, type: 3}
   - {fileID: 621094592900249781, guid: 36756bf567fdafc4a824d6e4b83b20bb, type: 3}
-  husPerLoop: 1
+  husPerLoop: 3
   normalWeight: 10
   legendaryWeightBase: 5
   legendaryWeightIncreasePerLoop: 1
@@ -82,7 +82,7 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 5
   commonItemPool:
-  - {fileID: 11400000, guid: 2616de08032776d4ca2fd12e01662f93, type: 2}
+  - {fileID: 11400000, guid: b0b84eeb2b1316b4ca686819f027a1ca, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: fd5842a9fb8c82d479d2f060566d277d, type: 2}
   - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}

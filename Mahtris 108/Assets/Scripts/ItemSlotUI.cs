@@ -100,34 +100,41 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            // === 游戏状态：正常使用道具 ===
-            if (GameManager.Instance != null && GameManager.Instance.isFrenziedActive)
-            {
-                // 1. 播放失败音效
-                if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
-
-                // 2. 显示多语言提示 (Key: ITEM_TIPS_KARATE)
-                string msg = "空手道大师生效中：无法使用道具！"; // 默认兜底
-                if (LocalizationManager.Instance != null)
-                {
-                    msg = LocalizationManager.Instance.GetText("ITEM_TIPS_KARATE");
-                }
-
-                var ui = FindObjectOfType<GameUIController>();
-                if (ui) ui.ShowToast(msg);
-
-                return;
-            }
-            // 播放点击音效
-            if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
-
-            InventoryManager inventory = FindObjectOfType<InventoryManager>();
-            if (inventory != null && slotIndex != -1)
-            {
-                inventory.UseItem(slotIndex);
-            }
+            AttemptUseItem();
         }
     }
+    public void AttemptUseItem()
+    {
+        if (isEmpty) return;
+
+        // 1. 检查“空手道大师”等禁止使用道具的状态
+        if (GameManager.Instance != null && GameManager.Instance.isFrenziedActive)
+        {
+            if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+
+            string msg = "空手道大师生效中：无法使用道具！";
+            if (LocalizationManager.Instance != null)
+            {
+                msg = LocalizationManager.Instance.GetText("ITEM_TIPS_KARATE");
+            }
+
+            var ui = FindObjectOfType<GameUIController>();
+            if (ui) ui.ShowToast(msg);
+
+            return;
+        }
+
+        // 2. 播放点击音效 (这就是你要的功能)
+        if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
+
+        // 3. 执行逻辑
+        InventoryManager inventory = FindObjectOfType<InventoryManager>();
+        if (inventory != null && slotIndex != -1)
+        {
+            inventory.UseItem(slotIndex);
+        }
+    }
+
     public void ShowDeleteButton()
     {
         if (!isEmpty)

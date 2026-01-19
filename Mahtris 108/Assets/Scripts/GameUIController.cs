@@ -320,11 +320,11 @@ public class GameUIController : MonoBehaviour
         if (inventoryManager == null) return;
 
         // 道具快捷键
-        if (Input.GetKeyDown(KeyCode.Alpha1)) inventoryManager.UseItem(0);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) inventoryManager.UseItem(1);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) inventoryManager.UseItem(2);
-        if (Input.GetKeyDown(KeyCode.Alpha4)) inventoryManager.UseItem(3);
-        if (Input.GetKeyDown(KeyCode.Alpha5)) inventoryManager.UseItem(4);
+        if (Input.GetKeyDown(KeyCode.Alpha1)) TryUseItemByIndex(0);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) TryUseItemByIndex(1);
+        if (Input.GetKeyDown(KeyCode.Alpha3)) TryUseItemByIndex(2);
+        if (Input.GetKeyDown(KeyCode.Alpha4)) TryUseItemByIndex(3);
+        if (Input.GetKeyDown(KeyCode.Alpha5)) TryUseItemByIndex(4);
 
         // 【修改】全局点击检测：如果点击了鼠标左键
         if (Input.GetMouseButtonDown(0))
@@ -657,7 +657,7 @@ public class GameUIController : MonoBehaviour
             if (showRefresh) UpdateRefreshCostUI();
         }
 
-        PopulateRewardSlots(_currentRewardPackage);
+        PopulateRewardSlots(_currentRewardPackage, isBerserkerActive, autoBlockIdx, autoItemIdx, autoProtocolIdx);
 
         selectionCounts.Clear();
         _currentDisplayScoreTarget = finalScore;
@@ -780,104 +780,6 @@ public class GameUIController : MonoBehaviour
         if (commonRewardPanel) commonRewardPanel.SetActive(!isAdvanced);
         if (advancedRewardPanel) advancedRewardPanel.SetActive(isAdvanced);
 
-        if (isAdvanced)
-        {
-            PopulateRewardOptions(advancedRewardBlockArea, rewards.BlockChoices, isBerserkerActive, autoBlockIdx);
-            PopulateRewardOptions(advancedRewardItemArea, rewards.ItemChoices, isBerserkerActive, autoItemIdx);
-            PopulateRewardOptions(advancedRewardProtocolArea, rewards.ProtocolChoices, isBerserkerActive, autoProtocolIdx);
-        }
-        else
-        {
-            PopulateRewardOptions(commonRewardBlockArea, rewards.BlockChoices, isBerserkerActive, autoBlockIdx);
-            PopulateRewardOptions(commonRewardItemArea, rewards.ItemChoices, isBerserkerActive, autoItemIdx);
-        }
-    }
-
-    private void PopulateRewardOptions<T>(Transform container, List<T> choices, bool isBerserker, int autoPickIndex) where T : class
-    {
-        if (container == null) return;
-        foreach (Transform child in container) Destroy(child.gameObject);
-        if (choices == null) return;
-
-        for (int i = 0; i < choices.Count; i++)
-        {
-            var choice = choices[i];
-            var optionGO = Instantiate(rewardOptionPrefab, container);
-            var rewardUI = optionGO.GetComponent<RewardOptionUI>();
-            if (rewardUI == null) continue;
-
-            // 使用重载的 Setup 方法
-            if (choice is GameObject blockPrefab)
-            {
-                rewardUI.Setup(blockPrefab, (clickedUI) => {
-
-                    int stackCount = GameManager.Instance.luckyCapStack;
-
-                    // 基础获得 1 个 + 瓶盖提供的额外数量
-                    int totalCount = 1 + stackCount;
-
-                    // 循环添加方块
-                    for (int k = 0; k < totalCount; k++)
-                    {
-                        GameManager.Instance.Spawner.AddTetrominoToPool(blockPrefab);
-                    }
-
-                    // 如果使用了瓶盖，消耗掉并打印日志
-                    if (stackCount > 0)
-                    {
-                        GameManager.Instance.ConsumeLuckyCap();
-                        Debug.Log($"幸运瓶盖生效 (x{stackCount})！总共获得 {totalCount} 个方块。");
-                    }
-
-                    DisableOtherOptions(container, clickedUI);
-                });
-            }
-            else if (choice is ItemData itemData)
-            {
-                rewardUI.Setup(itemData, (clickedUI) => {
-                    if (inventoryManager != null && inventoryManager.IsFull())
-                    {
-                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
-
-                        // 【修改】使用多语言 Key
-                        string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_FULL_ITEM") : "道具栏已满！";
-                        ShowToast(msg);
-
-                        return;
-                    }
-                    FindObjectOfType<InventoryManager>().AddItem(itemData);
-                    DisableOtherOptions(container, clickedUI);
-                });
-            }
-            else if (choice is ProtocolData protocolData)
-            {
-                rewardUI.Setup(protocolData, (clickedUI) => {
-                    if (GameManager.Instance.IsProtocolListFull())
-                    {
-                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
-
-                        // 【修改】使用多语言 Key
-                        string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_FULL_PROTOCOL") : "条约栏已满！";
-                        ShowToast(msg);
-
-                        return;
-                    }
-                    GameManager.Instance.AddProtocol(protocolData);
-                    DisableOtherOptions(container, clickedUI);
-                });
-            }
-            if (isBerserker)
-            {
-                // 所有人不可点击
-                rewardUI.SetInteractable(false);
-
-                // 如果是“天选之子”
-                if (i == autoPickIndex)
-                {
-                    rewardUI.SetSelected(true); // 显示勾选标记/被选状态
-                }
-            }
-        }
     }
 
     private void DisableOtherOptions(Transform container, RewardOptionUI selected)
@@ -1065,6 +967,22 @@ public class GameUIController : MonoBehaviour
         }
         if (newHighScoreIndicator) newHighScoreIndicator.SetActive(isNewHighScore);
         if (endlessModeButton) endlessModeButton.gameObject.SetActive(isWin);
+        if (baseRewardText != null && baseRewardText.transform.parent != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(baseRewardText.transform.parent.GetComponent<RectTransform>());
+        }
+
+        // 2. 刷新“额外奖励”所在的那一行 (文本+图标 的父节点)
+        if (extraRewardText != null && extraRewardText.transform.parent != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(extraRewardText.transform.parent.GetComponent<RectTransform>());
+        }
+
+        // 3. 最后刷新最外层的总容器 (它包含上面两行)
+        if (rewardInfoRoot != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rewardInfoRoot.GetComponent<RectTransform>());
+        }
     }
     public void PlayGameOverExitAnimation(Action onComplete)
     {
@@ -1664,7 +1582,7 @@ public class GameUIController : MonoBehaviour
         // 颜色逻辑保持不变：钱不够变红
         refreshCostText.color = (playerGold >= cost) ? new Color32(0, 95, 115, 255) : Color.red;
     }
-    private void PopulateRewardSlots(HuRewardPackage rewards)
+    private void PopulateRewardSlots(HuRewardPackage rewards, bool isBerserker = false, int autoBlockIdx = -1, int autoItemIdx = -1, int autoProtocolIdx = -1)
     {
         // 1. 生成方块栏
         if (currentBlockContainer != null)
@@ -1673,8 +1591,14 @@ public class GameUIController : MonoBehaviour
                 var ui = obj.GetComponent<RewardOptionUI>();
                 if (ui) ui.Setup(rewards.BlockChoices[i], (clicked) => HandleRewardClick(0, i));
 
-                // 覆盖点击事件用于"选中"逻辑
                 SetupSelectionClick(obj, i, 0);
+
+                // 处理狂战士状态
+                if (isBerserker && ui)
+                {
+                    ui.SetInteractable(false);
+                    if (i == autoBlockIdx) ui.SetSelected(true);
+                }
             });
         }
 
@@ -1686,6 +1610,12 @@ public class GameUIController : MonoBehaviour
                 if (ui) ui.Setup(rewards.ItemChoices[i], (clicked) => HandleRewardClick(1, i));
 
                 SetupSelectionClick(obj, i, 1);
+
+                if (isBerserker && ui)
+                {
+                    ui.SetInteractable(false);
+                    if (i == autoItemIdx) ui.SetSelected(true);
+                }
             });
         }
 
@@ -1697,11 +1627,17 @@ public class GameUIController : MonoBehaviour
                 if (ui) ui.Setup(rewards.ProtocolChoices[i], (clicked) => HandleRewardClick(2, i));
 
                 SetupSelectionClick(obj, i, 2);
+
+                if (isBerserker && ui)
+                {
+                    ui.SetInteractable(false);
+                    if (i == autoProtocolIdx) ui.SetSelected(true);
+                }
             });
         }
 
-        // 刷新高亮状态
-        RestoreSelections();
+        // 刷新高亮状态 (仅在非狂战士模式下需要，狂战士模式下上面已经设置了 Selected)
+        if (!isBerserker) RestoreSelections();
     }
 
     private void RestoreSelections()
@@ -1741,6 +1677,7 @@ public class GameUIController : MonoBehaviour
         btn.onClick.RemoveAllListeners();
 
         btn.onClick.AddListener(() => {
+            if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
             // 切换选中索引
             if (typeId == 0) _selectedBlockIndex = (_selectedBlockIndex == index) ? -1 : index;
             if (typeId == 1) _selectedItemIndex = (_selectedItemIndex == index) ? -1 : index;
@@ -1787,6 +1724,19 @@ public class GameUIController : MonoBehaviour
                 ui.SetSelected(i == selectedIndex);
                 // 确保按钮是可点击的
                 ui.SetInteractable(true);
+            }
+        }
+    }
+    private void TryUseItemByIndex(int index)
+    {
+        // 确保 activeItemSlotUIs 列表已初始化且索引有效
+        if (activeItemSlotUIs != null && index >= 0 && index < activeItemSlotUIs.Count)
+        {
+            var slot = activeItemSlotUIs[index];
+            if (slot != null)
+            {
+                // 调用 Slot 上的方法，这样就会播放音效并进行相同的逻辑检查
+                slot.AttemptUseItem();
             }
         }
     }
