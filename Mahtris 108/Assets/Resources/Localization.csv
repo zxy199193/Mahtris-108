@@ -9,6 +9,9 @@ MENU_EASY,新手,新手,NEWBIE,入門
 MENU_NORMAL,专家,專家,EXPERT,玄人
 MENU_HARD,大师,大師,MASTER,達人
 MENU_UNMATCHED,天下无双,天下無雙,G.O.A.T,天下無双
+MENU_FUNCTION_UNLOCK,功能解锁,功能解鎖,FUNCTION UNLOCKED,機能解放
+MENU_FUNCTION_UNLOCK_DES,已解锁全部道具和条约，现在游戏中可以使用金币来刷新奖励了！,已解鎖全部道具和條約，現在遊戲中可以使用金幣來刷新獎勵了！,All Items and Protocols are unlocked! You can now use Coin to Refresh Mahjong rewards.,全アイテムと条約が解放されました。コインで報酬を**更新（リフレッシュ）**できます！
+MENU_FUNCTION_UNLOCK_CONFIRM,确认,確認,Confirm,確認
 DIFFICULTY_TITLE,难度,難度,GAME LEVEL,難易度
 DIFFICULTY_EASY,新手,新手,NEWBIE,入門
 DIFFICULTY_NORMAL,专家,專家,EXPERT,玄人
@@ -30,10 +33,10 @@ DIFFICULTY_UNMATCHED_CONDITION,通关一局【大师】难度游戏即可解锁,
 ITEM_PROTOCOL_TITLE,道具 · 条约,道具 · 條約,ITEM & PROTOCOL,アイテム・条約
 ITEM_PROTOCOL_ITEM,道具,道具,ITEM,アイテム
 ITEM_PROTOCOL_PROTOCOL,条约,條約,PROTOCOL,条約
-ITEM_PROTOCOL_LACK_GOLD,金币不足,金幣不足,Not enough coins,コイン不足
+ITEM_PROTOCOL_LACK_GOLD,金币不足,金幣不足,Not enough Coins,コイン不足
 ITEM_PROTOCOL_UNLOCK_CONDITION,解锁{0}个{1}后显示,解鎖 {0} 個 {1} 後顯示,Revealed when {0} {1} unlocked,{0}個の{1}をアンロックで表示
 ITEM_PROTOCOL_CONFIRM,确认,確定,CONFIRM,決定
-ITEM_PROTOCOL_INFO,解锁道具和条约后即可在胡牌奖励中出现,解鎖道具和條約後即可在胡牌獎勵中出現,Unlocked Items and Treaties can appear in Winning Rewards,解放後、アイテムと条約が和了報酬に出現します
+ITEM_PROTOCOL_INFO,解锁道具和条约后即可在胡牌奖励中出现,解鎖道具和條約後即可在胡牌獎勵中出現,Unlocked Items and Protocols can appear in Mahjong Rewards,解放後、アイテムと条約が和了報酬に出現します
 ACHIEVEMENT_ACHIEVEMENT,成就,成就,ACHIEVEMENT,実績
 INTRODUCTION_TITLE,说明,說明,GUIDE,ヘルプ
 INTRODUCTION_INTRODUCTION,游戏说明,遊戲說明,HOW TO PLAY,遊び方
@@ -183,7 +186,7 @@ ITEM_DES_17,获得1个1格方块,獲得1個1格方塊,Obtain a 1-cell block,1マ
 ITEM_DES_18,下次胡牌所选择的方块奖励会获得2个,下次胡牌所選擇的方塊獎勵會獲得2個,Get 2x Block Rewards for the chosen block upon the next win,次の和了時、選択したブロックの報酬を2個獲得できる
 ITEM_DES_19,移除1个方块列表中倍率最大的方块,移除1個方塊列表中倍率最大的方塊,Remove 1 block with the highest multiplier from the inventory,所持ブロックの中から、倍率が最も高いものを1つ削除する
 ITEM_DES_20,本次胡牌即完成一圈，<color=#36BA98>方块速度+4</color>,本次胡牌即完成一圈，<color=#36BA98>方塊速度+4</color>,Winning this hand completes the current streak. <color=#36BA98>Block Speed +4</color>,今回の和了で現在の周を完了とする、<color=#36BA98>ブロック落下速度+4</color>
-ITEM_DES_21,获得300金币,獲得300金幣,Obtain 300 Gold,ゴールドを300獲得する
+ITEM_DES_21,获得300金币,獲得300金幣,Obtain 300 Coins,コインを300獲得する
 ITEM_DES_22,下次消除的行不会进行判定而是会被直接移除，下轮游戏恢复,下次消除的行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next 1 cleared line is removed directly without check (restores next round),次に消去したラインは判定を行わず直接削除される、和了後に元に戻る
 ITEM_DES_23,场上所有方块的麻将牌面被随机打乱,場上所有方塊的麻將牌面被隨機打亂,Randomly shuffle the Mahjong patterns of all blocks on the board,フィールド上の全ブロックの麻雀牌の種類をランダムにシャッフルする
 ITEM_DES_24,当有胡牌区有刻子，且场上有这个刻子的牌，获取该牌形成杠牌（满足多个刻子时随机）,當胡牌區有刻子，且場上有這個刻子的牌，獲取該牌形成槓牌（滿足多個刻子時隨機）,"If a Triplet exists in Winning Area and the tile is on board, pull it to form a Kong",和了エリアに刻子があり、対応する牌が場にある場合、それを引き寄せて槓子（カンツ）にする
@@ -195,11 +198,11 @@ ITEM_DES_29,60秒内只会出现1~3格的方块，仅本轮有效,60秒內只會
 ITEM_DES_30,当胡牌区未满且牌库中存在可以组成刻子或顺子的牌时，随机将一组牌加入胡牌区,當胡牌區牌組小於4組且牌庫中存在可以組成刻子或順子的牌時，隨機將一組牌加入胡牌區,"If Winning Area is not full and the deck contains any Triplet or Sequence, add a random Set",和了エリアに空きがあり、山に刻子または順子を作れる牌がある場合、ランダムな1組を追加する
 ITEM_DES_31,如果游戏失败则会清空桌面，<color=#36BA98>游戏时间+30秒</color>，然后继续游戏，仅本轮有效,如果遊戲失敗則會清空桌面，<color=#36BA98>遊戲時間+30秒</color>，然後繼續遊戲，僅本局有效,"If you lose: Clear board, <color=#36BA98>Time +30s</color>, and continue game (this round only)",ゲームオーバー時、盤面を一掃し<color=#36BA98>時間+30秒</color>で再開する、今局のみ有効
 ITEM_DES_32,接下来消除的3行不会进行判定而是会被直接移除，下轮游戏恢复,接下來消除的3行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next 3 cleared lines are removed directly without check (restores next round),次に消去した3回のラインは判定を行わず直接削除される、和了後に元に戻る
-ITEM_DES_33,如果通关本局游戏，金币奖励+50%,如果通關本局遊戲，金幣獎勵+50%,"If you clear this game, Gold Reward +50%",この局をクリアすれば、総報酬+50%
+ITEM_DES_33,如果通关本局游戏，金币奖励+50%,如果通關本局遊戲，金幣獎勵+50%,"If you clear this game, Coin Reward +50%",この局をクリアすれば、総報酬+50%
 ITEM_DES_34,20秒内出现的方块会尽可能只有筒子牌，仅本轮有效,20秒內出現的方塊會盡可能只有筒子牌，僅本局有效,"For 20s, blocks will spawn mostly with Tong (Circle) tiles (this round only)",20秒間、出現するブロックが可能な限り筒子（ピンズ）のみになる、今局のみ有効
 ITEM_DES_35,20秒内出现的方块会尽可能只有万子牌，仅本轮有效,20秒內出現的方塊會盡可能只有萬子牌，僅本局有效,"For 20s, blocks will spawn mostly with Wan (Character) tiles (this round only)",20秒間、出現するブロックが可能な限り萬子（マンズ）のみになる、今局のみ有効
 ITEM_DES_36,20秒内出现的方块会尽可能只有条子牌，仅本轮有效,20秒內出現的方塊會盡可能只有條子牌，僅本局有效,"For 20s, blocks will spawn mostly with Tiao (Bamboo) tiles (this round only)",20秒間、出現するブロックが可能な限り索子（ソーズ）のみになる、今局のみ有効
-ITEM_DES_37,20秒内每次消除行会给增加金币总数的2%，仅本轮有效,20秒內每次消除行會給增加金幣總數的2%，僅本局有效,"For 20s, each line cleared adds 2% to Total Gold (this round only)",20秒間、ラインを消去するたびに総ゴールドの2%を獲得、今局のみ有効
+ITEM_DES_37,20秒内每次消除行会给增加金币总数的2%，仅本轮有效,20秒內每次消除行會給增加金幣總數的2%，僅本局有效,"For 20s, each line cleared adds 2% to Total Coin (this round only)",20秒間、ラインを消去するたびに総コインの2%を獲得、今局のみ有効
 ITEM_DES_38,20秒内每次消除行会给增加当前得分的5%，仅本轮有效,20秒內每次消除行會給增加當前得分的5%，僅本局有效,"For 20s, each line cleared adds 5% to Current Score (this round only)",20秒間、ラインを消去するたびに現在スコアの5%を加算、今局のみ有効
 ITEM_DES_39,方块列表中每有一种方块，<color=#3296DC>基础分+3</color>，整局有效,方塊列表中每有一種方塊，<color=#3296DC>基礎分+3</color>，整局有效,<color=#3296DC>Base Point +3</color> for every unique block type in inventory (entire game),所持しているブロックの種類1つにつき<color=#3296DC>基礎点+3</color>、ゲーム終了まで有効
 ITEM_DES_40,<color=#3296DC>基础分+20</color>，<color=#36BA98>方块速度-10</color>（均整局有效），<color=#36BA98>游戏时间+100秒</color>，强行消除底下4行方块,<color=#3296DC>基礎分+20</color>（整局有效），<color=#36BA98>方塊速度-10</color>（均整局有效），<color=#36BA98>遊戲時間+100秒</color>，強制消除底部4行方塊,"<color=#3296DC>Base Point +20</color>, <color=#36BA98>Block Speed -10</color> (both entire game), <color=#36BA98>Time +100s</color>, clear bottom 4 lines",<color=#3296DC>基礎点+20</color>、<color=#36BA98>落下速度-10</color>（ゲーム終了まで有効）、<color=#36BA98>時間+100秒</color>、最下段4ライン消去
@@ -228,7 +231,7 @@ PROTOCOL_NAME_20,子弹时间,子彈時間,Bullet Time,バレットタイム
 PROTOCOL_NAME_21,不稳定电流,不穩定電流,Unstable Current,不安定電流
 PROTOCOL_NAME_22,自然保护区,自然保護區,Nature Reserve,自然保護区
 PROTOCOL_NAME_23,戏法空间,戲法空間,Trick Room,トリックルーム
-PROTOCOL_NAME_24,攻击的巨人,攻擊的巨人,Attack on Giant,進撃の巨人
+PROTOCOL_NAME_24,攻击的巨人,攻擊的巨人,Attack on Giant,攻撃の巨人
 PROTOCOL_NAME_25,人人平等,人人平等,All Men are Equal,人類皆平等
 PROTOCOL_NAME_26,绝杀,絕殺,Last Gasp Goal,ブザービーター
 PROTOCOL_NAME_27,沼泽地,沼澤地,Swamp,沼地
@@ -244,7 +247,7 @@ PROTOCOL_NAME_36,千里走单骑,千里走單騎,One Man Army,単騎千里走
 PROTOCOL_NAME_37,亚空间,亞空間,Subspace,亜空間
 PROTOCOL_NAME_38,合纵连横,合縱連橫,Realpolitik,合従連衡
 PROTOCOL_NAME_39,超超超贵宾,超超超貴賓,SSSVIP,SSSVIP
-PROTOCOL_NAME_40,奥义很爽,奧義很爽,Ultimate Impact,奥義・爽快
+PROTOCOL_NAME_40,奥义很爽,奧義很爽,Ultimate Impact,究極奥義
 PROTOCOL_DES_01,<color=#36BA98>方块速度+12</color>，<color=#E682E6>额外倍率x2</color>,<color=#36BA98>方塊速度+12</color>，<color=#E682E6>額外倍率x2</color>,"<color=#36BA98>Block Speed +12</color>, <color=#E682E6>Extra Multiplier x2</color>",<color=#36BA98>ブロック落下速度+12</color>、<color=#E682E6>追加倍率x2</color>
 PROTOCOL_DES_02,每轮游戏开始时，<color=#3296DC>基础分+60</color>，之后每秒-1（最低为1），下轮开始重置,每輪遊戲開始時，<color=#3296DC>基礎分+60</color>，之後每秒-1（最低為1），下輪開始重置,At start of round <color=#3296DC>Base Point +60</color>. Decays by 1/s (min 1). Resets next round.,各局開始時、<color=#3296DC>基礎点+60</color>。その後1秒毎に-1（最低1）、次局でリセット。
 PROTOCOL_DES_03,每次胡牌时<color=#36BA98>游戏时间</color>奖励+20秒,每次胡牌時<color=#36BA98>遊戲時間</color>獎勵+20秒,<color=#36BA98>Time</color> Reward +20s upon winning a round,和了時、<color=#36BA98>時間</color>報酬+20秒。
@@ -280,7 +283,7 @@ PROTOCOL_DES_32,不可使用道具，<color=#E682E6>额外倍率x3</color>,不�
 PROTOCOL_DES_33,消除行时麻将不会返回牌库，<color=#E682E6>额外倍率x16</color>,消除行時麻將不會返回牌庫，<color=#E682E6>額外倍率x16</color>,Cleared tiles do not return to deck. <color=#E682E6>Extra Multiplier x16</color>.,消去した牌が山に戻らなくなる。<color=#E682E6>追加倍率x16</color>。
 PROTOCOL_DES_34,每轮游戏开始时，强行加入随机一个5格方块，<color=#E682E6>额外倍率x5</color>,每輪遊戲開始時，強制加入隨機一個5格方塊，<color=#E682E6>額外倍率x5</color>,Start of round: Force add a random 5-cell block. <color=#E682E6>Extra Multiplier x5</color>.,各局開始時、ランダムな5マスブロックを強制追加。<color=#E682E6>追加倍率x5</color>。
 PROTOCOL_DES_35,每轮游戏开始时，会将方块列表中所有方块随机变为其他方块，<color=#E682E6>额外倍率x5</color>,每輪遊戲開始時，會將方塊列表中所有方塊隨機變為其他方塊，<color=#E682E6>額外倍率x5</color>,Start of round: Randomly transform all inventory blocks. <color=#E682E6>Extra Multiplier x5</color>.,各局開始時、所持ブロックを全てランダムに変化させる。<color=#E682E6>追加倍率x5</color>。
-PROTOCOL_DES_36,如果没有其他条约，每完成一圈胡牌，<color=#E682E6>额外倍率x2</color>，期间加入条约则失效,如果沒有其他條約，每完成一圈胡牌，<color=#E682E6>額外倍率x2</color>，期間加入條約則失效,If no other Treaties: <color=#E682E6>Extra Multiplier x2</color> per Round cleared. Voids if new Treaty added.,他に条約がない場合、1周ごとに<color=#E682E6>追加倍率x2</color>。条約追加で無効化。
+PROTOCOL_DES_36,如果没有其他条约，每完成一圈胡牌，<color=#E682E6>额外倍率x2</color>，期间加入条约则失效,如果沒有其他條約，每完成一圈胡牌，<color=#E682E6>額外倍率x2</color>，期間加入條約則失效,If no other Protocols: <color=#E682E6>Extra Multiplier x2</color> per Round cleared. Voids if new Treaty added.,他に条約がない場合、1周ごとに<color=#E682E6>追加倍率x2</color>。条約追加で無効化。
 PROTOCOL_DES_37,完成一圈所需要的轮数-1，每次胡牌<color=#36BA98>方块速度</color>额外+2,完成一圈所需要的輪數-1，每次胡牌<color=#36BA98>方塊速度</color>額外+2,Rounds needed per Round -1. Win: <color=#36BA98>Block Speed</color> +2 extra.,1周に必要な局数-1。和了時<color=#36BA98>落下速度</color>が更に追加で+2。
 PROTOCOL_DES_38,每次消除多行时会视为一行来进行麻将判定,每次消除多行時會視為一行來進行麻將判定,Multi-line clears are treated as a single line for Mahjong checks.,複数行の同時消去を1行として麻雀判定を行う。
 PROTOCOL_DES_39,胡牌时每种奖励可以选择2个,胡牌時每種獎勵可以選擇2個,Select 2 of each reward type upon winning.,和了時に各報酬を2個選択できる。
@@ -359,10 +362,10 @@ ACHIEVEMENT_DES_21,在一局游戏中方块倍率达到120,在一局遊戲中方
 ACHIEVEMENT_DES_22,在一局游戏中额外倍率达到40,在一局遊戲中額外倍率達到40,Reach an Extra Multiplier of 40 in a single game,1回のゲームで追加倍率40に到達する
 ACHIEVEMENT_DES_23,在一局游戏中额外倍率达到80,在一局遊戲中額外倍率達到80,Reach an Extra Multiplier of 80 in a single game,1回のゲームで追加倍率80に到達する
 ACHIEVEMENT_DES_24,在一局游戏中累计使用24个道具,在一局遊戲中累計使用24個道具,Use a total of 24 Items in a single game,1回のゲームでアイテムを合計24個使用する
-ACHIEVEMENT_DES_25,完成一局游戏中同时拥有5个条约,完成一局遊戲且同時擁有5個條約,Finish a game while possessing 5 Treaties simultaneously,条約を5つ所持した状態でゲームをクリアする
-ACHIEVEMENT_DES_26,在一局游戏中累计获得12个条约,在一局遊戲中累計獲得12個條約,Obtain a total of 12 Treaties in a single game,1回のゲームで条約を合計12個獲得する
+ACHIEVEMENT_DES_25,完成一局游戏中同时拥有5个条约,完成一局遊戲且同時擁有5個條約,Finish a game while possessing 5 Protocols simultaneously,条約を5つ所持した状態でゲームをクリアする
+ACHIEVEMENT_DES_26,在一局游戏中累计获得12个条约,在一局遊戲中累計獲得12個條約,Obtain a total of 12 Protocols in a single game,1回のゲームで条約を合計12個獲得する
 ACHIEVEMENT_DES_27,完成一局游戏且期间未使用任何道具,完成一局遊戲且期間未使用任何道具,Complete a game without using any Items,アイテムを一切使わずにゲームをクリアする
-ACHIEVEMENT_DES_28,完成一局游戏且期间未获得任何条约,完成一局遊戲且期間未獲得任何條約,Complete a game without obtaining any Treaties,条約を一切獲得せずにゲームをクリアする
+ACHIEVEMENT_DES_28,完成一局游戏且期间未获得任何条约,完成一局遊戲且期間未獲得任何條約,Complete a game without obtaining any Protocols,条約を一切獲得せずにゲームをクリアする
 ACHIEVEMENT_DES_29,在一局游戏中同时拥有≥30个方块,在一局遊戲中同時擁有≥30個方塊,Possess ≥30 blocks simultaneously in a single game,1回のゲームでブロックを同時に30個以上所持する
 ACHIEVEMENT_DES_30,完成一局游戏且拥有方块数量≤8个,完成一局遊戲且擁有方塊數量≤8個,Complete a game with ≤8 blocks in possession,ブロック所持数8個以下でゲームをクリアする
 ACHIEVEMENT_DES_31,在一局游戏中完成4圈胡牌,在一局遊戲中完成4圈胡牌,Complete 4 rounds of winning hands in a single game,1回のゲームで4周和了する
@@ -372,15 +375,15 @@ ACHIEVEMENT_DES_34,在一局游戏中完成16圈胡牌,在一局遊戲中完成1
 ACHIEVEMENT_DES_35,解锁25种道具,解鎖25種道具,Unlock 25 types of Items,アイテムを25種類アンロックする
 ACHIEVEMENT_DES_36,解锁35种道具,解鎖35種道具,Unlock 35 types of Items,アイテムを35種類アンロックする
 ACHIEVEMENT_DES_37,解锁40种道具,解鎖40種道具,Unlock 40 types of Items,アイテムを40種類アンロックする
-ACHIEVEMENT_DES_38,解锁25种条约,解鎖25種條約,Unlock 25 types of Treaties,条約を25種類アンロックする
-ACHIEVEMENT_DES_39,解锁35种条约,解鎖35種條約,Unlock 35 types of Treaties,条約を35種類アンロックする
-ACHIEVEMENT_DES_40,解锁40种条约,解鎖40種條約,Unlock 40 types of Treaties,条約を40種類アンロックする
+ACHIEVEMENT_DES_38,解锁25种条约,解鎖25種條約,Unlock 25 types of Protocols,条約を25種類アンロックする
+ACHIEVEMENT_DES_39,解锁35种条约,解鎖35種條約,Unlock 35 types of Protocols,条約を35種類アンロックする
+ACHIEVEMENT_DES_40,解锁40种条约,解鎖40種條約,Unlock 40 types of Protocols,条約を40種類アンロックする
 ACHIEVEMENT_DES_41,累计使用120个道具,累計使用120個道具,Use a total of 120 Items,アイテムを累計120個使用する
-ACHIEVEMENT_DES_42,累计获得80个条约,累計獲得80個條約,Obtain a total of 80 Treaties,条約を累計80個獲得する
+ACHIEVEMENT_DES_42,累计获得80个条约,累計獲得80個條約,Obtain a total of 80 Protocols,条約を累計80個獲得する
 ACHIEVEMENT_DES_43,累计获得60个传奇奖励,累計獲得60個傳奇獎勵,Obtain a total of 60 Legendary Rewards,レジェンダリー報酬を累計60個獲得する
-ACHIEVEMENT_DES_44,"累计获得10,000金币","累計獲得10,000金幣","Accumulate 10,000 Gold","ゴールドを累計10,000獲得する"
-ACHIEVEMENT_DES_45,"累计获得100,000金币","累計獲得100,000金幣","Accumulate 100,000 Gold","ゴールドを累計100,000獲得する"
-ACHIEVEMENT_DES_46,"累计获得1000,000金币","累計獲得1000,000金幣","Accumulate 1,000,000 Gold","ゴールドを累計1,000,000獲得する"
+ACHIEVEMENT_DES_44,"累计获得10,000金币","累計獲得10,000金幣","Accumulate 10,000 Coins","コインを累計10,000獲得する"
+ACHIEVEMENT_DES_45,"累计获得100,000金币","累計獲得100,000金幣","Accumulate 100,000 Coins","コインを累計100,000獲得する"
+ACHIEVEMENT_DES_46,"累计获得1000,000金币","累計獲得1000,000金幣","Accumulate 1,000,000 Coins","コインを累計1,000,000獲得する"
 ACHIEVEMENT_DES_47,一次胡牌获得1000分,一次胡牌獲得1000分,Score 1000 points in a single hand,1回の和了で1000点を獲得する
 ACHIEVEMENT_DES_48,"一次胡牌获得100,000分","一次胡牌獲得100,000分","Score 100,000 points in a single hand","1回の和了で100,000点を獲得する"
 ACHIEVEMENT_DES_49,"一次胡牌获得5,000,000分","一次胡牌獲得5,000,000分","Score 5,000,000 points in a single hand","1回の和了で5,000,000点を獲得する"
@@ -391,7 +394,7 @@ TOTURIAL_DES_03,当胡牌区凑齐4组【顺子】或【刻子】，那下次消
 TOTURIAL_DES_04,胡牌后会根据胡牌的牌型以及各种倍率计算出这次胡牌的得分,胡牌後會根據胡牌的牌型以及各種倍率計算出這次胡牌的得分,Your score is calculated based on the Hand Type and active Multipliers.,点数は、完成した役と各種倍率に基づいて計算されます。
 TOTURIAL_DES_05,每次胡牌都会随机发放各种【方块】和【道具】奖励，点击奖励图标即可获得；之后即可开启下一轮游戏，奖励游戏时间，但加快方块下落速度,每次胡牌都會隨機發放各種【方塊】和【道具】獎勵，點擊獎勵圖標即可獲得；之後即可開啟下一輪遊戲，獎勵遊戲時間，但加快方塊下落速度,"Winning grants random [Block] and [Item] rewards. Click to collect. This starts the next hand, adds Time, but increases Drop Speed.",和了すると**【ブロック】や【アイテム】を獲得できます。次局に進むと時間**が回復しますが、落下速度が上昇します。
 TOTURIAL_DES_06,获得【方块】之后游戏中就会出现这种形状的方块，获得【道具】之后道具会出现在道具栏中，点击道具图标即可使用道具触发效果,獲得【方塊】之後遊戲中就會出現這種類型的方塊，獲得【道具】之後道具會出現在道具欄中，點擊道具圖標即可使用道具觸發效果,Collected [Blocks] will appear in-game. [Items] go to the Item Bar; click their icon to use.,獲得した**【ブロック】はゲーム内に出現します。【アイテム】**は欄に追加され、クリックで使用できます。
-TOTURIAL_DES_07,每当玩家成功胡牌3次，即会发放高级奖励，包括倍率更高的方块、高级道具、以及条约；如果条约栏和道具栏已满，点击图标即可显示删除按钮,每當玩家成功胡牌3次，即會發放高級獎勵，包括倍率更高的方塊、高級道具、以及條約；如果條約欄和道具欄已滿，點擊圖標即可顯示刪除按鈕,"Every 3 wins grants Advanced Rewards (Better Blocks, Items, Treaties). If slots are full, click an icon to reveal the Delete button.",3回和了する毎に**上級報酬**（高倍率ブロック、上級アイテム、条約）が出現します。欄が満員の場合、クリックで削除ボタンが表示されます。
+TOTURIAL_DES_07,每当玩家成功胡牌3次，即会发放高级奖励，包括倍率更高的方块、高级道具、以及条约；如果条约栏和道具栏已满，点击图标即可显示删除按钮,每當玩家成功胡牌3次，即會發放高級獎勵，包括倍率更高的方塊、高級道具、以及條約；如果條約欄和道具欄已滿，點擊圖標即可顯示刪除按鈕,"Every 3 Mahjong wins grants Advanced Rewards (Better Blocks, Items, Protocols). If slots are full, click an icon to reveal the Delete button.",3回和了する毎に**上級報酬**（高倍率ブロック、上級アイテム、条約）が出現します。欄が満員の場合、クリックで削除ボタンが表示されます。
 TOTURIAL_DES_08,消除行和胡牌均可获得游戏分数，当分数达到目标分数后即可通关游戏；注意，游戏时间耗尽、牌库麻将牌耗尽，以及方块堆叠超过红线均会导致游戏失败,消除行和胡牌均可獲得遊戲分數，當分數達到目標分數後即可通關遊戲；注意，遊戲時間耗盡、牌庫麻將牌耗盡，以及方塊堆疊超過紅線均會導致遊戲失敗,"Clear lines and Win hands to score. Reach the Target Score to clear the game.Game Over conditions: Time runs out, Deck is empty, or Stack crosses the Red Line.",ライン消去と和了でスコアを稼ぎ、目標スコア達成でゲームクリア。**敗北条件：**時間切れ、山切れ、またはブロックが赤線を超えること。
 TOTURIAL_MARK_01_01,下降速度,下降速度,Drop Speed,落下速度
 TOTURIAL_MARK_02_01,胡牌区,胡牌區,Winning Area,和了エリア
