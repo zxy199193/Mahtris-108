@@ -755,7 +755,7 @@ MonoBehaviour:
   typeLabelObj: {fileID: 5608575554221390195}
   typeLabelBackground: {fileID: 4022451036816925548}
   typeLabelText: {fileID: 822453847024588739}
-  offset: {x: 0, y: 200, z: 0}
+  offset: {x: 0, y: 180, z: 0}
 --- !u!223 &1598882393119344253
 Canvas:
   m_ObjectHideFlags: 0

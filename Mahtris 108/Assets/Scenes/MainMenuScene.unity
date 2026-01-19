@@ -4567,7 +4567,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &403105033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9279,7 +9279,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1714906052375840647, guid: 5e614b18f87b03c4596b3324e843ee27, type: 3}
       propertyPath: offset.y
-      value: 165
+      value: 170
       objectReference: {fileID: 0}
     - target: {fileID: 2892860977007238168, guid: 5e614b18f87b03c4596b3324e843ee27, type: 3}
       propertyPath: m_SizeDelta.x
@@ -9917,14 +9917,17 @@ MonoBehaviour:
   mainMenuBgm: {fileID: 8300000, guid: f95963f5381e91849a80107edf412d8e, type: 3}
   easyGameBgmList:
   - {fileID: 8300000, guid: 94752807f465f7b4c944c884d601e6b1, type: 3}
+  - {fileID: 8300000, guid: afbf623c7cf0ada439427151650d9c47, type: 3}
   normalGameBgmList:
   - {fileID: 8300000, guid: a49ad312efc290f4fb01e39d99600b0f, type: 3}
+  - {fileID: 8300000, guid: 7fac5e7c0d12e0443be16a5aa059218a, type: 3}
   hardGameBgmList:
   - {fileID: 8300000, guid: 4db0890bb02a85145bcd3fc992a3e4bc, type: 3}
   - {fileID: 8300000, guid: fbc71659e931f1b4c8cf38bfcd5aa0ad, type: 3}
   unmatchedGameBgmList:
   - {fileID: 8300000, guid: f48129f63563d794cb90449997c06cab, type: 3}
-  bgmRestDuration: 20
+  - {fileID: 8300000, guid: 82dfa04561f78874fbf0e25040f2256d, type: 3}
+  bgmRestDuration: 30
   soundLibrary:
     buttonClick: {fileID: 8300000, guid: 5b896685ad944d143917ba35ad190fef, type: 3}
     tetrominoRotate: {fileID: 8300000, guid: 3c8365741b85d4240814673ecb93d452, type: 3}

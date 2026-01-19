@@ -1208,13 +1208,13 @@ MonoBehaviour:
   bgmSource: {fileID: 51749392}
   loopSfxSource: {fileID: 0}
   initialPoolSize: 10
-  sfxSourcePrefab: {fileID: 0}
   _bgmVolume: 0.5
   _sfxVolume: 1
   mainMenuBgm: {fileID: 0}
-  easyGameBgm: {fileID: 0}
-  normalGameBgm: {fileID: 0}
-  hardGameBgm: {fileID: 0}
+  easyGameBgmList: []
+  normalGameBgmList: []
+  hardGameBgmList: []
+  unmatchedGameBgmList: []
   bgmRestDuration: 20
   soundLibrary:
     buttonClick: {fileID: 8300000, guid: 8e96702acb242fb4ca103f93b6132044, type: 3}
@@ -31134,7 +31134,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1714906052375840647, guid: 5e614b18f87b03c4596b3324e843ee27, type: 3}
       propertyPath: offset.y
-      value: 165
+      value: 170
       objectReference: {fileID: 0}
     - target: {fileID: 2892860977007238168, guid: 5e614b18f87b03c4596b3324e843ee27, type: 3}
       propertyPath: m_SizeDelta.x

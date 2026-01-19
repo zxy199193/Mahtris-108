@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7750848909bd49d438303ca3f8437fcc, type: 3}
+  m_Name: 24 Attack On Giant
+  m_EditorClassIdentifier: 
+  nameKey: PROTOCOL_NAME_24
+  descKey: PROTOCOL_DES_24
+  protocolName: "\u653B\u51FB\u7684\u5DE8\u4EBA"
+  protocolIcon: {fileID: 21300000, guid: e73030bef5d3e4444a1808a4ca7c8005, type: 3}
+  protocolDescription: "\u6BCF\u8F6E\u6E38\u620F\u5F00\u59CB\u65F6\uFF0C\u7B2C1\u4E2A\u65B9\u5757\u56FA\u5B9A\u662F\u201C\u5DE8\u4EBA\u65B9\u5757\u201D\uFF0C\u65B9\u5757\u500D\u7387+36\r"
+  isLegendary: 0
+  price: 500
+  isInitial: 0
+  unlockConditionCount: 0
+  blockMultiplierBonus: 36

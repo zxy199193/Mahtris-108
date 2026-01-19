@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5736227f23692647bdae44f560e3266, type: 3}
+  m_Name: 10 Hourglass
+  m_EditorClassIdentifier: 
+  nameKey: ITEM_NAME_10
+  descKey: ITEM_DES_10
+  itemName: "\u6C99\u6F0F"
+  itemIcon: {fileID: 21300000, guid: e7edf38b834fc214da3ba93f3fd73b85, type: 3}
+  itemDescription: "\u5269\u4F59\u6E38\u620F\u65F6\u95F4+45\u79D2\r"
+  isAdvanced: 0
+  isLegendary: 0
+  useSound: {fileID: 0}
+  price: 200
+  isInitial: 1
+  unlockConditionCount: 0
+  timeToAdd: 45

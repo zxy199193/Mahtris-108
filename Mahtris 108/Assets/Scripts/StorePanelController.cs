@@ -136,12 +136,7 @@ public class StorePanelController : MonoBehaviour
 
         if (showingItems)
         {
-            // 【修改】获取所有道具，并按价格从低到高排序
-            // 如果价格相同，再按名称排序以保持列表稳定
-            var allItems = GetAllItems()
-                .OrderBy(i => i.price)
-                .ThenBy(i => i.itemName) // 可选：价格一样时按名字排
-                .ToList();
+            var allItems = GetAllItems();
 
             int unlockedCount = allItems.Count(i => SaveManager.IsItemUnlocked(i.itemName, i.isInitial));
 
@@ -166,11 +161,7 @@ public class StorePanelController : MonoBehaviour
         }
         else
         {
-            // 【修改】获取所有条约，并按价格从低到高排序
-            var allProtocols = settings.protocolPool
-                .OrderBy(p => p.price)
-                .ThenBy(p => p.protocolName) // 可选
-                .ToList();
+            var allProtocols = settings.protocolPool;
 
             int unlockedCount = allProtocols.Count(p => SaveManager.IsProtocolUnlocked(p.protocolName, p.isInitial));
 

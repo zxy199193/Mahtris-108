@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba4c49594e391874ebfd542f0a63bf52, type: 3}
+  m_Name: 07 NoGravity
+  m_EditorClassIdentifier: 
+  nameKey: PROTOCOL_NAME_07
+  descKey: PROTOCOL_DES_07
+  protocolName: "\u65E0\u91CD\u529B"
+  protocolIcon: {fileID: 21300000, guid: 3a8dcb9e91d78d649b8cf7ac8724849e, type: 3}
+  protocolDescription: "\u65B9\u5757\u4E2D\u7684\u9EBB\u5C06\u724C\u9762\u4F1A\u968F\u673A\u65CB\u8F6C\u65B9\u5411\uFF0C\u989D\u5916\u500D\u7387x2\r"
+  isLegendary: 0
+  price: 500
+  isInitial: 1
+  unlockConditionCount: 0
+  extraMultiplier: 2

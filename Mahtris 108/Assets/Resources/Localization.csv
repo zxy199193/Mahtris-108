@@ -98,7 +98,7 @@ HU_NEXT_ROUND,开始下一轮,開始下一輪,NEXT ROUND,次のラウンドへ
 HU_FULL_ITEM,道具栏已满,道具欄已滿,Item Slots Full,アイテム枠が満
 HU_FULL_PROTOCOL,条约栏已满,條約欄已滿,Protocol Slots Full,条約枠が満杯
 HU_LACK_GOLD,金币不足,金幣不足,Not enough coins,コイン不足
-HU_LACK_REFRESH,刷新奖励,刷新獎勵,REROLL,報酬更新
+HU_LACK_REFRESH,刷新奖励,刷新獎勵,REFRESH,報酬更新
 TIP_ITEM,道具,道具,ITEM,アイテム
 TIP_ADVANCED_ITEM,高级道具,高級道具,ADVANCED ITEM,高級アイテム
 TIP_PROTOCOL,条约,條約,PROTOCOL,条約
@@ -198,7 +198,7 @@ ITEM_DES_29,60秒内只会出现1~3格的方块，仅本轮有效,60秒內只會
 ITEM_DES_30,当胡牌区未满且牌库中存在可以组成刻子或顺子的牌时，随机将一组牌加入胡牌区,當胡牌區牌組小於4組且牌庫中存在可以組成刻子或順子的牌時，隨機將一組牌加入胡牌區,"If Winning Area is not full and the deck contains any Triplet or Sequence, add a random Set",和了エリアに空きがあり、山に刻子または順子を作れる牌がある場合、ランダムな1組を追加する
 ITEM_DES_31,如果游戏失败则会清空桌面，<color=#36BA98>游戏时间+30秒</color>，然后继续游戏，仅本轮有效,如果遊戲失敗則會清空桌面，<color=#36BA98>遊戲時間+30秒</color>，然後繼續遊戲，僅本局有效,"If you lose: Clear board, <color=#36BA98>Time +30s</color>, and continue game (this round only)",ゲームオーバー時、盤面を一掃し<color=#36BA98>時間+30秒</color>で再開する、今局のみ有効
 ITEM_DES_32,接下来消除的3行不会进行判定而是会被直接移除，下轮游戏恢复,接下來消除的3行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next 3 cleared lines are removed directly without check (restores next round),次に消去した3回のラインは判定を行わず直接削除される、和了後に元に戻る
-ITEM_DES_33,如果通关本局游戏，金币奖励+50%,如果通關本局遊戲，金幣獎勵+50%,"If you clear this game, Coin Reward +50%",この局をクリアすれば、総報酬+50%
+ITEM_DES_33,如果通关本局游戏，金币奖励+100%,如果通關本局遊戲，金幣獎勵+100%,"If you clear this game, Coin Reward +100%",この局をクリアすれば、総報酬+100%
 ITEM_DES_34,20秒内出现的方块会尽可能只有筒子牌，仅本轮有效,20秒內出現的方塊會盡可能只有筒子牌，僅本局有效,"For 20s, blocks will spawn mostly with Tong (Circle) tiles (this round only)",20秒間、出現するブロックが可能な限り筒子（ピンズ）のみになる、今局のみ有効
 ITEM_DES_35,20秒内出现的方块会尽可能只有万子牌，仅本轮有效,20秒內出現的方塊會盡可能只有萬子牌，僅本局有效,"For 20s, blocks will spawn mostly with Wan (Character) tiles (this round only)",20秒間、出現するブロックが可能な限り萬子（マンズ）のみになる、今局のみ有効
 ITEM_DES_36,20秒内出现的方块会尽可能只有条子牌，仅本轮有效,20秒內出現的方塊會盡可能只有條子牌，僅本局有效,"For 20s, blocks will spawn mostly with Tiao (Bamboo) tiles (this round only)",20秒間、出現するブロックが可能な限り索子（ソーズ）のみになる、今局のみ有効
