@@ -86,6 +86,7 @@ GameObject:
   - component: {fileID: 7974090187147391246}
   - component: {fileID: 4486190949426985433}
   - component: {fileID: 7811079462827428513}
+  - component: {fileID: 1548075147551177594}
   - component: {fileID: 6446893609878501714}
   m_Layer: 5
   m_Name: Text Des
@@ -155,6 +156,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u9053\u5177\u680F"
+--- !u!114 &1548075147551177594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2641708528117510454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: TOTURIAL_MARK_06_02
 --- !u!114 &6446893609878501714
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426,6 +440,7 @@ GameObject:
   - component: {fileID: 830052367910235311}
   - component: {fileID: 992298316437038445}
   - component: {fileID: 1899286149226905280}
+  - component: {fileID: 1669802002697943797}
   - component: {fileID: 4381750108634843579}
   m_Layer: 5
   m_Name: Text Des
@@ -495,6 +510,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u65B9\u5757\u5217\u8868"
+--- !u!114 &1669802002697943797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5646010629586789048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: TOTURIAL_MARK_06_02
 --- !u!114 &4381750108634843579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -672,6 +700,7 @@ GameObject:
   - component: {fileID: 1015779040116289841}
   - component: {fileID: 7489522413976553031}
   - component: {fileID: 440165092937997466}
+  - component: {fileID: 2157076874014829520}
   - component: {fileID: 74862506167999829}
   m_Layer: 5
   m_Name: Text Des
@@ -741,6 +770,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1.2
   m_Text: "\u83B7\u5F97\u3010\u65B9\u5757\u3011\u4E4B\u540E\u6E38\u620F\u4E2D\u5C31\u4F1A\u51FA\u73B0\u8FD9\u79CD\u5F62\u72B6\u7684\u65B9\u5757\uFF0C\u83B7\u5F97\u3010\u9053\u5177\u3011\u4E4B\u540E\u9053\u5177\u4F1A\u51FA\u73B0\u5728\u9053\u5177\u680F\u4E2D\uFF0C\u70B9\u51FB\u9053\u5177\u56FE\u6807\u5373\u53EF\u4F7F\u7528\u9053\u5177\u89E6\u53D1\u6548\u679C"
+--- !u!114 &2157076874014829520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6904038615409579480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: TOTURIAL_DES_06
 --- !u!114 &74862506167999829
 MonoBehaviour:
   m_ObjectHideFlags: 0

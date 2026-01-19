@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3766083435044983445}
   - component: {fileID: 1157975522223527423}
   - component: {fileID: 456398646156315651}
+  - component: {fileID: 4323432858867137976}
   - component: {fileID: 1384659243501074250}
   m_Layer: 5
   m_Name: Text Des
@@ -35,7 +36,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 215, y: -40.5}
+  m_AnchoredPosition: {x: 215, y: -10}
   m_SizeDelta: {x: 400, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1157975522223527423
@@ -80,6 +81,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1.2
   m_Text: "\u80E1\u724C\u540E\u4F1A\u6839\u636E\u80E1\u724C\u7684\u724C\u578B\u4EE5\u53CA\u5404\u79CD\u500D\u7387\u8BA1\u7B97\u51FA\u8FD9\u6B21\u80E1\u724C\u7684\u5F97\u5206"
+--- !u!114 &4323432858867137976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5043243025782727954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: TOTURIAL_DES_04
 --- !u!114 &1384659243501074250
 MonoBehaviour:
   m_ObjectHideFlags: 0

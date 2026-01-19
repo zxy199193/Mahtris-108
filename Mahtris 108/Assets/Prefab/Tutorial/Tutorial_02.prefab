@@ -86,6 +86,7 @@ GameObject:
   - component: {fileID: 1611746111092167756}
   - component: {fileID: 7794983992483637426}
   - component: {fileID: 6591959193799773857}
+  - component: {fileID: 4186590238783733803}
   - component: {fileID: 1018059205299414138}
   m_Layer: 5
   m_Name: Text Des
@@ -155,6 +156,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1.2
   m_Text: "\u6BCF\u5F53\u6709\u4E00\u884C\u88AB\u65B9\u5757\u5360\u6EE1\u5C31\u4F1A\u5C06\u8BE5\u884C\u6D88\u9664\uFF0C\u5982\u679C\u88AB\u6D88\u9664\u7684\u884C\u4E2D\u5B58\u5728\u53EF\u4EE5\u51D1\u6210\u3010\u987A\u5B50\u3011\uFF08\u76F8\u540C\u82B1\u8272\uFF0C\u6570\u5B57\u8FDE\u7EED\uFF09\u6216\u3010\u523B\u5B50\u3011\uFF08\u76F8\u540C\u82B1\u8272\uFF0C\u76F8\u540C\u6570\u5B57\uFF09\u7684\u4E09\u4E2A\u9EBB\u5C06\u65B9\u5757\uFF0C\u8FD9\u4E9B\u65B9\u5757\u5C31\u4F1A\u88AB\u79FB\u52A8\u81F3\u3010\u80E1\u724C\u533A\u3011"
+--- !u!114 &4186590238783733803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563817073098829333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: TOTURIAL_DES_02
 --- !u!114 &1018059205299414138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255,6 +269,7 @@ GameObject:
   - component: {fileID: 4634789146465660531}
   - component: {fileID: 6204372139685391104}
   - component: {fileID: 1181267259654953049}
+  - component: {fileID: 2415930330450822265}
   - component: {fileID: 6974520791655010695}
   m_Layer: 5
   m_Name: Text Des
@@ -324,6 +339,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u80E1\u724C\u533A"
+--- !u!114 &2415930330450822265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3848638850255852004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: TOTURIAL_MARK_02_01
 --- !u!114 &6974520791655010695
 MonoBehaviour:
   m_ObjectHideFlags: 0
