@@ -31126,11 +31126,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1514441917971854457, guid: 5e614b18f87b03c4596b3324e843ee27, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 84
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1514441917971854457, guid: 5e614b18f87b03c4596b3324e843ee27, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 31
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1714906052375840647, guid: 5e614b18f87b03c4596b3324e843ee27, type: 3}
       propertyPath: offset.y
@@ -31138,11 +31138,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2892860977007238168, guid: 5e614b18f87b03c4596b3324e843ee27, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 64
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2892860977007238168, guid: 5e614b18f87b03c4596b3324e843ee27, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 17
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3628915358746355779, guid: 5e614b18f87b03c4596b3324e843ee27, type: 3}
       propertyPath: m_Pivot.x
@@ -31230,7 +31230,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5061476672969044778, guid: 5e614b18f87b03c4596b3324e843ee27, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
