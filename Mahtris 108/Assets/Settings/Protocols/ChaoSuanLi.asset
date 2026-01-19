@@ -22,3 +22,4 @@ MonoBehaviour:
   isInitial: 1
   unlockConditionCount: 0
   extraMultiplier: 3
+  spawnWeightMultiplier: 3

@@ -91,6 +91,8 @@ public class GameManager : MonoBehaviour
     public int queYiMenSuitToRemove = -1;
     public bool isHunYaoShiTingActive = false;
     public bool isChaoSuanLiActive = false;
+    private bool _chaoSuanLiBonusApplied = false;
+    private float _chaoSuanLiSpawnMultiplier = 1f;
     public bool isDarkFantasyActive = false;
     public bool isTyphoonActive = false;
     public bool isMeteorShowerActive = false;
@@ -497,6 +499,8 @@ public class GameManager : MonoBehaviour
         queYiMenSuitToRemove = -1;
         isHunYaoShiTingActive = false;
         isChaoSuanLiActive = false;
+        _chaoSuanLiBonusApplied = false;
+        _chaoSuanLiSpawnMultiplier = 1f;
         isDarkFantasyActive = false;
         isTyphoonActive = false;
         isMeteorShowerActive = false;
@@ -1528,6 +1532,7 @@ public class GameManager : MonoBehaviour
             // 【修改】传入 _activeBlockBuffs
             gameUI.UpdateTetrominoList(prefabs, rawBlockSum, _activeBlockBuffs, overrideMult);
         }
+        RecalculateChaoSuanLiStatus();
     }
     public void ApplyBlockMultiplierModifier(float amount)
     {
@@ -1541,7 +1546,52 @@ public class GameManager : MonoBehaviour
         extraMultiplier *= factor;
         gameUI.UpdateExtraMultiplierText(extraMultiplier);
     }
+    public void RecalculateChaoSuanLiStatus()
+    {
+        // 1. 如果条约未激活，强制移除倍率
+        if (!isChaoSuanLiActive)
+        {
+            if (_chaoSuanLiBonusApplied)
+            {
+                ApplyExtraMultiplier(1f / 3f); // 移除 x3
+                _chaoSuanLiBonusApplied = false;
+                Debug.Log("超算力：条约移除或失效，倍率恢复。");
+            }
+            return;
+        }
 
+        // 2. 检查当前是否拥有 5格方块 (Lv.2 = index 2 = T5系列)
+        bool hasLevel3Block = false;
+        if (spawner != null)
+        {
+            var activeBlocks = spawner.GetActivePrefabs();
+            if (activeBlocks != null)
+            {
+                // IsInLevel(p, 2) 对应 Lv.3
+                hasLevel3Block = activeBlocks.Any(p => IsInLevel(p, 2));
+            }
+        }
+
+        // 3. 根据检查结果应用或移除倍率
+        if (hasLevel3Block)
+        {
+            if (!_chaoSuanLiBonusApplied)
+            {
+                ApplyExtraMultiplier(3f); // 加上 x3
+                _chaoSuanLiBonusApplied = true;
+                Debug.Log("超算力：检测到5格方块，倍率 x3 生效！");
+            }
+        }
+        else
+        {
+            if (_chaoSuanLiBonusApplied)
+            {
+                ApplyExtraMultiplier(1f / 3f); // 移除 x3
+                _chaoSuanLiBonusApplied = false;
+                Debug.Log("超算力：5格方块消失，倍率失效。");
+            }
+        }
+    }
     public void ForceClearRowsFromBottom(int count)
     {
         // 查找当前正在控制的方块 (enabled == true 的那个)
@@ -1638,7 +1688,7 @@ public class GameManager : MonoBehaviour
             else if (champagneSpawnCount == 3)
             {
                 // 过了预定回合还没胡 (方块D生成了)，把分扣回去
-                ApplyRoundBaseScoreBonus(-10);
+                ApplyRoundBaseScoreBonus(-18);
                 isChampagneActive = false;
             }
         }
@@ -1729,6 +1779,16 @@ public class GameManager : MonoBehaviour
         var level3 = source.Where(p => IsInLevel(p, 2)).ToList();
         var result = new List<GameObject>();
         int safeCounter = 0;
+
+        float w1 = weights.level1Weight;
+        float w2 = weights.level2Weight;
+        float w3 = weights.level3Weight;
+        if (isChaoSuanLiActive)
+        {
+            w3 *= _chaoSuanLiSpawnMultiplier;
+        }
+        float totalWeight = w1 + w2 + w3;
+
         while (result.Count < count && safeCounter < 50)
         {
             safeCounter++;
@@ -3038,5 +3098,9 @@ public class GameManager : MonoBehaviour
             return _activeBlockBuffs[blockName];
         }
         return 0f;
+    }
+    public void SetChaoSuanLiSpawnMultiplier(float multiplier)
+    {
+        _chaoSuanLiSpawnMultiplier = multiplier;
     }
 }

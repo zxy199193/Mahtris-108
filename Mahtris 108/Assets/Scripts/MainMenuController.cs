@@ -325,8 +325,7 @@ public class MainMenuController : MonoBehaviour
     {
         if (highScoreText != null)
         {
-            int highScore = SaveManager.LoadHighScore();
-            // 【修改】使用 "N0" 格式化
+            long highScore = SaveManager.LoadHighScore();
             highScoreText.text = highScore.ToString("N0");
         }
     }

@@ -18,20 +18,7 @@ public class ScoreManager : MonoBehaviour
 
     void Start()
     {
-        // 【核心修改】兼容性读取逻辑
-        // 1. 先尝试读取新的 long 类型存档 (字符串格式)
-        string savedLong = PlayerPrefs.GetString("HighScore_Long", "");
-
-        if (!string.IsNullOrEmpty(savedLong) && long.TryParse(savedLong, out long result))
-        {
-            _highScore = result;
-        }
-        else
-        {
-            // 2. 如果没有，则读取旧的 int 类型存档 (兼容老玩家)
-            // 注意：这里暂时不调用 SaveManager，直接用 PlayerPrefs 以确保逻辑闭环
-            _highScore = PlayerPrefs.GetInt("HighScore", 0);
-        }
+        _highScore = SaveManager.LoadHighScore();
     }
 
     public void ResetScore()
@@ -111,14 +98,7 @@ public class ScoreManager : MonoBehaviour
         if (finalScore > _highScore)
         {
             _highScore = finalScore;
-
-            // 【核心修改】存为字符串以支持超大数值
-            PlayerPrefs.SetString("HighScore_Long", _highScore.ToString());
-            PlayerPrefs.Save();
-
-            // 顺便也更新一下旧的int存档，防止其他未修改的地方报错 (虽然存不下会溢出，但为了兼容性)
-            PlayerPrefs.SetInt("HighScore", (int)Mathf.Clamp(finalScore, 0, int.MaxValue));
-
+            SaveManager.SaveHighScore(_highScore);
             return true;
         }
         return false;

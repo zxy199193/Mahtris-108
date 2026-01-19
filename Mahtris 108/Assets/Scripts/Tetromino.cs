@@ -39,7 +39,7 @@ public class Tetromino : MonoBehaviour
         // ¡¾Á÷ĞÇÓêÂß¼­¡¿
         if (GameManager.Instance.isMeteorShowerActive && Random.value < 0.1f)
         {
-            this.fallSpeed = 20f / 25f;
+            this.fallSpeed = 20f / 200f;
         }
         else
         {
