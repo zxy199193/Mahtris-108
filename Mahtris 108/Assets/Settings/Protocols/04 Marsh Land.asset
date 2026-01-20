@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca197c060fd94274785ab3efa9e3f695, type: 3}
+  m_Name: 04 Marsh Land
+  m_EditorClassIdentifier: 
+  nameKey: PROTOCOL_NAME_27
+  descKey: PROTOCOL_DES_27
+  protocolName: "\u6CBC\u6CFD\u5730"
+  protocolIcon: {fileID: 21300000, guid: ebd971647e0a0524c8e5f770e84acc01, type: 3}
+  protocolDescription: "\u6BCF\u7ECF\u8FC710\u79D2\u5373\u4F1A\u5F3A\u884C\u6D88\u9664\u6700\u5E95\u4E0B\u4E00\u884C\u65B9\u5757\uFF0C\u989D\u5916\u500D\u7387x2\r"
+  isLegendary: 0
+  price: 500
+  isInitial: 1
+  unlockConditionCount: 0
+  extraMultiplier: 2

@@ -12735,7 +12735,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1ef6edc4dc86dc74b9f6e7687158d048, type: 2}
   - {fileID: 11400000, guid: e23312c42f3f43a4ea4540fccdc833e6, type: 2}
   - {fileID: 11400000, guid: a6937d774faebe94a9b5fcfeda12d49e, type: 2}
-  - {fileID: 11400000, guid: b79ee50e8599c634cb60df5e4a18882e, type: 2}
   - {fileID: 11400000, guid: 1f5385dcd54bf8e4f80c1791349ce27b, type: 2}
   - {fileID: 11400000, guid: 8d28ddc23cb2d9f459e662dd82259ee8, type: 2}
   - {fileID: 11400000, guid: 822349187b8f3164b9359a2e11a92bec, type: 2}
@@ -12780,6 +12779,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 203c2ca3c414abd42abcbb6e9c973a75, type: 2}
   - {fileID: 11400000, guid: 6a9534844e1dffe43a1bea60f3be1054, type: 2}
   - {fileID: 11400000, guid: a2def6ef141bd974396f0898105f43a2, type: 2}
+  - {fileID: 11400000, guid: b79ee50e8599c634cb60df5e4a18882e, type: 2}
   - {fileID: 11400000, guid: 10f3e84e5c4817246a79e3e1a89b6a3b, type: 2}
   notificationPrefab: {fileID: 7608088349780973262, guid: c657b136393c92548a9433bf0952e120, type: 3}
 --- !u!4 &1257890696
@@ -18562,7 +18562,7 @@ MonoBehaviour:
     lineSpacing: 1.1
   - language: 3
     font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    lineSpacing: 1.35
+    lineSpacing: 1.2
 --- !u!4 &1923233402
 Transform:
   m_ObjectHideFlags: 0

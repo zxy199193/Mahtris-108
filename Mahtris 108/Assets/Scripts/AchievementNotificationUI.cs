@@ -16,9 +16,20 @@ public class AchievementNotificationUI : MonoBehaviour
     public void Show(AchievementData data, Action onComplete)
     {
         if (icon) icon.sprite = data.icon;
-        if (title) title.text = data.GetName();
-        if (reward) reward.text = $"{data.rewardGold}";
-        if (description) description.text = data.GetDescription();
+        if (title)
+        {
+            title.text = data.GetName();
+            if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(title);
+        }
+        if (reward)
+        {
+            reward.text = $"{data.rewardGold}";
+        }
+        if (description)
+        {
+            description.text = data.GetDescription();
+            if (LocalizationManager.Instance) LocalizationManager.Instance.UpdateFont(description);
+        }
         // 1. «ø÷∆÷√∂•‰÷»æ≤„º∂
         if (canvas == null) canvas = GetComponent<Canvas>();
         if (canvas == null) canvas = gameObject.AddComponent<Canvas>();

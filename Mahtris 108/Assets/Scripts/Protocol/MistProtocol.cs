@@ -11,7 +11,7 @@ public class MistProtocol : ProtocolData
         manager.ToggleMistUI(true);
 
         // 2. 额外倍率 x3
-        manager.ApplyExtraMultiplier(3f);
+        manager.ApplyExtraMultiplier(2f);
     }
 
     public override void RemoveEffect(GameManager manager)
@@ -21,7 +21,7 @@ public class MistProtocol : ProtocolData
         // 1. 关闭视觉干扰
         manager.ToggleMistUI(false);
 
-        // 2. 移除倍率 (除以 3)
-        manager.ApplyExtraMultiplier(1f / 3f);
+        // 2. 移除倍率 (除以 2)
+        manager.ApplyExtraMultiplier(1f / 2f);
     }
 }
