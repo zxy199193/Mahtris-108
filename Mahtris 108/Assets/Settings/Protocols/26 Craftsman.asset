@@ -21,4 +21,4 @@ MonoBehaviour:
   price: 500
   isInitial: 1
   unlockConditionCount: 0
-  triggerInterval: 80
+  triggerInterval: 70
