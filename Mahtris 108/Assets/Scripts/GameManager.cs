@@ -696,8 +696,11 @@ public class GameManager : MonoBehaviour
         // 这里只是处理胡牌倍率。根据规则，老派玩家胡牌视为平胡(1番)。
         if (isOldSchoolActive)
         {
-            analysisResult.PatternName = "平胡";
-            analysisResult.TotalFan = 1; // 强制1番
+            analysisResult.PatternName = "HU_TYPE_PING";
+            int kongCount = huHand.Count(set => set.Count == 4);
+            int fanPerKong = GetEffectiveFanPerKong();
+
+            analysisResult.TotalFan = 1 + (kongCount * fanPerKong);
         }
 
         double scorePart = baseFanScore * analysisResult.FanMultiplier;
