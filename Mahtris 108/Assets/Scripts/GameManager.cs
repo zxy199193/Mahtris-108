@@ -1241,6 +1241,17 @@ public class GameManager : MonoBehaviour
 
                 _isBombOrSpecialClear = false;
                 if (!_hasDeclaredHuThisFrame) isProcessingRows = false;
+                if (!_hasDeclaredHuThisFrame)
+                {
+                    isProcessingRows = false;
+
+                    // 如果分数在消除过程中达标了，现在立即触发胜利结算
+                    if (!isEndlessMode && _pendingGameWin)
+                    {
+                        _pendingGameWin = false; // 重置标记
+                        HandleGameWon();         // 触发胜利
+                    }
+                }
             }
         }
     }

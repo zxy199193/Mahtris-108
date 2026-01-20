@@ -1589,7 +1589,7 @@ public class GameUIController : MonoBehaviour
         {
             GenerateColumn(currentBlockContainer, rewards.BlockChoices.Count, (obj, i) => {
                 var ui = obj.GetComponent<RewardOptionUI>();
-                if (ui) ui.Setup(rewards.BlockChoices[i], (clicked) => HandleRewardClick(0, i));
+                if (ui) ui.Setup(rewards.BlockChoices[i], null);
 
                 SetupSelectionClick(obj, i, 0);
 
@@ -1607,7 +1607,7 @@ public class GameUIController : MonoBehaviour
         {
             GenerateColumn(currentItemContainer, rewards.ItemChoices.Count, (obj, i) => {
                 var ui = obj.GetComponent<RewardOptionUI>();
-                if (ui) ui.Setup(rewards.ItemChoices[i], (clicked) => HandleRewardClick(1, i));
+                if (ui) ui.Setup(rewards.ItemChoices[i], null);
 
                 SetupSelectionClick(obj, i, 1);
 
@@ -1624,7 +1624,7 @@ public class GameUIController : MonoBehaviour
         {
             GenerateColumn(currentProtocolContainer, rewards.ProtocolChoices.Count, (obj, i) => {
                 var ui = obj.GetComponent<RewardOptionUI>();
-                if (ui) ui.Setup(rewards.ProtocolChoices[i], (clicked) => HandleRewardClick(2, i));
+                if (ui) ui.Setup(rewards.ProtocolChoices[i], null);
 
                 SetupSelectionClick(obj, i, 2);
 
@@ -1646,13 +1646,7 @@ public class GameUIController : MonoBehaviour
         HighlightContainer(currentItemContainer, _selectedItemIndex);
         HighlightContainer(currentProtocolContainer, _selectedProtocolIndex);
     }
-    private void HandleRewardClick(int type, int index)
-    {
-        // 原有的点击领取逻辑：如果启用了刷新功能，这里可能需要改为"仅选中"。
-        // 但为了兼容，我们可以让 RewardOptionUI 的点击事件既负责选中，也负责原本的交互。
-        // 目前 SetupClick 已经覆盖了 onClick，所以这个回调可能不会被触发，或者被覆盖。
-        // 建议：如果启用了刷新功能，RewardOptionUI 内部的 Button.onClick 最好被 SetupClick 接管。
-    }
+
     private void GenerateColumn(Transform parent, int count, Action<GameObject, int> onInit)
     {
         if (!parent || !rewardOptionPrefab) return;
@@ -1693,8 +1687,24 @@ public class GameUIController : MonoBehaviour
         if (_selectedBlockIndex != -1 && _currentRewardPackage.BlockChoices.Count > _selectedBlockIndex)
         {
             var block = _currentRewardPackage.BlockChoices[_selectedBlockIndex];
-            // 注意：这里需要 Spawner 的引用，可以通过 FindObjectOfType 或 GameManager 获取
-            GameManager.Instance.Spawner.AddTetrominoToPool(block);
+            int count = 1;
+            // 检查是否有瓶盖效果
+            if (GameManager.Instance.luckyCapStack > 0)
+            {
+                // 数量增加 (例如 1层stack -> 2个方块)
+                count += GameManager.Instance.luckyCapStack;
+
+                // 消耗瓶盖 (归零)
+                GameManager.Instance.ConsumeLuckyCap();
+
+                Debug.Log($"幸运瓶盖生效！获得 {count} 个方块");
+            }
+
+            // 循环发放
+            for (int i = 0; i < count; i++)
+            {
+                GameManager.Instance.Spawner.AddTetrominoToPool(block);
+            }
         }
 
         // 2. 发放道具

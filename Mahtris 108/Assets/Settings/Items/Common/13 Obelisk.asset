@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ccc861540cb03934888f95c45dff8421, type: 3}
-  m_Name: 13Obelisk
+  m_Name: 13 Obelisk
   m_EditorClassIdentifier: 
   nameKey: ITEM_NAME_13
   descKey: ITEM_DES_13

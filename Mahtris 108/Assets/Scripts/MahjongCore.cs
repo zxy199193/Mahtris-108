@@ -267,17 +267,17 @@ public class MahjongCore
             activePatterns.Add("HU_TYPE_DI");
         }
 
-        // (2) 清一色 (5番)
+        // (2) 清一色 (4番)
         if (isQingYiSe)
         {
-            totalFan += 5;
+            totalFan += 4;
             activePatterns.Add("HU_TYPE_QINGYISE");
         }
 
-        // (3) 对对 (3番)
+        // (3) 对对 (5番)
         if (isDuiDuiHu)
         {
-            totalFan += 3;
+            totalFan += 5;
             activePatterns.Add("HU_TYPE_DUIDUI");
         }
 
