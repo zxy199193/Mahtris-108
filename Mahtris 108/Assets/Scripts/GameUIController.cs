@@ -130,9 +130,9 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Text refreshCostText;
     private HuRewardPackage _currentRewardPackage;
     private bool _isLastHuAdvanced;
-    private int _selectedBlockIndex = -1;
-    private int _selectedItemIndex = -1;
-    private int _selectedProtocolIndex = -1;
+    private List<int> _selectedBlockIndices = new List<int>();
+    private List<int> _selectedItemIndices = new List<int>();
+    private List<int> _selectedProtocolIndices = new List<int>();
     private Transform currentBlockContainer;
     private Transform currentItemContainer;
     private Transform currentProtocolContainer;
@@ -629,14 +629,19 @@ public class GameUIController : MonoBehaviour
                             int baseScore, float blockMultiplier, float extraMultiplier, long finalScore,
                             HuRewardPackage rewards, bool isAdvanced, bool isBerserkerActive,
                             float addedTime, int speedIncrease,
-                            int autoBlockIdx = -1, int autoItemIdx = -1, int autoProtocolIdx = -1)
+                            List<int> autoBlockIndices = null,   // 改为 List
+                            List<int> autoItemIndices = null,    // 改为 List
+                            List<int> autoProtocolIndices = null // 改为 List
+                            )
     {
         _currentRewardPackage = rewards;
         _isLastHuAdvanced = isAdvanced;
-        _selectedBlockIndex = -1;
-        _selectedItemIndex = -1;
-        _selectedProtocolIndex = -1;
-
+        _selectedBlockIndices.Clear();
+        _selectedItemIndices.Clear();
+        _selectedProtocolIndices.Clear();
+        if (autoBlockIndices != null) _selectedBlockIndices.AddRange(autoBlockIndices);
+        if (autoItemIndices != null) _selectedItemIndices.AddRange(autoItemIndices);
+        if (autoProtocolIndices != null) _selectedProtocolIndices.AddRange(autoProtocolIndices);
         if (isAdvanced)
         {
             currentBlockContainer = advancedRewardBlockArea;
@@ -657,7 +662,7 @@ public class GameUIController : MonoBehaviour
             if (showRefresh) UpdateRefreshCostUI();
         }
 
-        PopulateRewardSlots(_currentRewardPackage, isBerserkerActive, autoBlockIdx, autoItemIdx, autoProtocolIdx);
+        PopulateRewardSlots(_currentRewardPackage, isBerserkerActive, autoBlockIndices, autoItemIndices, autoProtocolIndices);
 
         selectionCounts.Clear();
         _currentDisplayScoreTarget = finalScore;
@@ -1523,12 +1528,11 @@ public class GameUIController : MonoBehaviour
     {
         if (GameManager.Instance.TrySpendRefreshCost())
         {
-            // 锁定逻辑
-            bool keepBlocks = _selectedBlockIndex != -1;
-            bool keepItems = _selectedItemIndex != -1;
-            bool keepProtocols = _selectedProtocolIndex != -1;
+            // 锁定逻辑：只要列表不为空，就视为需要保留
+            bool keepBlocks = _selectedBlockIndices.Count > 0;
+            bool keepItems = _selectedItemIndices.Count > 0;
+            bool keepProtocols = _selectedProtocolIndices.Count > 0;
 
-            // 此时 _isLastHuAdvanced 已经是正确的值了，刷新不会降级
             _currentRewardPackage = GameManager.Instance.RefreshRewardPackage(
                 _currentRewardPackage,
                 keepBlocks,
@@ -1537,17 +1541,20 @@ public class GameUIController : MonoBehaviour
                 _isLastHuAdvanced
             );
 
-            // 重新生成并高亮
-            PopulateRewardSlots(_currentRewardPackage);
+            PopulateRewardSlots(_currentRewardPackage); // 这里的列表依然保留着旧的索引
+
+            // 【重要】刷新后，需要清理掉越界的索引 (防止刷新后数量变少导致报错)
+            // 但通常刷新数量不变，或者保留了旧的选项，所以索引依然有效。
+            // 如果刷新逻辑是“保留旧物体”，那么索引对应的内容没变。
+
             RestoreSelections();
             UpdateRefreshCostUI();
         }
         else
         {
-            // 修复音效报错
             if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
             string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_LACK_GOLD") : "金币不足！";
-            ShowToast("金币不足！");
+            ShowToast(msg);
         }
     }
     // 【新增】更新刷新按钮状态 (价格、颜色)
@@ -1582,22 +1589,25 @@ public class GameUIController : MonoBehaviour
         // 颜色逻辑保持不变：钱不够变红
         refreshCostText.color = (playerGold >= cost) ? new Color32(0, 95, 115, 255) : Color.red;
     }
-    private void PopulateRewardSlots(HuRewardPackage rewards, bool isBerserker = false, int autoBlockIdx = -1, int autoItemIdx = -1, int autoProtocolIdx = -1)
+    private void PopulateRewardSlots(HuRewardPackage rewards, bool isBerserker = false,
+                                     List<int> autoBlockIndices = null,
+                                     List<int> autoItemIndices = null,
+                                     List<int> autoProtocolIndices = null)
     {
         // 1. 生成方块栏
         if (currentBlockContainer != null)
         {
             GenerateColumn(currentBlockContainer, rewards.BlockChoices.Count, (obj, i) => {
                 var ui = obj.GetComponent<RewardOptionUI>();
-                if (ui) ui.Setup(rewards.BlockChoices[i], null);
+                if (ui) ui.Setup(rewards.BlockChoices[i], null); // 传入 null，由 SetupSelectionClick 接管
 
                 SetupSelectionClick(obj, i, 0);
 
-                // 处理狂战士状态
                 if (isBerserker && ui)
                 {
                     ui.SetInteractable(false);
-                    if (i == autoBlockIdx) ui.SetSelected(true);
+                    // 检查是否在列表中
+                    if (autoBlockIndices != null && autoBlockIndices.Contains(i)) ui.SetSelected(true);
                 }
             });
         }
@@ -1614,7 +1624,7 @@ public class GameUIController : MonoBehaviour
                 if (isBerserker && ui)
                 {
                     ui.SetInteractable(false);
-                    if (i == autoItemIdx) ui.SetSelected(true);
+                    if (autoItemIndices != null && autoItemIndices.Contains(i)) ui.SetSelected(true);
                 }
             });
         }
@@ -1631,7 +1641,7 @@ public class GameUIController : MonoBehaviour
                 if (isBerserker && ui)
                 {
                     ui.SetInteractable(false);
-                    if (i == autoProtocolIdx) ui.SetSelected(true);
+                    if (autoProtocolIndices != null && autoProtocolIndices.Contains(i)) ui.SetSelected(true);
                 }
             });
         }
@@ -1642,9 +1652,9 @@ public class GameUIController : MonoBehaviour
 
     private void RestoreSelections()
     {
-        HighlightContainer(currentBlockContainer, _selectedBlockIndex);
-        HighlightContainer(currentItemContainer, _selectedItemIndex);
-        HighlightContainer(currentProtocolContainer, _selectedProtocolIndex);
+        HighlightContainer(currentBlockContainer, _selectedBlockIndices);
+        HighlightContainer(currentItemContainer, _selectedItemIndices);
+        HighlightContainer(currentProtocolContainer, _selectedProtocolIndices);
     }
 
     private void GenerateColumn(Transform parent, int count, Action<GameObject, int> onInit)
@@ -1681,50 +1691,67 @@ public class GameUIController : MonoBehaviour
 
             // 1. 判断意图：是“选中”还是“取消选中”？
             // (如果点击的是当前已经选中的项，说明玩家想取消，这种情况下不需要检查容量)
-            bool isSelecting = false;
-            if (typeId == 0) isSelecting = (_selectedBlockIndex != index);
-            if (typeId == 1) isSelecting = (_selectedItemIndex != index);
-            if (typeId == 2) isSelecting = (_selectedProtocolIndex != index);
+            List<int> targetList = null;
+            if (typeId == 0) targetList = _selectedBlockIndices;
+            else if (typeId == 1) targetList = _selectedItemIndices;
+            else if (typeId == 2) targetList = _selectedProtocolIndices;
+
+            if (targetList == null) return;
+
+            // 1. 判断意图：是“选中”还是“取消选中”？
+            bool isSelecting = !targetList.Contains(index);
 
             // 2. 如果是“选中”操作，执行容量检查
             if (isSelecting)
             {
-                // --- 检查道具栏 (typeId == 1) ---
-                if (typeId == 1)
+                // 获取当前允许的选择上限 (SSSVIP=2, 默认=1)
+                int selectionLimit = GameManager.Instance.GetCurrentRewardSelectionLimit();
+                bool willIncreaseCount = targetList.Count < selectionLimit;
+                // --- 容量检查 (仅在列表为空，即选择第一个时检查，防止溢出) ---
+                // 如果已选了一个想选第二个，这里暂不做严格容量检查(视作玩家自己管理)
+                if (willIncreaseCount)
                 {
-                    // 使用 GameManager 获取 Inventory 引用
-                    if (GameManager.Instance.Inventory.IsFull())
+                    if (typeId == 1) // 道具
                     {
-                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
-
-                        string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_FULL_ITEM") : "背包已满！";
-                        ShowToast(msg);
-
-                        return; // 
+                        int emptySlots = GameManager.Instance.GetRemainingItemSpace();
+                        // 逻辑：当前已选数量 >= 剩余空位，说明没地儿放新的了
+                        if (targetList.Count >= emptySlots)
+                        {
+                            if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+                            string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_FULL_ITEM") : "背包空间不足！";
+                            ShowToast(msg);
+                            return;
+                        }
+                    }
+                    else if (typeId == 2) // 条约
+                    {
+                        int emptySlots = GameManager.Instance.GetRemainingProtocolSpace();
+                        if (targetList.Count >= emptySlots)
+                        {
+                            if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+                            string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_FULL_PROTOCOL") : "条约栏空间不足！";
+                            ShowToast(msg);
+                            return;
+                        }
                     }
                 }
-                // --- 检查条约栏 (typeId == 2) ---
-                else if (typeId == 2)
+
+                // --- 正常的 FIFO 替换逻辑 ---
+                if (targetList.Count >= selectionLimit)
                 {
-                    if (GameManager.Instance.IsProtocolListFull())
-                    {
-                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
-
-                        string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_FULL_PROTOCOL") : "条约栏已满！";
-                        ShowToast(msg);
-
-                        return; // 
-                    }
+                    targetList.RemoveAt(0); // 移除最早选的
                 }
+
+                targetList.Add(index);
+            }
+            else
+            {
+                // 取消选中
+                targetList.Remove(index);
             }
 
             // 3. 通过检查，播放正常的点击音效
             if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
-
-            // 4. 执行切换逻辑
-            if (typeId == 0) _selectedBlockIndex = (_selectedBlockIndex == index) ? -1 : index;
-            if (typeId == 1) _selectedItemIndex = (_selectedItemIndex == index) ? -1 : index;
-            if (typeId == 2) _selectedProtocolIndex = (_selectedProtocolIndex == index) ? -1 : index;
 
             // 5. 刷新 UI 显示
             RestoreSelections();
@@ -1732,45 +1759,44 @@ public class GameUIController : MonoBehaviour
     }
     private void DistributeSelectedRewards()
     {
-        // 1. 发放方块
-        if (_selectedBlockIndex != -1 && _currentRewardPackage.BlockChoices.Count > _selectedBlockIndex)
+        // 1. 方块
+        foreach (int idx in _selectedBlockIndices)
         {
-            var block = _currentRewardPackage.BlockChoices[_selectedBlockIndex];
-            int count = 1;
-            // 检查是否有瓶盖效果
-            if (GameManager.Instance.luckyCapStack > 0)
+            if (idx >= 0 && idx < _currentRewardPackage.BlockChoices.Count)
             {
-                // 数量增加 (例如 1层stack -> 2个方块)
-                count += GameManager.Instance.luckyCapStack;
-
-                // 消耗瓶盖 (归零)
-                GameManager.Instance.ConsumeLuckyCap();
-
-                Debug.Log($"幸运瓶盖生效！获得 {count} 个方块");
-            }
-
-            // 循环发放
-            for (int i = 0; i < count; i++)
-            {
-                GameManager.Instance.Spawner.AddTetrominoToPool(block);
+                var block = _currentRewardPackage.BlockChoices[idx];
+                int count = 1;
+                // 幸运瓶盖 (简单起见，每次触发都消耗)
+                if (GameManager.Instance.luckyCapStack > 0)
+                {
+                    count += GameManager.Instance.luckyCapStack;
+                    GameManager.Instance.ConsumeLuckyCap();
+                }
+                for (int k = 0; k < count; k++) GameManager.Instance.Spawner.AddTetrominoToPool(block);
             }
         }
 
-        // 2. 发放道具
-        if (_selectedItemIndex != -1 && _currentRewardPackage.ItemChoices.Count > _selectedItemIndex)
+        // 2. 道具
+        foreach (int idx in _selectedItemIndices)
         {
-            var item = _currentRewardPackage.ItemChoices[_selectedItemIndex];
-            GameManager.Instance.Inventory.AddItem(item);
+            if (idx >= 0 && idx < _currentRewardPackage.ItemChoices.Count)
+            {
+                var item = _currentRewardPackage.ItemChoices[idx];
+                GameManager.Instance.Inventory.AddItem(item);
+            }
         }
 
-        // 3. 发放条约
-        if (_selectedProtocolIndex != -1 && _currentRewardPackage.ProtocolChoices.Count > _selectedProtocolIndex)
+        // 3. 条约
+        foreach (int idx in _selectedProtocolIndices)
         {
-            var proto = _currentRewardPackage.ProtocolChoices[_selectedProtocolIndex];
-            GameManager.Instance.AddProtocol(proto);
+            if (idx >= 0 && idx < _currentRewardPackage.ProtocolChoices.Count)
+            {
+                var proto = _currentRewardPackage.ProtocolChoices[idx];
+                GameManager.Instance.AddProtocol(proto);
+            }
         }
     }
-    private void HighlightContainer(Transform container, int selectedIndex)
+    private void HighlightContainer(Transform container, List<int> selectedIndices)
     {
         if (container == null) return;
 
@@ -1779,9 +1805,9 @@ public class GameUIController : MonoBehaviour
             var ui = container.GetChild(i).GetComponent<RewardOptionUI>();
             if (ui)
             {
-                // 使用 RewardOptionUI 自带的选中状态
-                ui.SetSelected(i == selectedIndex);
-                // 确保按钮是可点击的
+                // 只要在列表中，就设为选中
+                bool isSelected = selectedIndices.Contains(i);
+                ui.SetSelected(isSelected);
                 ui.SetInteractable(true);
             }
         }

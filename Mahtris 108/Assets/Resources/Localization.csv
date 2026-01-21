@@ -170,9 +170,9 @@ ITEM_DES_01,<color=#3296DC>基础分+5</color>，整局有效,<color=#3296DC>基
 ITEM_DES_02,<color=#3296DC>基础分+12</color>，仅本轮有效,<color=#3296DC>基礎分+12</color>，僅本局有效,<color=#3296DC>Base Point +12</color> (this round only),<color=#3296DC>基礎点+12</color>、今局のみ有効
 ITEM_DES_03,如果下下个方块降落后胡牌，<color=#3296DC>基础分+18</color>，仅本轮有效,如果再下一個方塊降落後胡牌，<color=#3296DC>基礎分+18</color>，僅本局有效,"If you win after the next block drops, <color=#3296DC>Base Point +18</color> (this round only)",次のブロック落下後に和了すれば、<color=#3296DC>基礎点+18</color>、今局のみ有効
 ITEM_DES_04,<color=#3296DC>基础分+24</color>，下轮开始<color=#3296DC>基础分-48</color>（最低为1），下下轮恢复,<color=#3296DC>基礎分+24</color>，下一局開始<color=#3296DC>基礎分-48</color>（最低為1），再下一局恢復,"<color=#3296DC>Base Point +24</color>. Next round <color=#3296DC>Base Point -48</color> (min 1), restores the hand after",<color=#3296DC>基礎点+24</color>、次局は<color=#3296DC>基礎点-48</color>（最低1）、その次の局で元に戻る
-ITEM_DES_05,<color=#36BA98>方块速度-5</color>，整局有效,<color=#36BA98>方塊速度-5</color>，整局有效,<color=#36BA98>Block Speed -5</color> (entire game),<color=#36BA98>ブロック落下速度-5</color>、ゲーム終了まで有効
-ITEM_DES_06,<color=#36BA98>方块速度-12</color>，仅本轮有效,<color=#36BA98>方塊速度-12</color>，僅本局有效,<color=#36BA98>Block Speed -12</color> (this round only),<color=#36BA98>ブロック落下速度-12</color>、今局のみ有効
-ITEM_DES_07,接下来15个方块的<color=#36BA98>方块速度</color>变为1，仅本轮有效,接下來15個方块的<color=#36BA98>方塊速度</color>變為1，僅本局有效,<color=#36BA98>Block Speed</color> becomes 1 for the next 15 blocks (this round only),次のブロック15個の間、<color=#36BA98>落下速度</color>が1になる、今局のみ有効
+ITEM_DES_05,<color=#36BA98>方块速度-6</color>，整局有效,<color=#36BA98>方塊速度-6</color>，整局有效,<color=#36BA98>Block Speed -6</color> (entire game),<color=#36BA98>ブロック落下速度-6</color>、ゲーム終了まで有効
+ITEM_DES_06,<color=#36BA98>方块速度-18</color>，仅本轮有效,<color=#36BA98>方塊速度-18</color>，僅本局有效,<color=#36BA98>Block Speed -18</color> (this round only),<color=#36BA98>ブロック落下速度-18</color>、今局のみ有効
+ITEM_DES_07,接下来20个方块的<color=#36BA98>方块速度</color>变为1，仅本轮有效,接下來20個方块的<color=#36BA98>方塊速度</color>變為1，僅本局有效,<color=#36BA98>Block Speed</color> becomes 1 for the next 20 blocks (this round only),次のブロック20個の間、<color=#36BA98>落下速度</color>が1になる、今局のみ有効
 ITEM_DES_08,强行消除底部3行方块,強制消除底部3行方塊,Forcibly clear the bottom 3 lines,最下段の3ラインを強制的に消去する
 ITEM_DES_09,强行消除最上方3行方块,強制消除最上方3行方塊,Forcibly clear the top 3 lines,最上段の3ラインを強制的に消去する
 ITEM_DES_10,剩余<color=#36BA98>游戏时间+45秒</color>,剩餘<color=#36BA98>遊戲時間+45秒</color>,Remaining <color=#36BA98>Time +45s</color>,残り<color=#36BA98>時間+45秒</color>

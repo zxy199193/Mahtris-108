@@ -773,20 +773,43 @@ public class GameManager : MonoBehaviour
         var rewards = GenerateHuRewards(isAdvancedReward, finalExtraMult);
 
         // 狂战士 (Berserker) 逻辑
-        int autoBlockIndex = -1;
-        int autoItemIndex = -1;
-        int autoProtocolIndex = -1;
+        List<int> autoBlockIndices = new List<int>();
+        List<int> autoItemIndices = new List<int>();
+        List<int> autoProtocolIndices = new List<int>();
         if (isBerserkerActive)
         {
-            // 后台自动随机选择索引
-            if (rewards.BlockChoices.Count > 0) autoBlockIndex = Random.Range(0, rewards.BlockChoices.Count);
-            if (rewards.ItemChoices.Count > 0) autoItemIndex = Random.Range(0, rewards.ItemChoices.Count);
-            if (rewards.ProtocolChoices.Count > 0) autoProtocolIndex = Random.Range(0, rewards.ProtocolChoices.Count);
+            // 1. 获取当前允许的选择数量 (SSSVIP=2, 默认=1)
+            int selectionLimit = GetCurrentRewardSelectionLimit();
 
-            // 立即应用效果
-            if (autoBlockIndex != -1) spawner.AddTetrominoToPool(rewards.BlockChoices[autoBlockIndex]);
-            if (autoItemIndex != -1) inventoryManager.AddItem(rewards.ItemChoices[autoItemIndex]);
-            if (autoProtocolIndex != -1) AddProtocol(rewards.ProtocolChoices[autoProtocolIndex]);
+            // --- 方块 (Blocks) ---
+            if (rewards.BlockChoices.Count > 0)
+            {
+                int countToPick = Mathf.Min(selectionLimit, rewards.BlockChoices.Count);
+                autoBlockIndices = GetRandomIndices(rewards.BlockChoices.Count, countToPick);
+            }
+
+            // --- 道具 (Items) ---
+            int itemSpace = GetRemainingItemSpace();
+            // 实际可选数量 = Min(选择上限, 剩余空间, 奖励池总数)
+            int itemCountToPick = Mathf.Min(selectionLimit, itemSpace);
+            itemCountToPick = Mathf.Min(itemCountToPick, rewards.ItemChoices.Count);
+
+            if (itemCountToPick > 0)
+            {
+                autoItemIndices = GetRandomIndices(rewards.ItemChoices.Count, itemCountToPick);
+            }
+
+            // --- 条约 (Protocols) ---
+            int protoSpace = GetRemainingProtocolSpace();
+            int protoCountToPick = Mathf.Min(selectionLimit, protoSpace);
+            protoCountToPick = Mathf.Min(protoCountToPick, rewards.ProtocolChoices.Count);
+
+            if (protoCountToPick > 0)
+            {
+                autoProtocolIndices = GetRandomIndices(rewards.ProtocolChoices.Count, protoCountToPick);
+            }
+
+            Debug.Log($"狂战士自动选择: 方块{autoBlockIndices.Count}个, 道具{autoItemIndices.Count}个, 条约{autoProtocolIndices.Count}个");
         }
         _currentRefreshCost = settings.refreshBaseCost;
         gameUI.ShowHuPopup(
@@ -801,9 +824,9 @@ public class GameManager : MonoBehaviour
             isBerserkerActive,
             addedTime,      // <--- 传入正确的时间 (如 60)
             speedIncrease,  // <--- 传入正确的速度 (如 2)
-            autoBlockIndex, // <--- 这里的 -1 才是正确的 autoIdx
-            autoItemIndex,
-            autoProtocolIndex
+            autoBlockIndices,
+            autoItemIndices,
+            autoProtocolIndices
         );
     }
     public void MarkProtocolForRemoval(ProtocolData protocol)
@@ -3116,5 +3139,25 @@ public class GameManager : MonoBehaviour
     public void SetChaoSuanLiSpawnMultiplier(float multiplier)
     {
         _chaoSuanLiSpawnMultiplier = multiplier;
+    }
+    public int GetRemainingItemSpace()
+    {
+        if (inventoryManager == null) return 0;
+        return inventoryManager.GetEmptySlotCount();
+    }
+
+    public int GetRemainingProtocolSpace()
+    {
+        // 假设 activeProtocols 不含空洞，Count即为已用
+        return settings.maxProtocolCount - activeProtocols.Count;
+    }
+    private List<int> GetRandomIndices(int totalCount, int pickCount)
+    {
+        if (pickCount <= 0 || totalCount <= 0) return new List<int>();
+        // 使用 System.Linq 的方法洗牌并取前N个
+        return System.Linq.Enumerable.Range(0, totalCount)
+            .OrderBy(x => Random.value)
+            .Take(pickCount)
+            .ToList();
     }
 }

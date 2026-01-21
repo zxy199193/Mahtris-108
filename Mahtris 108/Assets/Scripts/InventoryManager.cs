@@ -139,4 +139,13 @@ public class InventoryManager : MonoBehaviour
             Debug.Log($"已移除槽位 {slotIndex} 的道具。");
         }
     }
+    public int GetEmptySlotCount()
+    {
+        int count = 0;
+        foreach (var item in itemSlots)
+        {
+            if (item == null) count++;
+        }
+        return count;
+    }
 }
