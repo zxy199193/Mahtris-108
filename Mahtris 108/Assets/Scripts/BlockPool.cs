@@ -13,8 +13,6 @@ public class BlockPool : MonoBehaviour
     public void Initialize(GameSettings settings)
     {
         this.totalBlocks = settings.TotalTileCount;
-        if (mahjongSprites != null && mahjongSprites.Length > 0)
-            System.Array.Sort(mahjongSprites, (a, b) => string.Compare(a.name, b.name, System.StringComparison.Ordinal));
     }
 
     public void ResetFullDeck(List<int> excludedIds = null)

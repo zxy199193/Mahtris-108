@@ -30135,8 +30135,8 @@ MonoBehaviour:
   poolViewerRoot: {fileID: 240438393}
   poolViewerContainer: {fileID: 160334679}
   poolViewerCloseButton: {fileID: 874440743}
-  dotsContainer: {fileID: 727778390}
-  bamboosContainer: {fileID: 844419148}
+  dotsContainer: {fileID: 844419148}
+  bamboosContainer: {fileID: 727778390}
   charactersContainer: {fileID: 1062547258}
   patternViewerRoot: {fileID: 1920682361}
   patternViewerContainer: {fileID: 430401030}

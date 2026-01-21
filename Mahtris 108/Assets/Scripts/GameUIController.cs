@@ -1330,7 +1330,9 @@ public class GameUIController : MonoBehaviour
         // 4. 容器映射
         var containers = new Dictionary<int, Transform>()
         {
-            { 0, dotsContainer }, { 1, bamboosContainer }, { 2, charactersContainer }
+            { 0, bamboosContainer },    // ID 0~8 是条子 -> 放进条子容器
+            { 1, dotsContainer },       // ID 9~17 是筒子 -> 放进筒子容器
+            { 2, charactersContainer }  // ID 18~26 是万子 -> 放进万子容器
         };
 
         // 5. 生成 27 个格子

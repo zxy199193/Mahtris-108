@@ -2773,7 +2773,10 @@ public class GameManager : MonoBehaviour
     // 4. ¼¤»îÄ§ÊõÄ»²¼
     public void ActivateMagicCurtain()
     {
-        tetrisGrid.ShuffleAllBoardTiles();
+        if (tetrisGrid != null)
+        {
+            tetrisGrid.SortBottomRows(3);
+        }
     }
     public void ActivateChampagne()
     {

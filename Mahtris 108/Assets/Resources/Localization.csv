@@ -188,7 +188,7 @@ ITEM_DES_19,移除1个方块列表中倍率最大的方块,移除1個方塊列�
 ITEM_DES_20,本次胡牌即完成一圈，<color=#36BA98>方块速度+4</color>,本次胡牌即完成一圈，<color=#36BA98>方塊速度+4</color>,Winning this hand completes the current streak. <color=#36BA98>Block Speed +4</color>,今回の和了で現在の周を完了とする、<color=#36BA98>ブロック落下速度+4</color>
 ITEM_DES_21,获得300金币,獲得300金幣,Obtain 300 Coins,コインを300獲得する
 ITEM_DES_22,下次消除的行不会进行判定而是会被直接移除，下轮游戏恢复,下次消除的行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next 1 cleared line is removed directly without check (restores next round),次に消去したラインは判定を行わず直接削除される、和了後に元に戻る
-ITEM_DES_23,场上所有方块的麻将牌面被随机打乱,場上所有方塊的麻將牌面被隨機打亂,Randomly shuffle the Mahjong patterns of all blocks on the board,フィールド上の全ブロックの麻雀牌の種類をランダムにシャッフルする
+ITEM_DES_23,将最下方3行方块的麻将牌面按顺序重新排列,將最下方3行方塊的麻將牌面按順序重新排列,Sorts tiles in the bottom 3 rows in sequential order.,最下段3行の麻雀牌を、順番通りに並べ替えます。
 ITEM_DES_24,当有胡牌区有刻子，且场上有这个刻子的牌，获取该牌形成杠牌（满足多个刻子时随机）,當胡牌區有刻子，且場上有這個刻子的牌，獲取該牌形成槓牌（滿足多個刻子時隨機）,"If a Triplet exists in Winning Area and the tile is on board, pull it to form a Kong",和了エリアに刻子があり、対応する牌が場にある場合、それを引き寄せて槓子（カンツ）にする
 ITEM_DES_25,<color=#3296DC>基础分+30%</color>，整局有效,<color=#3296DC>基礎分+30%</color>，整局有效,<color=#3296DC>Base Point +30%</color> (entire game),<color=#3296DC>基礎点+30%</color>、ゲーム終了まで有効
 ITEM_DES_26,方块列表中随机2种方块，整局游戏这两种方块的<color=#FF595E>方块倍率+5</color>,方塊列表中隨機2種方塊，整局遊戲這兩種方塊的<color=#FF595E>方塊倍率+5</color>,Randomly select 2 block types from Block List. Their <color=#FF595E>Block Multiplier +5</color> (entire game).,所持ブロックからランダムに2種類選出。そのブ<color=#FF595E>ブロック倍率+5</color>（ゲーム終了まで有効）
