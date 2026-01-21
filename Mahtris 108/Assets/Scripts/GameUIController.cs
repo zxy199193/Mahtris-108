@@ -1650,9 +1650,17 @@ public class GameUIController : MonoBehaviour
     private void GenerateColumn(Transform parent, int count, Action<GameObject, int> onInit)
     {
         if (!parent || !rewardOptionPrefab) return;
+        List<GameObject> oldChildren = new List<GameObject>();
+        foreach (Transform child in parent) oldChildren.Add(child.gameObject);
 
-        // 清理旧物体
-        foreach (Transform child in parent) Destroy(child.gameObject);
+        foreach (GameObject go in oldChildren)
+        {
+            if (go != null)
+            {
+                go.transform.SetParent(null); // 立即断开父子关系
+                Destroy(go);                  // 稍后销毁
+            }
+        }
 
         // 生成新物体
         for (int i = 0; i < count; i++)
@@ -1667,17 +1675,58 @@ public class GameUIController : MonoBehaviour
         Button btn = obj.GetComponent<Button>();
         if (!btn) return;
 
-        // 移除 RewardOptionUI 原本可能添加的监听，改由我们要实现的"选中"逻辑接管
         btn.onClick.RemoveAllListeners();
 
         btn.onClick.AddListener(() => {
+
+            // 1. 判断意图：是“选中”还是“取消选中”？
+            // (如果点击的是当前已经选中的项，说明玩家想取消，这种情况下不需要检查容量)
+            bool isSelecting = false;
+            if (typeId == 0) isSelecting = (_selectedBlockIndex != index);
+            if (typeId == 1) isSelecting = (_selectedItemIndex != index);
+            if (typeId == 2) isSelecting = (_selectedProtocolIndex != index);
+
+            // 2. 如果是“选中”操作，执行容量检查
+            if (isSelecting)
+            {
+                // --- 检查道具栏 (typeId == 1) ---
+                if (typeId == 1)
+                {
+                    // 使用 GameManager 获取 Inventory 引用
+                    if (GameManager.Instance.Inventory.IsFull())
+                    {
+                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+
+                        string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_FULL_ITEM") : "背包已满！";
+                        ShowToast(msg);
+
+                        return; // 
+                    }
+                }
+                // --- 检查条约栏 (typeId == 2) ---
+                else if (typeId == 2)
+                {
+                    if (GameManager.Instance.IsProtocolListFull())
+                    {
+                        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+
+                        string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("HU_FULL_PROTOCOL") : "条约栏已满！";
+                        ShowToast(msg);
+
+                        return; // 
+                    }
+                }
+            }
+
+            // 3. 通过检查，播放正常的点击音效
             if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
-            // 切换选中索引
+
+            // 4. 执行切换逻辑
             if (typeId == 0) _selectedBlockIndex = (_selectedBlockIndex == index) ? -1 : index;
             if (typeId == 1) _selectedItemIndex = (_selectedItemIndex == index) ? -1 : index;
             if (typeId == 2) _selectedProtocolIndex = (_selectedProtocolIndex == index) ? -1 : index;
 
-            // 刷新视觉
+            // 5. 刷新 UI 显示
             RestoreSelections();
         });
     }

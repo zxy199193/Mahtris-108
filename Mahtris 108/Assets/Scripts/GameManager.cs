@@ -1064,7 +1064,7 @@ public class GameManager : MonoBehaviour
 
                 // 使用位移运算计算 2^N (比 Pow 更高效且精确)
                 // 1 << 4 等于 16
-                long multiplier = 1L << lineCount;
+                long multiplier = 1L << (lineCount*2);
 
                 long clearScore = baseFanScore * multiplier;
 

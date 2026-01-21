@@ -16,11 +16,11 @@ MonoBehaviour:
   descKey: ITEM_DES_25
   itemName: "\u4ED9\u9152"
   itemIcon: {fileID: 21300000, guid: 2dc1deb8ef9751a4db0bb20e060e6235, type: 3}
-  itemDescription: "\u57FA\u7840\u5206+50%\uFF0C\u6574\u5C40\u6709\u6548\r"
+  itemDescription: "\u57FA\u7840\u5206+30%\uFF0C\u6574\u5C40\u6709\u6548\r"
   isAdvanced: 1
   isLegendary: 0
   useSound: {fileID: 0}
   price: 300
   isInitial: 1
   unlockConditionCount: 0
-  multiplier: 1.5
+  multiplier: 1.3
