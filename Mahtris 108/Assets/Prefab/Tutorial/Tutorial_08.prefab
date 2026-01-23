@@ -35,7 +35,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 70, y: 39}
+  m_SizeDelta: {x: 85, y: 34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2659598643385115401
 CanvasRenderer:
@@ -316,7 +316,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: TOTURIAL_MARK_08_03
+  key: TUTORIAL_MARK_08_03
 --- !u!114 &970788244135283694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -366,7 +366,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 70, y: 39}
+  m_SizeDelta: {x: 85, y: 34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4527386349274590391
 CanvasRenderer:
@@ -442,7 +442,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 215, y: -10}
+  m_AnchoredPosition: {x: 215, y: -91.5}
   m_SizeDelta: {x: 400, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7334845745424494830
@@ -499,7 +499,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: TOTURIAL_DES_08
+  key: TUTORIAL_DES_08
 --- !u!114 &3257631065702937593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -549,7 +549,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 70, y: 39}
+  m_SizeDelta: {x: 85, y: 34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &937254680307717022
 CanvasRenderer:
@@ -682,7 +682,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: TOTURIAL_MARK_08_01
+  key: TUTORIAL_MARK_08_01
 --- !u!114 &2688796491301411419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -768,7 +768,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -270, y: 200}
+  m_AnchoredPosition: {x: -270, y: 198}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6353594886381337730
@@ -1114,7 +1114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: TOTURIAL_MARK_08_02
+  key: TUTORIAL_MARK_08_02
 --- !u!114 &5088672089142113833
 MonoBehaviour:
   m_ObjectHideFlags: 0

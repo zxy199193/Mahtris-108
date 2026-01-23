@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: TOTURIAL_MARK_06_02
+  key: TUTORIAL_MARK_06_02
 --- !u!114 &6446893609878501714
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -522,7 +522,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: TOTURIAL_MARK_06_02
+  key: TUTORIAL_MARK_06_02
 --- !u!114 &4381750108634843579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -782,7 +782,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: TOTURIAL_DES_06
+  key: TUTORIAL_DES_06
 --- !u!114 &74862506167999829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -832,7 +832,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 70, y: 39}
+  m_SizeDelta: {x: 85, y: 34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7015603826063630714
 CanvasRenderer:

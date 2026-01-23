@@ -451,7 +451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: TOTURIAL_DES_05
+  key: TUTORIAL_DES_05
 --- !u!114 &1788715582837413738
 MonoBehaviour:
   m_ObjectHideFlags: 0

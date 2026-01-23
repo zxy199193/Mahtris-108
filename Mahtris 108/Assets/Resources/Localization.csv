@@ -8,15 +8,15 @@ MENU_SCORE_RECORD_COLON,最高分：,最高分：,RECORD: ,ベスト：
 MENU_EASY,新手,新手,NEWBIE,入門
 MENU_NORMAL,专家,專家,EXPERT,玄人
 MENU_HARD,大师,大師,MASTER,達人
-MENU_UNMATCHED,天下无双,天下無雙,G.O.A.T,天下無双
+MENU_UNMATCHED,天下无双,天下無雙,APEX,天下無双
 MENU_FUNCTION_UNLOCK,功能解锁,功能解鎖,FUNCTION UNLOCKED,機能解放
-MENU_FUNCTION_UNLOCK_DES,已解锁全部道具和条约，现在游戏中可以使用金币来刷新奖励了！,已解鎖全部道具和條約，現在遊戲中可以使用金幣來刷新獎勵了！,All Items and Protocols are unlocked! You can now use Coin to Refresh Mahjong rewards.,全アイテムと条約が解放されました。コインで報酬を**更新（リフレッシュ）**できます！
+MENU_FUNCTION_UNLOCK_DES,已解锁全部道具和条约，现在游戏中可以使用金币来刷新奖励了！,已解鎖全部道具和條約，現在遊戲中可以使用金幣來刷新獎勵了！,All Items and Protocols are unlocked! You can now use Coin to Refresh Mahjong rewards.,全アイテムと条約が解放されました。コインで報酬を更新（リフレッシュ）できます！
 MENU_FUNCTION_UNLOCK_CONFIRM,确认,確認,Confirm,確認
 DIFFICULTY_TITLE,难度,難度,GAME LEVEL,難易度
 DIFFICULTY_EASY,新手,新手,NEWBIE,入門
 DIFFICULTY_NORMAL,专家,專家,EXPERT,玄人
 DIFFICULTY_HARD,大师,大師,MASTER,達人
-DIFFICULTY_UNMATCHED,天下无双,天下無雙,G.O.A.T,天下無双
+DIFFICULTY_UNMATCHED,天下无双,天下無雙,APEX,天下無双
 DIFFICULTY_GOAL,目标,目標,GOAL,目標
 DIFFICULTY_REWARDS,总奖金,總獎金,Total Prize,総賞金
 DIFFICULTY_INITIAL,初始状态,初始狀態,INITIAL STATE,初期ステータス
@@ -59,7 +59,7 @@ GAME_BLOCK_LIST,方块列表,方塊列表,BLOCK LIST,ブロックリスト
 GAME_LOOP,第{0}圈 {1}/{2}轮,第{0}圈 {1}/{2}輪,Streak {0} Round {1}/{2},{0}周目 {1}/{2}局
 GAME_NEXT,下一个,下一個,NEXT,NEXT
 GAME_DECK,牌库,牌庫,DECK,山牌
-GAME_HU_ZONE,胡牌区,胡牌區,HU ZONE,アガリ牌
+GAME_HU_ZONE,胡牌准备区,胡牌準備區,MAHJONG AREA,副露エリア
 GAME_PROTOCOL,条约,條約,PROTOCOL,条約
 GAME_ITEM,道具,道具,ITEM,アイテム
 GAME_LACK,缺牌,缺牌,LACK,不足
@@ -115,8 +115,8 @@ HU_TYPE_SANSETONGKE,三色同刻,三色同刻,Three Color Triplets,三色同刻
 HU_TYPE_PING,平胡,平胡,Basic Hand,基本形
 HU_TYPE_KONG,杠,槓,Kong,カン
 HU_TYPE_UNKNOWN,未知牌型,未知牌型,Unknown Hand,未知の役
-HU_TYPE_TIAN_DES,胡牌区没有牌，且本轮还从未进行消行，连续消除多行一次性凑齐胡牌牌型时视为天胡,胡牌區無牌，且本輪尚未消行，一次性消除多行並湊齊牌型,Trigger Hu with a multi-line clear when Hu Zone is empty and no lines have been cleared yet,アガリ牌がなく、ライン消去未発生の状態で、複数列同時消去によりアガる
-HU_TYPE_DI_DES,胡牌区没有牌，连续消除多行一次性凑齐胡牌牌型时视为地胡,胡牌區無牌，一次性消除多行並湊齊牌型,Trigger Hu with a multi-line clear when Hu Zone is empty,アガリ牌がない状態で、複数列同時消去によりアガる
+HU_TYPE_TIAN_DES,胡牌准备区没有牌，且本轮还从未进行消行，连续消除多行一次性凑齐胡牌牌型时视为天胡,胡牌準備區無牌，且本輪尚未消行，一次性消除多行並湊齊牌型,Trigger Hu with a multi-line clear when Mahjong Area is empty and no lines have been cleared yet,副露エリアがなく、ライン消去未発生の状態で、複数列同時消去によりアガる
+HU_TYPE_DI_DES,胡牌准备区没有牌，连续消除多行一次性凑齐胡牌牌型时视为地胡,胡牌準備區無牌，一次性消除多行並湊齊牌型,Trigger Hu with a multi-line clear when Mahjong Area is empty,副露エリアがない状態で、複数列同時消去によりアガる
 HU_TYPE_QINGYISE_DES,牌组中只有1种花色的牌,牌組中只有1種花色的牌,Hand contains tiles of only one suit,一種類の数牌のみで構成される
 HU_TYPE_DUIDUI_DES,牌组中包含4组刻子,牌組中包含4組刻子,Hand contains 4 sets of Triplets,4組の刻子が含まれる
 HU_TYPE_LAOTOU_DES,牌组中只有数字为1和9的牌,牌組中只有數字為1和9的牌,Hand contains only 1 and 9 tiles,すべて1と9の牌のみで構成される
@@ -177,7 +177,7 @@ ITEM_DES_08,强行消除底部3行方块,強制消除底部3行方塊,Forcibly c
 ITEM_DES_09,强行消除最上方3行方块,強制消除最上方3行方塊,Forcibly clear the top 3 lines,最上段の3ラインを強制的に消去する
 ITEM_DES_10,剩余<color=#36BA98>游戏时间+45秒</color>,剩餘<color=#36BA98>遊戲時間+45秒</color>,Remaining <color=#36BA98>Time +45s</color>,残り<color=#36BA98>時間+45秒</color>
 ITEM_DES_11,随机移除一个方块，剩余<color=#36BA98>游戏时间+30秒</color>，<color=#3296DC>基础分+8</color>，整局有效,隨機移除一個方塊，剩餘<color=#36BA98>遊戲時間+30秒</color>，<color=#3296DC>基礎分+8</color>，整局有效,"Randomly remove 1 block, <color=#36BA98>Time +30s</color>, <color=#3296DC>Base Point +8</color> (entire game)",ブロックをランダムに1個削除、残り<color=#36BA98>時間+30秒</color>、<color=#3296DC>基礎点+8</color>（ゲーム終了まで有効）
-ITEM_DES_12,将上一组加入胡牌区的牌放回牌库,將上一組加入胡牌區的牌放回牌庫,Return the last set added to the Winning Area back to the deck,直前に和了エリアに加えた1組を山に戻す
+ITEM_DES_12,将上一组加入准备区的牌放回牌库,將上一組加入準備區的牌放回牌庫,Return the last set added to the Mahjong Area back to the deck,直前に副露エリアに加えた1組を山に戻す
 ITEM_DES_13,下一个方块形状会变为7格长条方块,下一個方塊形狀會變為7格長條方塊,The next block becomes a 7-cell vertical bar,次のブロックが7マスの長方形（棒状）になる
 ITEM_DES_14,改变下一个方块的形状，保留方块数量和麻将牌面,改變下一個方塊的形狀，保留方塊數量和麻將牌面,"Change the shape of the next block, keeping its tile count and patterns",ブロックの数と牌の種類を維持したまま、次のブロックの形状を変える
 ITEM_DES_15,下一个方块形状会连续出现3次,下一個方塊形狀會連續出現3次,The next block shape will appear 3 times in a row,次のブロックと同じ形状が3回連続で出現する
@@ -189,13 +189,13 @@ ITEM_DES_20,本次胡牌即完成一圈，<color=#36BA98>方块速度+4</color>,
 ITEM_DES_21,获得300金币,獲得300金幣,Obtain 300 Coins,コインを300獲得する
 ITEM_DES_22,下次消除的行不会进行判定而是会被直接移除，下轮游戏恢复,下次消除的行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next 1 cleared line is removed directly without check (restores next round),次に消去したラインは判定を行わず直接削除される、和了後に元に戻る
 ITEM_DES_23,将最下方3行方块的麻将牌面按顺序重新排列,將最下方3行方塊的麻將牌面按順序重新排列,Sorts tiles in the bottom 3 rows in sequential order.,最下段3行の麻雀牌を、順番通りに並べ替えます。
-ITEM_DES_24,当胡牌区有刻子，且场上有这个刻子的牌，获取该牌形成杠牌（可多个）,當胡牌區有刻子，且場上有這個刻子的牌，獲取該牌形成槓牌（可多個）,"If a [Triplet] is in the Winning Area and matching tiles exist on the board, collect them to form a [Kong]. (can be multiple)",和了エリアに【刻子】があり、盤面に同じ牌がある場合、それを吸収して【槓】にします（可複数）。
+ITEM_DES_24,当准备区有刻子，且场上有这个刻子的牌，获取该牌形成杠牌（可多个）,當準備區有刻子，且場上有這個刻子的牌，獲取該牌形成槓牌（可多個）,"If a [Triplet] is in the Mahjong Area and matching tiles exist on the board, collect them to form a [Kong]. (can be multiple)",副露エリアに【刻子】があり、盤面に同じ牌がある場合、それを吸収して【槓】にします（可複数）。
 ITEM_DES_25,<color=#3296DC>基础分+30%</color>，整局有效,<color=#3296DC>基礎分+30%</color>，整局有效,<color=#3296DC>Base Point +30%</color> (entire game),<color=#3296DC>基礎点+30%</color>、ゲーム終了まで有効
 ITEM_DES_26,方块列表中随机2种方块，整局游戏这两种方块的<color=#FF595E>方块倍率+5</color>,方塊列表中隨機2種方塊，整局遊戲這兩種方塊的<color=#FF595E>方塊倍率+5</color>,Randomly select 2 block types from Block List. Their <color=#FF595E>Block Multiplier +5</color> (entire game).,所持ブロックからランダムに2種類選出。そのブ<color=#FF595E>ブロック倍率+5</color>（ゲーム終了まで有効）
 ITEM_DES_27,强行消除底下6行方块,強制消除底部6行方塊,Forcibly clear the bottom 6 lines,最下段の6ラインを強制的に消去する
 ITEM_DES_28,变为上一个使用的道具,變為上一個使用的道具,Duplicate the effect of the last used Item,直前に使用したアイテムの効果をコピーする
 ITEM_DES_29,60秒内只会出现1~3格的方块，仅本轮有效,60秒內只會出現1~3格的方塊，僅本局有效,Only 1-3 cell blocks will appear for 60s (this round only),60秒間、1～3マスのブロックしか出現しなくなる、今局のみ有効
-ITEM_DES_30,当胡牌区未满且牌库中存在可以组成刻子或顺子的牌时，随机将一组牌加入胡牌区,當胡牌區牌組小於4組且牌庫中存在可以組成刻子或順子的牌時，隨機將一組牌加入胡牌區,"If Winning Area is not full and the deck contains any Triplet or Sequence, add a random Set",和了エリアに空きがあり、山に刻子または順子を作れる牌がある場合、ランダムな1組を追加する
+ITEM_DES_30,当准备区未满且牌库中存在可以组成刻子或顺子的牌时，随机将一组牌加入准备区,當準備區牌組小於4組且牌庫中存在可以組成刻子或順子的牌時，隨機將一組牌加入準備區,"If Mahjong Area is not full and the deck contains any Triplet or Sequence, add a random Set",副露エリアに空きがあり、山に刻子または順子を作れる牌がある場合、ランダムな1組を追加する
 ITEM_DES_31,如果游戏失败则会清空桌面，<color=#36BA98>游戏时间+30秒</color>，然后继续游戏，仅本轮有效,如果遊戲失敗則會清空桌面，<color=#36BA98>遊戲時間+30秒</color>，然後繼續遊戲，僅本局有效,"If you lose: Clear board, <color=#36BA98>Time +30s</color>, and continue game (this round only)",ゲームオーバー時、盤面を一掃し<color=#36BA98>時間+30秒</color>で再開する、今局のみ有効
 ITEM_DES_32,接下来消除的3行不会进行判定而是会被直接移除，下轮游戏恢复,接下來消除的3行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next 3 cleared lines are removed directly without check (restores next round),次に消去した3回のラインは判定を行わず直接削除される、和了後に元に戻る
 ITEM_DES_33,如果通关本局游戏，金币奖励+100%,如果通關本局遊戲，金幣獎勵+100%,"If you clear this game, Coin Reward +100%",この局をクリアすれば、総報酬+100%
@@ -206,15 +206,15 @@ ITEM_DES_37,20秒内每次消除行会给增加金币总数的2%，仅本轮有�
 ITEM_DES_38,20秒内每次消除行会给增加当前得分的5%，仅本轮有效,20秒內每次消除行會給增加當前得分的5%，僅本局有效,"For 20s, each line cleared adds 5% to Current Score (this round only)",20秒間、ラインを消去するたびに現在スコアの5%を加算、今局のみ有効
 ITEM_DES_39,方块列表中每有一种方块，<color=#3296DC>基础分+3</color>，整局有效,方塊列表中每有一種方塊，<color=#3296DC>基礎分+3</color>，整局有效,<color=#3296DC>Base Point +3</color> for every unique block type in inventory (entire game),所持しているブロックの種類1つにつき<color=#3296DC>基礎点+3</color>、ゲーム終了まで有効
 ITEM_DES_40,<color=#3296DC>基础分+20</color>，<color=#36BA98>方块速度-10</color>（均整局有效），<color=#36BA98>游戏时间+100秒</color>，强行消除底下4行方块,<color=#3296DC>基礎分+20</color>（整局有效），<color=#36BA98>方塊速度-10</color>（均整局有效），<color=#36BA98>遊戲時間+100秒</color>，強制消除底部4行方塊,"<color=#3296DC>Base Point +20</color>, <color=#36BA98>Block Speed -10</color> (both entire game), <color=#36BA98>Time +100s</color>, clear bottom 4 lines",<color=#3296DC>基礎点+20</color>、<color=#36BA98>落下速度-10</color>（ゲーム終了まで有効）、<color=#36BA98>時間+100秒</color>、最下段4ライン消去
-ITEM_TIPS_01,没有可以消除的方块,,,
-ITEM_TIPS_02,仅剩一个方块，不可使用,,,
-ITEM_TIPS_03,胡牌区没有可以移除的牌,,,
-ITEM_TIPS_04,没有可以排序的麻将,,,
-ITEM_TIPS_05,胡牌区没有刻子,,,
-ITEM_TIPS_06,场上没有可以凑杠的牌,,,
-ITEM_TIPS_07,尚未使用任何道具,,,
-ITEM_TIPS_08,胡牌区已满,,,
-ITEM_TIPS_09,没有可以凑成顺子或刻子的牌,,,
+ITEM_TIPS_01,没有可以消除的方块,沒有可以消除的方塊,No blocks to clear.,消去できるブロックがありません。
+ITEM_TIPS_02,仅剩一个方块，不可使用,僅剩一個方塊，不可使用,Only one block left. Cannot use.,ブロックが残り1つのため、使用できません。
+ITEM_TIPS_03,胡牌准备区没有可以移除的牌,胡牌準備區沒有可以移除的牌,No tiles to remove in the Mahjong Area.,副露エリアに削除できる牌がありません。
+ITEM_TIPS_04,没有可以排序的麻将,沒有可以排序的麻將,No tiles to sort.,並べ替えできる牌がありません。
+ITEM_TIPS_05,胡牌准备区没有刻子,胡牌準備區沒有刻子,No [Triplets] in the Mahjong Area.,副露エリアに【刻子】がありません。
+ITEM_TIPS_06,场上没有可以凑杠的牌,場上沒有可以湊槓的牌,No matching tiles on the board to form a [Kong].,盤面に【槓】にできる牌がありません。
+ITEM_TIPS_07,尚未使用任何道具,尚未使用任何道具,No items used yet.,まだアイテムを使用していません。
+ITEM_TIPS_08,胡牌准备区已满,胡牌準備區已滿,Mahjong Area is full.,副露エリアが満杯です。
+ITEM_TIPS_09,没有可以凑成顺子或刻子的牌,沒有可以湊成順子或刻子的牌,No tiles to form a [Sequence] or [Triplet].,【順子】または【刻子】にできる牌がありません。
 ITEM_TIPS_KARATE,无法使用道具,無法使用道具,Cannot use item,アイテム使用不可
 PROTOCOL_NAME_01,速度之星,速度之星,Speed Star,スピードスター
 PROTOCOL_NAME_02,临期食品,臨期食品,Expiring Food,見切り品
@@ -272,12 +272,12 @@ PROTOCOL_DES_13,当牌库中的麻将即将耗尽时胡牌，<color=#E682E6>额�
 PROTOCOL_DES_14,胡牌时如牌型仅2种花面，视为“清一色”牌型，<color=#FF595E>方块倍率-20</color>（最低为1）,胡牌時如牌型僅2種花面，視為“清一色”牌型，<color=#FF595E>方塊倍率-20</color>（最低為1）,"Winning with only 2 suits counts as ""Full Flush"". <color=#FF595E>Block Multiplier -20</color> (min 1).",2種類の数牌のみで和了した場合、「清一色」とみなす。<color=#FF595E>ブロック倍率-20</color>（最低1）。
 PROTOCOL_DES_15,胡牌时所有牌型都视为平胡，消行分数调整为：<color=#3296DC>基础分</color>x4的“连续消行数量”次方,胡牌時所有牌型都視為平胡，消行分數調整為：<color=#3296DC>基礎分</color>x4的“連續消行數量”次方,"All wins count as ""Pinfu"". Line clear score: <color=#3296DC>Base Point</color> x 4^(consecutive lines).",全ての和了を「平和」とみなす。ライン消去スコアを「<color=#3296DC>基礎点</color>×4の(連続消去数)乗」に変更。
 PROTOCOL_DES_16,胡牌时如果是平胡，<color=#E682E6>额外倍率x0</color>，且无奖励，其他牌型计算番数倍率时底数从2变为3,胡牌時如果是平胡，<color=#E682E6>額外倍率x0</color>，且無獎勵，其他牌型計算番數倍率時底數從2變為3,If Pinfu: <color=#E682E6>Extra Multiplier x0</color> & No Reward. Other hands calculate Fan with base 3.,平和の和了は<color=#E682E6>追加倍率x0</color>で報酬なし。他は翻数計算の底を2から3に変更。
-PROTOCOL_DES_17,每次将“刻子”牌加入胡牌区时，<color=#3296DC>基础分+3</color>，整局有效,每次將“刻子”牌加入胡牌區時，<color=#3296DC>基礎分+3</color>，整局有效,"Adding a ""Triplet"" to Winning Area gives <color=#3296DC>Base Point +3</color> (entire game).",「刻子」を和了エリアに加えるたび、<color=#3296DC>基礎点+3</color>（ゲーム終了まで有効）。
+PROTOCOL_DES_17,每次将“刻子”牌加入准备区时，<color=#3296DC>基础分+3</color>，整局有效,每次將“刻子”牌加入準備區時，<color=#3296DC>基礎分+3</color>，整局有效,"Adding a ""Triplet"" to Mahjong Area gives <color=#3296DC>Base Point +3</color> (entire game).",「刻子」を副露エリアに加えるたび、<color=#3296DC>基礎点+3</color>（ゲーム終了まで有効）。
 PROTOCOL_DES_18,每轮游戏开始时，<color=#3296DC>基础分-12</color>（最低为1），每当一次性消除3行及以上时<color=#3296DC>基础分+8</color>，仅本轮有效,每輪遊戲開始時，<color=#3296DC>基礎分-12</color>（最低為1），每當一次性消除3行及以上時<color=#3296DC>基礎分+8</color>，僅本局有效,Start of round: <color=#3296DC>Base Point -12</color> (min 1). Clearing 3+ lines at once gives <color=#3296DC>Base Point +8</color> (this round only).,各局開始時、<color=#3296DC>基礎点-12</color>（最低1）。3ライン以上同時消去で<color=#3296DC>基礎点+8</color>（今局のみ有効）。
 PROTOCOL_DES_19,每轮游戏开始时，剩余<color=#36BA98>游戏时间</color>变为95秒,每輪遊戲開始時，剩餘<color=#36BA98>遊戲時間</color>變為95秒,Start of round: Remaining <color=#36BA98>Time</color> becomes 95s.,各局開始時、残り<color=#36BA98>時間</color>が95秒になる。
 PROTOCOL_DES_20,当场上堆叠的方块高度超过8时，<color=#36BA98>方块速度</color>变为5，游戏时间流逝速度减慢至20%,當場上堆疊的方塊高度超過8時，<color=#36BA98>方塊速度</color>變為5，遊戲時間流逝速度減慢至20%,"When stack height > 8: <color=#36BA98>Block Speed</color> becomes 5, Game Time slows to 20%.",積み上げ高さが8を超えると、<color=#36BA98>落下速度</color>が5になり、時間の流れが20%になる。
 PROTOCOL_DES_21,每经过3秒，<color=#3296DC>基础分</color>增加或减少1~36（最低为1）,每經過3秒，<color=#3296DC>基礎分</color>增加或減少1~36（最低為1）,"Every 3s, <color=#3296DC>Base Point</color> increases or decreases by 1-36 (min 1).",3秒ごとに、<color=#3296DC>基礎点</color>が1～36増減する（最低1）。
-PROTOCOL_DES_22,每当向胡牌区添加一张”一条“，<color=#3296DC>基础分+12</color>，仅本轮有效,每當向胡牌區添加一張”一條“，<color=#3296DC>基礎分+12</color>，僅本局有效,"Adding a ""1 Bamboo"" tile to Winning Area gives <color=#3296DC>Base Point +12</color> (this round only).",和了エリアに「一索」を加えるたび、<color=#3296DC>基礎点+12</color>（今局のみ有効）。
+PROTOCOL_DES_22,每当向准备区添加一张”一条“，<color=#3296DC>基础分+12</color>，仅本轮有效,每當向準備區添加一張”一條“，<color=#3296DC>基礎分+12</color>，僅本局有效,"Adding a ""1 Bamboo"" tile to Mahjong Area gives <color=#3296DC>Base Point +12</color> (this round only).",副露エリアに「一索」を加えるたび、<color=#3296DC>基礎点+12</color>（今局のみ有効）。
 PROTOCOL_DES_23,键盘上下、左右按键功能调换，<color=#E682E6>额外倍率x4</color>,鍵盤上下、左右按鍵功能調換，<color=#E682E6>額外倍率x4</color>,"Arrow keys (Up/Down, Left/Right) are swapped. <color=#E682E6>Extra Multiplier x4</color>.",十字キーの上下と左右の操作が入れ替わる。<color=#E682E6>追加倍率x4</color>。
 PROTOCOL_DES_24,每轮游戏开始时，第1个方块固定是“巨人方块”，<color=#FF595E>方块倍率+36</color>,每輪遊戲開始時，第1個方塊固定是“巨人方塊”，<color=#FF595E>方塊倍率+36</color>,"The 1st block of each round is always a ""Titan Block"". <color=#FF595E>Block Multiplier +36</color>.",各局の最初のブロックが必ず「巨人ブロック」になる。<color=#FF595E>ブロック倍率+36</color>。
 PROTOCOL_DES_25,所有形状的方块所提供的<color=#FF595E>方块倍率</color>变为3,所有形狀的方塊所提供的<color=#FF595E>方塊倍率</color>變為3,<color=#FF595E>Block Multiplier</color> from all block shapes becomes 3.,全ての形状のブロックが提供する<color=#FF595E>ブロック倍率</color>が3になる。
@@ -350,7 +350,7 @@ ACHIEVEMENT_DES_01,完成一次胡牌,完成一次胡牌,Complete a winning hand
 ACHIEVEMENT_DES_02,完成一局新手难度的游戏,完成一局新手難度的遊戲,Complete a game on Novice difficulty,ビギナー難易度でゲームをクリアする
 ACHIEVEMENT_DES_03,完成一局专家难度的游戏,完成一局專家難度的遊戲,Complete a game on Expert difficulty,エキスパート難易度でゲームをクリアする
 ACHIEVEMENT_DES_04,完成一局大师难度的游戏,完成一局大師難度的遊戲,Complete a game on Master difficulty,マスター難易度でゲームをクリアする
-ACHIEVEMENT_DES_05,完成一局天下无双难度的游戏,完成一局天下無雙難度的遊戲,Complete a game on G.O.A.T difficulty,天下無双難易度でゲームをクリアする
+ACHIEVEMENT_DES_05,完成一局天下无双难度的游戏,完成一局天下無雙難度的遊戲,Complete a game on Apex difficulty,天下無双難易度でゲームをクリアする
 ACHIEVEMENT_DES_06,完成一次番数≥3的胡牌牌型,完成一次番數≥3的胡牌牌型,Complete a winning hand with ≥3 Fan,3翻以上の手で和了する
 ACHIEVEMENT_DES_07,完成一次番数≥6的胡牌牌型,完成一次番數≥6的胡牌牌型,Complete a winning hand with ≥6 Fan,6翻以上の手で和了する
 ACHIEVEMENT_DES_08,完成一次番数≥9的胡牌牌型,完成一次番數≥9的胡牌牌型,Complete a winning hand with ≥9 Fan,9翻以上の手で和了する
@@ -396,19 +396,19 @@ ACHIEVEMENT_DES_47,一次胡牌获得1000分,一次胡牌獲得1000分,Score 100
 ACHIEVEMENT_DES_48,"一次胡牌获得100,000分","一次胡牌獲得100,000分","Score 100,000 points in a single hand","1回の和了で100,000点を獲得する"
 ACHIEVEMENT_DES_49,"一次胡牌获得5,000,000分","一次胡牌獲得5,000,000分","Score 5,000,000 points in a single hand","1回の和了で5,000,000点を獲得する"
 ACHIEVEMENT_DES_50,"一次胡牌获得100,000,000分","一次胡牌獲得100,000,000分","Score 100,000,000 points in a single hand","1回の和了で100,000,000点を獲得する"
-TOTURIAL_DES_01,游戏开始后各种不同形状的麻将方块会以一定速度从顶部落下，玩家可以通过键盘方向键进行移动和旋转,遊戲開始後各種不同形狀的麻將方塊會以一定速度從頂部落下，玩家可以通過鍵盤方向鍵進行移動和旋轉,Mahjong blocks of various shapes fall from the top. Use Arrow Keys to move and rotate them.,様々な形状の麻雀ブロックが落下します。方向キーで移動や回転ができます。
-TOTURIAL_DES_02,每当有一行被方块占满就会将该行消除，如果被消除的行中存在可以凑成【顺子】（相同花色，数字连续）或【刻子】（相同花色，相同数字）的三个麻将方块，这些方块就会被移动至【胡牌区】,每當有一行被方塊占滿就會將該行消除，如果被消除的行中存在可以湊成【順子】（相同花色，數字連續）或【刻子】（相同花色，相同數字）的三個麻將方塊，這些方塊就會被移動至【胡牌區】,"Filling a line clears it. If cleared tiles form a [Sequence] (1-2-3) or [Triplet] (1-1-1), they move to the [Winning Area].",ラインを揃えて消去します。消去した牌で【順子】（同色連番）や【刻子】（同色同牌）ができると、【和了エリア】へ移動します。
-TOTURIAL_DES_03,当胡牌区凑齐4组【顺子】或【刻子】，那下次消除行的时候如果存在【将牌】（两张相同的牌），那么就能触发【胡牌】,當胡牌區湊齊4組【順子】或【刻子】，那下次消除行的時候如果存在【將牌】（兩張相同的牌），那麼就能觸發【胡牌】,"Once you have 4 sets in the Winning Area, clearing a line with a [Pair] triggers a [Win].",和了エリアに4組揃った状態で、【雀頭】（同じ牌2枚）を含むラインを消去すると【和了】になります。
-TOTURIAL_DES_04,胡牌后会根据胡牌的牌型以及各种倍率计算出这次胡牌的得分,胡牌後會根據胡牌的牌型以及各種倍率計算出這次胡牌的得分,Your score is calculated based on the Hand Type and active Multipliers.,点数は、完成した役と各種倍率に基づいて計算されます。
-TOTURIAL_DES_05,每次胡牌都会随机发放各种【方块】和【道具】奖励，点击奖励图标即可获得；之后即可开启下一轮游戏，奖励游戏时间，但加快方块下落速度,每次胡牌都會隨機發放各種【方塊】和【道具】獎勵，點擊獎勵圖標即可獲得；之後即可開啟下一輪遊戲，獎勵遊戲時間，但加快方塊下落速度,"Winning grants random [Block] and [Item] rewards. Click to collect. This starts the next hand, adds Time, but increases Drop Speed.",和了すると【ブロック】や【アイテム】を獲得できます。次局に進むと時間が回復しますが、落下速度が上昇します。
-TOTURIAL_DES_06,获得【方块】之后游戏中就会出现这种形状的方块，获得【道具】之后道具会出现在道具栏中，点击道具图标即可使用道具触发效果,獲得【方塊】之後遊戲中就會出現這種類型的方塊，獲得【道具】之後道具會出現在道具欄中，點擊道具圖標或鍵盤數字鍵即可使用道具觸發效果,Collected [Blocks] will appear in-game. [Items] go to the Item Bar; click their icon or press Number Keys to use.,獲得した【ブロック】はゲーム内に出現します。【アイテム】はアイテム欄に追加され、クリックまたは数字キーで使用できます。
-TOTURIAL_DES_07,每当玩家成功胡牌3次，即会发放高级奖励，包括倍率更高的方块、高级道具、以及条约；如果条约栏和道具栏已满，点击图标即可显示删除按钮,每當玩家成功胡牌3次，即會發放高級獎勵，包括倍率更高的方塊、高級道具、以及條約；如果條約欄和道具欄已滿，點擊圖標即可顯示刪除按鈕,"Every 3 Mahjong wins grants Advanced Rewards (Better Blocks, Items, Protocols). If slots are full, click an icon to reveal the Delete button.",3回和了する毎に【上級報酬】（高倍率ブロック、上級アイテム、条約）が出現します。欄が満員の場合、クリックで削除ボタンが表示されます。
-TOTURIAL_DES_08,消除行和胡牌均可获得游戏分数，当分数达到目标分数后即可通关游戏；注意，游戏时间耗尽、牌库麻将牌耗尽，以及方块堆叠超过红线均会导致游戏失败,消除行和胡牌均可獲得遊戲分數，當分數達到目標分數後即可通關遊戲；注意，遊戲時間耗盡、牌庫麻將牌耗盡，以及方塊堆疊超過紅線均會導致遊戲失敗,"Clear lines and Win hands to score. Reach the Target Score to clear the game.Game Over conditions: Time runs out, Deck is empty, or Stack crosses the Red Line.",ライン消去と和了でスコアを稼ぎ、目標スコア達成でゲームクリア。敗北条件：時間切れ、山切れ、またはブロックが赤線を超えること。
-TOTURIAL_MARK_01_01,下降速度,下降速度,Drop Speed,落下速度
-TOTURIAL_MARK_02_01,胡牌区,胡牌區,Winning Area,和了エリア
-TOTURIAL_MARK_06_01,方块列表,方塊列表,Block List,ブロックリスト
-TOTURIAL_MARK_06_02,道具栏,道具欄,Item Bar,アイテム欄
-TOTURIAL_MARK_07_01,删除,刪除,Delete,削除
-TOTURIAL_MARK_08_01,得分目标,得分目標,Target Score,目標スコア
-TOTURIAL_MARK_08_02,剩余时间,剩餘時間,Time Remaining,残り時間
-TOTURIAL_MARK_08_03,牌库,牌庫,Deck,山
+TUTORIAL_DES_01,游戏开始后各种不同形状的麻将方块会以一定速度从顶部落下，玩家可以通过键盘方向键进行移动和旋转,遊戲開始後各種不同形狀的麻將方塊會以一定速度從頂部落下，玩家可以通過鍵盤方向鍵進行移動和旋轉,Mahjong blocks of various shapes fall from the top. Use Arrow Keys to move and rotate them.,様々な形状の麻雀ブロックが落下します。方向キーで移動や回転ができます。
+TUTORIAL_DES_02,每当有一行被方块占满就会将该行消除，如果被消除的行中存在可以凑成【顺子】（相同花色，数字连续）或【刻子】（相同花色，相同数字）的三个麻将方块，这些方块就会被移动至准备区,每當有一行被方塊占滿就會將該行消除，如果被消除的行中存在可以湊成【順子】（相同花色，數字連續）或【刻子】（相同花色，相同數字）的三個麻將方塊，這些方塊就會被移動至準備區,"Filling a line clears it. If cleared tiles form a [Sequence] (1-2-3) or [Triplet] (1-1-1), they move to Mahjong Area.",ラインを揃えて消去します。消去した牌で【順子】（同色連番）や【刻子】（同色同牌）ができると、【副露エリア】へ移動します。
+TUTORIAL_DES_03,当准备区凑齐4组【顺子】或【刻子】，那下次消除行的时候如果存在【将牌】（对子），即可【胡牌】,當準備區湊齊4組【順子】或【刻子】，那下次消除行的時候如果存在【將牌】（對子），即可【胡牌】,"Once you have 4 sets in the Mahjong Area, clearing a line with a [Pair] triggers a [Mahjong].",副露エリアに4組揃った状態で、【雀頭】（同じ牌2枚）を含むラインを消去すると【和了】になります。
+TUTORIAL_DES_04,胡牌后会根据胡牌的牌型以及各种倍率计算出这次胡牌的得分,胡牌後會根據胡牌的牌型以及各種倍率計算出這次胡牌的得分,Your score is calculated based on the Hand Type and active Multipliers.,点数は、完成した役と各種倍率に基づいて計算されます。
+TUTORIAL_DES_05,每次胡牌都会随机发放各种【方块】和【道具】奖励，点击奖励图标即可获得；之后即可开启下一轮游戏，奖励游戏时间，但加快方块下落速度,每次胡牌都會隨機發放各種【方塊】和【道具】獎勵，點擊獎勵圖標即可獲得；之後即可開啟下一輪遊戲，獎勵遊戲時間，但加快方塊下落速度,"Winning grants random [Block] and [Item] rewards. Click to collect. This starts the next hand, adds Time, but increases Drop Speed.",和了すると【ブロック】や【アイテム】を獲得できます。次局に進むと時間が回復しますが、落下速度が上昇します。
+TUTORIAL_DES_06,获得【方块】之后游戏中就会出现这种形状的方块，获得【道具】之后道具会出现在道具栏中，点击道具图标或键盘数字键即可使用道具触发效果,獲得【方塊】之後遊戲中就會出現這種類型的方塊，獲得【道具】之後道具會出現在道具欄中，點擊道具圖標或鍵盤數字鍵即可使用道具觸發效果,Collected [Blocks] will appear in-game. [Items] go to the Item Bar; click their icon or press Number Keys to use.,獲得した【ブロック】はゲーム内に出現します。【アイテム】はアイテム欄に追加され、クリックまたは数字キーで使用できます。
+TUTORIAL_DES_07,每当玩家成功胡牌3次，即会发放高级奖励，包括倍率更高的方块、高级道具、以及条约；如果条约栏和道具栏已满，点击图标即可显示删除按钮,每當玩家成功胡牌3次，即會發放高級獎勵，包括倍率更高的方塊、高級道具、以及條約；如果條約欄和道具欄已滿，點擊圖標即可顯示刪除按鈕,"Every 3 Mahjong wins grants Advanced Rewards (Better Blocks, Items, Protocols). If slots are full, click an icon to reveal the Delete button.",3回和了する毎に【上級報酬】（高倍率ブロック、上級アイテム、条約）が出現します。欄が満員の場合、クリックで削除ボタンが表示されます。
+TUTORIAL_DES_08,消除行和胡牌均可获得游戏分数，当分数达到目标分数后即可通关游戏；注意，游戏时间耗尽、牌库麻将牌耗尽，以及方块堆叠超过红线均会导致游戏失败,消除行和胡牌均可獲得遊戲分數，當分數達到目標分數後即可通關遊戲；注意，遊戲時間耗盡、牌庫麻將牌耗盡，以及方塊堆疊超過紅線均會導致遊戲失敗,"Clear lines and Win hands to score. Reach the Target Score to clear the game. Game Over conditions: Time runs out, Deck is empty, or Stack crosses the Red Line.",ライン消去と和了でスコアを稼ぎ、目標スコア達成でゲームクリア。敗北条件：時間切れ、山切れ、またはブロックが赤線を超えること。
+TUTORIAL_MARK_01_01,下降速度,下降速度,Drop Speed,落下速度
+TUTORIAL_MARK_02_01,胡牌准备区,胡牌準備區,Mahjong Area,副露エリア
+TUTORIAL_MARK_06_01,方块列表,方塊列表,Block List,ブロックリスト
+TUTORIAL_MARK_06_02,道具栏,道具欄,Item Bar,アイテム欄
+TUTORIAL_MARK_07_01,删除,刪除,Delete,削除
+TUTORIAL_MARK_08_01,得分目标,得分目標,Target Score,目標スコア
+TUTORIAL_MARK_08_02,剩余时间,剩餘時間,Time Remaining,残り時間
+TUTORIAL_MARK_08_03,牌库,牌庫,Deck,山

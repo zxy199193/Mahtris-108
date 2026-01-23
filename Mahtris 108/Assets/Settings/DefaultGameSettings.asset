@@ -82,7 +82,7 @@ MonoBehaviour:
     level3Weight: 0.35
   itemSlotCount: 5
   commonItemPool:
-  - {fileID: 11400000, guid: 1218db7fe6472db4abbea37ec5cca54f, type: 2}
+  - {fileID: 11400000, guid: 5b40825730be1644ca7a88ab44fe1c27, type: 2}
   advancedItemPool:
   - {fileID: 11400000, guid: d51932ccf95c4a24293ed3ca50184169, type: 2}
   - {fileID: 11400000, guid: 09fc48b91470f024aa48708446a3673f, type: 2}
