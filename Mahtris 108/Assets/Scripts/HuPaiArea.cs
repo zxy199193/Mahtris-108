@@ -25,63 +25,70 @@ public class HuPaiArea : MonoBehaviour
 
     // 挂起计数
     private int _pendingSetCount = 0;
+    private int _frameAddedCount = 0;
+    private bool _isRefreshScheduled = false;
 
     public void AddSets(List<List<int>> sets, float delay = 0f)
     {
         if (sets == null || sets.Count == 0) return;
 
-        // 1. 立刻占位计数
+        // 1. 立刻占位计数与暂存
         _pendingSetCount += sets.Count;
-
-        // 2. 【关键】立刻保存数据到暂存列表
-        // 这样即使视觉上还没显示，数据逻辑（如胡牌检测）也能立刻读到它
         _pendingSetsData.AddRange(sets);
 
-        // 定义核心执行逻辑
+        // 核心执行逻辑
         System.Action executeLogic = () =>
         {
             if (this == null || gameObject == null) return;
 
-            // 3. 延迟结束后：从暂存区移除，加入正式区
-            // 注意：这里需要移除对应的引用
-            foreach (var set in sets)
-            {
-                _pendingSetsData.Remove(set);
-            }
-
-            // 还原计数
+            // 移除暂存
+            foreach (var set in sets) _pendingSetsData.Remove(set);
             _pendingSetCount -= sets.Count;
 
-            // 加入正式列表并刷新 UI
+            // 加入正式列表
             huPaiSets.AddRange(sets);
-            RefreshDisplay();
 
-            // 播放音效
-            if (AudioManager.Instance != null && AudioManager.Instance.SoundLibrary != null)
+            // =========================================================
+            // 【核心修复】合并刷新 (Batching)
+            // 累加本次新增的组数，并预约在极短时间后统一刷新
+            // =========================================================
+            _frameAddedCount += sets.Count;
+
+            if (!_isRefreshScheduled)
             {
-                AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibrary.addSetToHuArea);
+                _isRefreshScheduled = true;
+
+                // 延迟 0.02 秒执行统一刷新，把这一瞬间进来的所有牌一起动画
+                DOVirtual.DelayedCall(0.02f, () =>
+                {
+                    if (this == null) return;
+
+                    RefreshDisplay(_frameAddedCount, -1);
+
+                    // 播放一次音效，避免多组牌同时加时声音过大或重叠
+                    if (AudioManager.Instance != null && AudioManager.Instance.SoundLibrary != null)
+                    {
+                        AudioManager.Instance.PlaySFX(AudioManager.Instance.SoundLibrary.addSetToHuArea);
+                    }
+
+                    // 重置合并状态
+                    _frameAddedCount = 0;
+                    _isRefreshScheduled = false;
+
+                }).SetUpdate(true); // 确保暂停时也能正常调度
             }
 
+            // 触发游戏逻辑事件
             if (GameManager.Instance != null)
             {
                 foreach (var set in sets)
-                {
                     foreach (var id in set)
-                    {
                         GameManager.Instance.OnHuPaiTileAdded(id);
-                    }
-                }
             }
         };
 
-        if (delay > 0f)
-        {
-            DOVirtual.DelayedCall(delay, () => executeLogic()).SetTarget(this);
-        }
-        else
-        {
-            executeLogic();
-        }
+        if (delay > 0f) DOVirtual.DelayedCall(delay, () => executeLogic()).SetTarget(this);
+        else executeLogic();
     }
 
     public bool RemoveLastSet()
@@ -128,23 +135,18 @@ public class HuPaiArea : MonoBehaviour
         }
     }
 
-    private void RefreshDisplay()
+    private void RefreshDisplay(int newlyAddedSetCount = 0, int upgradedSetIndex = -1)
     {
         if (displayParent != null)
         {
             foreach (Transform child in displayParent) Destroy(child.gameObject);
         }
-        else
-        {
-            Debug.LogError("HuPaiArea 的 displayParent 引用未设置!");
-            return;
-        }
+        else return;
 
-        if (blockPrefab == null || blockPool == null)
-        {
-            Debug.LogError("HuPaiArea 的 blockPrefab 或 blockPool 引用未设置!");
-            return;
-        }
+        if (blockPrefab == null || blockPool == null) return;
+
+        // 【关键】计算从哪一组开始是新加的。例如原来2组，新加3组，那么索引 >= 2 的全是新组
+        int startAnimIndex = huPaiSets.Count - newlyAddedSetCount;
 
         for (int i = 0; i < huPaiSets.Count; i++)
         {
@@ -155,6 +157,10 @@ public class HuPaiArea : MonoBehaviour
 
             float startX = columnIndex * columnSpacing;
             float yPos = -rowIndex * rowSpacing;
+
+            // 只要索引大于等于起始点，就全是新组
+            bool isNewSet = (i >= startAnimIndex);
+            bool isUpgradedSet = (i == upgradedSetIndex);
 
             for (int tileIndex = 0; tileIndex < set.Count; tileIndex++)
             {
@@ -174,9 +180,32 @@ public class HuPaiArea : MonoBehaviour
 
                 GameObject go = Instantiate(blockPrefab, displayParent);
                 RectTransform rectTransform = go.GetComponent<RectTransform>();
+
                 if (rectTransform != null)
                 {
-                    rectTransform.anchoredPosition = new Vector2(xPos, currentYPos);
+                    // 判断是否需要动画
+                    bool isGamePaused = Time.timeScale == 0f;
+                    bool shouldAnimate = (isNewSet || (isUpgradedSet && tileIndex == 3)) && !isGamePaused;
+
+                    if (shouldAnimate)
+                    {
+                        // 1. 设置出生点：空中
+                        rectTransform.anchoredPosition = new Vector2(xPos, currentYPos + 50f);
+
+                        // 2. 设置延迟：
+                        // 如果是第4张牌（杠牌），稍微延迟 0.05s 让它跌在上面
+                        // 其他所有牌（包括多组同时加进来的）延迟均为 0，完全同时下落
+                        float delay = (tileIndex == 3) ? 0.05f : 0f;
+
+                        rectTransform.DOAnchorPosY(currentYPos, 0.2f)
+                                     .SetEase(Ease.OutBounce)
+                                     .SetDelay(delay);
+                    }
+                    else
+                    {
+                        // 老牌直接定位，无动画
+                        rectTransform.anchoredPosition = new Vector2(xPos, currentYPos);
+                    }
                 }
 
                 var bu = go.GetComponent<BlockUnit>();
@@ -196,7 +225,8 @@ public class HuPaiArea : MonoBehaviour
         if (pungSet != null)
         {
             pungSet.Add(fourthTileId);
-            RefreshDisplay();
+            int setIndex = huPaiSets.IndexOf(pungSet);
+            RefreshDisplay(0, setIndex);
 
             if (AudioManager.Instance != null && AudioManager.Instance.SoundLibrary != null)
             {
