@@ -19,7 +19,7 @@ MonoBehaviour:
   itemDescription: "\u5F3A\u884C\u6D88\u9664\u5E95\u90E83\u884C\u65B9\u5757\r"
   isAdvanced: 0
   isLegendary: 0
-  useSound: {fileID: 8300000, guid: 98666ca704c105145b393e892df00bc9, type: 3}
+  useSound: {fileID: 0}
   price: 200
   isInitial: 1
   unlockConditionCount: 0

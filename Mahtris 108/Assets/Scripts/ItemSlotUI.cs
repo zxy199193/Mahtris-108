@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using DG.Tweening;
 
-public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
+public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
     [Header("UI 组件 - 有道具时显示")]
     [SerializeField] private Image iconImage;      // 道具图标
@@ -19,8 +20,13 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
     private ItemData currentItem;
     private int slotIndex = -1; // 记录自己在背包中的索引 (0-4)
     private bool isEmpty = true;
+    private Vector3 originalScale;
 
-    // 初始化方法
+    void Awake()
+    {
+        originalScale = transform.localScale;
+    }
+
     public void Setup(ItemData item, int index)
     {
         currentItem = item;
@@ -107,27 +113,20 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
     {
         if (isEmpty) return;
 
-        // 1. 检查“空手道大师”等禁止使用道具的状态
+        // 1. 检查禁止使用道具的状态
         if (GameManager.Instance != null && GameManager.Instance.isFrenziedActive)
         {
             if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
-
-            string msg = "空手道大师生效中：无法使用道具！";
-            if (LocalizationManager.Instance != null)
-            {
-                msg = LocalizationManager.Instance.GetText("ITEM_TIPS_KARATE");
-            }
-
+            string msg = LocalizationManager.Instance != null ? LocalizationManager.Instance.GetText("ITEM_TIPS_KARATE") : "空手道大师生效中：无法使用道具！";
             var ui = FindObjectOfType<GameUIController>();
             if (ui) ui.ShowToast(msg);
-
             return;
         }
 
-        // 2. 播放点击音效 (这就是你要的功能)
+        // 2. 播放点击音效
         if (AudioManager.Instance) AudioManager.Instance.PlayButtonClickSound();
 
-        // 3. 执行逻辑
+        // 3. 执行逻辑 (InventoryManager 内部会清空该槽位的数据，导致图标立即消失)
         InventoryManager inventory = FindObjectOfType<InventoryManager>();
         if (inventory != null && slotIndex != -1)
         {
@@ -169,4 +168,30 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
         }
     }
     public ItemData GetItemData() => currentItem;
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (isEmpty) return;
+
+        transform.DOKill();
+        // 按下时缩小到 0.95 倍
+        transform.DOScale(originalScale * 0.95f, 0.1f).SetUpdate(true);
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (isEmpty) return;
+
+        transform.DOKill();
+        // 松开时恢复原状
+        transform.DOScale(originalScale, 0.1f).SetUpdate(true);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (isEmpty) return;
+
+        // 如果鼠标按住并移出了道具栏范围，取消缩放状态
+        transform.DOKill();
+        transform.DOScale(originalScale, 0.1f).SetUpdate(true);
+    }
 }

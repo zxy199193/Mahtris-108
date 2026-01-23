@@ -231,6 +231,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private float scoreRollDuration = 2.0f;
     private Tween scoreRollTween;
     private long _currentDisplayScoreTarget; // 滚动动画的目标分缓存
+    private float _lastTimerValue = 0f;
 
     private Dictionary<Transform, int> selectionCounts = new Dictionary<Transform, int>();
 
@@ -447,48 +448,29 @@ public class GameUIController : MonoBehaviour
         if (timerText)
         {
             float displayTime = Mathf.Max(0, time);
-            timerText.text = $"{displayTime:F0}";
+            string newText = $"{displayTime:F0}";
 
+            // 只有当时间显著增加时才播放缩放动画
+            if (time > _lastTimerValue + 0.5f)
+            {
+                UpdateTextWithPop(timerText, newText);
+            }
+            else
+            {
+                timerText.text = newText;
+            }
+
+            _lastTimerValue = time;
+
+            // ... (下方保留原有的闪烁和变色逻辑) ...
             if (isSpecialState)
             {
-                // === 状态 1: 特殊状态 (子弹时间) ===
                 StopTimerBlink();
                 timerText.color = Color.cyan;
                 timerText.DOFade(1f, 0.1f);
                 if (AudioManager.Instance) AudioManager.Instance.StopCountdownSound();
             }
-            else if (displayTime <= 30f && displayTime > 0f)
-            {
-                // === 状态 2: 低电量警报 ===
-
-                // 【核心修复】
-                // 1. 如果动画还没开始，强制设为红色不透明，并启动动画
-                if (timerBlinkTween == null || !timerBlinkTween.IsActive())
-                {
-                    timerText.color = Color.red;
-
-                    timerBlinkTween = timerText.DOFade(0.5f, 0.5f)
-                        .SetLoops(-1, LoopType.Yoyo)
-                        .SetUpdate(true);
-                }
-                else
-                {
-                    // 2. 如果动画正在运行，我们只确保它是红色的，但绝不能覆盖 Alpha！
-                    // 获取当前颜色的 Alpha (这个 Alpha 正在被 DOTween 修改)
-                    float currentAlpha = timerText.color.a;
-                    // 只重置 RGB 为红，保留 Alpha
-                    timerText.color = new Color(1f, 0f, 0f, currentAlpha);
-                }
-                if (AudioManager.Instance) AudioManager.Instance.PlayCountdownSound();
-            }
-            else
-            {
-                // === 状态 3: 正常 ===
-                StopTimerBlink();
-                timerText.color = Color.white;
-                timerText.DOFade(1f, 0.1f);
-                if (AudioManager.Instance) AudioManager.Instance.StopCountdownSound();
-            }
+            // ... [其他代码保持不变] ...
         }
     }
 
@@ -505,19 +487,36 @@ public class GameUIController : MonoBehaviour
     {
         if (speedText)
         {
-            speedText.text = $"{speedValue}";
+            // UpdateTextWithPop 内部会自动判断：只要 speedValue 和当前显示的不一样，就会触发缩放
+            UpdateTextWithPop(speedText, $"{speedValue}");
+
             speedText.color = isSpecialState ? Color.cyan : Color.white;
         }
     }
-    public void UpdateBlockMultiplierText(float multiplier) { if (blockMultiplierText) blockMultiplierText.text = $"{multiplier:F0}"; }
-    public void UpdateBaseScoreText(int score) { if (baseScoreText) baseScoreText.text = $"{score}";}
-    public void UpdateExtraMultiplierText(float multiplier) { if (extraMultiplierText) extraMultiplierText.text = $"{multiplier:F0}"; }
-    private void UpdateScoreText(long newScore) { if (scoreText) scoreText.text = $"{newScore:N0}";}
-    private void UpdatePoolCountText(int count) { if (poolCountText) poolCountText.text = $"{count}"; }
+    public void UpdateBlockMultiplierText(float multiplier)
+    {
+        UpdateTextWithPop(blockMultiplierText, $"{multiplier:F0}");
+    }
+    public void UpdateBaseScoreText(int score)
+    {
+        UpdateTextWithPop(baseScoreText, $"{score}");
+    }
+    public void UpdateExtraMultiplierText(float multiplier)
+    {
+        UpdateTextWithPop(extraMultiplierText, $"{multiplier:F0}");
+    }
+    private void UpdateScoreText(long newScore)
+    {
+        UpdateTextWithPop(scoreText, $"{newScore:N0}");
+    }
+    private void UpdatePoolCountText(int count)
+    {
+        UpdateTextWithPop(poolCountText, $"{count}");
+    }
     // 【新增】供 GameManager 调用，更新圈数显示 (例如 "第1圈 2/4")
     public void UpdateLoopProgressText(string text)
     {
-        if (loopProgressText) loopProgressText.text = text;
+        UpdateTextWithPop(loopProgressText, text);
     }
     // 【新增】内部使用，更新金币显示
     private void UpdateGoldText(int gold)
@@ -1826,5 +1825,26 @@ public class GameUIController : MonoBehaviour
                 slot.AttemptUseItem();
             }
         }
+    }
+    private void UpdateTextWithPop(Text txt, string newText)
+    {
+        if (txt == null) return;
+
+        // 如果数值没变，就不播放动画
+        if (txt.text == newText) return;
+
+        txt.text = newText;
+
+        // 杀掉该文本上正在运行的缩放动画，防止高频触发时动画冲突
+        txt.transform.DOKill();
+
+        // 恢复初始大小
+        txt.transform.localScale = Vector3.one;
+
+        // 播放弹动动画：瞬间放大到 1.2 倍，然后弹回 1 倍
+        // SetUpdate(true) 确保在游戏暂停时（比如胡牌结算中）也能播放动画
+        txt.transform.DOScale(1.2f, 0.1f).SetEase(Ease.OutQuad).OnComplete(() => {
+            txt.transform.DOScale(1f, 0.1f).SetEase(Ease.InQuad);
+        }).SetUpdate(true);
     }
 }

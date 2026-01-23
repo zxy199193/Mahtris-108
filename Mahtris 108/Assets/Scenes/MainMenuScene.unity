@@ -4567,7 +4567,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &403105033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9916,14 +9916,17 @@ MonoBehaviour:
   _sfxVolume: 1
   mainMenuBgm: {fileID: 8300000, guid: f95963f5381e91849a80107edf412d8e, type: 3}
   easyGameBgmList:
-  - {fileID: 8300000, guid: 94752807f465f7b4c944c884d601e6b1, type: 3}
+  - {fileID: 8300000, guid: f95963f5381e91849a80107edf412d8e, type: 3}
   - {fileID: 8300000, guid: afbf623c7cf0ada439427151650d9c47, type: 3}
+  - {fileID: 8300000, guid: 6f5940d74ef647b45a6c5af72bac7bcf, type: 3}
   normalGameBgmList:
   - {fileID: 8300000, guid: a49ad312efc290f4fb01e39d99600b0f, type: 3}
-  - {fileID: 8300000, guid: 7fac5e7c0d12e0443be16a5aa059218a, type: 3}
+  - {fileID: 8300000, guid: 87ce794c02dd9ac4cbea3bd3491c4085, type: 3}
+  - {fileID: 8300000, guid: 16dfb0f8d01e8c04db1f2f5b3a8e233a, type: 3}
   hardGameBgmList:
   - {fileID: 8300000, guid: 4db0890bb02a85145bcd3fc992a3e4bc, type: 3}
   - {fileID: 8300000, guid: fbc71659e931f1b4c8cf38bfcd5aa0ad, type: 3}
+  - {fileID: 8300000, guid: ea018538511df3147b78fc99c28be14d, type: 3}
   unmatchedGameBgmList:
   - {fileID: 8300000, guid: f48129f63563d794cb90449997c06cab, type: 3}
   - {fileID: 8300000, guid: 82dfa04561f78874fbf0e25040f2256d, type: 3}
