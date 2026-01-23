@@ -19,18 +19,28 @@ public class DivineSalvationItem : ItemData
 
     public override bool Use(GameManager gameManager)
     {
-        // 1. 调用新的“永久基础分”系统
+        // 1. 先尝试执行核心功能：消除底部行
+        // 如果场上没有任何已锁定的方块，这个方法会返回 false
+        bool success = gameManager.ForceClearRowsFromBottom(rowsToClear);
+
+        if (!success)
+        {
+            // 失败：播放错误音效，弹出提示，且不消耗道具
+            if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+            var ui = FindObjectOfType<GameUIController>();
+            if (ui != null)
+            {
+                string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("ITEM_TIPS_01") : "没有可以消除的方块！";
+                ui.ShowToast(msg);
+            }
+            return false;
+        }
+
+        // 2. 消除成功后，再应用所有增益效果
         gameManager.ApplyPermanentBaseScoreBonus(baseScoreBonus);
-
-        // 2. 调用新的“永久速度”系统
         gameManager.ApplyPermanentSpeedBonus(speedBonus);
-
-        // 3. 调用“增加时间”
         gameManager.AddTime(timeBonus);
 
-        // 4. 调用“强制消行”
-        gameManager.ForceClearRowsFromBottom(rowsToClear);
-
-        return true;
+        return true; // 消耗道具
     }
 }

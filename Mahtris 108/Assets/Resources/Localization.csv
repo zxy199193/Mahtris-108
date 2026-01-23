@@ -189,7 +189,7 @@ ITEM_DES_20,本次胡牌即完成一圈，<color=#36BA98>方块速度+4</color>,
 ITEM_DES_21,获得300金币,獲得300金幣,Obtain 300 Coins,コインを300獲得する
 ITEM_DES_22,下次消除的行不会进行判定而是会被直接移除，下轮游戏恢复,下次消除的行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next 1 cleared line is removed directly without check (restores next round),次に消去したラインは判定を行わず直接削除される、和了後に元に戻る
 ITEM_DES_23,将最下方3行方块的麻将牌面按顺序重新排列,將最下方3行方塊的麻將牌面按順序重新排列,Sorts tiles in the bottom 3 rows in sequential order.,最下段3行の麻雀牌を、順番通りに並べ替えます。
-ITEM_DES_24,当有胡牌区有刻子，且场上有这个刻子的牌，获取该牌形成杠牌（满足多个刻子时随机）,當胡牌區有刻子，且場上有這個刻子的牌，獲取該牌形成槓牌（滿足多個刻子時隨機）,"If a Triplet exists in Winning Area and the tile is on board, pull it to form a Kong",和了エリアに刻子があり、対応する牌が場にある場合、それを引き寄せて槓子（カンツ）にする
+ITEM_DES_24,当胡牌区有刻子，且场上有这个刻子的牌，获取该牌形成杠牌（可多个）,當胡牌區有刻子，且場上有這個刻子的牌，獲取該牌形成槓牌（可多個）,"If a [Triplet] is in the Winning Area and matching tiles exist on the board, collect them to form a [Kong]. (can be multiple)",和了エリアに【刻子】があり、盤面に同じ牌がある場合、それを吸収して【槓】にします（可複数）。
 ITEM_DES_25,<color=#3296DC>基础分+30%</color>，整局有效,<color=#3296DC>基礎分+30%</color>，整局有效,<color=#3296DC>Base Point +30%</color> (entire game),<color=#3296DC>基礎点+30%</color>、ゲーム終了まで有効
 ITEM_DES_26,方块列表中随机2种方块，整局游戏这两种方块的<color=#FF595E>方块倍率+5</color>,方塊列表中隨機2種方塊，整局遊戲這兩種方塊的<color=#FF595E>方塊倍率+5</color>,Randomly select 2 block types from Block List. Their <color=#FF595E>Block Multiplier +5</color> (entire game).,所持ブロックからランダムに2種類選出。そのブ<color=#FF595E>ブロック倍率+5</color>（ゲーム終了まで有効）
 ITEM_DES_27,强行消除底下6行方块,強制消除底部6行方塊,Forcibly clear the bottom 6 lines,最下段の6ラインを強制的に消去する
@@ -206,7 +206,15 @@ ITEM_DES_37,20秒内每次消除行会给增加金币总数的2%，仅本轮有�
 ITEM_DES_38,20秒内每次消除行会给增加当前得分的5%，仅本轮有效,20秒內每次消除行會給增加當前得分的5%，僅本局有效,"For 20s, each line cleared adds 5% to Current Score (this round only)",20秒間、ラインを消去するたびに現在スコアの5%を加算、今局のみ有効
 ITEM_DES_39,方块列表中每有一种方块，<color=#3296DC>基础分+3</color>，整局有效,方塊列表中每有一種方塊，<color=#3296DC>基礎分+3</color>，整局有效,<color=#3296DC>Base Point +3</color> for every unique block type in inventory (entire game),所持しているブロックの種類1つにつき<color=#3296DC>基礎点+3</color>、ゲーム終了まで有効
 ITEM_DES_40,<color=#3296DC>基础分+20</color>，<color=#36BA98>方块速度-10</color>（均整局有效），<color=#36BA98>游戏时间+100秒</color>，强行消除底下4行方块,<color=#3296DC>基礎分+20</color>（整局有效），<color=#36BA98>方塊速度-10</color>（均整局有效），<color=#36BA98>遊戲時間+100秒</color>，強制消除底部4行方塊,"<color=#3296DC>Base Point +20</color>, <color=#36BA98>Block Speed -10</color> (both entire game), <color=#36BA98>Time +100s</color>, clear bottom 4 lines",<color=#3296DC>基礎点+20</color>、<color=#36BA98>落下速度-10</color>（ゲーム終了まで有効）、<color=#36BA98>時間+100秒</color>、最下段4ライン消去
-ITEM_TIPS_11,方块不足，无法使用,方塊不足，無法使用,Not enough blocks. Cannot use.,ブロックが足りないため、使用できません
+ITEM_TIPS_01,没有可以消除的方块,,,
+ITEM_TIPS_02,仅剩一个方块，不可使用,,,
+ITEM_TIPS_03,胡牌区没有可以移除的牌,,,
+ITEM_TIPS_04,没有可以排序的麻将,,,
+ITEM_TIPS_05,胡牌区没有刻子,,,
+ITEM_TIPS_06,场上没有可以凑杠的牌,,,
+ITEM_TIPS_07,尚未使用任何道具,,,
+ITEM_TIPS_08,胡牌区已满,,,
+ITEM_TIPS_09,没有可以凑成顺子或刻子的牌,,,
 ITEM_TIPS_KARATE,无法使用道具,無法使用道具,Cannot use item,アイテム使用不可
 PROTOCOL_NAME_01,速度之星,速度之星,Speed Star,スピードスター
 PROTOCOL_NAME_02,临期食品,臨期食品,Expiring Food,見切り品

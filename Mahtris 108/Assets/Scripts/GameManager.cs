@@ -1629,7 +1629,7 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-    public void ForceClearRowsFromBottom(int count)
+    public bool ForceClearRowsFromBottom(int count)
     {
         // 查找当前正在控制的方块 (enabled == true 的那个)
         Tetromino activeTetromino = null;
@@ -1652,6 +1652,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("强制底部消除：没有可消除的行(已忽略下落方块)，跳过。");
         }
+        return hasCleared;
     }
     // 【新增】1. 供“气球”和“神之救济”调用
     public void ApplyPermanentSpeedBonus(int amount)
@@ -2297,55 +2298,69 @@ public class GameManager : MonoBehaviour
     }
     public bool TryFindAndAddRandomSetFromPool()
     {
-        // 1. 检查胡牌区是否已满
+        // =========================================================
+        // 【判断 1】检查胡牌区是否已满
+        // =========================================================
         if (huPaiArea.GetSetCount() >= settings.setsForHu)
         {
-            return false; // 胡牌区已满，无法使用
+            if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+
+            string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("ITEM_TIPS_08") : "胡牌区已满！";
+            if (gameUI != null) gameUI.ShowToast(msg);
+
+            return false; // 拦截，不消耗道具
         }
+
         // 2. 获取当前牌库
         List<int> availableIds = blockPool.GetAvailableBlockIDs();
-        if (availableIds.Count < 3)
-        {
-            return false; // 牌库不足
-        }
-
         List<List<int>> potentialSets = new List<List<int>>();
 
-        // 3. 查找所有可能的“刻子”
-        var pungGroups = availableIds.GroupBy(id => id % 27) // 按牌值分组
-                                     .Where(g => g.Count() >= 3);
-        foreach (var group in pungGroups)
+        // (如果牌库数量 >= 3，才有可能找组合)
+        if (availableIds.Count >= 3)
         {
-            potentialSets.Add(group.Take(3).ToList());
-        }
-
-        // 4. 查找所有可能的“顺子”
-        var tilesBySuit = availableIds.GroupBy(id => (id % 27) / 9); // 按花色分组
-        foreach (var suitGroup in tilesBySuit)
-        {
-            var uniqueTilesInSuit = suitGroup.Select(id => id % 27).Distinct().OrderBy(val => val).ToList();
-            for (int i = 0; i < uniqueTilesInSuit.Count - 2; i++)
+            // 3. 查找所有可能的“刻子”
+            var pungGroups = availableIds.GroupBy(id => id % 27) // 按牌值分组
+                                         .Where(g => g.Count() >= 3);
+            foreach (var group in pungGroups)
             {
-                int v1_val = uniqueTilesInSuit[i];
-                int v2_val = uniqueTilesInSuit[i + 1];
-                int v3_val = uniqueTilesInSuit[i + 2];
+                potentialSets.Add(group.Take(3).ToList());
+            }
 
-                // 检查是否连续
-                if ((v1_val % 9 <= 6) && (v2_val == v1_val + 1) && (v3_val == v1_val + 2))
+            // 4. 查找所有可能的“顺子”
+            var tilesBySuit = availableIds.GroupBy(id => (id % 27) / 9); // 按花色分组
+            foreach (var suitGroup in tilesBySuit)
+            {
+                var uniqueTilesInSuit = suitGroup.Select(id => id % 27).Distinct().OrderBy(val => val).ToList();
+                for (int i = 0; i < uniqueTilesInSuit.Count - 2; i++)
                 {
-                    // 找到顺子，从牌库中获取对应的3张牌ID
-                    int id1 = suitGroup.First(id => (id % 27) == v1_val);
-                    int id2 = suitGroup.First(id => (id % 27) == v2_val);
-                    int id3 = suitGroup.First(id => (id % 27) == v3_val);
-                    potentialSets.Add(new List<int> { id1, id2, id3 });
+                    int v1_val = uniqueTilesInSuit[i];
+                    int v2_val = uniqueTilesInSuit[i + 1];
+                    int v3_val = uniqueTilesInSuit[i + 2];
+
+                    // 检查是否连续
+                    if ((v1_val % 9 <= 6) && (v2_val == v1_val + 1) && (v3_val == v1_val + 2))
+                    {
+                        // 找到顺子，从牌库中获取对应的3张牌ID
+                        int id1 = suitGroup.First(id => (id % 27) == v1_val);
+                        int id2 = suitGroup.First(id => (id % 27) == v2_val);
+                        int id3 = suitGroup.First(id => (id % 27) == v3_val);
+                        potentialSets.Add(new List<int> { id1, id2, id3 });
+                    }
                 }
             }
         }
 
-        // 5. 如果没有找到任何可组成的牌
+        // =========================================================
+        // 【判断 2】如果没有找到任何可组成的牌（包括牌库不足3张的情况）
+        // =========================================================
         if (potentialSets.Count == 0)
         {
-            return false; // 牌库中没有可用的组合
+            if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+
+            string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("ITEM_TIPS_09") : "牌库没有可以凑成顺子或刻子的牌！";
+            if (gameUI != null) gameUI.ShowToast(msg);
+
+            return false; // 拦截，不消耗道具
         }
 
         // 6. 随机选择一个并添加到胡牌区
@@ -2353,10 +2368,10 @@ public class GameManager : MonoBehaviour
         if (blockPool.RemoveSpecificBlockIds(chosenSet))
         {
             huPaiArea.AddSets(new List<List<int>> { chosenSet });
-            return true; // 道具使用成功
+            return true; // 道具使用成功，消耗道具
         }
 
-        return false; // 移除牌时出错（理论上不应发生）
+        return false; // 兜底：理论上不应发生
     }
     // 【新增】供“点金手”调用
     public void ActivateMidas(float duration)
@@ -2402,14 +2417,28 @@ public class GameManager : MonoBehaviour
     public bool ActivateMagnetV2()
     {
         // 1. 找刻子 (必须是 count==3 且所有牌ID对应的数值相同)
-        // Set: List<int> ids. check values: id % 27
         var pungs = huPaiArea.GetAllSets().Where(set =>
             set.Count == 3 &&
             set.Select(id => id % 27).Distinct().Count() == 1 // 确保3张牌是同一种
         ).ToList();
 
-        if (pungs.Count == 0) return false;
+        // =========================================================
+        // 【判断 1】胡牌区没有刻子
+        // =========================================================
+        if (pungs.Count == 0)
+        {
+            if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
 
+            string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("ITEM_TIPS_05") : "胡牌区没有刻子！";
+            if (gameUI != null) gameUI.ShowToast(msg);
+
+            return false; // 拦截，不消耗道具
+        }
+
+        // =========================================================
+        // 2. 遍历所有刻子，批量尝试开杠
+        // =========================================================
+        bool hasUpgradedAny = false; // 记录是否至少成功升级了一个
         var shuffledPungs = pungs.OrderBy(x => Random.value).ToList();
 
         foreach (var pung in shuffledPungs)
@@ -2417,23 +2446,44 @@ public class GameManager : MonoBehaviour
             int targetValue = pung[0] % 27;
             Transform targetTransform = tetrisGrid.GetBlockTransformByValue(targetValue);
 
+            // 如果场上找到了这张牌
             if (targetTransform != null)
             {
                 var blockUnit = targetTransform.GetComponent<BlockUnit>();
                 int targetId = blockUnit.blockId;
 
-                // 尝试升级
+                // 尝试升级 (胡牌区新增第4张)
                 if (huPaiArea.UpgradePungToKong(targetValue, targetId))
                 {
-                    // 【修复】确保物理移除
+                    // 确保网格上的物理方块被移除
+                    // (这会将网格中该位置设为null，这样下一个刻子寻找时就不会重复找到这块砖)
                     tetrisGrid.RemoveSpecificBlock(targetTransform);
 
                     if (isTrinityActive) ApplyPermanentBaseScoreBonus(3);
-                    return true;
+
+                    hasUpgradedAny = true; // 标记成功
+
+                    // 【核心修改】这里不再 return true，而是继续循环！
+                    // 这样就能把场上能吸的牌全部吸走！
                 }
             }
         }
-        return false;
+
+        // 3. 结算本次道具使用结果
+        if (hasUpgradedAny)
+        {
+            return true; // 至少成功了一个，消耗道具
+        }
+
+        // =========================================================
+        // 【判断 2】有刻子，但在场上找不到任何一个第4张牌
+        // =========================================================
+        if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+
+        string msg2 = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("ITEM_TIPS_06") : "场上没有可以凑成杠的牌！";
+        if (gameUI != null) gameUI.ShowToast(msg2);
+
+        return false; // 拦截，不消耗道具
     }
 
     public void ActivateWantedPoster(float percent)
@@ -2702,7 +2752,7 @@ public class GameManager : MonoBehaviour
         }
     }
     // 1. 激活空投炸弹
-    public void ActivateDropBomb()
+    public bool ActivateDropBomb()
     {
         Tetromino currentTetromino = FindObjectOfType<Tetromino>();
         Transform ignoreTransform = currentTetromino != null ? currentTetromino.transform : null;
@@ -2713,36 +2763,61 @@ public class GameManager : MonoBehaviour
         {
             _isBombOrSpecialClear = true;
         }
+        return hasCleared;
     }
 
     public bool ActivateFryingPan(float timeToAdd, int scoreToAdd)
     {
         if (spawner == null) return false;
 
-        // 1. 尝试移除随机方块
+        // 1. 尝试移除随机方块 (Spawner 内部会阻止移除最后一个方块)
         bool success = spawner.RemoveRandomBlock();
 
-        if (success)
+        // 【修正】将失败拦截逻辑提到最前面，与剪刀道具保持结构一致
+        if (!success)
         {
-            // 2. 成功移除后 -> 增加时间
-            remainingTime += timeToAdd;
-            // 立即刷新时间UI (防止游戏处于暂停/菜单状态时UI不更新)
-            if (gameUI != null) gameUI.UpdateTimerText(remainingTime);
+            // 播放与剪刀完全相同的失败音效
+            if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
 
-            // 3. 增加永久基础分
-            ApplyPermanentBaseScoreBonus(scoreToAdd);
-
-            Debug.Log($"平底锅使用成功：时间+{timeToAdd}s, 基础分+{scoreToAdd}");
-            return true;
-        }
-        else
-        {
-            // 4. 方块不足，使用失败 (道具不消耗)
-            string msg = "方块数量不足，无法使用！"; // 默认兜底文本
-
+            string msg = "仅剩一个方块，不可使用！";
             if (LocalizationManager.Instance != null)
             {
-                msg = LocalizationManager.Instance.GetText("ITEM_TIPS_11");
+                msg = LocalizationManager.Instance.GetText("ITEM_TIPS_02");
+            }
+
+            if (gameUI != null) gameUI.ShowToast(msg);
+
+            return false;
+        }
+
+        // 2. 成功移除后 -> 增加时间与分数
+        remainingTime += timeToAdd;
+        // 立即刷新时间UI
+        if (gameUI != null) gameUI.UpdateTimerText(remainingTime);
+
+        ApplyPermanentBaseScoreBonus(scoreToAdd);
+
+        Debug.Log($"平底锅使用成功：时间+{timeToAdd}s, 基础分+{scoreToAdd}");
+        return true;
+    }
+
+    // 2. 激活剪刀
+    public bool ActivateScissors()
+    {
+        if (spawner == null) return false;
+
+        // 1. 尝试移除倍率最高的方块 (Spawner 内部会阻止移除最后一个方块)
+        bool success = spawner.RemoveHighestMultiplierBlock();
+
+        // 【新增】如果移除失败 (只剩 1 个方块)，显示提示并播放音效
+        if (!success)
+        {
+            if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+
+            string msg = "仅剩一个方块，不可使用！";
+            if (LocalizationManager.Instance != null)
+            {
+                msg = LocalizationManager.Instance.GetText("ITEM_TIPS_02");
             }
 
             if (gameUI != null)
@@ -2751,13 +2826,8 @@ public class GameManager : MonoBehaviour
             }
             return false;
         }
-    }
 
-    // 2. 激活剪刀
-    public bool ActivateScissors()
-    {
-        bool success = spawner.RemoveHighestMultiplierBlock();
-        return success;
+        return true;
     }
 
     // 3. 激活金苹果
@@ -2771,12 +2841,27 @@ public class GameManager : MonoBehaviour
     }
 
     // 4. 激活魔术幕布
-    public void ActivateMagicCurtain()
+    public bool ActivateMagicCurtain()
     {
-        if (tetrisGrid != null)
+        if (tetrisGrid == null) return false;
+
+        // 1. 找到当前正在下落的方块
+        Tetromino activeTetromino = null;
+        var allTetrominos = FindObjectsOfType<Tetromino>();
+        foreach (var t in allTetrominos)
         {
-            tetrisGrid.SortBottomRows(3);
+            if (t.enabled) { activeTetromino = t; break; }
         }
+
+        // 2. 将其设为忽略对象
+        Transform ignoreTransform = activeTetromino != null ? activeTetromino.transform : null;
+
+        // 3. 调用网格排序方法，传入忽略对象，并获取是否排序成功
+        // (TetrisGrid 内部会排除 ignoreTransform，如果场上没其他方块就会返回 false)
+        bool hasSorted = tetrisGrid.SortBottomRows(3, ignoreTransform);
+
+        // 4. 直接返回网格的判断结果给道具脚本
+        return hasSorted;
     }
     public void ActivateChampagne()
     {

@@ -8,7 +8,20 @@ public class SuperBombItem : ItemData
 
     public override bool Use(GameManager gameManager)
     {
-        gameManager.ForceClearRowsFromBottom(rowsToClear);
+        bool success = gameManager.ForceClearRowsFromBottom(rowsToClear);
+
+        if (!success)
+        {
+            if (AudioManager.Instance) AudioManager.Instance.PlayBuyFailSound();
+            var ui = FindObjectOfType<GameUIController>();
+            if (ui != null)
+            {
+                string msg = LocalizationManager.Instance ? LocalizationManager.Instance.GetText("ITEM_TIPS_01") : "没有可以消除的方块！";
+                ui.ShowToast(msg);
+            }
+            return false;
+        }
+
         return true;
     }
 }

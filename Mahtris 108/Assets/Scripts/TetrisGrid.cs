@@ -430,21 +430,24 @@ public class TetrisGrid : MonoBehaviour
 
         foreach (var seq in runningSequences) seq.Kill();
     }
-    public void SortBottomRows(int rowCount)
+    public bool SortBottomRows(int rowCount, Transform ignoreTransform = null)
     {
-        // 1. 收集底部区域内的所有方块
-        // 我们按“从下到上、从左到右”的顺序收集位置，这也将是回填的顺序
+        // 1. 收集底部区域内的所有有效方块
         List<BlockUnit> unitsToSort = new List<BlockUnit>();
 
         for (int y = 0; y < rowCount && y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                // 只处理格子里的方块 (grid 数组通常存的是已锁定的方块)
                 if (grid[x, y] != null)
                 {
+                    // 【核心修复 1】跳过正在下落的方块
+                    if (ignoreTransform != null && grid[x, y].IsChildOf(ignoreTransform)) continue;
+
                     var unit = grid[x, y].GetComponent<BlockUnit>();
-                    if (unit != null)
+
+                    // 【核心修复 2】确保它不是一个空的背景壳子 (blockId != -1)
+                    if (unit != null && unit.blockId != -1)
                     {
                         unitsToSort.Add(unit);
                     }
@@ -452,24 +455,25 @@ public class TetrisGrid : MonoBehaviour
             }
         }
 
-        if (unitsToSort.Count == 0) return;
+        // 2. 【核心修复 3】如果没有任何有效方块，直接返回 false 拦截道具使用
+        if (unitsToSort.Count == 0) return false;
 
-        // 2. 提取 ID 并排序
+        // 3. 提取 ID 并排序
         List<int> ids = unitsToSort.Select(u => u.blockId).ToList();
 
         ids.Sort((a, b) => {
-            // 规范化 ID (防止有特殊ID干扰，假设 0-26 为标准麻将牌)
+            // 规范化 ID
             int idA = a % 27;
             int idB = b % 27;
 
-            // 计算花色 (0-8:筒, 9-17:条, 18-26:万)
+            // 计算花色 (0-8:条, 9-17:筒, 18-26:万)
             int suitA = idA / 9;
-            int valA = idA % 9; // 数字 1-9
+            int valA = idA % 9;
 
             int suitB = idB / 9;
             int valB = idB % 9;
 
-            // 设定优先级：筒(0) -> 万(2) -> 条(1)
+            // 设定优先级：筒(1) -> 万(2) -> 条(0)
             int GetPriority(int suit)
             {
                 if (suit == 1) return 0; // 筒 (1) -> 排第 1
@@ -488,8 +492,7 @@ public class TetrisGrid : MonoBehaviour
             return valA.CompareTo(valB);
         });
 
-        // 3. 回填
-        // 使用 GameManager 的 BlockPool 来刷新外观
+        // 4. 回填
         var pool = GameManager.Instance.BlockPool;
         for (int i = 0; i < unitsToSort.Count; i++)
         {
@@ -498,5 +501,6 @@ public class TetrisGrid : MonoBehaviour
         }
 
         Debug.Log($"魔法幕布生效：已整理底部 {rowCount} 行 (筒->万->条)。");
+        return true; // 【核心修复 4】成功排序后返回 true，正常消耗道具
     }
 }
