@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2356d7461b040b74c8fa4bcde9cb7c14, type: 3}
-  m_Name: 31 Berserker
+  m_Name: 30 Berserker
   m_EditorClassIdentifier: 
   nameKey: PROTOCOL_NAME_30
   descKey: PROTOCOL_DES_30
