@@ -289,8 +289,8 @@ public class GameManager : MonoBehaviour
 
                 if (isSafeToClear)
                 {
-                    marshLandTimer = 1f;
-                    ForceClearRowsFromBottom(10);
+                    marshLandTimer = 10f;
+                    ForceClearRowsFromBottom(1);
                 }
                 else
                 {
