@@ -522,7 +522,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a3f89e0207abfc47b7042560c2e0bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: TUTORIAL_MARK_06_02
+  key: TUTORIAL_MARK_06_01
 --- !u!114 &4381750108634843579
 MonoBehaviour:
   m_ObjectHideFlags: 0
