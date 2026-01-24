@@ -271,7 +271,34 @@ public class GameManager : MonoBehaviour
         if (isMarshLandActive)
         {
             marshLandTimer -= logicDeltaTime;
-            if (marshLandTimer <= 0) { marshLandTimer = 10f; ForceClearRowsFromBottom(1); }
+            if (marshLandTimer <= 0)
+            {
+                // =========================================================
+                // 【终极修复】只有在：有下落方块 且 方块在安全高度(Y>=3) 时才消除
+                // 如果没方块(正在着陆) 或 方块太低，一律延迟 0.5 秒等待新方块
+                // =========================================================
+                Tetromino activeTetromino = null;
+                var allTetrominos = FindObjectsOfType<Tetromino>();
+                foreach (var t in allTetrominos)
+                {
+                    if (t.enabled) { activeTetromino = t; break; }
+                }
+
+                // 【核心修改】必须不为 null，且高度 >= 3，才允许消除
+                bool isSafeToClear = (activeTetromino != null && activeTetromino.transform.position.y >= 3.0f);
+
+                if (isSafeToClear)
+                {
+                    marshLandTimer = 1f;
+                    ForceClearRowsFromBottom(10);
+                }
+                else
+                {
+                    // 状态不安全：正在着陆、正在消行结算、方块太低
+                    // 憋 0.5 秒再试，直到新方块出现在屏幕顶部
+                    marshLandTimer = 0.5f;
+                }
+            }
         }
 
         if (isAdventFoodActive)
