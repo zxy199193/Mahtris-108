@@ -16,7 +16,7 @@ MonoBehaviour:
   descKey: PROTOCOL_DES_34
   protocolName: "\u5F3A\u8005\u4E16\u754C"
   protocolIcon: {fileID: 21300000, guid: 83ff15fcdae01184bb279ffa389ebcb9, type: 3}
-  protocolDescription: "\u6BCF\u8F6E\u6E38\u620F\u5F00\u59CB\u65F6\uFF0C\u5F3A\u884C\u52A0\u5165\u968F\u673A\u4E00\u4E2A5\u683C\u65B9\u5757\uFF0C\u989D\u5916\u500D\u7387x5\r"
+  protocolDescription: "\u6BCF\u8F6E\u6E38\u620F\u5F00\u59CB\u65F6\uFF0C\u5F3A\u884C\u52A0\u5165\u968F\u673A\u4E00\u4E2A5\u683C\u65B9\u5757\uFF0C\u989D\u5916\u500D\u7387x8\r"
   isLegendary: 0
   price: 500
   isInitial: 0
