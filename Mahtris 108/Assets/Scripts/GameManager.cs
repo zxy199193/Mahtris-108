@@ -1411,7 +1411,7 @@ public class GameManager : MonoBehaviour
         // 可选：给个提示让玩家知道生效了
         if (gameUI != null)
         {
-            gameUI.ShowToast($"获得额外奖金: {amount} G");
+            //gameUI.ShowToast($"获得额外奖金: {amount} G");
         }
     }
     // 【新增】1. 供“果汁”调用 (永久加成)
@@ -2511,7 +2511,7 @@ public class GameManager : MonoBehaviour
             {
                 // 显示百分比
                 string percentText = (_wantedPosterBonusPercent * 100f).ToString("F0");
-                gameUI.ShowToast($"悬赏令生效：通关将获得额外 +{percentText}% 奖金！");
+                //gameUI.ShowToast($"悬赏令生效：通关将获得额外 +{percentText}% 奖金！");
             }
 
             Debug.Log($"悬赏令(普通)挂起：当前累计悬赏加成 {_wantedPosterBonusPercent:P0}");
