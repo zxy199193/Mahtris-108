@@ -503,4 +503,31 @@ public class TetrisGrid : MonoBehaviour
         Debug.Log($"魔法幕布生效：已整理底部 {rowCount} 行 (筒->万->条)。");
         return true; // 【核心修复 4】成功排序后返回 true，正常消耗道具
     }
+    public int GetMaxHeightUnderTetromino(Transform activeTetromino)
+    {
+        if (activeTetromino == null || grid == null) return 0;
+
+        int localMaxHeight = 0;
+
+        // 遍历当前方块的所有子块 (4个小方块)
+        foreach (Transform child in activeTetromino)
+        {
+            int x = Mathf.RoundToInt(child.position.x);
+            if (x >= 0 && x < width)
+            {
+                // 从上往下找这一列的最高点
+                for (int y = height - 1; y >= 0; y--)
+                {
+                    // 找到了东西，且这个东西不是自己身上的
+                    if (grid[x, y] != null && !grid[x, y].IsChildOf(activeTetromino))
+                    {
+                        int colHeight = y + 1;
+                        if (colHeight > localMaxHeight) localMaxHeight = colHeight;
+                        break; // 找到这一列的最高点，跳出内层循环，查下一列
+                    }
+                }
+            }
+        }
+        return localMaxHeight;
+    }
 }

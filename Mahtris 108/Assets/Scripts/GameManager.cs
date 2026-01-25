@@ -273,10 +273,6 @@ public class GameManager : MonoBehaviour
             marshLandTimer -= logicDeltaTime;
             if (marshLandTimer <= 0)
             {
-                // =========================================================
-                // 【终极修复】只有在：有下落方块 且 方块在安全高度(Y>=3) 时才消除
-                // 如果没方块(正在着陆) 或 方块太低，一律延迟 0.5 秒等待新方块
-                // =========================================================
                 Tetromino activeTetromino = null;
                 var allTetrominos = FindObjectsOfType<Tetromino>();
                 foreach (var t in allTetrominos)
@@ -284,8 +280,21 @@ public class GameManager : MonoBehaviour
                     if (t.enabled) { activeTetromino = t; break; }
                 }
 
-                // 【核心修改】必须不为 null，且高度 >= 3，才允许消除
-                bool isSafeToClear = (activeTetromino != null && activeTetromino.transform.position.y >= 3.0f);
+                // =========================================================
+                // 【终极修复 3.0】精准列高检测
+                // 只检测当前方块“脚下那几列”的最高高度，无视远处的高塔
+                // =========================================================
+                int localHeight = 0;
+                if (activeTetromino != null)
+                {
+                    // 使用刚才写好的新方法，只扫描脚下
+                    localHeight = tetrisGrid.GetMaxHeightUnderTetromino(activeTetromino.transform);
+                }
+
+                // 安全线 = 脚下障碍物高度 + 2 (保底为 3)
+                float safeHeight = Mathf.Max(3.0f, localHeight + 2.0f);
+
+                bool isSafeToClear = (activeTetromino != null && activeTetromino.transform.position.y >= safeHeight);
 
                 if (isSafeToClear)
                 {
@@ -294,8 +303,7 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    // 状态不安全：正在着陆、正在消行结算、方块太低
-                    // 憋 0.5 秒再试，直到新方块出现在屏幕顶部
+                    // 只有当方块马上要撞到自己脚下的障碍物时，才会憋 0.5 秒
                     marshLandTimer = 0.5f;
                 }
             }
@@ -354,13 +362,13 @@ public class GameManager : MonoBehaviour
             if (unstableCurrentTimer <= 0)
             {
                 unstableCurrentTimer = 3f;
-                int change = Random.Range(1, 37);
-                if (Random.value < 0.5f) change = -change;
-                int baseWithoutUnstable = baseFanScore - unstableCurrentBonus;
-                if (baseWithoutUnstable + change < 1)
-                {
-                    change = 1 - baseWithoutUnstable;
-                }
+
+                // =========================================================
+                // 【修改】移除负面效果，现在只会生成 1 到 25 的纯正向增益
+                // =========================================================
+                int change = Random.Range(1, 25);
+
+                // 直接覆盖上一次的加成 (UpdateCurrentBaseScore 内部会重新计算总分)
                 unstableCurrentBonus = change;
                 UpdateCurrentBaseScore();
             }

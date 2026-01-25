@@ -16,11 +16,11 @@ MonoBehaviour:
   descKey: ITEM_DES_06
   itemName: "\u964D\u843D\u4F1E"
   itemIcon: {fileID: 21300000, guid: c9d2f616cce08ca469d3bdfd3e6eaab8, type: 3}
-  itemDescription: "\u65B9\u5757\u901F\u5EA6-18\uFF0C\u4EC5\u672C\u8F6E\u6709\u6548\r\r"
+  itemDescription: "\u65B9\u5757\u901F\u5EA6-60%\uFF0C\u4EC5\u672C\u8F6E\u6709\u6548"
   isAdvanced: 0
   isLegendary: 0
   useSound: {fileID: 0}
   price: 200
   isInitial: 1
   unlockConditionCount: 0
-  speedBonus: -18
+  speedReductionPercent: 0.6
