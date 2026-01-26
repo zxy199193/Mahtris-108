@@ -450,7 +450,10 @@ public class GameUIController : MonoBehaviour
             float displayTime = Mathf.Max(0, time);
             string newText = $"{displayTime:F0}";
 
-            // 只有当时间显著增加时才播放缩放动画
+            // =========================================================
+            // 第一部分：文字更新与加时动效 (来自最新版)
+            // =========================================================
+            // 只有当时间显著增加时才播放缩放动画 (例如吃了平底锅)
             if (time > _lastTimerValue + 0.5f)
             {
                 UpdateTextWithPop(timerText, newText);
@@ -462,15 +465,50 @@ public class GameUIController : MonoBehaviour
 
             _lastTimerValue = time;
 
-            // ... (下方保留原有的闪烁和变色逻辑) ...
+            // =========================================================
+            // 第二部分：状态判断与视觉/听觉警报 (来自老版)
+            // =========================================================
             if (isSpecialState)
             {
+                // === 状态 1: 特殊状态 (子弹时间) ===
                 StopTimerBlink();
                 timerText.color = Color.cyan;
                 timerText.DOFade(1f, 0.1f);
                 if (AudioManager.Instance) AudioManager.Instance.StopCountdownSound();
             }
-            // ... [其他代码保持不变] ...
+            else if (displayTime <= 30f && displayTime > 0f)
+            {
+                // === 状态 2: 低电量警报 (<= 30秒) ===
+
+                // 1. 如果动画还没开始，强制设为红色不透明，并启动动画
+                if (timerBlinkTween == null || !timerBlinkTween.IsActive())
+                {
+                    timerText.color = Color.red;
+
+                    timerBlinkTween = timerText.DOFade(0.5f, 0.5f)
+                        .SetLoops(-1, LoopType.Yoyo)
+                        .SetUpdate(true);
+                }
+                else
+                {
+                    // 2. 如果动画正在运行，我们只确保它是红色的，但绝不能覆盖 Alpha！
+                    // 获取当前颜色的 Alpha (这个 Alpha 正在被 DOTween 修改)
+                    float currentAlpha = timerText.color.a;
+                    // 只重置 RGB 为红，保留 Alpha (防冲突核心)
+                    timerText.color = new Color(1f, 0f, 0f, currentAlpha);
+                }
+
+                // 播放紧张音效
+                if (AudioManager.Instance) AudioManager.Instance.PlayCountdownSound();
+            }
+            else
+            {
+                // === 状态 3: 正常 (> 30秒) ===
+                StopTimerBlink();
+                timerText.color = Color.white;
+                timerText.DOFade(1f, 0.1f);
+                if (AudioManager.Instance) AudioManager.Instance.StopCountdownSound();
+            }
         }
     }
 
