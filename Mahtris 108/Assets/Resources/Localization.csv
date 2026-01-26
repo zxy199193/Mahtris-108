@@ -157,7 +157,7 @@ ITEM_NAME_28,黄金镜,黃金鏡,Golden Mirror,金の鏡
 ITEM_NAME_29,儿童餐,兒童餐,Kids Meal,お子様ランチ
 ITEM_NAME_30,圣诞礼物,聖誕禮物,Xmas Gift,クリスマスギフト
 ITEM_NAME_31,复活石,復活石,Revive Stone,復活石
-ITEM_NAME_32,大垃圾桶,大垃圾桶,Big Trash Bin,大ゴミ箱
+ITEM_NAME_32,预约席位,預約席位,Reserved Seat,予約席
 ITEM_NAME_33,悬赏令,懸賞令,Wanted Poster,手配書
 ITEM_NAME_34,护照-筒子,護照-筒子,Passport - Tong,パスポート・筒
 ITEM_NAME_35,护照-万子,護照-萬子,Passport - Wan,パスポート・萬
@@ -197,7 +197,7 @@ ITEM_DES_28,变为上一个使用的道具,變為上一個使用的道具,Duplic
 ITEM_DES_29,60秒内只会出现1~3格的方块，仅本轮有效,60秒內只會出現1~3格的方塊，僅本局有效,Only 1-3 cell blocks will appear for 60s (this round only),60秒間、1～3マスのブロックしか出現しなくなる、今局のみ有効
 ITEM_DES_30,当准备区未满且牌库中存在可以组成刻子或顺子的牌时，随机将一组牌加入准备区,當準備區牌組小於4組且牌庫中存在可以組成刻子或順子的牌時，隨機將一組牌加入準備區,"If Mahjong Area is not full and the deck contains any Triplet or Sequence, add a random Set",副露エリアに空きがあり、山に刻子または順子を作れる牌がある場合、ランダムな1組を追加する
 ITEM_DES_31,如果游戏失败则会清空桌面，<color=#36BA98>游戏时间+30秒</color>，然后继续游戏，仅本轮有效,如果遊戲失敗則會清空桌面，<color=#36BA98>遊戲時間+30秒</color>，然後繼續遊戲，僅本局有效,"If you lose: Clear board, <color=#36BA98>Time +30s</color>, and continue game (this round only)",ゲームオーバー時、盤面を一掃し<color=#36BA98>時間+30秒</color>で再開する、今局のみ有効
-ITEM_DES_32,接下来消除的3行不会进行判定而是会被直接移除，下轮游戏恢复,接下來消除的3行不會進行判定而是會被直接移除，胡牌後恢復為正常牌庫,Next 3 cleared lines are removed directly without check (restores next round),次に消去した3回のラインは判定を行わず直接削除される、和了後に元に戻る
+ITEM_DES_32,60秒内消除行时只有刻子牌会进入准备区,60秒內消除行時只有刻子牌會進入準備區,"For 60s, only [Triplets] from cleared lines enter the Mahjong Area.",60秒間、ライン消去時に【刻子】のみが副露エリアへ移動する。
 ITEM_DES_33,如果通关本局游戏，金币奖励+100%,如果通關本局遊戲，金幣獎勵+100%,"If you clear this game, Coin Reward +100%",この局をクリアすれば、総報酬+100%
 ITEM_DES_34,20秒内出现的方块会尽可能只有筒子牌，仅本轮有效,20秒內出現的方塊會盡可能只有筒子牌，僅本局有效,"For 20s, blocks will spawn mostly with Tong (Circle) tiles (this round only)",20秒間、出現するブロックが可能な限り筒子（ピンズ）のみになる、今局のみ有効
 ITEM_DES_35,20秒内出现的方块会尽可能只有万子牌，仅本轮有效,20秒內出現的方塊會盡可能只有萬子牌，僅本局有效,"For 20s, blocks will spawn mostly with Wan (Character) tiles (this round only)",20秒間、出現するブロックが可能な限り萬子（マンズ）のみになる、今局のみ有効

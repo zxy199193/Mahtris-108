@@ -170,6 +170,8 @@ public class GameManager : MonoBehaviour
     private int activePassportSuit = -1;
     private float passportTimer = 0f;
     private float craftsmanTimer = 0f;
+    public bool isReservationActive = false;
+    private float reservationTimer = 0f;
     private Dictionary<string, float> _activeBlockBuffs = new Dictionary<string, float>();
     // ========================================================================
     // 8. 暂停控制
@@ -378,7 +380,11 @@ public class GameManager : MonoBehaviour
             filterTimer -= logicDeltaTime;
             if (filterTimer <= 0) isFilterActive = false;
         }
-
+        if (isReservationActive)
+        {
+            reservationTimer -= logicDeltaTime;
+            if (reservationTimer <= 0) isReservationActive = false;
+        }
         if (midasTimer > 0) midasTimer -= logicDeltaTime;
         if (scoreboardTimer > 0) scoreboardTimer -= logicDeltaTime;
 
@@ -588,6 +594,8 @@ public class GameManager : MonoBehaviour
         _itemsUsedThisGame = 0;
         _protocolsObtainedThisGame = 0;
         _loopOfLastLegendaryAppearance = 0;
+        isReservationActive = false;
+        reservationTimer = 0f;
         if (gameUI != null) gameUI.SetMistActive(false);
         _omaCurrentGrowth = 2f;
         _omaAppliedFactor = 1f;
@@ -889,6 +897,8 @@ public class GameManager : MonoBehaviour
         ignoreMahjongCheckCount = 0;
         roundSpeedBonus = 0; countedSpeedBonus = 0; countedBonusBlocksRemaining = 0;
         isFilterActive = false; filterTimer = 0f; luckyCapStack = 0;
+        isReservationActive = false;
+        reservationTimer = 0f;
 
         if (isSteroidReversalActive) { roundBaseScoreBonus = 0; isSteroidReversalActive = false; }
         else if (isSteroidActive) { roundBaseScoreBonus = -24; isSteroidActive = false; isSteroidReversalActive = true; }
@@ -1330,7 +1340,19 @@ public class GameManager : MonoBehaviour
         if (_hasDeclaredHuThisFrame) return;
 
         var result = mahjongCore.DetectSets(tileIds);
-
+        if (isReservationActive)
+        {
+            if (result.Chows.Count > 0)
+            {
+                // 将所有顺子里的牌全部扔回 RemainingIds (视同垃圾/待退回牌库)
+                foreach (var chow in result.Chows)
+                {
+                    result.RemainingIds.AddRange(chow);
+                }
+                // 从结果中清空顺子，防止它们进入胡牌区
+                result.Chows.Clear();
+            }
+        }
         // 三位一体
         if (isTrinityActive)
         {
@@ -3282,5 +3304,11 @@ public class GameManager : MonoBehaviour
             .OrderBy(x => Random.value)
             .Take(pickCount)
             .ToList();
+    }
+    public void ActivateReservation(float duration)
+    {
+        isReservationActive = true;
+        reservationTimer = duration;
+        Debug.Log($"预约席位生效：未来 {duration} 秒内只吸收刻子/杠，顺子将被退回。");
     }
 }
