@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Steamworks;
 
 public class AchievementManager : MonoBehaviour
 {
@@ -122,6 +123,26 @@ public class AchievementManager : MonoBehaviour
         unlockedAchievementIds.Add(data.id);
         PlayerPrefs.SetInt($"Ach_Unlocked_{data.id}", 1);
         PlayerPrefs.Save();
+        // Steam 成就上传逻辑
+        // =========================================================
+        if (SteamManager.Initialized) // 确保 Steam 服务已连接
+        {
+            // 1. 获取成就 ID (就是 AchievementData 里的 id 字段)
+            string apiName = data.id;
+
+            // 2. 告诉 Steam 解锁这个成就
+            SteamUserStats.SetAchievement(apiName);
+
+            // 3. 【关键】强制上传数据到服务器
+            // 如果不写这句，成就只会在本地缓存，关掉游戏可能就丢了
+            bool success = SteamUserStats.StoreStats();
+
+            if (success)
+            {
+                Debug.Log($"[Steam] 成就已同步: {apiName}");
+            }
+        }
+        // =========================================================
         if (GameSession.Instance)
         {
             GameSession.Instance.AddGold(data.rewardGold);
@@ -144,11 +165,30 @@ public class AchievementManager : MonoBehaviour
 
         foreach (var ach in allAchievements)
         {
-            if (PlayerPrefs.GetInt($"Ach_Unlocked_{ach.id}", 0) == 1)
+            bool isUnlockedLocally = PlayerPrefs.GetInt($"Ach_Unlocked_{ach.id}", 0) == 1;
+            bool isUnlockedOnSteam = false;
+
+            // 【新增】检查 Steam 状态
+            if (SteamManager.Initialized)
+            {
+                // 从 Steam 获取该成就是否已解锁
+                SteamUserStats.GetAchievement(ach.id, out isUnlockedOnSteam);
+            }
+
+            // 只要有一方解锁了，就算解锁
+            if (isUnlockedLocally || isUnlockedOnSteam)
             {
                 unlockedAchievementIds.Add(ach.id);
+
+                // 如果 Steam 有但本地没有，顺便补上本地存档（防止下次断网玩时状态不对）
+                if (!isUnlockedLocally)
+                {
+                    PlayerPrefs.SetInt($"Ach_Unlocked_{ach.id}", 1);
+                }
             }
         }
+        // 最后保存一下刚才可能补齐的本地存档
+        PlayerPrefs.Save();
     }
 
     // 获取当前进度数值 (给 UI 显示用)
