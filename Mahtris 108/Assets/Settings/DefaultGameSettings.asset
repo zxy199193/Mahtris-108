@@ -58,7 +58,7 @@ MonoBehaviour:
   unmatchedFixedLevel3Blocks:
   - {fileID: 621094592900249781, guid: 67079f4d584f2f4468cb65e10fb941c4, type: 3}
   - {fileID: 621094592900249781, guid: 36756bf567fdafc4a824d6e4b83b20bb, type: 3}
-  husPerLoop: 3
+  husPerLoop: 1
   normalWeight: 10
   legendaryWeightBase: 5
   legendaryWeightIncreasePerLoop: 1
