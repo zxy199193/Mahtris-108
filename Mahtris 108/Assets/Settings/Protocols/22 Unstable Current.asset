@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 34b82b02648d62440b6b8e74002856fa, type: 3}
-  m_Name: 20 Unstable Current
+  m_Name: 22 Unstable Current
   m_EditorClassIdentifier: 
   nameKey: PROTOCOL_NAME_21
   descKey: PROTOCOL_DES_21
   protocolName: "\u4E0D\u7A33\u5B9A\u7535\u6D41"
   protocolIcon: {fileID: 21300000, guid: c3545473bc6f65e43b8f1b745d862fcc, type: 3}
-  protocolDescription: "\u6BCF\u7ECF\u8FC73\u79D2\u57FA\u7840\u5206\u4F1A\u5728\u539F\u6570\u503C\u4E0A\u589E\u52A01~24\r"
+  protocolDescription: "\u6BCF\u7ECF\u8FC73\u79D2\u57FA\u7840\u5206\u4F1A\u5728\u539F\u6570\u503C\u4E0A\u589E\u52A01~36\r"
   isLegendary: 0
   price: 500
   isInitial: 1

@@ -16,14 +16,14 @@ MonoBehaviour:
   descKey: ITEM_DES_40
   itemName: "\u795E\u4E4B\u6551\u6D4E"
   itemIcon: {fileID: 21300000, guid: 41ed41e849d744544b485eafb96ffb77, type: 3}
-  itemDescription: "\u57FA\u7840\u5206+20\uFF08\u6574\u5C40\u6709\u6548\uFF09\uFF0C\u65B9\u5757\u901F\u5EA6-10\uFF0C\u6E38\u620F\u65F6\u95F4+100\u79D2\uFF0C\u5F3A\u884C\u6D88\u9664\u5E95\u4E0B4\u884C\u65B9\u5757\r"
+  itemDescription: "\u57FA\u7840\u5206+24\uFF0C\u65B9\u5757\u901F\u5EA6-12\uFF08\u5747\u6574\u5C40\u6709\u6548\uFF09\uFF0C\u6E38\u620F\u65F6\u95F4+120\u79D2\uFF0C\u5F3A\u884C\u6D88\u9664\u5E95\u4E0B4\u884C\u65B9\u5757\r"
   isAdvanced: 1
   isLegendary: 1
   useSound: {fileID: 0}
   price: 12000
   isInitial: 0
   unlockConditionCount: 39
-  baseScoreBonus: 20
-  speedBonus: -10
-  timeBonus: 100
+  baseScoreBonus: 24
+  speedBonus: -12
+  timeBonus: 120
   rowsToClear: 4

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34f88dd859e3f9844bf9b482276e7c35, type: 3}
   m_Name: DefaultGameSettings
   m_EditorClassIdentifier: 
-  isTestMode: 0
+  isTestMode: 1
   gridWidth: 8
   gridHeight: 16
   deadlineHeight: 13
@@ -58,7 +58,7 @@ MonoBehaviour:
   unmatchedFixedLevel3Blocks:
   - {fileID: 621094592900249781, guid: 67079f4d584f2f4468cb65e10fb941c4, type: 3}
   - {fileID: 621094592900249781, guid: 36756bf567fdafc4a824d6e4b83b20bb, type: 3}
-  husPerLoop: 1
+  husPerLoop: 3
   normalWeight: 10
   legendaryWeightBase: 5
   legendaryWeightIncreasePerLoop: 1
@@ -134,6 +134,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 43c194dd08a5cc542ad2582461a1c7a7, type: 2}
   - {fileID: 11400000, guid: a33745465f6131b4d96b60a83061fe86, type: 2}
   - {fileID: 11400000, guid: cdf552ccf815e2f43bfb442e828189c0, type: 2}
+  - {fileID: 11400000, guid: 25f71ffe43c6eba468055ce29cee42ee, type: 2}
   - {fileID: 11400000, guid: 70efb7bd71dafa148b8fa49c537801b6, type: 2}
   - {fileID: 11400000, guid: 0427b0eee4d02204e8641a4a96dc441f, type: 2}
   - {fileID: 11400000, guid: 3ccccf99c82680045824653894a034fd, type: 2}
@@ -144,11 +145,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 459616c96c3613947973b789280a260e, type: 2}
   - {fileID: 11400000, guid: 43503c7b59e478a40b9e5cc44c2f1526, type: 2}
   - {fileID: 11400000, guid: 59c4f171aab6301459fadb14ef791df1, type: 2}
-  - {fileID: 11400000, guid: 0c2acdff134033f4793ed84dc2594f2a, type: 2}
   - {fileID: 11400000, guid: bcd7702d6f70c3f44b848dd04d22584d, type: 2}
+  - {fileID: 11400000, guid: 0c2acdff134033f4793ed84dc2594f2a, type: 2}
   - {fileID: 11400000, guid: 7b13910c1074a534ea16e549bb8cb788, type: 2}
   - {fileID: 11400000, guid: 4b48a8c1b7b2959458879d8905de24b7, type: 2}
-  - {fileID: 11400000, guid: 25f71ffe43c6eba468055ce29cee42ee, type: 2}
   - {fileID: 11400000, guid: b82659882aa5184408ce8e800b49d9d2, type: 2}
   - {fileID: 11400000, guid: 86a6f87b42b0523479af8f1a572faee1, type: 2}
   - {fileID: 11400000, guid: 1287da6a4cbe0764a87ff7951bc9dffb, type: 2}

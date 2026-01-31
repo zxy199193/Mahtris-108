@@ -37,7 +37,7 @@ public class Tetromino : MonoBehaviour
         this.typhoonTimer = 2f;
 
         // ¡¾Á÷ÐÇÓêÂß¼­¡¿
-        if (GameManager.Instance.isMeteorShowerActive && Random.value < 0.1f)
+        if (GameManager.Instance.isMeteorShowerActive && Random.value < 0.05f)
         {
             this.fallSpeed = 20f / 200f;
         }

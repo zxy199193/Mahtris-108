@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 864babe2eed449f42bd1b393de14f6f6, type: 3}
-  m_Name: 19 NatureReserve
+  m_Name: 20 NatureReserve
   m_EditorClassIdentifier: 
   nameKey: PROTOCOL_NAME_22
   descKey: PROTOCOL_DES_22

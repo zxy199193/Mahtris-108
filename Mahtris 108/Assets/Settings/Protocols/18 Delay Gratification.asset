@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4ec6e3b5f499a7e48a897b19dbd1d5ff, type: 3}
-  m_Name: 17 Delay Gratification
+  m_Name: 18 Delay Gratification
   m_EditorClassIdentifier: 
   nameKey: PROTOCOL_NAME_18
   descKey: PROTOCOL_DES_18

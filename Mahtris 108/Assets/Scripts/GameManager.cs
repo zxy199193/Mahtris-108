@@ -366,9 +366,9 @@ public class GameManager : MonoBehaviour
                 unstableCurrentTimer = 3f;
 
                 // =========================================================
-                // 【修改】移除负面效果，现在只会生成 1 到 25 的纯正向增益
+                // 【修改】移除负面效果，现在只会生成 1 到 37 的纯正向增益
                 // =========================================================
-                int change = Random.Range(1, 25);
+                int change = Random.Range(1, 37);
 
                 // 直接覆盖上一次的加成 (UpdateCurrentBaseScore 内部会重新计算总分)
                 unstableCurrentBonus = change;
@@ -773,10 +773,10 @@ public class GameManager : MonoBehaviour
             // 1. 加上基础时间 (通常是 60秒)
         addedTime += settings.huTimeBonus;
 
-            // 2. 如果有新能源，额外 +20秒
+            // 2. 如果有新能源，额外 +25秒
         if (isRenewableEnergyActive)
         {
-           addedTime += 20f;
+           addedTime += 25f;
         }
 
             // 3. 真正把时间加到游戏里！(之前这行代码丢了)
@@ -1395,9 +1395,9 @@ public class GameManager : MonoBehaviour
                         // 逻辑与 OnHuPaiTileAdded 保持一致：检查是否为 ID 0 (一条/一筒)
                         if (id % 27 == 0)
                         {
-                            int bonus = 6;
+                            int bonus = 18;
                             ApplyRoundBaseScoreBonus(bonus);
-                            Debug.Log("自然保护区生效：将牌包含目标牌，基础分 +6");
+                            Debug.Log("自然保护区生效：将牌包含目标牌，基础分 +18");
                         }
                     }
                 }
@@ -2953,7 +2953,7 @@ public class GameManager : MonoBehaviour
         {
             if (blockId % 27 == 0)
             {
-                int bonus = 12;
+                int bonus = 18;
                 ApplyRoundBaseScoreBonus(bonus);
             }
         }

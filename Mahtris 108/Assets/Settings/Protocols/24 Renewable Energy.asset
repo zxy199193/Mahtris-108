@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1c2d9bd95853c024a9efa1b3d91af6a2, type: 3}
-  m_Name: 23 Renewable Energy
+  m_Name: 24 Renewable Energy
   m_EditorClassIdentifier: 
   nameKey: PROTOCOL_NAME_03
   descKey: PROTOCOL_DES_03
   protocolName: "\u65B0\u80FD\u6E90"
   protocolIcon: {fileID: 21300000, guid: e4ada9885250c524984749afeaef374a, type: 3}
-  protocolDescription: "\u80E1\u724C\u65F6\u6E38\u620F\u65F6\u95F4\u5956\u52B1+20\u79D2\r"
+  protocolDescription: "\u80E1\u724C\u65F6\u6E38\u620F\u65F6\u95F4\u5956\u52B1+25\u79D2\r"
   isLegendary: 0
   price: 500
   isInitial: 1
